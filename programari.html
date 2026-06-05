@@ -737,7 +737,7 @@
             <div class="stat-box"><div class="stat-box-num" id="crmOferta" style="color:var(--yellow)">&ndash;</div><div class="stat-box-lbl">// quotes</div></div>
             <div class="stat-box"><div class="stat-box-num" id="crmInLucru" style="color:var(--teal)">&ndash;</div><div class="stat-box-lbl">// in progress</div></div>
             <div class="stat-box"><div class="stat-box-num" id="crmFinalizat" style="color:var(--green)">&ndash;</div><div class="stat-box-lbl">// completed</div></div>
-            <div class="stat-box"><div class="stat-box-num" id="crmValoare" style="color:var(--teal)">&ndash;</div><div class="stat-box-lbl">// RON in progress</div></div>
+            <div class="stat-box"><div class="stat-box-num" id="crmValoare" style="color:var(--teal)">&ndash;</div><div class="stat-box-lbl">// GBP in progress</div></div>
           </div>
           <div class="crm-toolbar">
             <div class="filters" style="margin-bottom:0">
@@ -1481,19 +1481,19 @@
             <div style="font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--teal);margin-bottom:14px;">&#x1F680; pachet-startup.html — /pachet-startup</div>
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
               <div>
-                <div class="f-label" style="font-size:.7rem;">// Pre&#x21A2; minim (€)</div>
+                <div class="f-label" style="font-size:.7rem;">// Pre&#x21A2; minim (£)</div>
                 <input class="f-input" type="number" id="pkg-startup-min" placeholder="300" min="0" step="1" style="margin-top:4px;">
-                <div style="font-size:.68rem;color:var(--muted);margin-top:4px;">displayed as "<strong>from</strong> X €"</div>
+                <div style="font-size:.68rem;color:var(--muted);margin-top:4px;">displayed as "<strong>from</strong> X £"</div>
               </div>
               <div>
-                <div class="f-label" style="font-size:.7rem;">// Pre&#x21A2; maxim (€)</div>
+                <div class="f-label" style="font-size:.7rem;">// Pre&#x21A2; maxim (£)</div>
                 <input class="f-input" type="number" id="pkg-startup-max" placeholder="450" min="0" step="1" style="margin-top:4px;">
-                <div style="font-size:.68rem;color:var(--muted);margin-top:4px;">displayed as "– Y €"</div>
+                <div style="font-size:.68rem;color:var(--muted);margin-top:4px;">displayed as "– Y £"</div>
               </div>
               <div>
-                <div class="f-label" style="font-size:.7rem;">// Valoare separat&#x103; (€)</div>
+                <div class="f-label" style="font-size:.7rem;">// Valoare separat&#x103; (£)</div>
                 <input class="f-input" type="number" id="pkg-startup-sep" placeholder="590" min="0" step="1" style="margin-top:4px;">
-                <div style="font-size:.68rem;color:var(--muted);margin-top:4px;">displayed strikethrough: "~Z€"</div>
+                <div style="font-size:.68rem;color:var(--muted);margin-top:4px;">displayed strikethrough: "~Z£"</div>
               </div>
             </div>
           </div>
@@ -1667,7 +1667,7 @@
         <div class="f-group">
           <label class="f-label">// currency</label>
           <select class="f-select" id="cheltMoneda">
-            <option value="RON">RON</option>
+            <option value="GBP">GBP</option>
             <option value="EUR">EUR</option>
             <option value="USD">USD</option>
           </select>
@@ -1764,7 +1764,7 @@
                 <label class="f-label">// currency</label>
                 <select class="f-select" id="oferta-moneda" onchange="renderOfertaTotal()">
                   <option value="EUR">EUR</option>
-                  <option value="RON">RON</option>
+                  <option value="GBP">GBP</option>
                 </select>
               </div>
 
@@ -1778,7 +1778,7 @@
                 <div id="oferta-sumar-items" style="font-size:.8rem;color:var(--soft);margin-bottom:8px;max-height:120px;overflow-y:auto;"></div>
                 <div style="display:flex;justify-content:space-between;align-items:center;">
                   <span style="font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--muted);">// total</span>
-                  <span id="oferta-total" style="font-family:'Space Grotesk',sans-serif;font-size:1.3rem;font-weight:800;color:var(--teal);">0 EUR</span>
+                  <span id="oferta-total" style="font-family:'Space Grotesk',sans-serif;font-size:1.3rem;font-weight:800;color:var(--teal);">0 GBP</span>
                 </div>
               </div>
 
@@ -1855,7 +1855,7 @@
             </div>
             <div class="f-group">
               <label class="f-label">// detailed_services (appear in contract)</label>
-              <textarea class="f-input" id="cnt-servicii-text" placeholder="1. Brochure website — 5 pages — 899 EUR&#10;2. Basic SEO — included&#10;3. Monthly maintenance — 100 EUR/month" style="min-height:100px;font-family:'Share Tech Mono',monospace;font-size:.82rem;margin-top:4px;"></textarea>
+              <textarea class="f-input" id="cnt-servicii-text" placeholder="1. Brochure website — 5 pages — 899 GBP&#10;2. Basic SEO — included&#10;3. Monthly maintenance — 100 GBP/month" style="min-height:100px;font-family:'Share Tech Mono',monospace;font-size:.82rem;margin-top:4px;"></textarea>
             </div>
           </div>
 
@@ -1870,7 +1870,7 @@
                   <input class="f-input" type="number" id="cnt-total" placeholder="0" min="0" style="flex:1;" oninput="updateCntAvans()">
                   <select class="f-select" id="cnt-moneda" style="width:80px;" onchange="updateCntAvans()">
                     <option value="EUR">EUR</option>
-                    <option value="RON">RON</option>
+                    <option value="GBP">GBP</option>
                   </select>
                 </div>
               </div>
@@ -1958,7 +1958,7 @@
           <label class="f-label">// currency</label>
           <select class="f-select" id="svcMoneda">
             <option value="EUR">EUR</option>
-            <option value="RON">RON</option>
+            <option value="GBP">GBP</option>
           </select>
         </div>
       </div>
@@ -2084,7 +2084,7 @@
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
       <div class="f-group" style="margin-bottom:0;">
-        <label class="f-label" for="crmValoare">// value_quoted (RON)</label>
+        <label class="f-label" for="crmValoare">// value_quoted (GBP)</label>
         <input class="f-input" type="number" id="crmValoare" placeholder="e.g. 2500" min="0">
       </div>
       <div class="f-group" style="margin-bottom:0;">
@@ -2535,7 +2535,7 @@
             ${e.note ? `<div class="crm-note" title="${esc(e.note)}">${esc(e.note)}</div>` : ''}
           </div>
         </div>
-        <div class="td crm-val" data-label="Value">${e.valoare ? esc(e.valoare) + ' RON' : '–'}</div>
+        <div class="td crm-val" data-label="Value">${e.valoare ? esc(e.valoare) + ' GBP' : '–'}</div>
         <div class="td" data-label="Deadline">
           <span class="crm-term ${termClass(e.termen)}">${e.termen ? formatDate(e.termen) : '–'}</span>
         </div>
@@ -3711,7 +3711,7 @@
     const alertBanner = neachitate.length
       ? `<div style="background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.35);border-radius:8px;padding:7px 12px;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
           <span style="font-size:.85rem;">⚠️</span>
-          <span style="font-size:.78rem;color:#f87171;font-family:'Share Tech Mono',monospace;">${neachitate.length} unpaid · <strong>${totalNeachit.toFixed(2)} RON</strong></span>
+          <span style="font-size:.78rem;color:#f87171;font-family:'Share Tech Mono',monospace;">${neachitate.length} unpaid · <strong>${totalNeachit.toFixed(2)} GBP</strong></span>
          </div>`
       : '';
 
@@ -3722,13 +3722,13 @@
           ${esc(c.descriere)}${c.recurent ? ' <span style="font-size:.68rem;color:var(--muted);">↻</span>' : ''}
         </span>
         <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.85rem;color:${c.achitat ? '#4ade80' : '#f87171'};flex-shrink:0;">
-          ${parseFloat(c.suma || 0).toFixed(2)} <span style="font-size:.68rem;font-weight:400;color:var(--muted);">${esc(c.moneda || 'RON')}</span>
+          ${parseFloat(c.suma || 0).toFixed(2)} <span style="font-size:.68rem;font-weight:400;color:var(--muted);">${esc(c.moneda || 'GBP')}</span>
         </span>
         <input type="checkbox" ${c.achitat ? 'checked' : ''} style="width:14px;height:14px;accent-color:#4ade80;cursor:pointer;flex-shrink:0;" title="${c.achitat ? 'Paid — click to unmark' : 'Mark as paid'}" onchange="toggleCheltAchitat('${esc(c.id)}',this.checked)">
       </div>`).join('') +
       `<div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px;display:flex;justify-content:space-between;font-size:.78rem;">
         <span style="color:var(--muted);font-family:'Share Tech Mono',monospace;">// total this month</span>
-        <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);">${totalLuna.toFixed(2)} RON</span>
+        <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);">${totalLuna.toFixed(2)} GBP</span>
       </div>`;
   }
 
@@ -5061,8 +5061,8 @@
     const totalAn = allCheltuieli.filter(c => (c.data || '').startsWith(anAc)).reduce((s, c) => s + (parseFloat(c.suma) || 0), 0);
     const recurente = allCheltuieli.filter(c => c.recurent).length;
     sumarWrap.innerHTML = [
-      ['This month', totalLuna.toFixed(2) + ' RON', '#4ade80'],
-      [anAc, totalAn.toFixed(2) + ' RON', 'var(--teal)'],
+      ['This month', totalLuna.toFixed(2) + ' GBP', '#4ade80'],
+      [anAc, totalAn.toFixed(2) + ' GBP', 'var(--teal)'],
       ['Recurring', recurente + ' expenses', '#fbbf24'],
       ['Total recorded', allCheltuieli.length + ' entries', 'var(--soft)'],
     ].map(([label, val, color]) => `
@@ -5073,7 +5073,7 @@
 
     // Info filtru
     document.getElementById('cheltFiltruInfo').textContent = lista.length
-      ? `// ${lista.length} records · total: ${lista.reduce((s, c) => s + (parseFloat(c.suma) || 0), 0).toFixed(2)} RON`
+      ? `// ${lista.length} records · total: ${lista.reduce((s, c) => s + (parseFloat(c.suma) || 0), 0).toFixed(2)} GBP`
       : '';
 
     if (!lista.length) {
@@ -5096,7 +5096,7 @@
         <tr style="border-bottom:1px solid var(--border);transition:background .15s;" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">
           <td style="padding:10px 12px;font-size:.88rem;color:var(--text);">${esc(c.descriere || '')}${c.note ? `<div style="font-size:.72rem;color:var(--muted);margin-top:2px;">${esc(c.note)}</div>` : ''}</td>
           <td style="padding:10px 12px;font-size:.8rem;color:var(--soft);">${CHELT_CAT_LABEL[c.categorie] || esc(c.categorie || '')}</td>
-          <td style="padding:10px 12px;text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);">${parseFloat(c.suma || 0).toFixed(2)} <span style="font-size:.72rem;font-weight:400;color:var(--muted);">${esc(c.moneda || 'RON')}</span></td>
+          <td style="padding:10px 12px;text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);">${parseFloat(c.suma || 0).toFixed(2)} <span style="font-size:.72rem;font-weight:400;color:var(--muted);">${esc(c.moneda || 'GBP')}</span></td>
           <td style="padding:10px 12px;font-family:'Share Tech Mono',monospace;font-size:.78rem;color:var(--muted);">${formatDate(c.data || '')}</td>
           <td style="padding:10px 12px;font-size:.78rem;color:var(--soft);">${esc(c.metodaPlatii || '')}</td>
           <td style="padding:10px 12px;text-align:center;">${c.recurent ? '<span style="color:#4ade80;font-size:.8rem;">↻ YES</span>' : '<span style="color:var(--muted);font-size:.78rem;">—</span>'}</td>
@@ -5118,7 +5118,7 @@
     document.getElementById('cheltDescriere').value = c ? c.descriere : '';
     document.getElementById('cheltCategorie').value = c ? c.categorie : 'hosting';
     document.getElementById('cheltSuma').value = c ? c.suma : '';
-    document.getElementById('cheltMoneda').value = c ? c.moneda : 'RON';
+    document.getElementById('cheltMoneda').value = c ? c.moneda : 'GBP';
     document.getElementById('cheltData').value = c ? c.data : new Date().toISOString().slice(0, 10);
     document.getElementById('cheltMetoda').value = c ? c.metodaPlatii : 'card';
     document.getElementById('cheltRecurent').checked = c ? !!c.recurent : false;
@@ -5245,7 +5245,7 @@
               ${s.descriere ? `<div style="font-size:.78rem;color:var(--soft);margin-top:2px;">${esc(s.descriere)}</div>` : ''}
             </div>
             <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.92rem;color:var(--teal);white-space:nowrap;text-align:right;">
-              ${parseFloat(s.pret || 0).toLocaleString('en-GB')} ${esc(s.moneda || 'EUR')}
+              ${parseFloat(s.pret || 0).toLocaleString('en-GB')} ${esc(s.moneda || 'GBP')}
               <div style="font-size:.68rem;font-weight:400;color:var(--muted);">/ ${esc(s.unitate || 'project')}</div>
             </div>
           </label>`).join('')}
@@ -5262,7 +5262,7 @@
       if (!svc) return;
       const pret = parseFloat(svc.pret || 0);
       total += pret;
-      items.push({ name: svc.nume, pret, moneda: svc.moneda || 'EUR', unitate: svc.unitate || 'proiect' });
+      items.push({ name: svc.nume, pret, moneda: svc.moneda || 'GBP', unitate: svc.unitate || 'proiect' });
     });
     document.getElementById('oferta-sumar-items').innerHTML = items.map(i =>
       `<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);">
@@ -5361,7 +5361,7 @@
               ${o.client?.email ? `<div style="font-size:.72rem;color:var(--muted);">${esc(o.client.email)}</div>` : ''}
             </td>
             <td style="padding:10px 12px;font-family:'Share Tech Mono',monospace;font-size:.78rem;color:var(--muted);">${o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-GB') : '–'}</td>
-            <td style="padding:10px 12px;text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);">${total.toLocaleString('en-GB')} <span style="font-size:.72rem;color:var(--muted);">${esc(o.moneda || 'EUR')}</span></td>
+            <td style="padding:10px 12px;text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);">${total.toLocaleString('en-GB')} <span style="font-size:.72rem;color:var(--muted);">${esc(o.moneda || 'GBP')}</span></td>
             <td style="padding:10px 12px;white-space:nowrap;">
               <button class="btn-edit" onclick="window.open('/oferta-preview/${esc(o.id)}?token=${encodeURIComponent(adminToken)}','_blank')" title="Preview / Print PDF" style="font-size:.8rem;">&#x1F5A8;</button>
             </td>
@@ -5392,7 +5392,7 @@
             ${s.descriere ? `<div style="font-size:.72rem;color:var(--muted);">${esc(s.descriere)}</div>` : ''}
           </td>
           <td style="padding:10px 12px;font-size:.8rem;color:var(--soft);">${SVC_CAT_LABEL[s.categorie] || esc(s.categorie || '')}</td>
-          <td style="padding:10px 12px;text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);">${parseFloat(s.pret || 0).toLocaleString('en-GB')} <span style="font-size:.72rem;font-weight:400;color:var(--muted);">${esc(s.moneda || 'EUR')}</span></td>
+          <td style="padding:10px 12px;text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);">${parseFloat(s.pret || 0).toLocaleString('en-GB')} <span style="font-size:.72rem;font-weight:400;color:var(--muted);">${esc(s.moneda || 'GBP')}</span></td>
           <td style="padding:10px 12px;font-size:.78rem;color:var(--muted);">/ ${esc(s.unitate || 'project')}</td>
           <td style="padding:10px 12px;white-space:nowrap;">
             <button class="btn-edit" onclick="openSvcModal('${esc(s.id)}')">&#x270E;</button>
@@ -5409,7 +5409,7 @@
     document.getElementById('svcNume').value = s ? s.nume : '';
     document.getElementById('svcDescriere').value = s ? (s.descriere || '') : '';
     document.getElementById('svcPret').value = s ? s.pret : '';
-    document.getElementById('svcMoneda').value = s ? (s.moneda || 'EUR') : 'EUR';
+    document.getElementById('svcMoneda').value = s ? (s.moneda || 'GBP') : 'GBP';
     document.getElementById('svcUnitate').value = s ? (s.unitate || 'proiect') : 'proiect';
     document.getElementById('svcCategorie').value = s ? (s.categorie || 'web-design') : 'web-design';
     document.getElementById('svcModalOverlay').classList.add('open');
@@ -5492,7 +5492,7 @@
     document.getElementById('cnt-client-email').value = o.client?.email || '';
     const total = (o.servicii||[]).reduce((s,sv) => s + parseFloat(sv.pret||0), 0);
     document.getElementById('cnt-total').value = total;
-    document.getElementById('cnt-moneda').value = o.moneda || 'EUR';
+    document.getElementById('cnt-moneda').value = o.moneda || 'GBP';
     document.getElementById('cnt-obiect').value = (o.servicii||[]).map(s => s.nume).join(', ');
     document.getElementById('cnt-servicii-text').value = (o.servicii||[]).map((s,i) =>
       `${i+1}. ${s.nume}${s.descriere ? ' — ' + s.descriere : ''} — ${parseFloat(s.pret||0).toLocaleString('en-GB')} ${s.moneda||o.moneda}`
@@ -5577,7 +5577,7 @@
             ${c.client?.email ? `<div style="font-size:.72rem;color:var(--muted);">${esc(c.client.email)}</div>` : ''}
           </td>
           <td style="padding:10px 12px;font-family:'Share Tech Mono',monospace;font-size:.78rem;color:var(--muted);">${c.dataSemnare ? formatDate(c.dataSemnare) : (c.createdAt ? new Date(c.createdAt).toLocaleDateString('en-GB') : '–')}</td>
-          <td style="padding:10px 12px;text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);">${parseFloat(c.total||0).toLocaleString('en-GB')} <span style="font-size:.72rem;color:var(--muted);">${esc(c.moneda||'EUR')}</span></td>
+          <td style="padding:10px 12px;text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);">${parseFloat(c.total||0).toLocaleString('en-GB')} <span style="font-size:.72rem;color:var(--muted);">${esc(c.moneda||'GBP')}</span></td>
           <td style="padding:10px 12px;white-space:nowrap;">
             <button class="btn-edit" onclick="window.open('/contract-preview/${esc(c.id)}?token=${encodeURIComponent(adminToken)}','_blank')" title="Preview / Print PDF" style="font-size:.85rem;">&#x1F5A8;</button>
           </td>

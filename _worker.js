@@ -720,7 +720,7 @@ export default {
         }
         if (s.startupPretMin !== undefined) html = injectInner(html, 'startup-pret-min', s.startupPretMin);
         if (s.startupPretMax !== undefined) html = injectInner(html, 'startup-pret-max', '– ' + s.startupPretMax);
-        if (s.startupValoareSep !== undefined) html = injectInner(html, 'startup-valoare-sep', `\n      Separate value: ~${s.startupValoareSep}€\n    `);
+        if (s.startupValoareSep !== undefined) html = injectInner(html, 'startup-valoare-sep', `\n      Separate value: ~£${s.startupValoareSep}\n    `);
         return new Response(html, { headers: { ...SEC_HEADERS, 'Content-Type': 'text/html;charset=utf-8', 'Cache-Control': 'no-cache, no-store, must-revalidate' } });
       } catch {
         const assetUrl = new URL(request.url);
@@ -1165,7 +1165,7 @@ Cerințe titluri:
         const raw = await env.PROGRAMARI.get('__cheltuieli__');
         const lista = raw ? JSON.parse(raw) : [];
         const id = `chelt_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-        lista.unshift({ id, descriere, categorie: categorie || 'altele', suma: parseFloat(suma), moneda: moneda || 'RON', data, metodaPlatii: metodaPlatii || 'card', recurent: !!recurent, note: note || '', createdAt: new Date().toISOString() });
+        lista.unshift({ id, descriere, categorie: categorie || 'altele', suma: parseFloat(suma), moneda: moneda || 'GBP', data, metodaPlatii: metodaPlatii || 'card', recurent: !!recurent, note: note || '', createdAt: new Date().toISOString() });
         await env.PROGRAMARI.put('__cheltuieli__', JSON.stringify(lista));
         return json({ success: true, id });
       } catch { return json({ error: 'Server error' }, 500); }
@@ -1767,7 +1767,7 @@ Cerințe titluri:
         const raw = await env.PROGRAMARI.get('__servicii__');
         // Servicii noi adăugate după seed inițial — migrare automată
         const migrations = [
-          { id:'svc_d17', nume:'Google Search Console Integration', descriere:'Property verification, XML sitemap, Google Analytics connection, indexing error report', pret:120, moneda:'EUR', unitate:'proiect', categorie:'seo' },
+          { id:'svc_d17', nume:'Google Search Console Integration', descriere:'Property verification, XML sitemap, Google Analytics connection, indexing error report', pret:120, moneda:'GBP', unitate:'proiect', categorie:'seo' },
         ];
         if (raw !== null) {
           const lista = JSON.parse(raw);
@@ -1782,22 +1782,22 @@ Cerințe titluri:
         }
         // Prima accesare — seed cu servicii tipice agenție web design România
         const defaults = [
-          { id:'svc_d01', nume:'Presentation Website', descriere:'5 pages, responsive design, CMS, Google Analytics, basic SEO', pret:899, moneda:'EUR', unitate:'proiect', categorie:'web-design' },
-          { id:'svc_d02', nume:'Premium Presentation Website', descriere:'10+ pages, custom design, blog, multilingual, API integrations', pret:1800, moneda:'EUR', unitate:'proiect', categorie:'web-design' },
-          { id:'svc_d03', nume:'Online Shop (eCommerce)', descriere:'WooCommerce / Shopify, product catalogue, online payments, delivery', pret:2500, moneda:'EUR', unitate:'proiect', categorie:'web-design' },
-          { id:'svc_d04', nume:'Landing Page', descriere:'Conversion-optimised page, A/B testing, form integration', pret:450, moneda:'EUR', unitate:'proiect', categorie:'web-design' },
-          { id:'svc_d05', nume:'Existing Website Redesign', descriere:'Full redesign retaining existing content, data migration, SEO redirects', pret:700, moneda:'EUR', unitate:'proiect', categorie:'web-design' },
-          { id:'svc_d06', nume:'Full SEO Audit', descriere:'Technical analysis, keywords, competition, report with recommendations', pret:300, moneda:'EUR', unitate:'proiect', categorie:'seo' },
-          { id:'svc_d07', nume:'Monthly SEO (Ongoing)', descriere:'Continuous optimisation, content, link building, monthly report, 15–25 keywords', pret:400, moneda:'EUR', unitate:'lună', categorie:'seo' },
-          { id:'svc_d08', nume:'Local SEO (Google Maps)', descriere:'Google Business Profile optimisation, local citations, reviews', pret:250, moneda:'EUR', unitate:'lună', categorie:'seo' },
-          { id:'svc_d09', nume:'Google Ads Management', descriere:'Setup + campaign optimisation Search/Display/Shopping, monthly report', pret:350, moneda:'EUR', unitate:'lună', categorie:'marketing' },
-          { id:'svc_d10', nume:'Meta Ads Management', descriere:'Facebook & Instagram campaigns, A/B testing, retargeting, monthly report', pret:350, moneda:'EUR', unitate:'lună', categorie:'marketing' },
-          { id:'svc_d11', nume:'Social Media Management', descriere:'12 posts/month, copywriting, branded graphics, community monitoring', pret:300, moneda:'EUR', unitate:'lună', categorie:'marketing' },
-          { id:'svc_d12', nume:'Email Marketing / Newsletter', descriere:'Template design, list segmentation, campaign delivery, open-rate report', pret:200, moneda:'EUR', unitate:'lună', categorie:'marketing' },
-          { id:'svc_d13', nume:'Basic Website Maintenance', descriere:'CMS & plugin updates, monthly backup, uptime monitoring, 1h support', pret:100, moneda:'EUR', unitate:'lună', categorie:'mentenanta' },
-          { id:'svc_d14', nume:'Advanced Website Maintenance', descriere:'Updates, weekly backup, security, 4h of changes/month, report', pret:200, moneda:'EUR', unitate:'lună', categorie:'mentenanta' },
-          { id:'svc_d15', nume:'Logo Design', descriere:'3 concept variants, final vector files (AI, SVG, PNG, PDF)', pret:350, moneda:'EUR', unitate:'proiect', categorie:'grafic' },
-          { id:'svc_d16', nume:'Complete Visual Identity', descriere:'Logo + colour palette + fonts + business card + letterhead + brand guide', pret:800, moneda:'EUR', unitate:'proiect', categorie:'grafic' },
+          { id:'svc_d01', nume:'Presentation Website', descriere:'5 pages, responsive design, CMS, Google Analytics, basic SEO', pret:899, moneda:'GBP', unitate:'proiect', categorie:'web-design' },
+          { id:'svc_d02', nume:'Premium Presentation Website', descriere:'10+ pages, custom design, blog, multilingual, API integrations', pret:1800, moneda:'GBP', unitate:'proiect', categorie:'web-design' },
+          { id:'svc_d03', nume:'Online Shop (eCommerce)', descriere:'WooCommerce / Shopify, product catalogue, online payments, delivery', pret:2500, moneda:'GBP', unitate:'proiect', categorie:'web-design' },
+          { id:'svc_d04', nume:'Landing Page', descriere:'Conversion-optimised page, A/B testing, form integration', pret:450, moneda:'GBP', unitate:'proiect', categorie:'web-design' },
+          { id:'svc_d05', nume:'Existing Website Redesign', descriere:'Full redesign retaining existing content, data migration, SEO redirects', pret:700, moneda:'GBP', unitate:'proiect', categorie:'web-design' },
+          { id:'svc_d06', nume:'Full SEO Audit', descriere:'Technical analysis, keywords, competition, report with recommendations', pret:300, moneda:'GBP', unitate:'proiect', categorie:'seo' },
+          { id:'svc_d07', nume:'Monthly SEO (Ongoing)', descriere:'Continuous optimisation, content, link building, monthly report, 15–25 keywords', pret:400, moneda:'GBP', unitate:'lună', categorie:'seo' },
+          { id:'svc_d08', nume:'Local SEO (Google Maps)', descriere:'Google Business Profile optimisation, local citations, reviews', pret:250, moneda:'GBP', unitate:'lună', categorie:'seo' },
+          { id:'svc_d09', nume:'Google Ads Management', descriere:'Setup + campaign optimisation Search/Display/Shopping, monthly report', pret:350, moneda:'GBP', unitate:'lună', categorie:'marketing' },
+          { id:'svc_d10', nume:'Meta Ads Management', descriere:'Facebook & Instagram campaigns, A/B testing, retargeting, monthly report', pret:350, moneda:'GBP', unitate:'lună', categorie:'marketing' },
+          { id:'svc_d11', nume:'Social Media Management', descriere:'12 posts/month, copywriting, branded graphics, community monitoring', pret:300, moneda:'GBP', unitate:'lună', categorie:'marketing' },
+          { id:'svc_d12', nume:'Email Marketing / Newsletter', descriere:'Template design, list segmentation, campaign delivery, open-rate report', pret:200, moneda:'GBP', unitate:'lună', categorie:'marketing' },
+          { id:'svc_d13', nume:'Basic Website Maintenance', descriere:'CMS & plugin updates, monthly backup, uptime monitoring, 1h support', pret:100, moneda:'GBP', unitate:'lună', categorie:'mentenanta' },
+          { id:'svc_d14', nume:'Advanced Website Maintenance', descriere:'Updates, weekly backup, security, 4h of changes/month, report', pret:200, moneda:'GBP', unitate:'lună', categorie:'mentenanta' },
+          { id:'svc_d15', nume:'Logo Design', descriere:'3 concept variants, final vector files (AI, SVG, PNG, PDF)', pret:350, moneda:'GBP', unitate:'proiect', categorie:'grafic' },
+          { id:'svc_d16', nume:'Complete Visual Identity', descriere:'Logo + colour palette + fonts + business card + letterhead + brand guide', pret:800, moneda:'GBP', unitate:'proiect', categorie:'grafic' },
           ...migrations,
         ];
         await env.PROGRAMARI.put('__servicii__', JSON.stringify(defaults));
@@ -1817,7 +1817,7 @@ Cerințe titluri:
           nume: String(body.nume).slice(0, 120),
           descriere: String(body.descriere || '').slice(0, 300),
           pret: parseFloat(body.pret) || 0,
-          moneda: ['EUR', 'RON'].includes(body.moneda) ? body.moneda : 'EUR',
+          moneda: ['GBP', 'EUR', 'RON'].includes(body.moneda) ? body.moneda : 'GBP',
           unitate: ['proiect', 'lună', 'oră', 'pagină', 'an'].includes(body.unitate) ? body.unitate : 'proiect',
           categorie: ['web-design', 'seo', 'mentenanta', 'grafic', 'marketing', 'altele'].includes(body.categorie) ? body.categorie : 'altele',
         };
@@ -1841,7 +1841,7 @@ Cerințe titluri:
           ...(body.nume !== undefined && { nume: String(body.nume).slice(0, 120) }),
           ...(body.descriere !== undefined && { descriere: String(body.descriere).slice(0, 300) }),
           ...(body.pret !== undefined && { pret: parseFloat(body.pret) || 0 }),
-          ...(body.moneda && ['EUR', 'RON'].includes(body.moneda) && { moneda: body.moneda }),
+          ...(body.moneda && ['GBP', 'EUR', 'RON'].includes(body.moneda) && { moneda: body.moneda }),
           ...(body.unitate && ['proiect','lună','oră','pagină','an'].includes(body.unitate) && { unitate: body.unitate }),
           ...(body.categorie && { categorie: body.categorie }),
         };
@@ -1894,9 +1894,9 @@ Cerințe titluri:
           servicii: (body.servicii || []).map(s => ({
             id: s.id, nume: String(s.nume || '').slice(0, 120),
             descriere: String(s.descriere || '').slice(0, 300),
-            pret: parseFloat(s.pret) || 0, moneda: s.moneda || 'EUR', unitate: s.unitate || 'proiect',
+            pret: parseFloat(s.pret) || 0, moneda: s.moneda || 'GBP', unitate: s.unitate || 'proiect',
           })),
-          moneda: ['EUR', 'RON'].includes(body.moneda) ? body.moneda : 'EUR',
+          moneda: ['GBP', 'EUR', 'RON'].includes(body.moneda) ? body.moneda : 'GBP',
           valabilitate: String(body.valabilitate || '30 days').slice(0, 30),
           note: String(body.note || '').slice(0, 500),
           status: 'trimisă',
@@ -2205,7 +2205,7 @@ Cerințe titluri:
           obiect: String(body.obiect||'').slice(0,500),
           serviciiText: String(body.serviciiText||'').slice(0,2000),
           total: parseFloat(body.total)||0,
-          moneda: ['EUR','RON'].includes(body.moneda) ? body.moneda : 'EUR',
+          moneda: ['GBP','EUR','RON'].includes(body.moneda) ? body.moneda : 'GBP',
           avansPct: Math.min(100, Math.max(0, parseFloat(body.avansPct)||50)),
           termen: String(body.termen||'30'),
           termenUnit: String(body.termenUnit||'working days').slice(0,40),

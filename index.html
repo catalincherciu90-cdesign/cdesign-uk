@@ -81,7 +81,7 @@
         {"@type": "Offer","itemOffered": {"@type": "Service","name": "Website Redesign","description": "We modernise your existing site with a contemporary design and improved performance."}},
         {"@type": "Offer","itemOffered": {"@type": "Service","name": "Graphic Design & Logo","description": "Professional visual identity: logo, business card, print materials."}},
         {"@type": "Offer","itemOffered": {"@type": "Service","name": "Website Maintenance","description": "Regular updates, security and technical support for your website."}},
-        {"@type": "Offer","itemOffered": {"@type": "Service","name": "Startup Package","description": "Complete launch package: website + visual identity + active online presence. From 300€."}}
+        {"@type": "Offer","itemOffered": {"@type": "Service","name": "Startup Package","description": "Complete launch package: website + visual identity + active online presence. From £300."}}
       ]
     }
   }
@@ -110,7 +110,7 @@
       {"@type": "Question","name": "How do I book a consultation?","acceptedAnswer": {"@type": "Answer","text": "Fill in the form on our page, choose your preferred date and time, and we will contact you within 2 hours to confirm."}},
       {"@type": "Question","name": "Does the package include a domain and hosting?","acceptedAnswer": {"@type": "Answer","text": "Yes, a .co.uk domain and hosting are included in the presentation website package."}},
       {"@type": "Question","name": "Will the website work on mobile?","acceptedAnswer": {"@type": "Answer","text": "All our websites are mobile-first — they look perfect on phones, tablets and desktops."}},
-      {"@type": "Question","name": "What does the Startup Package include?","acceptedAnswer": {"@type": "Answer","text": "The Startup Package includes a presentation website, professional logo, .co.uk domain, hosting and support for setting up your online presence. From 300€."}},
+      {"@type": "Question","name": "What does the Startup Package include?","acceptedAnswer": {"@type": "Answer","text": "The Startup Package includes a presentation website, professional logo, .co.uk domain, hosting and support for setting up your online presence. From £300."}},
       {"@type": "Question","name": "Do you work with clients across the UK?","acceptedAnswer": {"@type": "Answer","text": "Yes, we work online with clients all over the UK — Leeds, Sheffield, Nottingham, Derby, Blackburn, Preston and anywhere else."}}
     ]
   }
@@ -842,7 +842,7 @@
   <div class="container">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap;">
       <div>
-        <div style="font-family:'DM Sans',sans-serif;font-size:.72rem;color:var(--teal);letter-spacing:.1em;margin-bottom:8px;text-transform:uppercase;font-weight:600;">STARTUP PACKAGE · From 300€</div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:.72rem;color:var(--teal);letter-spacing:.1em;margin-bottom:8px;text-transform:uppercase;font-weight:600;">STARTUP PACKAGE · From £300</div>
         <div style="font-family:'Space Grotesk',sans-serif;font-size:1.25rem;font-weight:700;color:var(--heading);letter-spacing:-.025em;margin-bottom:6px;">Starting from scratch? We have everything ready for you, in one single package.</div>
         <div style="font-family:'DM Sans',sans-serif;font-size:.95rem;color:var(--soft);line-height:1.7;">Professional website + logo + domain &amp; hosting + social media — fully ready to go, with no technical complexity on your end.</div>
       </div>
@@ -1271,7 +1271,7 @@ document.getElementById('bookingForm').addEventListener('submit', async function
     if (res.ok) {
       if (typeof fbq === 'function') fbq('track', 'Lead');
       if (typeof gtag !== 'undefined') {
-        gtag('event', 'generate_lead', { value: 300, currency: 'EUR', event_category: 'contact' });
+        gtag('event', 'generate_lead', { value: 300, currency: 'GBP', event_category: 'contact' });
       }
       btn.textContent = '✓ Thank you! We will contact you within 2 hours to confirm your booking.';
       btn.style.background = '#28c840';
