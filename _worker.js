@@ -14,7 +14,7 @@ function sanitizeHtml(html) {
 }
 
 function renderArticle(post) {
-  const date = new Date(post.createdAt).toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' });
+  const date = new Date(post.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   const plain = post.content.replace(/<[^>]*>/g, '');
   const desc = escHtml(post.excerpt || (plain.slice(0, 155) + (plain.length > 155 ? '…' : '')));
   const schema = JSON.stringify({
@@ -30,7 +30,7 @@ function renderArticle(post) {
   });
   const yr = new Date().getFullYear();
   return `<!DOCTYPE html>
-<html lang="ro">
+<html lang="en-GB">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -44,7 +44,7 @@ function renderArticle(post) {
 <meta property="og:title" content="${escHtml(post.title)}">
 <meta property="og:description" content="${desc}">
 <meta property="og:image" content="https://www.c-design.ro/cover.jpg">
-<meta property="og:locale" content="ro_RO">
+<meta property="og:locale" content="en_GB">
 <meta property="og:site_name" content="C Design">
 <meta property="article:published_time" content="${post.createdAt}">
 <meta name="twitter:card" content="summary_large_image">
@@ -111,33 +111,33 @@ footer a{color:var(--muted);transition:color .2s}footer a:hover{color:var(--teal
     <div class="nav-inner">
       <a href="/" class="logo"><img src="/logo-c-design.png" alt="C Design" style="height:42px;width:auto;display:block;"></a>
       <ul class="nav-links" role="list">
-        <li><a href="/#servicii">Servicii</a></li>
-        <li><a href="/#portofoliu">Portofoliu</a></li>
+        <li><a href="/#servicii">Services</a></li>
+        <li><a href="/#portofoliu">Portfolio</a></li>
         <li><a href="/#contact">Contact</a></li>
         <li><a href="/blog">Blog</a></li>
       </ul>
       <a href="tel:+40753116155" class="nav-phone">0753 116 155</a>
-      <a href="/#contact" class="btn-nav">Programează acum →</a>
-      <button class="hamburger" id="hamburger" aria-label="Deschide meniu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <a href="/#contact" class="btn-nav">Book now →</a>
+      <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
   </div>
 </nav>
 <div class="mobile-menu" id="mobileMenu">
-  <a href="/#servicii">Servicii</a><a href="/#portofoliu">Portofoliu</a><a href="/#contact">Contact</a><a href="/blog">Blog</a>
-  <a href="tel:+40753116155">0753 116 155</a><a href="/#contact" class="btn-nav">Programează acum →</a>
+  <a href="/#servicii">Services</a><a href="/#portofoliu">Portfolio</a><a href="/#contact">Contact</a><a href="/blog">Blog</a>
+  <a href="tel:+40753116155">0753 116 155</a><a href="/#contact" class="btn-nav">Book now →</a>
 </div>
 <main>
 <article>
 <div class="container">
-  <a href="/blog" class="art-back">← \xCEnnapoi la blog</a>
+  <a href="/blog" class="art-back">← Back to blog</a>
   <span class="art-tag">Blog</span>
   <h1 class="art-title">${escHtml(post.title)}</h1>
   <div class="art-meta">${date}</div>
   <div class="art-content">${sanitizeHtml(post.content)}</div>
   <div class="cta-box">
-    <h3>Vrei un site profesional pentru afacerea ta?</h3>
-    <p>Programează o şedinţă de consultanţă gratuită — fără obligaţii.</p>
-    <a href="/#contact" class="btn">Programează consultanţă gratuită →</a>
+    <h3>Want a professional website for your business?</h3>
+    <p>Book a free consultation — no obligation.</p>
+    <a href="/#contact" class="btn">Book a free consultation →</a>
   </div>
 </div>
 </article>
@@ -169,12 +169,12 @@ async function sendDeadlineNotification(entry, env) {
       </td></tr>
       <tr><td style="padding:32px;">
         <div style="background:#fff8e1;border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;padding:16px 20px;margin-bottom:28px;">
-          <div style="font-size:.8rem;color:#6a7585;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">⏰ Deadline în 3 zile</div>
+          <div style="font-size:.8rem;color:#6a7585;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">⏰ Deadline in 3 days</div>
           <div style="font-size:1.1rem;font-weight:700;color:#080b0e;">${escHtml(entry.client || 'N/A')}</div>
         </div>
         <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
           <tr>
-            <td style="padding:8px 0;color:#6a7585;font-size:.85rem;width:120px;">Proiect</td>
+            <td style="padding:8px 0;color:#6a7585;font-size:.85rem;width:120px;">Project</td>
             <td style="padding:8px 0;font-weight:600;color:#080b0e;">${escHtml(entry.proiect || 'N/A')}</td>
           </tr>
           <tr>
@@ -182,7 +182,7 @@ async function sendDeadlineNotification(entry, env) {
             <td style="padding:8px 0;font-weight:600;color:#f59e0b;">${escHtml(termen)}</td>
           </tr>
           <tr>
-            <td style="padding:8px 0;color:#6a7585;font-size:.85rem;">Valoare</td>
+            <td style="padding:8px 0;color:#6a7585;font-size:.85rem;">Value</td>
             <td style="padding:8px 0;font-weight:600;color:#080b0e;">${escHtml(String(entry.valoare || 'N/A'))}</td>
           </tr>
           <tr>
@@ -193,7 +193,7 @@ async function sendDeadlineNotification(entry, env) {
         </table>
         <div style="text-align:center;">
           <a href="https://www.c-design.ro/programari.html" style="display:inline-block;background:#00c8b4;color:#000;padding:14px 32px;border-radius:8px;font-weight:700;font-size:.95rem;text-decoration:none;">
-            Deschide CRM →
+            Open CRM →
           </a>
         </div>
       </td></tr>
@@ -211,7 +211,7 @@ async function sendDeadlineNotification(entry, env) {
     body: JSON.stringify({
       from: 'C Design <office@c-design.ro>',
       to: [env.NOTIFY_EMAIL || NOTIFY_EMAIL],
-      subject: `⏰ Deadline în 3 zile: ${entry.client || 'Client'} – ${entry.proiect || 'Proiect'}`,
+      subject: `⏰ Deadline in 3 days: ${entry.client || 'Client'} – ${entry.proiect || 'Project'}`,
       html,
     }),
   });
@@ -232,7 +232,7 @@ async function sendGibilanMorningEmail(env) {
     const deadlinesUrgente = (data.deadlines || []).filter(d => d.date >= todayStr && d.date <= in3Str);
     const todosActive = (data.todos || []).filter(t => !t.done);
 
-    const ziuaRo = today.toLocaleDateString('ro-RO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    const ziuaRo = today.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     const ziuaCapital = ziuaRo.charAt(0).toUpperCase() + ziuaRo.slice(1);
 
     const nimicDeRaportat = !meetingsAzi.length && !deadlinesUrgente.length && !todosActive.length;
@@ -248,7 +248,7 @@ async function sendGibilanMorningEmail(env) {
           </td>
         </tr>`).join('');
     } else {
-      meetingsHtml = '<tr><td style="padding:8px 12px;color:#aaa;font-style:italic;font-size:.88rem;">Nicio întâlnire azi — zi liberă!</td></tr>';
+      meetingsHtml = '<tr><td style="padding:8px 12px;color:#aaa;font-style:italic;font-size:.88rem;">No meetings today — enjoy the free day!</td></tr>';
     }
 
     let deadlinesHtml = '';
@@ -258,14 +258,14 @@ async function sendGibilanMorningEmail(env) {
         return `
         <tr>
           <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;${isAzi ? 'border-left:3px solid #ff5f57;' : ''}">
-            <span style="font-size:.78rem;color:${isAzi ? '#ff5f57' : '#f59e0b'};font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-right:8px;">${isAzi ? 'AZI' : d.date}</span>
+            <span style="font-size:.78rem;color:${isAzi ? '#ff5f57' : '#f59e0b'};font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-right:8px;">${isAzi ? 'TODAY' : d.date}</span>
             <span style="color:#1a1a1a;font-weight:600;">${escHtml(d.title)}</span>
             ${d.project ? `<span style="font-size:.8rem;color:#888;margin-left:6px;">· ${escHtml(d.project)}</span>` : ''}
           </td>
         </tr>`;
       }).join('');
     } else {
-      deadlinesHtml = '<tr><td style="padding:8px 12px;color:#aaa;font-style:italic;font-size:.88rem;">Niciun deadline urgent — respira adânc!</td></tr>';
+      deadlinesHtml = '<tr><td style="padding:8px 12px;color:#aaa;font-style:italic;font-size:.88rem;">No urgent deadlines — breathe easy!</td></tr>';
     }
 
     let todosHtml = '';
@@ -279,7 +279,7 @@ async function sendGibilanMorningEmail(env) {
           </td>
         </tr>`).join('');
     } else {
-      todosHtml = '<tr><td style="padding:8px 12px;color:#aaa;font-style:italic;font-size:.88rem;">Totul bifat! Esti un campion.</td></tr>';
+      todosHtml = '<tr><td style="padding:8px 12px;color:#aaa;font-style:italic;font-size:.88rem;">All done! You\'re a champion.</td></tr>';
     }
 
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
@@ -306,42 +306,42 @@ async function sendGibilanMorningEmail(env) {
       <!-- GREETING -->
       <tr><td style="padding:28px 32px 0;border-bottom:1px solid #f0f0f0;">
         <div style="font-size:1.15rem;font-weight:700;color:#060f0f;margin-bottom:6px;">
-          Bună dimineata! ☀️
+          Good morning! ☀️
         </div>
         <div style="font-size:.92rem;color:#555;margin-bottom:20px;line-height:1.6;">
           ${nimicDeRaportat
-            ? 'Zi liberă, nicio urgență! Profită de liniște, că nu durează. 😄'
-            : `Iată agenda ta pentru <strong>${ziuaCapital}</strong>. Hai să facem o zi productivă!`}
+            ? 'A free day — nothing urgent! Enjoy the quiet while it lasts. 😄'
+            : `Here is your agenda for <strong>${ziuaCapital}</strong>. Let\'s make it a productive day!`}
         </div>
         ${!nimicDeRaportat ? `
         <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:12px;background:#f0fffe;border-radius:8px;overflow:hidden;">
           <tr>
             <td style="padding:6px 12px;background:#00c8b4;color:#060f0f;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;width:32px;">📊</td>
             <td style="padding:6px 12px;background:#e8faf9;font-size:.82rem;color:#1a4a44;">
-              <strong>${meetingsAzi.length}</strong> întâlniri azi &nbsp;·&nbsp;
-              <strong>${deadlinesUrgente.length}</strong> deadline-uri urgente &nbsp;·&nbsp;
-              <strong>${todosActive.length}</strong> task-uri active
+              <strong>${meetingsAzi.length}</strong> meetings today &nbsp;·&nbsp;
+              <strong>${deadlinesUrgente.length}</strong> urgent deadlines &nbsp;·&nbsp;
+              <strong>${todosActive.length}</strong> active tasks
             </td>
           </tr>
         </table>` : ''}
       </td></tr>
       <!-- MEETINGS -->
       <tr><td style="padding:24px 32px 0;">
-        <div style="font-size:.78rem;font-weight:800;color:#00a898;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">📅 Întâlniri de azi</div>
+        <div style="font-size:.78rem;font-weight:800;color:#00a898;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">📅 Today's meetings</div>
         <table width="100%" cellpadding="0" cellspacing="0" style="background:#fafafa;border-radius:8px;overflow:hidden;border:1px solid #eee;">
           ${meetingsHtml}
         </table>
       </td></tr>
       <!-- DEADLINES -->
       <tr><td style="padding:20px 32px 0;">
-        <div style="font-size:.78rem;font-weight:800;color:#f59e0b;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">⚠️ Deadline-uri (azi + 3 zile)</div>
+        <div style="font-size:.78rem;font-weight:800;color:#f59e0b;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">⚠️ Deadlines (today + 3 days)</div>
         <table width="100%" cellpadding="0" cellspacing="0" style="background:#fafafa;border-radius:8px;overflow:hidden;border:1px solid #eee;">
           ${deadlinesHtml}
         </table>
       </td></tr>
       <!-- TODOS -->
       <tr><td style="padding:20px 32px 24px;">
-        <div style="font-size:.78rem;font-weight:800;color:#6a7585;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">✅ To-do active</div>
+        <div style="font-size:.78rem;font-weight:800;color:#6a7585;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">✅ Active to-dos</div>
         <table width="100%" cellpadding="0" cellspacing="0" style="background:#fafafa;border-radius:8px;overflow:hidden;border:1px solid #eee;">
           ${todosHtml}
         </table>
@@ -349,7 +349,7 @@ async function sendGibilanMorningEmail(env) {
       <!-- CTA -->
       <tr><td style="padding:0 32px 28px;text-align:center;">
         <a href="https://www.c-design.ro/programari.html" style="display:inline-block;background:#00c8b4;color:#060f0f;padding:12px 28px;border-radius:8px;font-weight:700;font-size:.9rem;text-decoration:none;">
-          Deschide Gibilan →
+          Open Gibilan →
         </a>
       </td></tr>
       <!-- FOOTER -->
@@ -367,7 +367,7 @@ async function sendGibilanMorningEmail(env) {
       body: JSON.stringify({
         from: 'Gibilan <notificari@c-design.ro>',
         to: [env.NOTIFY_EMAIL || NOTIFY_EMAIL],
-        subject: `🤖 Gibilan — Agenda ta pentru ${ziuaCapital}`,
+        subject: `🤖 Gibilan — Your agenda for ${ziuaCapital}`,
         html,
       }),
     });
@@ -450,17 +450,17 @@ async function sendBookingNotification(booking, env) {
         <div style="font-family:'Segoe UI',Arial,sans-serif;font-size:1.4rem;font-weight:800;color:#fff;">
           <span style="color:#00c8b4;">C</span> Design
         </div>
-        <div style="color:#9aa5b4;font-size:.85rem;margin-top:4px;">Programare nouă</div>
+        <div style="color:#9aa5b4;font-size:.85rem;margin-top:4px;">New booking</div>
       </td></tr>
       <tr><td style="padding:32px;">
         <div style="background:#f0fffe;border-left:4px solid #00c8b4;border-radius:0 8px 8px 0;padding:16px 20px;margin-bottom:28px;">
-          <div style="font-size:.8rem;color:#6a7585;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Programare nouă primită</div>
+          <div style="font-size:.8rem;color:#6a7585;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">New booking received</div>
           <div style="font-size:1.1rem;font-weight:700;color:#080b0e;">${booking.name}</div>
         </div>
         <table width="100%" cellpadding="0" cellspacing="0">
           <tr>
             <td width="50%" style="padding:0 8px 16px 0;vertical-align:top;">
-              <div style="font-size:.75rem;color:#6a7585;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Telefon</div>
+              <div style="font-size:.75rem;color:#6a7585;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Phone</div>
               <div style="font-size:.95rem;color:#080b0e;font-weight:600;">${booking.phone}</div>
             </td>
             <td width="50%" style="padding:0 0 16px 8px;vertical-align:top;">
@@ -470,28 +470,28 @@ async function sendBookingNotification(booking, env) {
           </tr>
           <tr>
             <td width="50%" style="padding:0 8px 16px 0;vertical-align:top;">
-              <div style="font-size:.75rem;color:#6a7585;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Data</div>
+              <div style="font-size:.75rem;color:#6a7585;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Date</div>
               <div style="font-size:.95rem;color:#080b0e;font-weight:600;">${booking.date}</div>
             </td>
             <td width="50%" style="padding:0 0 16px 8px;vertical-align:top;">
-              <div style="font-size:.75rem;color:#6a7585;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Ora</div>
+              <div style="font-size:.75rem;color:#6a7585;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Time</div>
               <div style="font-size:.95rem;color:#080b0e;font-weight:600;">${booking.time}</div>
             </td>
           </tr>
           <tr>
             <td colspan="2" style="padding:0 0 16px 0;">
-              <div style="font-size:.75rem;color:#6a7585;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Serviciu</div>
+              <div style="font-size:.75rem;color:#6a7585;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Service</div>
               <div style="font-size:.95rem;color:#080b0e;font-weight:600;">${booking.service}</div>
             </td>
           </tr>
           ${booking.message ? `<tr><td colspan="2" style="padding:0 0 16px 0;">
-            <div style="font-size:.75rem;color:#6a7585;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Mesaj</div>
+            <div style="font-size:.75rem;color:#6a7585;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Message</div>
             <div style="font-size:.95rem;color:#080b0e;line-height:1.5;">${booking.message}</div>
           </td></tr>` : ''}
         </table>
         <div style="text-align:center;margin-top:24px;">
           <a href="https://www.c-design.ro/programari.html" style="display:inline-block;background:#00c8b4;color:#080b0e;font-weight:700;font-size:.9rem;padding:12px 28px;border-radius:8px;text-decoration:none;">
-            Vezi în admin panel →
+            View in admin panel →
           </a>
         </div>
       </td></tr>
@@ -510,7 +510,7 @@ async function sendBookingNotification(booking, env) {
       body: JSON.stringify({
         from: 'C Design <notificari@c-design.ro>',
         to: [env.NOTIFY_EMAIL || NOTIFY_EMAIL],
-        subject: `📅 Programare nouă — ${booking.name} · ${booking.date} ${booking.time}`,
+        subject: `📅 New booking — ${booking.name} · ${booking.date} ${booking.time}`,
         html,
       }),
     });
@@ -527,35 +527,35 @@ async function sendBookingNotification(booking, env) {
         <div style="font-family:'Segoe UI',Arial,sans-serif;font-size:1.4rem;font-weight:800;color:#fff;">
           <span style="color:#00c8b4;">C</span> Design
         </div>
-        <div style="color:#9aa5b4;font-size:.85rem;margin-top:4px;">Confirmare programare</div>
+        <div style="color:#9aa5b4;font-size:.85rem;margin-top:4px;">Booking confirmation</div>
       </td></tr>
       <tr><td style="padding:32px;">
-        <p style="font-size:1rem;color:#080b0e;margin:0 0 20px;">Bună <strong>${booking.name}</strong>,</p>
-        <p style="font-size:.95rem;color:#444;line-height:1.6;margin:0 0 28px;">Programarea ta a fost primită cu succes. Te vom contacta în maxim <strong>2 ore</strong> pentru confirmare.</p>
+        <p style="font-size:1rem;color:#080b0e;margin:0 0 20px;">Hello <strong>${booking.name}</strong>,</p>
+        <p style="font-size:.95rem;color:#444;line-height:1.6;margin:0 0 28px;">Your booking has been received successfully. We will contact you within <strong>2 hours</strong> to confirm.</p>
 
         <div style="background:#f0fffe;border:1px solid #d0f5f2;border-radius:10px;padding:20px 24px;margin-bottom:28px;">
-          <div style="font-size:.75rem;color:#6a7585;text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px;">Detalii programare</div>
+          <div style="font-size:.75rem;color:#6a7585;text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px;">Booking details</div>
           <table width="100%" cellpadding="0" cellspacing="0">
             <tr>
               <td width="50%" style="padding:0 8px 12px 0;">
-                <div style="font-size:.75rem;color:#6a7585;margin-bottom:3px;">Data</div>
+                <div style="font-size:.75rem;color:#6a7585;margin-bottom:3px;">Date</div>
                 <div style="font-size:.95rem;color:#080b0e;font-weight:700;">${booking.date}</div>
               </td>
               <td width="50%" style="padding:0 0 12px 8px;">
-                <div style="font-size:.75rem;color:#6a7585;margin-bottom:3px;">Ora</div>
+                <div style="font-size:.75rem;color:#6a7585;margin-bottom:3px;">Time</div>
                 <div style="font-size:.95rem;color:#080b0e;font-weight:700;">${booking.time}</div>
               </td>
             </tr>
             <tr>
               <td colspan="2">
-                <div style="font-size:.75rem;color:#6a7585;margin-bottom:3px;">Serviciu</div>
+                <div style="font-size:.75rem;color:#6a7585;margin-bottom:3px;">Service</div>
                 <div style="font-size:.95rem;color:#080b0e;font-weight:700;">${booking.service}</div>
               </td>
             </tr>
           </table>
         </div>
 
-        <p style="font-size:.9rem;color:#666;line-height:1.6;margin:0 0 24px;">Dacă ai întrebări sau vrei să modifici programarea, ne poți contacta oricând:</p>
+        <p style="font-size:.9rem;color:#666;line-height:1.6;margin:0 0 24px;">If you have any questions or would like to change your booking, feel free to contact us at any time:</p>
         <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
           <tr>
             <td style="padding:0 8px 0 0;">
@@ -582,7 +582,7 @@ async function sendBookingNotification(booking, env) {
       body: JSON.stringify({
         from: 'C Design <notificari@c-design.ro>',
         to: [booking.email],
-        subject: `✅ Programare confirmată — ${booking.date} ora ${booking.time}`,
+        subject: `✅ Booking confirmed — ${booking.date} at ${booking.time}`,
         html: confirmHtml,
       }),
     });
@@ -590,12 +590,12 @@ async function sendBookingNotification(booking, env) {
 }
 
 const DEFAULT_PROJECTS = [
-  { id: 'p1', emoji: '🚗', tag: 'Auto', title: 'Tractări Auto Teleorman', description: 'Site de prezentare cu zone de acoperire: Dâmbovița, Ilfov, București, Argeș, Giurgiu.', problema: 'Clientul nu era găsit online — toți clienții veneau doar din recomandări.', solutie: 'Site de prezentare rapid cu pagini separate pe județe, optimizat local SEO.', rezultat: 'Prima comandă online în 3 zile de la lansare. Trafic organic +180% în 2 luni.', order: 0 },
-  { id: 'p2', emoji: '🏭', tag: 'Dealer Autorizat', title: 'Dealer Autorizat Lindab', description: 'Prezentare profesională cu catalog de produse și date de contact integrate.', problema: 'Site vechi, neoptimizat pentru mobil — 70% din vizitatori plecau în primele 5 secunde.', solutie: 'Redesign complet cu catalog digital și formular de cerere ofertă integrat.', rezultat: 'Rata de abandon scăzută cu 55%. Cereri de ofertă x3 față de înainte.', order: 1 },
-  { id: 'p3', emoji: '🌸', tag: 'Florărie', title: 'Site Florărie', description: 'Site modern cu produse și posibilitate de comandă online, optimizat pentru mobil.', problema: 'Fără prezență online — clienții nu știau dacă florăria e deschisă sau ce oferte are.', solutie: 'Site cu galerie produse, program actualizabil și buton de comandă WhatsApp.', rezultat: 'Comenzi online de la zero la 15-20/săptămână în prima lună.', order: 2 },
-  { id: 'p4', emoji: '🏗️', tag: 'Construcții', title: 'Arhitectură & Construcții', description: 'Portofoliu vizual elegant cu proiecte realizate și testimoniale clienți.', problema: 'Firma lucra bine, dar nu putea dovedi asta online — fără portofoliu vizibil.', solutie: 'Site portofoliu cu galerie proiecte, testimoniale și pagină de servicii detaliată.', rezultat: 'Câștigat 2 contracte noi direct din site în prima lună. ROI investiție: 10x.', order: 3 },
-  { id: 'p5', emoji: '💼', tag: 'Start-Up', title: 'Micul Întreprinzător', description: 'Pachet complet la start: site + identitate vizuală + prezență online activă.', problema: 'Afacere nouă, zero prezență online — buget limitat, nevoie de totul dintr-o dată.', solutie: 'Pachet Startup: site + logo + domeniu + găzduire + 2 conturi social media, livrat în 14 zile.', rezultat: 'Online complet în 2 săptămâni. Primul client obținut din Google după 3 săptămâni.', order: 4 },
-  { id: 'p6', emoji: '🔧', tag: 'Servicii', title: 'Firmă Servicii Tehnice', description: 'Site de prezentare cu formular de solicitare ofertă și galerie de lucrări.', problema: 'Pierdeau clienți potențiali pentru că nu aveau o modalitate ușoară de contact online.', solutie: 'Site cu formular rapid de solicitare ofertă, galerie lucrări și recenzii Google integrate.', rezultat: 'Cereri de ofertă online: de la 0 la 8-12/lună. Economie de timp la telefon: 4h/săpt.', order: 5 },
+  { id: 'p1', emoji: '🚗', tag: 'Auto', title: 'Vehicle Recovery Teleorman', description: 'Presentation website with coverage areas: Dâmbovița, Ilfov, Bucharest, Argeș, Giurgiu.', problema: 'The client was invisible online — all customers came exclusively through word of mouth.', solutie: 'Fast presentation website with separate pages per county, optimised for local SEO.', rezultat: 'First online order within 3 days of launch. Organic traffic +180% in 2 months.', order: 0 },
+  { id: 'p2', emoji: '🏭', tag: 'Authorised Dealer', title: 'Authorised Lindab Dealer', description: 'Professional presentation with product catalogue and integrated contact details.', problema: 'Old website, not optimised for mobile — 70% of visitors left within the first 5 seconds.', solutie: 'Full redesign with digital catalogue and integrated quote-request form.', rezultat: 'Bounce rate reduced by 55%. Quote requests tripled compared to before.', order: 1 },
+  { id: 'p3', emoji: '🌸', tag: 'Florist', title: 'Florist Website', description: 'Modern website with products and online ordering capability, optimised for mobile.', problema: 'No online presence — customers did not know whether the shop was open or what offers were available.', solutie: 'Website with product gallery, updatable opening hours, and a WhatsApp order button.', rezultat: 'Online orders went from zero to 15–20 per week in the first month.', order: 2 },
+  { id: 'p4', emoji: '🏗️', tag: 'Construction', title: 'Architecture & Construction', description: 'Elegant visual portfolio with completed projects and client testimonials.', problema: 'The company did great work but could not demonstrate it online — no visible portfolio.', solutie: 'Portfolio website with project gallery, testimonials, and a detailed services page.', rezultat: 'Won 2 new contracts directly from the website in the first month. ROI: 10x.', order: 3 },
+  { id: 'p5', emoji: '💼', tag: 'Start-Up', title: 'The Small Entrepreneur', description: 'Complete start-up package: website + visual identity + active online presence.', problema: 'New business, zero online presence — limited budget, needed everything at once.', solutie: 'Startup Package: website + logo + domain + hosting + 2 social media accounts, delivered in 14 days.', rezultat: 'Fully online in 2 weeks. First client acquired via Google after 3 weeks.', order: 4 },
+  { id: 'p6', emoji: '🔧', tag: 'Services', title: 'Technical Services Company', description: 'Presentation website with a quote-request form and project gallery.', problema: 'They were losing potential clients because they had no easy way to be contacted online.', solutie: 'Website with quick quote-request form, project gallery, and integrated Google reviews.', rezultat: 'Online quote requests: from 0 to 8–12 per month. Time saved on phone calls: 4 hrs/week.', order: 5 },
 ];
 
 function isAdmin(url, env) {
@@ -603,10 +603,10 @@ function isAdmin(url, env) {
 }
 
 function buildMaintenancePage(m) {
-  const title   = m.title   || 'Site în construcție';
-  const message = m.message || 'Revenim în curând cu ceva nou!';
+  const title   = m.title   || 'Site under construction';
+  const message = m.message || 'We\'ll be back soon with something new!';
   const date    = m.date    ? '<p class="date">🗓 ' + m.date + '</p>' : '';
-  return `<!DOCTYPE html><html lang="ro"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title>
+  return `<!DOCTYPE html><html lang="en-GB"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -720,7 +720,7 @@ export default {
         }
         if (s.startupPretMin !== undefined) html = injectInner(html, 'startup-pret-min', s.startupPretMin);
         if (s.startupPretMax !== undefined) html = injectInner(html, 'startup-pret-max', '– ' + s.startupPretMax);
-        if (s.startupValoareSep !== undefined) html = injectInner(html, 'startup-valoare-sep', `\n      Valoare separată: ~${s.startupValoareSep}€\n    `);
+        if (s.startupValoareSep !== undefined) html = injectInner(html, 'startup-valoare-sep', `\n      Separate value: ~${s.startupValoareSep}€\n    `);
         return new Response(html, { headers: { ...SEC_HEADERS, 'Content-Type': 'text/html;charset=utf-8', 'Cache-Control': 'no-cache, no-store, must-revalidate' } });
       } catch {
         const assetUrl = new URL(request.url);
@@ -787,15 +787,15 @@ export default {
     if (path === '/api/login' && request.method === 'POST') {
       const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
       const allowed = await checkRateLimit(env, 'login_' + ip, 10, 900);
-      if (!allowed) return json({ error: 'Prea multe încercări. Reîncearcă în 15 minute.' }, 429, request);
+      if (!allowed) return json({ error: 'Too many attempts. Please try again in 15 minutes.' }, 429, request);
       try {
         const { username, password } = await request.json();
         const validUser  = env.ADMIN_USER  || ADMIN_USER;
         const validToken = env.ADMIN_TOKEN || ADMIN_TOKEN;
         if (username === validUser && password === validToken)
           return json({ success: true }, 200, request);
-        return json({ error: 'Credențiale incorecte' }, 401, request);
-      } catch { return json({ error: 'Eroare server' }, 500, request); }
+        return json({ error: 'Invalid credentials' }, 401, request);
+      } catch { return json({ error: 'Server error' }, 500, request); }
     }
 
     // ── BOOKINGS ──────────────────────────────────────────────
@@ -803,18 +803,18 @@ export default {
     if (path === '/api/booking' && request.method === 'POST') {
       const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
       const allowed = await checkRateLimit(env, 'booking_' + ip, 5, 3600);
-      if (!allowed) return json({ error: 'Prea multe cereri. Reîncearcă mai târziu.' }, 429, request);
+      if (!allowed) return json({ error: 'Too many requests. Please try again later.' }, 429, request);
       try {
         const { name, phone, email, service, date, time, message } = await request.json();
         if (!name || !phone || !email || !date || !time)
-          return json({ error: 'Câmpuri obligatorii lipsă' }, 400);
+          return json({ error: 'Required fields missing' }, 400);
         const id = `booking_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-        const booking = { id, name, phone, email, service: service || 'Nespecificat', date, time, message: message || '', status: 'nou', createdAt: new Date().toISOString() };
+        const booking = { id, name, phone, email, service: service || 'Unspecified', date, time, message: message || '', status: 'nou', createdAt: new Date().toISOString() };
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const phoneRegex = /^[\d\s\+\-\(\)]{7,20}$/;
-        if (!emailRegex.test(booking.email)) return json({error:'Email invalid'}, 400);
-        if (!phoneRegex.test(booking.phone)) return json({error:'Telefon invalid'}, 400);
-        if (!booking.name || booking.name.length < 2) return json({error:'Nume invalid'}, 400);
+        if (!emailRegex.test(booking.email)) return json({error:'Invalid email'}, 400);
+        if (!phoneRegex.test(booking.phone)) return json({error:'Invalid phone number'}, 400);
+        if (!booking.name || booking.name.length < 2) return json({error:'Invalid name'}, 400);
         await env.PROGRAMARI.put(id, JSON.stringify(booking));
         const raw = await env.PROGRAMARI.get('__index__');
         const index = raw ? JSON.parse(raw) : [];
@@ -822,24 +822,24 @@ export default {
         await env.PROGRAMARI.put('__index__', JSON.stringify(index));
         await sendBookingNotification(booking, env);
         return json({ success: true, id });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path === '/api/bookings' && request.method === 'GET') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__index__');
         const index = raw ? JSON.parse(raw) : [];
         const bookings = await Promise.all(index.map(async ({ id }) => { const r = await env.PROGRAMARI.get(id); return r ? JSON.parse(r) : null; }));
         return json(bookings.filter(Boolean));
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path.startsWith('/api/booking/') && request.method === 'PATCH') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       const id = path.replace('/api/booking/', '');
       const raw = await env.PROGRAMARI.get(id);
-      if (!raw) return json({ error: 'Negăsit' }, 404);
+      if (!raw) return json({ error: 'Not found' }, 404);
       const { status } = await request.json();
       const booking = JSON.parse(raw);
       booking.status = status;
@@ -858,10 +858,10 @@ export default {
     }
 
     if (path === '/api/project' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const { emoji, tag, title, description } = await request.json();
-        if (!title) return json({ error: 'Titlul este obligatoriu' }, 400);
+        if (!title) return json({ error: 'Title is required' }, 400);
         const raw = await env.PROGRAMARI.get('__projects__');
         const projects = raw ? JSON.parse(raw) : [...DEFAULT_PROJECTS];
         const id = `p_${Date.now()}`;
@@ -869,26 +869,26 @@ export default {
         projects.push({ id, emoji: emoji || '🌐', tag: tag || 'Web', title, description: description || '', order: maxOrder + 1 });
         await env.PROGRAMARI.put('__projects__', JSON.stringify(projects));
         return json({ success: true, id });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path.startsWith('/api/project/') && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/project/', '');
         const { emoji, tag, title, description, order } = await request.json();
         const raw = await env.PROGRAMARI.get('__projects__');
         const projects = raw ? JSON.parse(raw) : [...DEFAULT_PROJECTS];
         const idx = projects.findIndex(p => p.id === id);
-        if (idx === -1) return json({ error: 'Negăsit' }, 404);
+        if (idx === -1) return json({ error: 'Not found' }, 404);
         projects[idx] = { ...projects[idx], emoji: emoji ?? projects[idx].emoji, tag: tag ?? projects[idx].tag, title: title ?? projects[idx].title, description: description ?? projects[idx].description, order: order ?? projects[idx].order };
         await env.PROGRAMARI.put('__projects__', JSON.stringify(projects));
         return json({ success: true });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path.startsWith('/api/project/') && request.method === 'DELETE') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/project/', '');
         const raw = await env.PROGRAMARI.get('__projects__');
@@ -896,68 +896,68 @@ export default {
         const filtered = projects.filter(p => p.id !== id);
         await env.PROGRAMARI.put('__projects__', JSON.stringify(filtered));
         return json({ success: true });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     // ── CRM ───────────────────────────────────────────────────
 
     if (path === '/api/crm' && request.method === 'GET') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__crm__');
         const entries = raw ? JSON.parse(raw) : [];
         return json(entries.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path === '/api/crm' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const { client, proiect, valoare, termen, status, note } = await request.json();
-        if (!client) return json({ error: 'Clientul este obligatoriu' }, 400);
+        if (!client) return json({ error: 'Client is required' }, 400);
         const raw = await env.PROGRAMARI.get('__crm__');
         const entries = raw ? JSON.parse(raw) : [];
         const id = `crm_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
         entries.unshift({ id, client, proiect: proiect || '', valoare: valoare || '', termen: termen || '', status: status || 'oferta', note: note || '', createdAt: new Date().toISOString() });
         await env.PROGRAMARI.put('__crm__', JSON.stringify(entries));
         return json({ success: true, id });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path.startsWith('/api/crm/') && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/crm/', '');
         const body = await request.json();
         const raw = await env.PROGRAMARI.get('__crm__');
         const entries = raw ? JSON.parse(raw) : [];
         const idx = entries.findIndex(e => e.id === id);
-        if (idx === -1) return json({ error: 'Negăsit' }, 404);
+        if (idx === -1) return json({ error: 'Not found' }, 404);
         entries[idx] = { ...entries[idx], ...body };
         await env.PROGRAMARI.put('__crm__', JSON.stringify(entries));
         return json({ success: true });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path.startsWith('/api/crm/') && request.method === 'DELETE') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/crm/', '');
         const raw = await env.PROGRAMARI.get('__crm__');
         const entries = raw ? JSON.parse(raw) : [];
         await env.PROGRAMARI.put('__crm__', JSON.stringify(entries.filter(e => e.id !== id)));
         return json({ success: true });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     // ── BLOG ──────────────────────────────────────────────────
 
     if (path === '/api/blog/generate' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401, request);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401, request);
       try {
         const { subject } = await request.json();
-        if (!subject) return json({ error: 'Subiectul este obligatoriu' }, 400, request);
-        if (!env.AI) return json({ error: 'AI binding nedisponibil — verifică wrangler.toml' }, 500, request);
+        if (!subject) return json({ error: 'Subject is required' }, 400, request);
+        if (!env.AI) return json({ error: 'AI binding unavailable — check wrangler.toml' }, 500, request);
 
         const prompt = `Ești un copywriter expert în web design și marketing digital pentru afaceri mici din România. Scrie un articol de blog complet pentru agenția "C Design" pe subiectul: "${subject}".
 
@@ -983,7 +983,7 @@ Cerințe articol:
 
         const text = (ai.response || '').trim();
         const match = text.match(/\{[\s\S]*\}/);
-        if (!match) return json({ error: 'Modelul nu a returnat JSON valid. Încearcă din nou.' }, 500, request);
+        if (!match) return json({ error: 'The model did not return valid JSON. Please try again.' }, 500, request);
 
         // Sanitize control characters inside JSON string values
         let raw = match[0];
@@ -1002,18 +1002,18 @@ Cerințe articol:
         }
 
         const article = JSON.parse(sanitized);
-        if (!article.title || !article.content) return json({ error: 'Articol incomplet generat. Încearcă din nou.' }, 500, request);
+        if (!article.title || !article.content) return json({ error: 'Article generated incompletely. Please try again.' }, 500, request);
         return json({ success: true, article }, 200, request);
       } catch (e) {
-        return json({ error: 'Eroare generare: ' + (e.message || 'necunoscută') }, 500, request);
+        return json({ error: 'Generation error: ' + (e.message || 'unknown') }, 500, request);
       }
     }
 
     if (path === '/api/blog/research-titles' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401, request);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401, request);
       try {
         const { focus, audience, existing } = await request.json();
-        if (!env.AI) return json({ error: 'AI binding nedisponibil — verifică wrangler.toml' }, 500, request);
+        if (!env.AI) return json({ error: 'AI binding unavailable — check wrangler.toml' }, 500, request);
 
         const existingList = Array.isArray(existing) && existing.length
           ? `\nEvită titluri similare cu cele deja publicate:\n${existing.slice(0, 10).map(t => `- ${t}`).join('\n')}`
@@ -1055,7 +1055,7 @@ Cerințe titluri:
         const rawAi = ai.response ?? ai.text ?? ai ?? '';
         const text = (typeof rawAi === 'string' ? rawAi : JSON.stringify(rawAi)).trim();
         const match = text.match(/\[[\s\S]*\]/);
-        if (!match) return json({ error: 'Modelul nu a returnat JSON valid. Încearcă din nou.' }, 500, request);
+        if (!match) return json({ error: 'The model did not return valid JSON. Please try again.' }, 500, request);
 
         let raw = match[0];
         let sanitized = '';
@@ -1073,10 +1073,10 @@ Cerințe titluri:
         }
 
         const titles = JSON.parse(sanitized);
-        if (!Array.isArray(titles) || !titles.length) return json({ error: 'Niciun rezultat generat. Încearcă din nou.' }, 500, request);
+        if (!Array.isArray(titles) || !titles.length) return json({ error: 'No results generated. Please try again.' }, 500, request);
         return json({ success: true, titles }, 200, request);
       } catch (e) {
-        return json({ error: 'Eroare cercetare: ' + (e.message || 'necunoscută') }, 500, request);
+        return json({ error: 'Research error: ' + (e.message || 'unknown') }, 500, request);
       }
     }
 
@@ -1086,14 +1086,14 @@ Cerințe titluri:
         const posts = raw ? JSON.parse(raw) : [];
         const all = url.searchParams.get('all') === '1' && isAdmin(url, env);
         return json(posts.filter(p => all || p.published).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path === '/api/blog' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const { title, slug, content, excerpt, published } = await request.json();
-        if (!title) return json({ error: 'Titlul este obligatoriu' }, 400);
+        if (!title) return json({ error: 'Title is required' }, 400);
         const raw = await env.PROGRAMARI.get('__blog__');
         const posts = raw ? JSON.parse(raw) : [];
         const id = `blog_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
@@ -1101,82 +1101,82 @@ Cerințe titluri:
         posts.unshift({ id, title, slug: autoSlug, content: content || '', excerpt: excerpt || '', published: !!published, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
         await env.PROGRAMARI.put('__blog__', JSON.stringify(posts));
         return json({ success: true, id });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path.startsWith('/api/blog/') && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/blog/', '');
         const body = await request.json();
         const raw = await env.PROGRAMARI.get('__blog__');
         const posts = raw ? JSON.parse(raw) : [];
         const idx = posts.findIndex(p => p.id === id);
-        if (idx === -1) return json({ error: 'Negăsit' }, 404);
+        if (idx === -1) return json({ error: 'Not found' }, 404);
         posts[idx] = { ...posts[idx], ...body, updatedAt: new Date().toISOString() };
         await env.PROGRAMARI.put('__blog__', JSON.stringify(posts));
         return json({ success: true });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path.startsWith('/api/blog/') && request.method === 'DELETE') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/blog/', '');
         const raw = await env.PROGRAMARI.get('__blog__');
         const posts = raw ? JSON.parse(raw) : [];
         await env.PROGRAMARI.put('__blog__', JSON.stringify(posts.filter(p => p.id !== id)));
         return json({ success: true });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     // ── CHELTUIELI ───────────────────────────────────────────
     if (path === '/api/cheltuieli' && request.method === 'GET') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__cheltuieli__');
         return json(raw ? JSON.parse(raw) : []);
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path === '/api/cheltuieli' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const { descriere, categorie, suma, moneda, data, metodaPlatii, recurent, note } = await request.json();
-        if (!descriere || !suma || !data) return json({ error: 'Câmpuri obligatorii lipsă' }, 400);
+        if (!descriere || !suma || !data) return json({ error: 'Required fields missing' }, 400);
         const raw = await env.PROGRAMARI.get('__cheltuieli__');
         const lista = raw ? JSON.parse(raw) : [];
         const id = `chelt_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
         lista.unshift({ id, descriere, categorie: categorie || 'altele', suma: parseFloat(suma), moneda: moneda || 'RON', data, metodaPlatii: metodaPlatii || 'card', recurent: !!recurent, note: note || '', createdAt: new Date().toISOString() });
         await env.PROGRAMARI.put('__cheltuieli__', JSON.stringify(lista));
         return json({ success: true, id });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path.startsWith('/api/cheltuieli/') && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/cheltuieli/', '');
         const updates = await request.json();
         const raw = await env.PROGRAMARI.get('__cheltuieli__');
         const lista = raw ? JSON.parse(raw) : [];
         const idx = lista.findIndex(c => c.id === id);
-        if (idx === -1) return json({ error: 'Cheltuiala negăsită' }, 404);
+        if (idx === -1) return json({ error: 'Expense not found' }, 404);
         lista[idx] = { ...lista[idx], ...updates, suma: parseFloat(updates.suma || lista[idx].suma), updatedAt: new Date().toISOString() };
         await env.PROGRAMARI.put('__cheltuieli__', JSON.stringify(lista));
         return json({ success: true });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path.startsWith('/api/cheltuieli/') && request.method === 'DELETE') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/cheltuieli/', '');
         const raw = await env.PROGRAMARI.get('__cheltuieli__');
         const lista = raw ? JSON.parse(raw) : [];
         await env.PROGRAMARI.put('__cheltuieli__', JSON.stringify(lista.filter(c => c.id !== id)));
         return json({ success: true });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     // ── SETTINGS ─────────────────────────────────────────────
@@ -1184,9 +1184,9 @@ Cerințe titluri:
     const DEFAULT_SETTINGS = { workingDays:[1,2,3,4,5], startTime:'09:00', endTime:'18:00', slotInterval:60, blockedDates:[] };
 
     if (path === '/api/test-email' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401, request);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401, request);
       const apiKey = env.RESEND_API_KEY || RESEND_API_KEY;
-      if (!apiKey) return json({ error: 'RESEND_API_KEY nu este configurat în Cloudflare Secrets.' }, 400, request);
+      if (!apiKey) return json({ error: 'RESEND_API_KEY is not configured in Cloudflare Secrets.' }, 400, request);
       const toEmail = env.NOTIFY_EMAIL || NOTIFY_EMAIL;
       try {
         const res = await fetch('https://api.resend.com/emails', {
@@ -1195,19 +1195,19 @@ Cerințe titluri:
           body: JSON.stringify({
             from: 'C Design <office@c-design.ro>',
             to: [toEmail],
-            subject: '✅ Test notificare C Design',
+            subject: '✅ Test notification C Design',
             html: `<div style="font-family:Arial,sans-serif;padding:32px;max-width:480px;">
-              <h2 style="color:#00a8a8;">✅ Notificările funcționează!</h2>
-              <p>Acest email a fost trimis din adminul <strong>C Design</strong> pentru a verifica că integrarea Resend este configurată corect.</p>
-              <p style="color:#777;font-size:.85rem;">Trimis la: ${new Date().toLocaleString('ro-RO')}</p>
+              <h2 style="color:#00a8a8;">✅ Notifications are working!</h2>
+              <p>This email was sent from the <strong>C Design</strong> admin panel to verify that the Resend integration is configured correctly.</p>
+              <p style="color:#777;font-size:.85rem;">Sent at: ${new Date().toLocaleString('en-GB')}</p>
             </div>`
           })
         });
         const data = await res.json();
-        if (!res.ok) return json({ error: data.message || data.name || 'Eroare Resend', detail: data }, 500, request);
+        if (!res.ok) return json({ error: data.message || data.name || 'Resend error', detail: data }, 500, request);
         return json({ success: true, id: data.id, to: toEmail }, 200, request);
       } catch (e) {
-        return json({ error: 'Eroare rețea: ' + e.message }, 500, request);
+        return json({ error: 'Network error: ' + e.message }, 500, request);
       }
     }
 
@@ -1219,12 +1219,12 @@ Cerințe titluri:
     }
 
     if (path === '/api/settings' && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const body = await request.json();
         await env.PROGRAMARI.put('__settings__', JSON.stringify(body));
         return json({ success: true });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     // ── SOCIAL MEDIA ──────────────────────────────────────────
@@ -1246,18 +1246,18 @@ Cerințe titluri:
     }
 
     if (path === '/api/social' && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const body = await request.json();
         await env.PROGRAMARI.put('__social__', JSON.stringify(body));
         return json({ success: true });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     // ── GIBILAN ───────────────────────────────────────────────
 
     if (path === '/api/gibilan/agenda' && request.method === 'GET') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__gibilan__');
         const data = raw ? JSON.parse(raw) : { meetings: [], todos: [], deadlines: [] };
@@ -1266,14 +1266,14 @@ Cerințe titluri:
         const todos = (data.todos || []).filter(t => !t.done);
         const deadlines = (data.deadlines || []).filter(d => d.date >= today);
         return json({ meetings, todos, deadlines });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path === '/api/gibilan/meeting' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const { title, date, time, notes, clientId } = await request.json();
-        if (!title || !date) return json({ error: 'Titlul și data sunt obligatorii' }, 400);
+        if (!title || !date) return json({ error: 'Title and date are required' }, 400);
         const raw = await env.PROGRAMARI.get('__gibilan__');
         const data = raw ? JSON.parse(raw) : { meetings: [], todos: [], deadlines: [] };
         const id = `m_${Date.now()}`;
@@ -1281,26 +1281,26 @@ Cerințe titluri:
         data.meetings.push({ id, title, date, time: time || '', notes: notes || '', clientId: clientId || '' });
         await env.PROGRAMARI.put('__gibilan__', JSON.stringify(data));
         return json({ success: true, id });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path.startsWith('/api/gibilan/meeting/') && request.method === 'PATCH') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/gibilan/meeting/', '');
         const body = await request.json();
         const raw = await env.PROGRAMARI.get('__gibilan__');
         const data = raw ? JSON.parse(raw) : { meetings: [], todos: [], deadlines: [] };
         const item = (data.meetings || []).find(m => m.id === id);
-        if (!item) return json({ error: 'Negăsit' }, 404);
+        if (!item) return json({ error: 'Not found' }, 404);
         Object.assign(item, body);
         await env.PROGRAMARI.put('__gibilan__', JSON.stringify(data));
         return json({ success: true });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path.startsWith('/api/gibilan/meeting/') && request.method === 'DELETE') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/gibilan/meeting/', '');
         const raw = await env.PROGRAMARI.get('__gibilan__');
@@ -1308,14 +1308,14 @@ Cerințe titluri:
         data.meetings = (data.meetings || []).filter(m => m.id !== id);
         await env.PROGRAMARI.put('__gibilan__', JSON.stringify(data));
         return json({ success: true });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path === '/api/gibilan/todo' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const { title, dueDate, priority, clientId } = await request.json();
-        if (!title) return json({ error: 'Titlul este obligatoriu' }, 400);
+        if (!title) return json({ error: 'Title is required' }, 400);
         const raw = await env.PROGRAMARI.get('__gibilan__');
         const data = raw ? JSON.parse(raw) : { meetings: [], todos: [], deadlines: [] };
         const id = `t_${Date.now()}`;
@@ -1323,40 +1323,40 @@ Cerințe titluri:
         data.todos.push({ id, title, dueDate: dueDate || '', priority: priority || 'normal', done: false, clientId: clientId || '' });
         await env.PROGRAMARI.put('__gibilan__', JSON.stringify(data));
         return json({ success: true, id });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path.match(/^\/api\/gibilan\/todo\/[^/]+\/done$/) && request.method === 'PATCH') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/gibilan/todo/', '').replace('/done', '');
         const raw = await env.PROGRAMARI.get('__gibilan__');
         const data = raw ? JSON.parse(raw) : { meetings: [], todos: [], deadlines: [] };
         const todo = (data.todos || []).find(t => t.id === id);
-        if (!todo) return json({ error: 'Negăsit' }, 404);
+        if (!todo) return json({ error: 'Not found' }, 404);
         todo.done = !todo.done;
         await env.PROGRAMARI.put('__gibilan__', JSON.stringify(data));
         return json({ success: true, done: todo.done });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path.startsWith('/api/gibilan/todo/') && !path.endsWith('/done') && request.method === 'PATCH') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/gibilan/todo/', '');
         const body = await request.json();
         const raw = await env.PROGRAMARI.get('__gibilan__');
         const data = raw ? JSON.parse(raw) : { meetings: [], todos: [], deadlines: [] };
         const item = (data.todos || []).find(t => t.id === id);
-        if (!item) return json({ error: 'Negăsit' }, 404);
+        if (!item) return json({ error: 'Not found' }, 404);
         Object.assign(item, body);
         await env.PROGRAMARI.put('__gibilan__', JSON.stringify(data));
         return json({ success: true });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path.startsWith('/api/gibilan/todo/') && !path.endsWith('/done') && request.method === 'DELETE') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/gibilan/todo/', '');
         const raw = await env.PROGRAMARI.get('__gibilan__');
@@ -1364,14 +1364,14 @@ Cerințe titluri:
         data.todos = (data.todos || []).filter(t => t.id !== id);
         await env.PROGRAMARI.put('__gibilan__', JSON.stringify(data));
         return json({ success: true });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path === '/api/gibilan/deadline' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const { title, date, project, notes, clientId } = await request.json();
-        if (!title || !date) return json({ error: 'Titlul și data sunt obligatorii' }, 400);
+        if (!title || !date) return json({ error: 'Title and date are required' }, 400);
         const raw = await env.PROGRAMARI.get('__gibilan__');
         const data = raw ? JSON.parse(raw) : { meetings: [], todos: [], deadlines: [] };
         const id = `d_${Date.now()}`;
@@ -1379,26 +1379,26 @@ Cerințe titluri:
         data.deadlines.push({ id, title, date, project: project || '', notes: notes || '', clientId: clientId || '' });
         await env.PROGRAMARI.put('__gibilan__', JSON.stringify(data));
         return json({ success: true, id });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path.startsWith('/api/gibilan/deadline/') && request.method === 'PATCH') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/gibilan/deadline/', '');
         const body = await request.json();
         const raw = await env.PROGRAMARI.get('__gibilan__');
         const data = raw ? JSON.parse(raw) : { meetings: [], todos: [], deadlines: [] };
         const item = (data.deadlines || []).find(d => d.id === id);
-        if (!item) return json({ error: 'Negăsit' }, 404);
+        if (!item) return json({ error: 'Not found' }, 404);
         Object.assign(item, body);
         await env.PROGRAMARI.put('__gibilan__', JSON.stringify(data));
         return json({ success: true });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path.startsWith('/api/gibilan/deadline/') && request.method === 'DELETE') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/gibilan/deadline/', '');
         const raw = await env.PROGRAMARI.get('__gibilan__');
@@ -1406,23 +1406,23 @@ Cerințe titluri:
         data.deadlines = (data.deadlines || []).filter(d => d.id !== id);
         await env.PROGRAMARI.put('__gibilan__', JSON.stringify(data));
         return json({ success: true });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     // ── CLIENȚI ──────────────────────────────────────────────
     if (path === '/api/clients' && request.method === 'GET') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__clients__');
         return json(raw ? JSON.parse(raw) : []);
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path === '/api/client' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const { name, contact, phone, email, notes } = await request.json();
-        if (!name) return json({ error: 'Numele este obligatoriu' }, 400);
+        if (!name) return json({ error: 'Name is required' }, 400);
         const raw = await env.PROGRAMARI.get('__clients__');
         const clients = raw ? JSON.parse(raw) : [];
         const client = {
@@ -1434,33 +1434,33 @@ Cerințe titluri:
         clients.push(client);
         await env.PROGRAMARI.put('__clients__', JSON.stringify(clients));
         return json(client);
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path.match(/^\/api\/client\/[^/]+$/) && request.method === 'PATCH') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/client/', '');
         const body = await request.json();
         const raw = await env.PROGRAMARI.get('__clients__');
         const clients = raw ? JSON.parse(raw) : [];
         const idx = clients.findIndex(c => c.id === id);
-        if (idx === -1) return json({ error: 'Client negăsit' }, 404);
+        if (idx === -1) return json({ error: 'Client not found' }, 404);
         clients[idx] = { ...clients[idx], ...body };
         await env.PROGRAMARI.put('__clients__', JSON.stringify(clients));
         return json(clients[idx]);
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path.match(/^\/api\/client\/[^/]+$/) && request.method === 'DELETE') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/client/', '');
         const raw = await env.PROGRAMARI.get('__clients__');
         const clients = raw ? JSON.parse(raw) : [];
         await env.PROGRAMARI.put('__clients__', JSON.stringify(clients.filter(c => c.id !== id)));
         return json({ ok: true });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     // ── THEME ─────────────────────────────────────────────────
@@ -1586,12 +1586,12 @@ Cerințe titluri:
     }
 
     if (path === '/api/theme' && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const body = await request.json();
         await env.PROGRAMARI.put('__theme__', JSON.stringify(body));
         return json({ success: true });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     // ── LAYOUT (section order per page) ──────────────────────
@@ -1615,7 +1615,7 @@ Cerințe titluri:
 
     if (path.startsWith('/api/layout/') && request.method === 'GET') {
       const page = path.replace('/api/layout/','');
-      if (!LAYOUT_DEFAULTS[page]) return json({ error: 'Pagină necunoscută' }, 404);
+      if (!LAYOUT_DEFAULTS[page]) return json({ error: 'Unknown page' }, 404);
       try {
         const raw = await env.PROGRAMARI.get('__layout__' + page);
         const stored = raw ? JSON.parse(raw) : {};
@@ -1631,9 +1631,9 @@ Cerințe titluri:
     }
 
     if (path.startsWith('/api/layout/') && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       const page = path.replace('/api/layout/','');
-      if (!LAYOUT_DEFAULTS[page]) return json({ error: 'Pagină necunoscută' }, 404);
+      if (!LAYOUT_DEFAULTS[page]) return json({ error: 'Unknown page' }, 404);
       try {
         const body = await request.json();
         await env.PROGRAMARI.put('__layout__' + page, JSON.stringify({
@@ -1642,7 +1642,7 @@ Cerințe titluri:
           blocks: body.blocks || {}
         }));
         return json({ success: true });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     // ── SITE SETTINGS (hero image etc.) ──────────────────────
@@ -1653,7 +1653,7 @@ Cerințe titluri:
       } catch { return json({}); }
     }
     if (path === '/api/site-settings' && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__site_settings__');
         const existing = raw ? JSON.parse(raw) : {};
@@ -1661,44 +1661,44 @@ Cerințe titluri:
         const updated = Object.assign({}, existing, body);
         await env.PROGRAMARI.put('__site_settings__', JSON.stringify(updated));
         return json({ success: true });
-      } catch { return json({ error: 'Eroare' }, 500); }
+      } catch { return json({ error: 'Error' }, 500); }
     }
 
     // ── MAINTENANCE API ───────────────────────────────────────
     if (path === '/api/maintenance' && request.method === 'GET') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__maintenance__');
         return json(raw ? JSON.parse(raw) : { enabled: false, title: '', message: '', date: '' });
-      } catch { return json({ error: 'Eroare' }, 500); }
+      } catch { return json({ error: 'Error' }, 500); }
     }
     if (path === '/api/maintenance' && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const body = await request.json();
         await env.PROGRAMARI.put('__maintenance__', JSON.stringify({
           enabled: !!body.enabled,
-          title:   String(body.title   || 'Site în construcție').slice(0, 120),
-          message: String(body.message || 'Revenim în curând cu ceva nou!').slice(0, 400),
+          title:   String(body.title   || 'Site under construction').slice(0, 120),
+          message: String(body.message || 'We\'ll be back soon with something new!').slice(0, 400),
           date:    String(body.date    || '').slice(0, 60),
         }));
         return json({ success: true });
-      } catch { return json({ error: 'Eroare' }, 500); }
+      } catch { return json({ error: 'Error' }, 500); }
     }
 
     // Media upload
     if (path === '/api/media' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const ct = request.headers.get('Content-Type') || '';
-        if (!ct.startsWith('image/')) return json({ error: 'Doar imagini acceptate' }, 400);
+        if (!ct.startsWith('image/')) return json({ error: 'Only images are accepted' }, 400);
         const buf = await request.arrayBuffer();
-        if (buf.byteLength > 5 * 1024 * 1024) return json({ error: 'Fișier prea mare (max 5MB)' }, 400);
+        if (buf.byteLength > 5 * 1024 * 1024) return json({ error: 'File too large (max 5MB)' }, 400);
         const ext = ct.includes('png') ? 'png' : ct.includes('gif') ? 'gif' : ct.includes('webp') ? 'webp' : 'jpg';
         const filename = 'media_' + Date.now() + '.' + ext;
         await env.PROGRAMARI.put('__media__' + filename, buf, { metadata: { ct } });
         return json({ url: '/media/' + filename, filename });
-      } catch { return json({ error: 'Eroare la upload' }, 500); }
+      } catch { return json({ error: 'Upload error' }, 500); }
     }
 
     if (path.startsWith('/media/') && request.method === 'GET') {
@@ -1711,11 +1711,11 @@ Cerințe titluri:
         return new Response(obj.value, {
           headers: { 'Content-Type': ct, 'Cache-Control': 'public, max-age=31536000', ...getCors(request) }
         });
-      } catch { return new Response('Eroare', { status: 500 }); }
+      } catch { return new Response('Error', { status: 500 }); }
     }
 
     if (path.startsWith('/api/media') && request.method === 'GET') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const list = await env.PROGRAMARI.list({ prefix: '__media__' });
         const files = list.keys.map(k => ({
@@ -1726,27 +1726,27 @@ Cerințe titluri:
         }));
         files.sort((a, b) => b.ts - a.ts);
         return json({ files });
-      } catch { return json({ error: 'Eroare' }, 500); }
+      } catch { return json({ error: 'Error' }, 500); }
     }
 
     if (path.startsWith('/api/media/') && request.method === 'DELETE') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       const filename = path.replace('/api/media/', '');
       try {
         await env.PROGRAMARI.delete('__media__' + filename);
         return json({ success: true });
-      } catch { return json({ error: 'Eroare' }, 500); }
+      } catch { return json({ error: 'Error' }, 500); }
     }
 
     // ── SERVICII (catalog pentru oferte) ─────────────────────
 
     if (path === '/api/servicii' && request.method === 'GET') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__servicii__');
         // Servicii noi adăugate după seed inițial — migrare automată
         const migrations = [
-          { id:'svc_d17', nume:'Integrare Google Search Console', descriere:'Verificare proprietate, sitemap XML, conectare Google Analytics, raport erori indexare', pret:120, moneda:'EUR', unitate:'proiect', categorie:'seo' },
+          { id:'svc_d17', nume:'Google Search Console Integration', descriere:'Property verification, XML sitemap, Google Analytics connection, indexing error report', pret:120, moneda:'EUR', unitate:'proiect', categorie:'seo' },
         ];
         if (raw !== null) {
           const lista = JSON.parse(raw);
@@ -1761,22 +1761,22 @@ Cerințe titluri:
         }
         // Prima accesare — seed cu servicii tipice agenție web design România
         const defaults = [
-          { id:'svc_d01', nume:'Site de Prezentare', descriere:'5 pagini, design responsiv, CMS, Google Analytics, SEO de bază', pret:899, moneda:'EUR', unitate:'proiect', categorie:'web-design' },
-          { id:'svc_d02', nume:'Site de Prezentare Premium', descriere:'10+ pagini, design custom, blog, multilingv, integrări API', pret:1800, moneda:'EUR', unitate:'proiect', categorie:'web-design' },
-          { id:'svc_d03', nume:'Magazin Online (eCommerce)', descriere:'WooCommerce / Shopify, catalog produse, plăți online, livrare', pret:2500, moneda:'EUR', unitate:'proiect', categorie:'web-design' },
-          { id:'svc_d04', nume:'Landing Page', descriere:'Pagină de conversie optimizată, A/B testing, integrare formulare', pret:450, moneda:'EUR', unitate:'proiect', categorie:'web-design' },
-          { id:'svc_d05', nume:'Redesign Site Existent', descriere:'Redesign complet cu păstrarea conținutului, migrare date, SEO redirect', pret:700, moneda:'EUR', unitate:'proiect', categorie:'web-design' },
-          { id:'svc_d06', nume:'Audit SEO Complet', descriere:'Analiză tehnică, cuvinte cheie, concurență, raport cu recomandări', pret:300, moneda:'EUR', unitate:'proiect', categorie:'seo' },
-          { id:'svc_d07', nume:'SEO Lunar (Ongoing)', descriere:'Optimizare continuă, content, link building, raport lunar, 15-25 keywords', pret:400, moneda:'EUR', unitate:'lună', categorie:'seo' },
-          { id:'svc_d08', nume:'SEO Local (Google Maps)', descriere:'Optimizare Google Business Profile, local citations, recenzii', pret:250, moneda:'EUR', unitate:'lună', categorie:'seo' },
-          { id:'svc_d09', nume:'Management Google Ads', descriere:'Setup + optimizare campanii Search/Display/Shopping, raport lunar', pret:350, moneda:'EUR', unitate:'lună', categorie:'marketing' },
-          { id:'svc_d10', nume:'Management Meta Ads', descriere:'Campanii Facebook & Instagram, A/B testing, retargeting, raport lunar', pret:350, moneda:'EUR', unitate:'lună', categorie:'marketing' },
-          { id:'svc_d11', nume:'Administrare Social Media', descriere:'12 postări/lună, copywriting, grafică branded, monitorizare comunitate', pret:300, moneda:'EUR', unitate:'lună', categorie:'marketing' },
-          { id:'svc_d12', nume:'Email Marketing / Newsletter', descriere:'Design template, segmentare listă, trimitere campanii, raport deschideri', pret:200, moneda:'EUR', unitate:'lună', categorie:'marketing' },
-          { id:'svc_d13', nume:'Mentenanță Site Bază', descriere:'Actualizări CMS & plugin-uri, backup lunar, monitoring uptime, 1h suport', pret:100, moneda:'EUR', unitate:'lună', categorie:'mentenanta' },
-          { id:'svc_d14', nume:'Mentenanță Site Avansat', descriere:'Actualizări, backup săptămânal, securitate, 4h modificări/lună, raport', pret:200, moneda:'EUR', unitate:'lună', categorie:'mentenanta' },
-          { id:'svc_d15', nume:'Logo Design', descriere:'3 variante de concept, fișiere vectoriale finale (AI, SVG, PNG, PDF)', pret:350, moneda:'EUR', unitate:'proiect', categorie:'grafic' },
-          { id:'svc_d16', nume:'Identitate Vizuală Completă', descriere:'Logo + paletă culori + fonturi + business card + antet + ghid brand', pret:800, moneda:'EUR', unitate:'proiect', categorie:'grafic' },
+          { id:'svc_d01', nume:'Presentation Website', descriere:'5 pages, responsive design, CMS, Google Analytics, basic SEO', pret:899, moneda:'EUR', unitate:'proiect', categorie:'web-design' },
+          { id:'svc_d02', nume:'Premium Presentation Website', descriere:'10+ pages, custom design, blog, multilingual, API integrations', pret:1800, moneda:'EUR', unitate:'proiect', categorie:'web-design' },
+          { id:'svc_d03', nume:'Online Shop (eCommerce)', descriere:'WooCommerce / Shopify, product catalogue, online payments, delivery', pret:2500, moneda:'EUR', unitate:'proiect', categorie:'web-design' },
+          { id:'svc_d04', nume:'Landing Page', descriere:'Conversion-optimised page, A/B testing, form integration', pret:450, moneda:'EUR', unitate:'proiect', categorie:'web-design' },
+          { id:'svc_d05', nume:'Existing Website Redesign', descriere:'Full redesign retaining existing content, data migration, SEO redirects', pret:700, moneda:'EUR', unitate:'proiect', categorie:'web-design' },
+          { id:'svc_d06', nume:'Full SEO Audit', descriere:'Technical analysis, keywords, competition, report with recommendations', pret:300, moneda:'EUR', unitate:'proiect', categorie:'seo' },
+          { id:'svc_d07', nume:'Monthly SEO (Ongoing)', descriere:'Continuous optimisation, content, link building, monthly report, 15–25 keywords', pret:400, moneda:'EUR', unitate:'lună', categorie:'seo' },
+          { id:'svc_d08', nume:'Local SEO (Google Maps)', descriere:'Google Business Profile optimisation, local citations, reviews', pret:250, moneda:'EUR', unitate:'lună', categorie:'seo' },
+          { id:'svc_d09', nume:'Google Ads Management', descriere:'Setup + campaign optimisation Search/Display/Shopping, monthly report', pret:350, moneda:'EUR', unitate:'lună', categorie:'marketing' },
+          { id:'svc_d10', nume:'Meta Ads Management', descriere:'Facebook & Instagram campaigns, A/B testing, retargeting, monthly report', pret:350, moneda:'EUR', unitate:'lună', categorie:'marketing' },
+          { id:'svc_d11', nume:'Social Media Management', descriere:'12 posts/month, copywriting, branded graphics, community monitoring', pret:300, moneda:'EUR', unitate:'lună', categorie:'marketing' },
+          { id:'svc_d12', nume:'Email Marketing / Newsletter', descriere:'Template design, list segmentation, campaign delivery, open-rate report', pret:200, moneda:'EUR', unitate:'lună', categorie:'marketing' },
+          { id:'svc_d13', nume:'Basic Website Maintenance', descriere:'CMS & plugin updates, monthly backup, uptime monitoring, 1h support', pret:100, moneda:'EUR', unitate:'lună', categorie:'mentenanta' },
+          { id:'svc_d14', nume:'Advanced Website Maintenance', descriere:'Updates, weekly backup, security, 4h of changes/month, report', pret:200, moneda:'EUR', unitate:'lună', categorie:'mentenanta' },
+          { id:'svc_d15', nume:'Logo Design', descriere:'3 concept variants, final vector files (AI, SVG, PNG, PDF)', pret:350, moneda:'EUR', unitate:'proiect', categorie:'grafic' },
+          { id:'svc_d16', nume:'Complete Visual Identity', descriere:'Logo + colour palette + fonts + business card + letterhead + brand guide', pret:800, moneda:'EUR', unitate:'proiect', categorie:'grafic' },
           ...migrations,
         ];
         await env.PROGRAMARI.put('__servicii__', JSON.stringify(defaults));
@@ -1785,10 +1785,10 @@ Cerințe titluri:
     }
 
     if (path === '/api/servicii' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const body = await request.json();
-        if (!body.nume || body.pret === undefined) return json({ error: 'Câmpuri obligatorii lipsă' }, 400);
+        if (!body.nume || body.pret === undefined) return json({ error: 'Required fields missing' }, 400);
         const raw = await env.PROGRAMARI.get('__servicii__');
         const lista = raw ? JSON.parse(raw) : [];
         const svc = {
@@ -1803,18 +1803,18 @@ Cerințe titluri:
         lista.push(svc);
         await env.PROGRAMARI.put('__servicii__', JSON.stringify(lista));
         return json(svc);
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path.startsWith('/api/servicii/') && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       const id = path.replace('/api/servicii/', '');
       try {
         const body = await request.json();
         const raw = await env.PROGRAMARI.get('__servicii__');
         const lista = raw ? JSON.parse(raw) : [];
         const idx = lista.findIndex(s => s.id === id);
-        if (idx === -1) return json({ error: 'Serviciu negăsit' }, 404);
+        if (idx === -1) return json({ error: 'Service not found' }, 404);
         lista[idx] = {
           ...lista[idx],
           ...(body.nume !== undefined && { nume: String(body.nume).slice(0, 120) }),
@@ -1826,11 +1826,11 @@ Cerințe titluri:
         };
         await env.PROGRAMARI.put('__servicii__', JSON.stringify(lista));
         return json(lista[idx]);
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path.startsWith('/api/servicii/') && request.method === 'DELETE') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       const id = path.replace('/api/servicii/', '');
       try {
         const raw = await env.PROGRAMARI.get('__servicii__');
@@ -1838,13 +1838,13 @@ Cerințe titluri:
         const filtered = lista.filter(s => s.id !== id);
         await env.PROGRAMARI.put('__servicii__', JSON.stringify(filtered));
         return json({ success: true });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     // ── OFERTE ───────────────────────────────────────────────
 
     if (path === '/api/oferte' && request.method === 'GET') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__oferte__');
         return json(raw ? JSON.parse(raw) : []);
@@ -1852,10 +1852,10 @@ Cerințe titluri:
     }
 
     if (path === '/api/oferte' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const body = await request.json();
-        if (!body.client?.name || !body.servicii?.length) return json({ error: 'Date incomplete' }, 400);
+        if (!body.client?.name || !body.servicii?.length) return json({ error: 'Incomplete data' }, 400);
         const raw = await env.PROGRAMARI.get('__oferte__');
         const lista = raw ? JSON.parse(raw) : [];
         const yr = new Date().getFullYear();
@@ -1876,20 +1876,20 @@ Cerințe titluri:
             pret: parseFloat(s.pret) || 0, moneda: s.moneda || 'EUR', unitate: s.unitate || 'proiect',
           })),
           moneda: ['EUR', 'RON'].includes(body.moneda) ? body.moneda : 'EUR',
-          valabilitate: String(body.valabilitate || '30 zile').slice(0, 30),
+          valabilitate: String(body.valabilitate || '30 days').slice(0, 30),
           note: String(body.note || '').slice(0, 500),
           status: 'trimisă',
         };
         lista.push(oferta);
         await env.PROGRAMARI.put('__oferte__', JSON.stringify(lista));
         return json(oferta);
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     // ── OFERTĂ PREVIEW (print as PDF) ────────────────────────
 
     if (path.startsWith('/oferta-preview/') && request.method === 'GET') {
-      if (!isAdmin(url, env)) return new Response('Acces neautorizat', { status: 401 });
+      if (!isAdmin(url, env)) return new Response('Unauthorised', { status: 401 });
       const id = path.replace('/oferta-preview/', '');
       try {
         const [raw, tmplRaw] = await Promise.all([
@@ -1898,7 +1898,7 @@ Cerințe titluri:
         ]);
         const lista = raw ? JSON.parse(raw) : [];
         const o = lista.find(x => x.id === id);
-        if (!o) return new Response('Ofertă negăsită', { status: 404 });
+        if (!o) return new Response('Quotation not found', { status: 404 });
         const t = tmplRaw ? JSON.parse(tmplRaw) : {};
         const prest = {
           nume:  t.prestNume  || 'C Design',
@@ -1910,21 +1910,21 @@ Cerințe titluri:
         };
 
         const total = (o.servicii || []).reduce((s, sv) => s + parseFloat(sv.pret || 0), 0);
-        const dataDoc = new Date(o.createdAt).toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' });
+        const dataDoc = new Date(o.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
         const dataExpira = (() => {
           const d = new Date(o.createdAt);
           const zile = parseInt(o.valabilitate) || 30;
           d.setDate(d.getDate() + zile);
-          return d.toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' });
+          return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
         })();
         function e(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
         const html = `<!DOCTYPE html>
-<html lang="ro">
+<html lang="en-GB">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ofertă ${e(o.numar)} – ${e(prest.nume)}</title>
+<title>Quotation ${e(o.numar)} – ${e(prest.nume)}</title>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:#f0f4f8;color:#1e293b;font-size:14px;line-height:1.6;min-height:100vh;padding:32px 16px 80px;}
@@ -2035,11 +2035,11 @@ Cerințe titluri:
         </div>
       </div>
       <div class="doc-block">
-        <div class="doc-label">Ofertă comercială</div>
+        <div class="doc-label">Commercial quotation</div>
         <div class="doc-nr">${e(o.numar)}</div>
         <div class="doc-date">
-          Emisă: ${dataDoc}<br>
-          ${o.valabilitate !== 'la cerere' ? `Valabilă până: <strong>${dataExpira}</strong>` : 'Valabilitate: la cerere'}
+          Issued: ${dataDoc}<br>
+          ${o.valabilitate !== 'la cerere' ? `Valid until: <strong>${dataExpira}</strong>` : 'Validity: on request'}
         </div>
       </div>
     </div>
@@ -2049,27 +2049,27 @@ Cerințe titluri:
     <!-- TOWARDS -->
     <div class="towards">
       <div class="towards-block">
-        <div class="block-label">Către</div>
+        <div class="block-label">To</div>
         <div class="client-name">${e(o.client?.name || '—')}</div>
         ${o.client?.email ? `<div class="client-detail">✉ ${e(o.client.email)}</div>` : ''}
         ${o.client?.phone ? `<div class="client-detail">✆ ${e(o.client.phone)}</div>` : ''}
       </div>
       <div class="towards-block">
-        <div class="block-label">Detalii</div>
-        <div class="validity-badge">⏱ Valabilitate: ${e(o.valabilitate)}</div>
+        <div class="block-label">Details</div>
+        <div class="validity-badge">⏱ Validity: ${e(o.valabilitate)}</div>
         ${prest.adresa ? `<div class="client-detail" style="margin-top:8px;">📍 ${e(prest.adresa)}</div>` : ''}
       </div>
     </div>
 
     <!-- SERVICII -->
     <div class="tbl-wrap">
-      <div class="tbl-label">Servicii incluse</div>
+      <div class="tbl-label">Services included</div>
       <table>
         <thead>
           <tr>
-            <th style="width:52%">Serviciu / Descriere</th>
-            <th>Unitate</th>
-            <th class="right">Preț</th>
+            <th style="width:52%">Service / Description</th>
+            <th>Unit</th>
+            <th class="right">Price</th>
           </tr>
         </thead>
         <tbody>
@@ -2080,7 +2080,7 @@ Cerințe titluri:
               ${s.descriere ? `<div class="svc-desc">${e(s.descriere)}</div>` : ''}
             </td>
             <td class="svc-unit">/ ${e(s.unitate || 'proiect')}</td>
-            <td class="svc-pret">${parseFloat(s.pret||0).toLocaleString('ro-RO')} <span style="font-size:.75rem;font-weight:400;color:#94a3b8;">${e(s.moneda||o.moneda)}</span></td>
+            <td class="svc-pret">${parseFloat(s.pret||0).toLocaleString('en-GB')} <span style="font-size:.75rem;font-weight:400;color:#94a3b8;">${e(s.moneda||o.moneda)}</span></td>
           </tr>`).join('')}
         </tbody>
       </table>
@@ -2088,13 +2088,13 @@ Cerințe titluri:
 
     <!-- TOTAL -->
     <div class="total-section">
-      <div class="total-left">Total estimat</div>
-      <div class="total-right">${total.toLocaleString('ro-RO')}<span class="total-moneda">${e(o.moneda)}</span></div>
+      <div class="total-left">Estimated total</div>
+      <div class="total-right">${total.toLocaleString('en-GB')}<span class="total-moneda">${e(o.moneda)}</span></div>
     </div>
 
     ${o.note ? `
     <div class="note-box">
-      <strong>Note &amp; condiții</strong>
+      <strong>Notes &amp; conditions</strong>
       <p>${e(o.note)}</p>
     </div>` : ''}
 
@@ -2107,7 +2107,7 @@ Cerințe titluri:
         ${prest.web ? `<div>${e(prest.web)}</div>` : ''}
       </div>
       <div class="sig-block">
-        <div class="sig-label">Reprezentant autorizat</div>
+        <div class="sig-label">Authorised representative</div>
         <div class="sig-line">${e(prest.nume)}</div>
       </div>
     </div>
@@ -2116,20 +2116,20 @@ Cerințe titluri:
 </div>
 <button class="print-btn" onclick="window.print()">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-  Printează / Salvează PDF
+  Print / Save as PDF
 </button>
 </body>
 </html>`;
         return new Response(html, {
           headers: { 'Content-Type': 'text/html;charset=utf-8', 'Cache-Control': 'no-store' }
         });
-      } catch { return new Response('Eroare la generare', { status: 500 }); }
+      } catch { return new Response('Error generating document', { status: 500 }); }
     }
 
     // ── CONTRACT TEMPLATE ────────────────────────────────────
 
     if (path === '/api/contract-template' && request.method === 'GET') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__contract_template__');
         return json(raw ? JSON.parse(raw) : {});
@@ -2137,7 +2137,7 @@ Cerințe titluri:
     }
 
     if (path === '/api/contract-template' && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__contract_template__');
         const existing = raw ? JSON.parse(raw) : {};
@@ -2148,13 +2148,13 @@ Cerințe titluri:
         allowed.forEach(k => { if (body[k] !== undefined) existing[k] = String(body[k]).slice(0,200); });
         await env.PROGRAMARI.put('__contract_template__', JSON.stringify(existing));
         return json({ success: true });
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     // ── CONTRACTE ────────────────────────────────────────────
 
     if (path === '/api/contracte' && request.method === 'GET') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__contracte__');
         return json(raw ? JSON.parse(raw) : []);
@@ -2162,10 +2162,10 @@ Cerințe titluri:
     }
 
     if (path === '/api/contracte' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Acces neautorizat' }, 401);
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const body = await request.json();
-        if (!body.client?.name || !body.obiect) return json({ error: 'Date incomplete' }, 400);
+        if (!body.client?.name || !body.obiect) return json({ error: 'Incomplete data' }, 400);
         const raw = await env.PROGRAMARI.get('__contracte__');
         const lista = raw ? JSON.parse(raw) : [];
         const yr = new Date().getFullYear();
@@ -2187,7 +2187,7 @@ Cerințe titluri:
           moneda: ['EUR','RON'].includes(body.moneda) ? body.moneda : 'EUR',
           avansPct: Math.min(100, Math.max(0, parseFloat(body.avansPct)||50)),
           termen: String(body.termen||'30'),
-          termenUnit: String(body.termenUnit||'zile lucrătoare').slice(0,40),
+          termenUnit: String(body.termenUnit||'working days').slice(0,40),
           clauze: {
             confidentialitate: !!body.clauze?.confidentialitate,
             penalitati: !!body.clauze?.penalitati,
@@ -2198,13 +2198,13 @@ Cerințe titluri:
         lista.push(contract);
         await env.PROGRAMARI.put('__contracte__', JSON.stringify(lista));
         return json(contract);
-      } catch { return json({ error: 'Eroare server' }, 500); }
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     // ── CONTRACT PREVIEW (print as PDF) ──────────────────────
 
     if (path.startsWith('/contract-preview/') && request.method === 'GET') {
-      if (!isAdmin(url, env)) return new Response('Acces neautorizat', { status: 401 });
+      if (!isAdmin(url, env)) return new Response('Unauthorised', { status: 401 });
       const id = path.replace('/contract-preview/', '');
       try {
         const [raw, tmplRaw] = await Promise.all([
@@ -2213,7 +2213,7 @@ Cerințe titluri:
         ]);
         const lista = raw ? JSON.parse(raw) : [];
         const c = lista.find(x => x.id === id);
-        if (!c) return new Response('Contract negăsit', { status: 404 });
+        if (!c) return new Response('Contract not found', { status: 404 });
         const t = tmplRaw ? JSON.parse(tmplRaw) : {};
 
         // Merge template defaults with per-contract values
@@ -2238,7 +2238,7 @@ Cerințe titluri:
         function fmtDate(d) {
           if (!d) return '___________';
           const dt = new Date(d);
-          return dt.toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' });
+          return dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
         }
         const avansVal = (c.total * c.avansPct / 100).toFixed(2);
         const restVal = (c.total - parseFloat(avansVal)).toFixed(2);
@@ -2249,7 +2249,7 @@ Cerințe titluri:
           : `<div style="padding:4px 0;">${e(c.obiect)}</div>`;
 
         const html = `<!DOCTYPE html>
-<html lang="ro">
+<html lang="en-GB">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -2301,17 +2301,17 @@ Cerințe titluri:
   <div class="header">
     <div class="logo">${e(prest.nume)}</div>
     <div class="logo-sub">${prest.web ? e(prest.web) + ' | ' : ''}${prest.email ? e(prest.email) : ''}${prest.tel ? ' | ' + e(prest.tel) : ''}</div>
-    <div class="contract-title">Contract de Prestări Servicii</div>
-    <div class="contract-nr">Nr. <strong>${e(c.numar)}</strong> / Data: <strong>${fmtDate(c.dataSemnare)}</strong></div>
+    <div class="contract-title">Services Agreement</div>
+    <div class="contract-nr">No. <strong>${e(c.numar)}</strong> / Date: <strong>${fmtDate(c.dataSemnare)}</strong></div>
   </div>
 
-  <!-- ART. 1 — PĂRȚILE -->
+  <!-- ART. 1 — PARTIES -->
   <div class="art">
-    <div class="art-title">Art. ${nrArt()} — Părțile contractante</div>
+    <div class="art-title">Art. ${nrArt()} — Contracting parties</div>
     <div class="art-body">
       <div class="parties-grid">
         <div class="party-box">
-          <div class="party-label">Prestator</div>
+          <div class="party-label">Service provider</div>
           <div class="party-name">${e(prest.nume)}</div>
           ${prest.cui ? `<div class="party-detail">CUI: ${e(prest.cui)}</div>` : ''}
           ${prest.regcom ? `<div class="party-detail">Reg.Com.: ${e(prest.regcom)}</div>` : ''}
@@ -2320,80 +2320,80 @@ Cerințe titluri:
           ${prest.tel ? `<div class="party-detail">${e(prest.tel)}</div>` : ''}
           ${prest.web ? `<div class="party-detail">${e(prest.web)}</div>` : ''}
           ${prest.iban ? `<div class="party-detail">IBAN: ${e(prest.iban)}${prest.banca ? ' · ' + e(prest.banca) : ''}</div>` : ''}
-          ${prest.repr ? `<div class="party-detail">Reprezentant: ${e(prest.repr)}</div>` : ''}
+          ${prest.repr ? `<div class="party-detail">Representative: ${e(prest.repr)}</div>` : ''}
         </div>
         <div class="party-box">
-          <div class="party-label">Beneficiar</div>
+          <div class="party-label">Client</div>
           <div class="party-name">${e(c.client.name)}</div>
           ${c.client.cui ? `<div class="party-detail">CUI/CNP: ${e(c.client.cui)}</div>` : ''}
           ${c.client.adresa ? `<div class="party-detail">${e(c.client.adresa)}</div>` : ''}
           ${c.client.email ? `<div class="party-detail">${e(c.client.email)}</div>` : ''}
         </div>
       </div>
-      <p>Au convenit să încheie prezentul contract de prestări servicii în condițiile următoare:</p>
+      <p>The parties have agreed to enter into this services agreement under the following terms and conditions:</p>
     </div>
   </div>
 
-  <!-- ART. 2 — OBIECTUL -->
+  <!-- ART. 2 — SUBJECT MATTER -->
   <div class="art">
-    <div class="art-title">Art. ${nrArt()} — Obiectul contractului</div>
+    <div class="art-title">Art. ${nrArt()} — Subject matter of the contract</div>
     <div class="art-body">
-      <p>Prestatorul se obligă să execute în beneficiul Beneficiarului următoarele servicii:</p>
+      <p>The service provider undertakes to perform the following services for the client:</p>
       <div class="highlight"><strong>${e(c.obiect)}</strong></div>
       ${c.serviciiText ? `<div class="svc-box">${serviciiRows}</div>` : ''}
     </div>
   </div>
 
-  <!-- ART. 3 — DURATA -->
+  <!-- ART. 3 — DURATION -->
   <div class="art">
-    <div class="art-title">Art. ${nrArt()} — Durata contractului și termene de livrare</div>
+    <div class="art-title">Art. ${nrArt()} — Duration and delivery schedule</div>
     <div class="art-body">
-      <p>Prezentul contract intră în vigoare la data semnării de către ambele părți și este valabil până la finalizarea și recepția tuturor serviciilor prevăzute la Art. 2.</p>
-      <p>Termenul de realizare și livrare a serviciilor este de <strong>${e(c.termen)} ${e(c.termenUnit)}</strong>, calculat de la data achitării avansului prevăzut la Art. 4.</p>
-      <p>Termenul poate fi prelungit cu acordul scris al ambelor părți sau în situații de forță majoră.</p>
+      <p>This agreement enters into force on the date of signature by both parties and remains valid until the completion and acceptance of all services specified in Art. 2.</p>
+      <p>The delivery timeline for the services is <strong>${e(c.termen)} ${e(c.termenUnit)}</strong>, calculated from the date the deposit specified in Art. 4 is received.</p>
+      <p>The timeline may be extended by written agreement of both parties or in cases of force majeure.</p>
     </div>
   </div>
 
-  <!-- ART. 4 — PREȚUL -->
+  <!-- ART. 4 — PRICE -->
   <div class="art">
-    <div class="art-title">Art. ${nrArt()} — Prețul și modalitatea de plată</div>
+    <div class="art-title">Art. ${nrArt()} — Price and payment terms</div>
     <div class="art-body">
       <div class="total-box">
-        <span class="total-label">Valoare totală contract:</span>
-        <span class="total-val">${c.total.toLocaleString('ro-RO')} ${e(c.moneda)}</span>
+        <span class="total-label">Total contract value:</span>
+        <span class="total-val">${c.total.toLocaleString('en-GB')} ${e(c.moneda)}</span>
       </div>
       <ul>
-        <li>Avans (<strong>${c.avansPct}%</strong>): <strong>${parseFloat(avansVal).toLocaleString('ro-RO')} ${e(c.moneda)}</strong> — plătibil la semnarea contractului, condiție pentru demararea lucrărilor.</li>
-        <li>Rest de plată (<strong>${(100 - c.avansPct)}%</strong>): <strong>${parseFloat(restVal).toLocaleString('ro-RO')} ${e(c.moneda)}</strong> — plătibil la recepția și acceptarea finală a lucrărilor.</li>
+        <li>Deposit (<strong>${c.avansPct}%</strong>): <strong>${parseFloat(avansVal).toLocaleString('en-GB')} ${e(c.moneda)}</strong> — payable upon signing the contract, as a condition for commencing work.</li>
+        <li>Balance (<strong>${(100 - c.avansPct)}%</strong>): <strong>${parseFloat(restVal).toLocaleString('en-GB')} ${e(c.moneda)}</strong> — payable upon final delivery and acceptance of the work.</li>
       </ul>
-      <p style="margin-top:8px;">Plata se efectuează prin transfer bancar sau în modalitatea agreată în scris de ambele părți. Prețurile nu includ TVA dacă nu se specifică altfel.</p>
-      ${c.clauze.penalitati ? `<p>În cazul întârzierii plăților, Beneficiarul datorează penalități de <strong>${penalitatiPct}% pe zi</strong> din suma restantă, calculate de la data scadenței.</p>` : ''}
+      <p style="margin-top:8px;">Payment shall be made by bank transfer or by any other method agreed in writing by both parties. Prices are exclusive of VAT unless otherwise stated.</p>
+      ${c.clauze.penalitati ? `<p>In the event of late payment, the client shall owe late-payment penalties of <strong>${penalitatiPct}% per day</strong> on the outstanding amount, calculated from the due date.</p>` : ''}
     </div>
   </div>
 
-  <!-- ART. 5 — OBLIGAȚII PRESTATOR -->
+  <!-- ART. 5 — PROVIDER OBLIGATIONS -->
   <div class="art">
-    <div class="art-title">Art. ${nrArt()} — Obligațiile Prestatorului</div>
+    <div class="art-title">Art. ${nrArt()} — Obligations of the service provider</div>
     <div class="art-body">
       <ul>
-        <li>Să execute serviciile prevăzute la Art. 2 cu profesionalism și în termenul stabilit;</li>
-        <li>Să informeze Beneficiarul cu privire la stadiul lucrărilor la solicitarea acestuia;</li>
-        <li>Să solicite Beneficiarului materialele și informațiile necesare (texte, imagini, date de acces) în timp util;</li>
-        <li>Să corecteze orice deficiențe constatate în perioada de garanție de <strong>${garantie} de zile</strong> de la recepția finală, care nu sunt imputabile Beneficiarului;</li>
-        <li>Să păstreze confidențialitatea informațiilor comunicate de Beneficiar pe durata contractului.</li>
+        <li>To perform the services specified in Art. 2 professionally and within the agreed timeframe;</li>
+        <li>To keep the client informed of progress upon request;</li>
+        <li>To request from the client all necessary materials and information (copy, images, access credentials) in good time;</li>
+        <li>To remedy any deficiencies identified during the warranty period of <strong>${garantie} days</strong> from final acceptance, provided they are not attributable to the client;</li>
+        <li>To maintain the confidentiality of information provided by the client during the term of the contract.</li>
       </ul>
     </div>
   </div>
 
-  <!-- ART. 6 — OBLIGAȚII BENEFICIAR -->
+  <!-- ART. 6 — CLIENT OBLIGATIONS -->
   <div class="art">
-    <div class="art-title">Art. ${nrArt()} — Obligațiile Beneficiarului</div>
+    <div class="art-title">Art. ${nrArt()} — Obligations of the client</div>
     <div class="art-body">
       <ul>
-        <li>Să achite avansul la semnarea contractului și restul la recepția finală;</li>
-        <li>Să furnizeze Prestatorului toate materialele necesare (texte, imagini, logo, date de acces) în termen de <strong>5 zile lucrătoare</strong> de la solicitare;</li>
-        <li>Să verifice și să aprobe livrabilele în termen de <strong>5 zile lucrătoare</strong> de la primire; lipsa unui răspuns se consideră acceptare tacită;</li>
-        <li>Să nu utilizeze lucrările livrate înainte de achitarea integrală a prețului contractului.</li>
+        <li>To pay the deposit upon signing the contract and the balance upon final acceptance;</li>
+        <li>To provide the service provider with all necessary materials (copy, images, logo, access credentials) within <strong>5 working days</strong> of request;</li>
+        <li>To review and approve deliverables within <strong>5 working days</strong> of receipt; absence of a response shall be deemed tacit acceptance;</li>
+        <li>Not to use the delivered work prior to full payment of the contract price.</li>
       </ul>
     </div>
   </div>
@@ -2401,75 +2401,75 @@ Cerințe titluri:
   ${c.clauze.ip ? `
   <!-- ART. IP -->
   <div class="art">
-    <div class="art-title">Art. ${nrArt()} — Drepturi de proprietate intelectuală</div>
+    <div class="art-title">Art. ${nrArt()} — Intellectual property rights</div>
     <div class="art-body">
-      <p>Drepturile de proprietate intelectuală asupra tuturor lucrărilor livrate (design, cod sursă, grafică) se transferă integral Beneficiarului după achitarea integrală a prețului contractului.</p>
-      <p>Până la achitarea integrală, Prestatorul poate utiliza lucrările realizate în scopuri de portofoliu și promovare, cu excepția cazului în care Beneficiarul solicită expres confidențialitate.</p>
-      <p>Prestatorul își rezervă dreptul de a menționa în portofoliu proiectele realizate, dacă nu există acorduri de confidențialitate exprese.</p>
+      <p>All intellectual property rights in the delivered work (design, source code, graphics) transfer in full to the client upon receipt of full payment of the contract price.</p>
+      <p>Until full payment is received, the service provider may use the work for portfolio and promotional purposes, unless the client expressly requests confidentiality.</p>
+      <p>The service provider reserves the right to reference completed projects in its portfolio, unless there is an express confidentiality agreement.</p>
     </div>
   </div>` : ''}
 
   ${c.clauze.confidentialitate ? `
-  <!-- ART. CONFIDENTIALITATE -->
+  <!-- ART. CONFIDENTIALITY -->
   <div class="art">
-    <div class="art-title">Art. ${nrArt()} — Confidențialitate</div>
+    <div class="art-title">Art. ${nrArt()} — Confidentiality</div>
     <div class="art-body">
-      <p>Ambele părți se obligă să păstreze confidențialitatea informațiilor dobândite în executarea prezentului contract, care nu sunt publice și pe care cealaltă parte le-a desemnat ca fiind confidențiale.</p>
-      <p>Această obligație rămâne în vigoare pe durata contractului și timp de <strong>${ndaAni} ${ndaAni === 1 ? 'an' : 'ani'}</strong> după încetarea acestuia.</p>
-      <p>Sunt excluse de la obligația de confidențialitate informațiile care sunt sau devin publice fără culpa părții care le divulgă.</p>
+      <p>Both parties undertake to keep confidential any information obtained in the performance of this contract that is not in the public domain and has been designated as confidential by the other party.</p>
+      <p>This obligation remains in force for the duration of the contract and for <strong>${ndaAni} ${ndaAni === 1 ? 'year' : 'years'}</strong> after its termination.</p>
+      <p>Information that is or becomes publicly available without fault of the disclosing party is excluded from the confidentiality obligation.</p>
     </div>
   </div>` : ''}
 
-  <!-- ART. REZILIERE -->
+  <!-- ART. TERMINATION -->
   <div class="art">
-    <div class="art-title">Art. ${nrArt()} — Reziliere</div>
+    <div class="art-title">Art. ${nrArt()} — Termination</div>
     <div class="art-body">
-      <p>Oricare dintre părți poate rezilia prezentul contract cu un preaviz de <strong>${preaviz} zile</strong>, în cazul în care cealaltă parte nu își îndeplinește obligațiile contractuale și nu remediază situația în termenul de preaviz.</p>
-      <p>În cazul rezilierii din culpa Beneficiarului, avansul achitat nu se restituie; în cazul rezilierii din culpa Prestatorului, acesta va restitui avansul și va preda lucrările efectuate până la data rezilierii.</p>
+      <p>Either party may terminate this contract with <strong>${preaviz} days</strong> notice if the other party fails to fulfil its contractual obligations and does not remedy the situation within the notice period.</p>
+      <p>In the event of termination due to the client's fault, the deposit paid shall not be refunded; in the event of termination due to the service provider's fault, the provider shall refund the deposit and deliver all work completed up to the date of termination.</p>
     </div>
   </div>
 
-  <!-- ART. FORȚĂ MAJORĂ -->
+  <!-- ART. FORCE MAJEURE -->
   <div class="art">
-    <div class="art-title">Art. ${nrArt()} — Forță majoră</div>
+    <div class="art-title">Art. ${nrArt()} — Force majeure</div>
     <div class="art-body">
-      <p>Niciuna dintre părți nu va fi răspunzătoare pentru neexecutarea obligațiilor contractuale cauzate de evenimente de forță majoră (calamități naturale, acte de autoritate publică, pandemii, etc.).</p>
-      <p>Partea afectată are obligația de a notifica cealaltă parte în termen de <strong>5 zile</strong> de la apariția evenimentului. Dacă forța majoră depășește <strong>30 de zile</strong>, oricare parte poate rezilia contractul fără daune-interese.</p>
+      <p>Neither party shall be liable for failure to perform its contractual obligations caused by force majeure events (natural disasters, acts of public authority, pandemics, etc.).</p>
+      <p>The affected party must notify the other party within <strong>5 days</strong> of the event occurring. If force majeure continues for more than <strong>30 days</strong>, either party may terminate the contract without liability for damages.</p>
     </div>
   </div>
 
-  <!-- ART. DISPOZIȚII FINALE -->
+  <!-- ART. FINAL PROVISIONS -->
   <div class="art">
-    <div class="art-title">Art. ${nrArt()} — Dispoziții finale</div>
+    <div class="art-title">Art. ${nrArt()} — Final provisions</div>
     <div class="art-body">
-      <p>Prezentul contract este guvernat de legea română. Orice litigiu se va soluționa pe cale amiabilă; în caz contrar, competența revine instanțelor judecătorești de la sediul Prestatorului.</p>
-      <p>Orice modificare a prezentului contract se face prin act adițional semnat de ambele părți.</p>
-      <p>Contractul a fost încheiat în <strong>2 (două) exemplare originale</strong>, câte unul pentru fiecare parte.</p>
+      <p>This contract is governed by Romanian law. Any dispute shall first be resolved amicably; failing that, jurisdiction lies with the courts at the service provider's registered address.</p>
+      <p>Any amendment to this contract shall be made by a written addendum signed by both parties.</p>
+      <p>This contract has been executed in <strong>2 (two) original copies</strong>, one for each party.</p>
     </div>
   </div>
 
-  <!-- SEMNĂTURI -->
+  <!-- SIGNATURES -->
   <div class="signatures">
     <div class="sig-block">
-      <div class="sig-label">Prestator</div>
+      <div class="sig-label">Service provider</div>
       <div class="sig-name">${e(prest.nume)}${prest.repr ? '<div style="font-size:.8rem;color:#555;margin-top:2px;">' + e(prest.repr) + '</div>' : ''}</div>
-      <div class="sig-line">Semnătură și ștampilă</div>
+      <div class="sig-line">Signature and stamp</div>
     </div>
     <div class="sig-block">
-      <div class="sig-label">Beneficiar</div>
+      <div class="sig-label">Client</div>
       <div class="sig-name">${e(c.client.name)}</div>
-      <div class="sig-line">Semnătură și ștampilă</div>
+      <div class="sig-line">Signature and stamp</div>
     </div>
   </div>
 
 </div>
-<button class="print-btn" onclick="window.print()">&#x1F5A8; Printează / Salvează PDF</button>
+<button class="print-btn" onclick="window.print()">&#x1F5A8; Print / Save as PDF</button>
 </body>
 </html>`;
         return new Response(html, {
           headers: { 'Content-Type': 'text/html;charset=utf-8', 'Cache-Control': 'no-store' }
         });
-      } catch { return new Response('Eroare la generare contract', { status: 500 }); }
+      } catch { return new Response('Error generating contract', { status: 500 }); }
     }
 
     // SSR: injectează setările salvate în index.html pentru a evita flash-ul de conținut hardcodat
