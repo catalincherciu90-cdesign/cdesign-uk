@@ -24,9 +24,9 @@ function renderArticle(post) {
     description: post.excerpt || plain.slice(0, 155),
     datePublished: post.createdAt,
     dateModified: post.updatedAt || post.createdAt,
-    author: { '@type': 'Organization', name: 'C Design', url: 'https://www.c-design.ro' },
-    publisher: { '@type': 'Organization', name: 'C Design', url: 'https://www.c-design.ro' },
-    mainEntityOfPage: { '@type': 'WebPage', '@id': `https://www.c-design.ro/blog/${post.slug}` },
+    author: { '@type': 'Organization', name: 'C Design', url: 'https://www.cdesigns.uk' },
+    publisher: { '@type': 'Organization', name: 'C Design', url: 'https://www.cdesigns.uk' },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `https://www.cdesigns.uk/blog/${post.slug}` },
   });
   const yr = new Date().getFullYear();
   return `<!DOCTYPE html>
@@ -37,20 +37,20 @@ function renderArticle(post) {
 <title>${escHtml(post.title)} – C Design</title>
 <meta name="description" content="${desc}">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://www.c-design.ro/blog/${post.slug}">
+<link rel="canonical" href="https://www.cdesigns.uk/blog/${post.slug}">
 <link rel="icon" type="image/png" href="/logo-c-design.png">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://www.c-design.ro/blog/${post.slug}">
+<meta property="og:url" content="https://www.cdesigns.uk/blog/${post.slug}">
 <meta property="og:title" content="${escHtml(post.title)}">
 <meta property="og:description" content="${desc}">
-<meta property="og:image" content="https://www.c-design.ro/cover.jpg">
+<meta property="og:image" content="https://www.cdesigns.uk/cover.jpg">
 <meta property="og:locale" content="en_GB">
 <meta property="og:site_name" content="C Design">
 <meta property="article:published_time" content="${post.createdAt}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${escHtml(post.title)}">
 <meta name="twitter:description" content="${desc}">
-<meta name="twitter:image" content="https://www.c-design.ro/cover.jpg">
+<meta name="twitter:image" content="https://www.cdesigns.uk/cover.jpg">
 <script type="application/ld+json">${schema}<\/script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -109,7 +109,7 @@ footer a{color:var(--muted);transition:color .2s}footer a:hover{color:var(--teal
 <nav>
   <div class="wide">
     <div class="nav-inner">
-      <a href="/" class="logo"><img src="/logo-c-design.png" alt="C Design" style="height:42px;width:auto;display:block;"></a>
+      <a href="/" class="logo"><img src="/logo-c-design.webp" alt="C Design" style="height:42px;width:auto;display:block;"></a>
       <ul class="nav-links" role="list">
         <li><a href="/#servicii">Services</a></li>
         <li><a href="/#portofoliu">Portfolio</a></li>
@@ -192,13 +192,13 @@ async function sendDeadlineNotification(entry, env) {
           ${entry.note ? `<tr><td style="padding:8px 0;color:#6a7585;font-size:.85rem;vertical-align:top;">Note</td><td style="padding:8px 0;color:#080b0e;">${escHtml(entry.note)}</td></tr>` : ''}
         </table>
         <div style="text-align:center;">
-          <a href="https://www.c-design.ro/programari.html" style="display:inline-block;background:#00c8b4;color:#000;padding:14px 32px;border-radius:8px;font-weight:700;font-size:.95rem;text-decoration:none;">
+          <a href="https://www.cdesigns.uk/programari.html" style="display:inline-block;background:#00c8b4;color:#000;padding:14px 32px;border-radius:8px;font-weight:700;font-size:.95rem;text-decoration:none;">
             Open CRM →
           </a>
         </div>
       </td></tr>
       <tr><td style="background:#f9fafb;padding:20px 32px;text-align:center;border-top:1px solid #e5e7eb;">
-        <p style="color:#9aa5b4;font-size:.8rem;margin:0;">C Design · <a href="https://www.c-design.ro" style="color:#00c8b4;text-decoration:none;">www.c-design.ro</a></p>
+        <p style="color:#9aa5b4;font-size:.8rem;margin:0;">C Design · <a href="https://www.cdesigns.uk" style="color:#00c8b4;text-decoration:none;">www.c-design.ro</a></p>
       </td></tr>
     </table>
   </td></tr>
@@ -348,13 +348,13 @@ async function sendGibilanMorningEmail(env) {
       </td></tr>
       <!-- CTA -->
       <tr><td style="padding:0 32px 28px;text-align:center;">
-        <a href="https://www.c-design.ro/programari.html" style="display:inline-block;background:#00c8b4;color:#060f0f;padding:12px 28px;border-radius:8px;font-weight:700;font-size:.9rem;text-decoration:none;">
+        <a href="https://www.cdesigns.uk/programari.html" style="display:inline-block;background:#00c8b4;color:#060f0f;padding:12px 28px;border-radius:8px;font-weight:700;font-size:.9rem;text-decoration:none;">
           Open Gibilan →
         </a>
       </td></tr>
       <!-- FOOTER -->
       <tr><td style="background:#f9fafb;padding:16px 32px;text-align:center;border-top:1px solid #eee;">
-        <p style="color:#9aa5b4;font-size:.75rem;margin:0;">Gibilan · C Design · <a href="https://www.c-design.ro" style="color:#00a898;text-decoration:none;">c-design.ro</a></p>
+        <p style="color:#9aa5b4;font-size:.75rem;margin:0;">Gibilan · C Design · <a href="https://www.cdesigns.uk" style="color:#00a898;text-decoration:none;">c-design.ro</a></p>
       </td></tr>
     </table>
   </td></tr>
@@ -393,7 +393,7 @@ async function checkCrmDeadlines(env) {
   }
 }
 
-const ALLOWED_ORIGINS = ['https://www.c-design.ro', 'https://c-design.ro'];
+const ALLOWED_ORIGINS = ['https://www.cdesigns.uk', 'https://c-design.ro'];
 
 function getCors(request) {
   const origin = request ? request.headers.get('Origin') : null;
@@ -490,7 +490,7 @@ async function sendBookingNotification(booking, env) {
           </td></tr>` : ''}
         </table>
         <div style="text-align:center;margin-top:24px;">
-          <a href="https://www.c-design.ro/programari.html" style="display:inline-block;background:#00c8b4;color:#080b0e;font-weight:700;font-size:.9rem;padding:12px 28px;border-radius:8px;text-decoration:none;">
+          <a href="https://www.cdesigns.uk/programari.html" style="display:inline-block;background:#00c8b4;color:#080b0e;font-weight:700;font-size:.9rem;padding:12px 28px;border-radius:8px;text-decoration:none;">
             View in admin panel →
           </a>
         </div>
@@ -568,7 +568,7 @@ async function sendBookingNotification(booking, env) {
         </table>
       </td></tr>
       <tr><td style="background:#f9f9f9;padding:16px 32px;text-align:center;border-top:1px solid #eee;">
-        <div style="font-size:.78rem;color:#9aa5b4;">© ${new Date().getFullYear()} C Design · <a href="https://www.c-design.ro" style="color:#00c8b4;text-decoration:none;">c-design.ro</a></div>
+        <div style="font-size:.78rem;color:#9aa5b4;">© ${new Date().getFullYear()} C Design · <a href="https://www.cdesigns.uk" style="color:#00c8b4;text-decoration:none;">c-design.ro</a></div>
       </td></tr>
     </table>
   </td></tr>
@@ -676,7 +676,7 @@ export default {
       '/campanie-florarii/tema3': '/',
     };
     if (REDIRECTS_301[path]) {
-      return Response.redirect('https://www.c-design.ro' + REDIRECTS_301[path], 301);
+      return Response.redirect('https://www.cdesigns.uk' + REDIRECTS_301[path], 301);
     }
 
     // ── BLOG PUBLIC PAGES ─────────────────────────────────────
@@ -693,11 +693,11 @@ export default {
         const raw = await env.PROGRAMARI.get('__blog__');
         const posts = raw ? JSON.parse(raw) : [];
         const post = posts.find(p => p.slug === slug && p.published);
-        if (!post) return Response.redirect('https://www.c-design.ro/blog', 302);
+        if (!post) return Response.redirect('https://www.cdesigns.uk/blog', 302);
         return new Response(renderArticle(post), {
           headers: { 'Content-Type': 'text/html;charset=utf-8', 'Cache-Control': 'public,max-age=300' },
         });
-      } catch { return Response.redirect('https://www.c-design.ro/blog', 302); }
+      } catch { return Response.redirect('https://www.cdesigns.uk/blog', 302); }
     }
 
     // ── PACHET STARTUP ────────────────────────────────────────
