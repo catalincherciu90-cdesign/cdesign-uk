@@ -731,21 +731,39 @@ export default {
 
     // ── CITY LANDING PAGES ───────────────────────────────────
 
-    if (path === '/web-design-bucuresti') {
+    if (path === '/web-design-leeds') {
       const assetUrl = new URL(request.url);
-      assetUrl.pathname = '/web-design-bucuresti.html';
+      assetUrl.pathname = '/web-design-leeds.html';
       return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
     }
 
-    if (path === '/web-design-cluj') {
+    if (path === '/web-design-sheffield') {
       const assetUrl = new URL(request.url);
-      assetUrl.pathname = '/web-design-cluj.html';
+      assetUrl.pathname = '/web-design-sheffield.html';
       return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
     }
 
-    if (path === '/web-design-timisoara') {
+    if (path === '/web-design-nottingham') {
       const assetUrl = new URL(request.url);
-      assetUrl.pathname = '/web-design-timisoara.html';
+      assetUrl.pathname = '/web-design-nottingham.html';
+      return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
+    }
+
+    if (path === '/web-design-derby') {
+      const assetUrl = new URL(request.url);
+      assetUrl.pathname = '/web-design-derby.html';
+      return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
+    }
+
+    if (path === '/web-design-blackburn') {
+      const assetUrl = new URL(request.url);
+      assetUrl.pathname = '/web-design-blackburn.html';
+      return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
+    }
+
+    if (path === '/web-design-preston') {
+      const assetUrl = new URL(request.url);
+      assetUrl.pathname = '/web-design-preston.html';
       return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
     }
 
@@ -1598,9 +1616,12 @@ Cerințe titluri:
 
     const LAYOUT_DEFAULTS = {
       index: ['hero','carousel','showcase','services','startup','industries','process','portfolio','testimonials','contact'],
-      'web-design-bucuresti': ['hero','trust','services','portfolio','process','contact'],
-      'web-design-cluj':      ['hero','trust','services','portfolio','process','contact'],
-      'web-design-timisoara': ['hero','trust','services','portfolio','process','contact'],
+      'web-design-leeds': ['hero','trust','services','portfolio','process','contact'],
+      'web-design-sheffield': ['hero','trust','services','portfolio','process','contact'],
+      'web-design-nottingham': ['hero','trust','services','portfolio','process','contact'],
+      'web-design-derby': ['hero','trust','services','portfolio','process','contact'],
+      'web-design-blackburn': ['hero','trust','services','portfolio','process','contact'],
+      'web-design-preston': ['hero','trust','services','portfolio','process','contact'],
       'web-design-auto':      ['hero','trust','services','portfolio','process','contact'],
       'web-design-restaurante':['hero','trust','services','portfolio','process','contact'],
       'web-design-afaceri-mici':['hero','trust','services','portfolio','process','contact'],

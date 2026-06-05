@@ -27,27 +27,51 @@
   </url>
 
   <url>
-    <loc>https://www.c-design.ro/web-design-bucuresti</loc>
-    <lastmod>2026-05-21</lastmod>
+    <loc>https://www.c-design.ro/web-design-leeds</loc>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="ro" href="https://www.c-design.ro/web-design-bucuresti"/>
+    <xhtml:link rel="alternate" hreflang="en-GB" href="https://www.c-design.ro/web-design-leeds"/>
   </url>
 
   <url>
-    <loc>https://www.c-design.ro/web-design-cluj</loc>
-    <lastmod>2026-05-21</lastmod>
+    <loc>https://www.c-design.ro/web-design-sheffield</loc>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="ro" href="https://www.c-design.ro/web-design-cluj"/>
+    <xhtml:link rel="alternate" hreflang="en-GB" href="https://www.c-design.ro/web-design-sheffield"/>
   </url>
 
   <url>
-    <loc>https://www.c-design.ro/web-design-timisoara</loc>
-    <lastmod>2026-05-21</lastmod>
+    <loc>https://www.c-design.ro/web-design-nottingham</loc>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="ro" href="https://www.c-design.ro/web-design-timisoara"/>
+    <xhtml:link rel="alternate" hreflang="en-GB" href="https://www.c-design.ro/web-design-nottingham"/>
+  </url>
+
+  <url>
+    <loc>https://www.c-design.ro/web-design-derby</loc>
+    <lastmod>2026-06-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en-GB" href="https://www.c-design.ro/web-design-derby"/>
+  </url>
+
+  <url>
+    <loc>https://www.c-design.ro/web-design-blackburn</loc>
+    <lastmod>2026-06-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en-GB" href="https://www.c-design.ro/web-design-blackburn"/>
+  </url>
+
+  <url>
+    <loc>https://www.c-design.ro/web-design-preston</loc>
+    <lastmod>2026-06-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en-GB" href="https://www.c-design.ro/web-design-preston"/>
   </url>
 
   <url>
