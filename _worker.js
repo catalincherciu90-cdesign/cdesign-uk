@@ -116,7 +116,7 @@ footer a{color:var(--muted);transition:color .2s}footer a:hover{color:var(--teal
         <li><a href="/#contact">Contact</a></li>
         <li><a href="/blog">Blog</a></li>
       </ul>
-      <a href="tel:+40753116155" class="nav-phone">0753 116 155</a>
+      <a href="tel:+447312799449" class="nav-phone">07312 799449</a>
       <a href="/#contact" class="btn-nav">Book now →</a>
       <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
@@ -124,7 +124,7 @@ footer a{color:var(--muted);transition:color .2s}footer a:hover{color:var(--teal
 </nav>
 <div class="mobile-menu" id="mobileMenu">
   <a href="/#servicii">Services</a><a href="/#portofoliu">Portfolio</a><a href="/#contact">Contact</a><a href="/blog">Blog</a>
-  <a href="tel:+40753116155">0753 116 155</a><a href="/#contact" class="btn-nav">Book now →</a>
+  <a href="tel:+447312799449">07312 799449</a><a href="/#contact" class="btn-nav">Book now →</a>
 </div>
 <main>
 <article>
@@ -143,7 +143,7 @@ footer a{color:var(--muted);transition:color .2s}footer a:hover{color:var(--teal
 </article>
 </main>
 <footer>
-  <p>© ${yr} C Design · <a href="tel:+40753116155">0753 116 155</a> · <a href="mailto:office@c-design.ro">office@c-design.ro</a> · <a href="/blog">Blog</a></p>
+  <p>© ${yr} C Design · <a href="tel:+447312799449">07312 799449</a> · <a href="mailto:office@c-design.ro">office@c-design.ro</a> · <a href="/blog">Blog</a></p>
 </footer>
 <script>
 const ham=document.getElementById('hamburger'),mob=document.getElementById('mobileMenu');
@@ -496,7 +496,7 @@ async function sendBookingNotification(booking, env) {
         </div>
       </td></tr>
       <tr><td style="background:#f9f9f9;padding:16px 32px;text-align:center;border-top:1px solid #eee;">
-        <div style="font-size:.78rem;color:#9aa5b4;">c-design.ro · 0753 116 155 · office@c-design.ro</div>
+        <div style="font-size:.78rem;color:#9aa5b4;">c-design.ro · 07312 799449 · office@c-design.ro</div>
       </td></tr>
     </table>
   </td></tr>
@@ -559,10 +559,10 @@ async function sendBookingNotification(booking, env) {
         <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
           <tr>
             <td style="padding:0 8px 0 0;">
-              <a href="tel:+40753116155" style="display:block;text-align:center;background:#080b0e;color:#00c8b4;font-weight:600;font-size:.9rem;padding:12px;border-radius:8px;text-decoration:none;">📞 0753 116 155</a>
+              <a href="tel:+447312799449" style="display:block;text-align:center;background:#080b0e;color:#00c8b4;font-weight:600;font-size:.9rem;padding:12px;border-radius:8px;text-decoration:none;">📞 07312 799449</a>
             </td>
             <td style="padding:0 0 0 8px;">
-              <a href="https://wa.me/40753116155" style="display:block;text-align:center;background:#25d366;color:#fff;font-weight:600;font-size:.9rem;padding:12px;border-radius:8px;text-decoration:none;">💬 WhatsApp</a>
+              <a href="https://wa.me/447312799449" style="display:block;text-align:center;background:#25d366;color:#fff;font-weight:600;font-size:.9rem;padding:12px;border-radius:8px;text-decoration:none;">💬 WhatsApp</a>
             </td>
           </tr>
         </table>
