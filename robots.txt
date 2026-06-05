@@ -1,0 +1,15 @@
+# robots.txt — C Design (www.c-design.ro)
+
+User-agent: *
+Allow: /
+
+# Fișiere de sistem — nu trebuie indexate
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /*.json$
+
+# Sitemap
+Sitemap: https://www.c-design.ro/sitemap.xml
+
+# Crawl-delay recomandat
+Crawl-delay: 10

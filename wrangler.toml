@@ -1,0 +1,18 @@
+name = "cdesign"
+main = "_worker.js"
+compatibility_date = "2026-05-11"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "."
+binding = "ASSETS"
+
+[[kv_namespaces]]
+binding = "PROGRAMARI"
+id = "6c999cb522f04569824a7a97ce497acd"
+
+[ai]
+binding = "AI"
+
+[triggers]
+crons = ["0 7 * * *"]

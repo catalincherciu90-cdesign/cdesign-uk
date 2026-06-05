@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <url>
+    <loc>https://www.c-design.ro/</loc>
+    <lastmod>2026-05-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="ro" href="https://www.c-design.ro/"/>
+  </url>
+
+  <url>
+    <loc>https://www.c-design.ro/pachet-startup</loc>
+    <lastmod>2026-05-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ro" href="https://www.c-design.ro/pachet-startup"/>
+  </url>
+
+  <url>
+    <loc>https://www.c-design.ro/blog</loc>
+    <lastmod>2026-05-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="ro" href="https://www.c-design.ro/blog"/>
+  </url>
+
+  <url>
+    <loc>https://www.c-design.ro/web-design-bucuresti</loc>
+    <lastmod>2026-05-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ro" href="https://www.c-design.ro/web-design-bucuresti"/>
+  </url>
+
+  <url>
+    <loc>https://www.c-design.ro/web-design-cluj</loc>
+    <lastmod>2026-05-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ro" href="https://www.c-design.ro/web-design-cluj"/>
+  </url>
+
+  <url>
+    <loc>https://www.c-design.ro/web-design-timisoara</loc>
+    <lastmod>2026-05-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ro" href="https://www.c-design.ro/web-design-timisoara"/>
+  </url>
+
+  <url>
+    <loc>https://www.c-design.ro/web-design-auto</loc>
+    <lastmod>2026-05-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ro" href="https://www.c-design.ro/web-design-auto"/>
+  </url>
+
+  <url>
+    <loc>https://www.c-design.ro/web-design-restaurante</loc>
+    <lastmod>2026-05-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ro" href="https://www.c-design.ro/web-design-restaurante"/>
+  </url>
+
+  <url>
+    <loc>https://www.c-design.ro/web-design-afaceri-mici</loc>
+    <lastmod>2026-05-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ro" href="https://www.c-design.ro/web-design-afaceri-mici"/>
+  </url>
+
+  <url>
+    <loc>https://www.c-design.ro/calculator-pret</loc>
+    <lastmod>2026-05-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="ro" href="https://www.c-design.ro/calculator-pret"/>
+  </url>
+
+  <url>
+    <loc>https://www.c-design.ro/abonament-lunar</loc>
+    <lastmod>2026-05-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ro" href="https://www.c-design.ro/abonament-lunar"/>
+  </url>
+
+  <url>
+    <loc>https://www.c-design.ro/politica-confidentialitate</loc>
+    <lastmod>2026-05-28</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="ro" href="https://www.c-design.ro/politica-confidentialitate"/>
+  </url>
+
+</urlset>
