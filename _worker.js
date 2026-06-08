@@ -878,16 +878,95 @@ export default {
     if (path === '/api/project' && request.method === 'POST') {
       if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
-        const { emoji, tag, title, description } = await request.json();
+        const { emoji, tag, title, description, problema, solutie, rezultat } = await request.json();
         if (!title) return json({ error: 'Title is required' }, 400);
         const raw = await env.PROGRAMARI.get('__projects__');
         const projects = raw ? JSON.parse(raw) : [...DEFAULT_PROJECTS];
-        const id = `p_${Date.now()}`;
+        const id = `p_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
         const maxOrder = projects.reduce((m, p) => Math.max(m, p.order), -1);
-        projects.push({ id, emoji: emoji || '🌐', tag: tag || 'Web', title, description: description || '', order: maxOrder + 1 });
+        projects.push({ id, emoji: emoji || '🌐', tag: tag || 'Web', title, description: description || '', problema: problema || '', solutie: solutie || '', rezultat: rezultat || '', order: maxOrder + 1 });
         await env.PROGRAMARI.put('__projects__', JSON.stringify(projects));
         return json({ success: true, id });
       } catch { return json({ error: 'Server error' }, 500); }
+    }
+
+    if (path === '/api/project/generate' && request.method === 'POST') {
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401, request);
+      try {
+        const body = await request.json().catch(() => ({}));
+        const industries = Array.isArray(body.industries) ? body.industries.map(s => String(s).trim()).filter(Boolean).slice(0, 12) : [];
+        const count = Math.min(Math.max(parseInt(body.count) || 4, 1), 8);
+        const tone = String(body.tone || '').trim().slice(0, 80);
+        if (!env.AI) return json({ error: 'AI binding unavailable — check wrangler.toml' }, 500, request);
+
+        const industryLine = industries.length
+          ? `Use exactly these industries, one example each: ${industries.join(', ')}.`
+          : `Pick ${count} varied industries relevant to small businesses (e.g. restaurant, hair salon, car service, florist, construction, dental clinic, gym, real estate, law firm, e-commerce).`;
+        const toneLine = tone ? `\nTone / style for all examples: ${tone}.` : '';
+
+        const prompt = `You are a copywriter for the web design agency "C Design". Generate ${count} realistic portfolio project examples (websites delivered for clients), each for a different industry. ${industryLine}${toneLine}
+
+Return ONLY a valid JSON array, with no text before or after, using exactly this structure:
+[
+  {
+    "emoji": "a single emoji representing the industry",
+    "tag": "short category (1-2 words), e.g. Restaurant, Auto, Florist",
+    "title": "the project name (max 45 characters)",
+    "description": "short description of the website (1 sentence)",
+    "problema": "the client's challenge before the website (1 sentence)",
+    "solutie": "the solution delivered (1 sentence)",
+    "rezultat": "a concrete result with plausible numbers (1 sentence)"
+  }
+]
+
+Requirements:
+- Language: ENGLISH (the site targets the UK market)
+- Exactly ${count} objects in the array, each a different industry
+- Realistic, credible numbers in "rezultat"
+- No text outside the JSON array`;
+
+        const ai = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 2048,
+        });
+
+        const text = (ai.response || '').trim();
+        const match = text.match(/\[[\s\S]*\]/);
+        if (!match) return json({ error: 'The model did not return valid JSON. Please try again.' }, 500, request);
+
+        // Sanitize control characters inside JSON string values
+        let rawJson = match[0];
+        let sanitized = '';
+        let inStr = false, esc = false;
+        for (let i = 0; i < rawJson.length; i++) {
+          const c = rawJson[i];
+          if (esc) { sanitized += c; esc = false; continue; }
+          if (c === '\\') { sanitized += c; esc = true; continue; }
+          if (c === '"') { inStr = !inStr; sanitized += c; continue; }
+          if (inStr && c.charCodeAt(0) < 0x20) {
+            if (c === '\n') sanitized += '\\n';
+            else if (c === '\r') sanitized += '\\r';
+            else if (c === '\t') sanitized += '\\t';
+          } else { sanitized += c; }
+        }
+
+        let arr;
+        try { arr = JSON.parse(sanitized); } catch { return json({ error: 'Invalid JSON from model. Please try again.' }, 500, request); }
+        if (!Array.isArray(arr)) arr = [arr];
+        const examples = arr.filter(p => p && p.title).map(p => ({
+          emoji: String(p.emoji || '🌐').slice(0, 4),
+          tag: String(p.tag || 'Web').slice(0, 30),
+          title: String(p.title || '').slice(0, 80),
+          description: String(p.description || ''),
+          problema: String(p.problema || ''),
+          solutie: String(p.solutie || ''),
+          rezultat: String(p.rezultat || ''),
+        }));
+        if (!examples.length) return json({ error: 'No examples generated. Please try again.' }, 500, request);
+        return json({ success: true, examples }, 200, request);
+      } catch (e) {
+        return json({ error: 'Generation error: ' + (e.message || 'unknown') }, 500, request);
+      }
     }
 
     if (path.startsWith('/api/project/') && request.method === 'PUT') {
@@ -1133,6 +1212,14 @@ Cerințe titluri:
         if (idx === -1) return json({ error: 'Not found' }, 404);
         posts[idx] = { ...posts[idx], ...body, updatedAt: new Date().toISOString() };
         await env.PROGRAMARI.put('__blog__', JSON.stringify(posts));
+        return json({ success: true });
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+
+    if (path === '/api/blog/reset' && request.method === 'DELETE') {
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      try {
+        await env.PROGRAMARI.put('__blog__', JSON.stringify([]));
         return json({ success: true });
       } catch { return json({ error: 'Server error' }, 500); }
     }
@@ -1423,6 +1510,22 @@ Cerințe titluri:
         const data = raw ? JSON.parse(raw) : { meetings: [], todos: [], deadlines: [] };
         data.deadlines = (data.deadlines || []).filter(d => d.id !== id);
         await env.PROGRAMARI.put('__gibilan__', JSON.stringify(data));
+        return json({ success: true });
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+
+    if (path === '/api/gibilan/reset' && request.method === 'DELETE') {
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const which = url.searchParams.get('which'); // 'meetings' | 'todos' | 'deadlines' | null = all
+        if (!which) {
+          await env.PROGRAMARI.put('__gibilan__', JSON.stringify({ meetings: [], todos: [], deadlines: [] }));
+        } else {
+          const raw = await env.PROGRAMARI.get('__gibilan__');
+          const data = raw ? JSON.parse(raw) : { meetings: [], todos: [], deadlines: [] };
+          if (['meetings', 'todos', 'deadlines'].includes(which)) data[which] = [];
+          await env.PROGRAMARI.put('__gibilan__', JSON.stringify(data));
+        }
         return json({ success: true });
       } catch { return json({ error: 'Server error' }, 500); }
     }
