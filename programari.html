@@ -843,8 +843,43 @@
     <div class="main">
       <div class="proj-toolbar">
         <h3>// our_projects &mdash; visible on site</h3>
-        <button class="btn-add" onclick="openModal()">+ New Project</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn-add" onclick="toggleProjGen()" id="btnProjGen" style="background:var(--teal-dim);border:1px solid var(--teal-border);color:var(--teal);">&#x2728; Generate examples</button>
+          <button class="btn-add" onclick="openModal()">+ New Project</button>
+        </div>
       </div>
+
+      <!-- AI PORTFOLIO GENERATOR PANEL -->
+      <div id="projGenPanel" style="display:none;background:var(--bg3);border:1px solid var(--teal-border);border-radius:12px;padding:20px 22px;margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <span style="font-family:'Share Tech Mono',monospace;font-size:.8rem;color:var(--teal);">// generate_portfolio_examples</span>
+          <span style="font-size:.75rem;color:var(--muted);">— AI creates realistic website examples for the industries you choose</span>
+        </div>
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:14px;">
+          <div>
+            <label class="f-label" style="margin-bottom:5px;display:block;">// industries (optional, comma-separated)</label>
+            <input class="f-input" type="text" id="projGenIndustries" placeholder="e.g. restaurant, dental clinic, gym, real estate..." style="margin-bottom:0;">
+          </div>
+          <div>
+            <label class="f-label" style="margin-bottom:5px;display:block;">// how many</label>
+            <select class="f-input" id="projGenCount" style="margin-bottom:0;">
+              <option>3</option><option selected>4</option><option>5</option><option>6</option><option>8</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <button class="btn-save" id="projGenGo" onclick="runProjGen()" style="padding:10px 20px;">&#x2728; Generate now</button>
+          <span id="projGenStatus" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;display:none;"></span>
+        </div>
+        <div id="projGenResults" style="margin-top:20px;display:none;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--muted);">// review &amp; pick the ones to add to the portfolio</div>
+            <button class="btn-save" onclick="addGeneratedProjects()" id="projGenAddBtn" style="padding:8px 16px;">+ Add selected to portfolio</button>
+          </div>
+          <div id="projGenGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;"></div>
+        </div>
+      </div>
+
       <div class="projects-grid" id="projectsGrid">
         <div class="loading">Loading projects...</div>
       </div>
@@ -2355,6 +2390,80 @@
       allProjects = await res.json();
       renderProjects();
     } catch { document.getElementById('projectsGrid').innerHTML = '<div class="empty-state"><p>// Error loading data.</p></div>'; }
+  }
+
+  // ── AI portfolio generator ───────────────────────────────
+  let generatedProjects = [];
+
+  function toggleProjGen() {
+    const p = document.getElementById('projGenPanel');
+    p.style.display = p.style.display === 'none' ? 'block' : 'none';
+  }
+
+  async function runProjGen() {
+    const industries = document.getElementById('projGenIndustries').value.split(',').map(s => s.trim()).filter(Boolean);
+    const count = parseInt(document.getElementById('projGenCount').value) || 4;
+    const status = document.getElementById('projGenStatus');
+    const btn = document.getElementById('projGenGo');
+    status.style.display = 'inline'; status.style.color = 'var(--muted)';
+    status.textContent = '⏳ Generating... (can take 10–20s)';
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/project/generate?token=' + encodeURIComponent(adminToken), {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ industries, count }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) {
+        status.style.color = '#e74c3c'; status.textContent = '✗ ' + (data.error || 'Error generating');
+        btn.disabled = false; return;
+      }
+      generatedProjects = data.examples || [];
+      renderProjGenResults();
+      status.style.display = 'none';
+    } catch { status.style.color = '#e74c3c'; status.textContent = '✗ Network error'; }
+    btn.disabled = false;
+  }
+
+  function renderProjGenResults() {
+    const wrap = document.getElementById('projGenResults');
+    const grid = document.getElementById('projGenGrid');
+    if (!generatedProjects.length) { wrap.style.display = 'none'; return; }
+    grid.innerHTML = generatedProjects.map((p, i) => `
+      <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:14px;">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:8px;">
+          <input type="checkbox" class="projGenChk" data-i="${i}" checked>
+          <span style="font-size:1.4rem;">${esc(p.emoji)}</span>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--teal);">${esc(p.tag)}</span>
+        </label>
+        <div style="font-weight:700;font-size:.9rem;margin-bottom:6px;">${esc(p.title)}</div>
+        <div style="font-size:.8rem;color:var(--muted);margin-bottom:8px;">${esc(p.description)}</div>
+        ${p.problema ? `<div style="font-size:.74rem;color:var(--muted);margin-bottom:3px;"><span style="color:#f59e0b;font-weight:600;">Challenge:</span> ${esc(p.problema)}</div>` : ''}
+        ${p.solutie ? `<div style="font-size:.74rem;color:var(--muted);margin-bottom:3px;"><span style="color:var(--teal);font-weight:600;">Solution:</span> ${esc(p.solutie)}</div>` : ''}
+        ${p.rezultat ? `<div style="font-size:.74rem;color:var(--muted);"><span style="color:#4ade80;font-weight:600;">Result:</span> ${esc(p.rezultat)}</div>` : ''}
+      </div>`).join('');
+    wrap.style.display = 'block';
+  }
+
+  async function addGeneratedProjects() {
+    const checked = [...document.querySelectorAll('.projGenChk:checked')].map(c => parseInt(c.dataset.i));
+    if (!checked.length) { alert('Select at least one example.'); return; }
+    const btn = document.getElementById('projGenAddBtn');
+    btn.disabled = true; btn.textContent = 'Adding...';
+    try {
+      for (const i of checked) {
+        await fetch('/api/project?token=' + encodeURIComponent(adminToken), {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(generatedProjects[i]),
+        });
+      }
+      document.getElementById('projGenResults').style.display = 'none';
+      document.getElementById('projGenPanel').style.display = 'none';
+      generatedProjects = [];
+      await fetchProjects();
+      alert(checked.length + ' example(s) added to the portfolio.');
+    } catch { alert('Error adding examples.'); }
+    btn.disabled = false; btn.textContent = '+ Add selected to portfolio';
   }
 
   function renderProjects() {
