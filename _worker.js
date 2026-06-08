@@ -1194,7 +1194,10 @@ function buildShopSite(d) {
   const emoji = e(d.emoji || '🛒');
   const kw = String(d.imageKeywords || d.industry || 'cars').toLowerCase().replace(/[^a-z0-9, ]/g, '').slice(0, 60) || 'cars';
   const img = (k, w, h, sig) => `https://loremflickr.com/${w}/${h}/${encodeURIComponent(String(k).trim())}?lock=${sig}`;
+  const im = (d.images && typeof d.images === 'object') ? d.images : {};
+  const imgTag = src => `<img class="cover" src="${String(src).replace(/"/g, '&quot;')}" alt="" loading="lazy" onerror="this.remove()">`;
   const cover = (k, sig) => `<img class="cover" src="${img(k, 800, 600, sig)}" alt="" loading="lazy" onerror="this.remove()">`;
+  const cover2 = (custom, k, sig) => custom ? imgTag(custom) : cover(k, sig);
 
   let banners = (Array.isArray(d.banners) ? d.banners : []).filter(b => b && (b.title || b.subtitle)).slice(0, 4);
   if (!banners.length) banners = [{ title: d.heroTitle || ('Welcome to ' + (d.businessName || 'our store')), subtitle: d.tagline || '', cta: d.ctaText || 'Browse stock' }];
@@ -1205,21 +1208,21 @@ function buildShopSite(d) {
 
   const slides = banners.map((b, i) => `
         <div class="slide ${i === 0 ? 'on' : ''}">
-          ${cover(kw + ', ' + (b.title || kw), 10 + i)}<div class="ov"></div>
+          ${cover2(im.banners && im.banners[i], kw + ', ' + (b.title || kw), 10 + i)}<div class="ov"></div>
           <div class="bc"><h2>${e(b.title || '')}</h2><p>${e(b.subtitle || '')}</p><a href="#shop" class="btn">${e(b.cta || 'Shop now')} →</a></div>
         </div>`).join('');
   const dots = banners.length > 1 ? `<div class="bdots">${banners.map((b, i) => `<span class="bdot ${i === 0 ? 'on' : ''}" data-i="${i}"></span>`).join('')}</div>` : '';
 
-  const mini = [banners[1], banners[2]].filter(Boolean);
-  const miniHtml = (mini.length ? mini : categories.slice(0, 2).map(c => ({ title: c.name, cta: 'View' }))).slice(0, 2).map((b, i) => `
-        <div class="mini">${cover(kw + ', ' + (b.title || b.name || kw), 30 + i)}<div class="ov"></div><div class="mc"><h3>${e(b.title || b.name || '')}</h3><a href="#shop" style="color:#fff;font-weight:700;font-size:.85rem;">${e(b.cta || 'View')} →</a></div></div>`).join('');
+  const mini = [{ b: banners[1], idx: 1 }, { b: banners[2], idx: 2 }].filter(x => x.b);
+  const miniHtml = (mini.length ? mini : categories.slice(0, 2).map((c, i) => ({ b: { title: c.name, cta: 'View' }, idx: i }))).slice(0, 2).map(({ b, idx }) => `
+        <div class="mini">${cover2(im.banners && im.banners[idx], kw + ', ' + (b.title || kw), 30 + idx)}<div class="ov"></div><div class="mc"><h3>${e(b.title || '')}</h3><a href="#shop" style="color:#fff;font-weight:700;font-size:.85rem;">${e(b.cta || 'View')} →</a></div></div>`).join('');
 
   const catsHtml = categories.map((c, i) => `
         <a href="#shop" class="cat"><span class="ce">${e(c.emoji || '🏷️')}</span><div><b>${e(c.name || '')}</b><span>${e(c.count ? c.count + ' listings' : 'Browse')}</span></div></a>`).join('');
 
   const prodHtml = products.map((p, i) => `
         <div class="prod">
-          <div class="prod-img">${cover(kw + ', ' + (p.name || p.category || kw), 100 + i)}${p.badge ? `<span class="prod-badge">${e(p.badge)}</span>` : ''}</div>
+          <div class="prod-img">${cover2(im.products && im.products[i], kw + ', ' + (p.name || p.category || kw), 100 + i)}${p.badge ? `<span class="prod-badge">${e(p.badge)}</span>` : ''}</div>
           <div class="prod-b">
             <div class="prod-cat">${e(p.category || d.industry || '')}</div>
             <div class="prod-name">${e(p.name || '')}</div>
@@ -1963,6 +1966,8 @@ export default {
           variant: (x.data && x.data.variant) || 'modern', createdAt: x.createdAt,
           kind: x.kind || 'ai', layout: (x.data && x.data.layout) || 'landing',
           galleryCount: Math.min((x.data && Array.isArray(x.data.services) ? x.data.services.length : 3) || 3, 6),
+          bannerCount: Math.min((x.data && Array.isArray(x.data.banners) ? x.data.banners.length : 0) || 0, 4),
+          productCount: Math.min((x.data && Array.isArray(x.data.products) ? x.data.products.length : 0) || 0, 12),
         })));
       } catch { return json([]); }
     }
@@ -2203,9 +2208,11 @@ export default {
           hero: ok(body.hero) ? body.hero : '',
           about: ok(body.about) ? body.about : '',
           gallery: Array.isArray(body.gallery) ? body.gallery.slice(0, 6).map(v => ok(v) ? v : '') : [],
+          banners: Array.isArray(body.banners) ? body.banners.slice(0, 4).map(v => ok(v) ? v : '') : [],
+          products: Array.isArray(body.products) ? body.products.slice(0, 12).map(v => ok(v) ? v : '') : [],
         };
         const payload = JSON.stringify(images);
-        if (payload.length > 6_000_000) return json({ error: 'Images too large. Please use smaller photos.' }, 413);
+        if (payload.length > 14_000_000) return json({ error: 'Images too large. Please use fewer / smaller photos.' }, 413);
         await env.PROGRAMARI.put('__demo_img__' + id, payload);
         return json({ success: true });
       } catch { return json({ error: 'Server error' }, 500); }
