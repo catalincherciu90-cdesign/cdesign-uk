@@ -2071,18 +2071,18 @@ export default {
         if (imgBuf.byteLength > 8 * 1024 * 1024) return json({ error: 'Image too large (max 8MB)' }, 413, request);
 
         // Step 1 — vision model describes the sketch.
-        let description = '';
-        try {
-          const vis = await env.AI.run('@cf/llava-1.5-7b-hf', {
-            image: [...new Uint8Array(imgBuf)],
-            prompt: 'This is a hand-drawn sketch or wireframe of a website. Describe it for a web designer: what kind of business/industry it is for, whether it looks like a one-page landing site or an online shop/catalogue with products, which sections are drawn (hero/banner, services, product grid, gallery, pricing, team, contact, etc.), the overall style and any colours, and any text labels you can read. Be concise and specific.',
-            max_tokens: 512,
-          });
-          description = String((vis && (vis.description || vis.response)) || '').trim();
-        } catch (e) {
-          return json({ error: 'Could not read the image (vision model unavailable). ' + (e.message || '') }, 500, request);
+        const imgBytes = [...new Uint8Array(imgBuf)];
+        const visionPrompt = 'This is a hand-drawn sketch or wireframe of a website. Describe it for a web designer: what kind of business/industry it is for, whether it looks like a one-page landing site or an online shop/catalogue with products, which sections are drawn (hero/banner, services, product grid, gallery, pricing, team, contact, etc.), the overall style and any colours, and any text labels you can read. Be concise and specific.';
+        const VISION_MODELS = ['@cf/llava-hf/llava-1.5-7b-hf', '@cf/meta/llama-3.2-11b-vision-instruct', '@cf/unum/uform-gen2-qwen-500m'];
+        let description = '', lastErr = '';
+        for (const model of VISION_MODELS) {
+          try {
+            const vis = await env.AI.run(model, { image: imgBytes, prompt: visionPrompt, max_tokens: 512 });
+            description = String((vis && (vis.description || vis.response || vis.text)) || '').trim();
+            if (description) break;
+          } catch (e) { lastErr = (e && e.message) || String(e); }
         }
-        if (!description) return json({ error: 'Could not interpret the sketch. Try a clearer image.' }, 422, request);
+        if (!description) return json({ error: 'Could not read the image — no Workers AI vision model is enabled on your account. ' + lastErr }, 500, request);
 
         if (!layout) layout = /shop|store|product|catalog|catalogue|e-?commerce|dealership|listing|cart|price tag/i.test(description) ? 'shop' : 'landing';
         const industry = hintIndustry || 'as shown in the sketch';
