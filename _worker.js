@@ -603,6 +603,16 @@ async function sha256(str) {
   return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// Append an entry to the activity log (kept to the last 200 events).
+async function logActivity(env, entry) {
+  try {
+    const raw = await env.PROGRAMARI.get('__activity__');
+    const list = raw ? JSON.parse(raw) : [];
+    list.unshift(entry);
+    await env.PROGRAMARI.put('__activity__', JSON.stringify(list.slice(0, 200)));
+  } catch {}
+}
+
 // Returns the authenticated identity for a request, or null.
 // Accepts the master token (env secret) or a valid session token (KV).
 async function getAuth(url, env) {
@@ -1101,6 +1111,12 @@ export default {
     // Authenticated identity (master token or session token), or null. Used by all admin routes.
     const authed = await getAuth(url, env);
 
+    // Activity log: record every admin write action (who changed what).
+    if (authed && path.startsWith('/api/') && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method)
+        && path !== '/api/login' && path !== '/api/logout' && path !== '/api/activity') {
+      await logActivity(env, { user: authed.username, role: authed.role, method: request.method, path, ip: request.headers.get('CF-Connecting-IP') || '', ts: Date.now() });
+    }
+
     // Redirect non-www → www (301 permanent) pentru canonical corect
     if (url.hostname === 'c-design.ro') {
       url.hostname = 'www.c-design.ro';
@@ -1304,6 +1320,7 @@ export default {
         const token = (crypto.randomUUID() + crypto.randomUUID()).replace(/-/g, '');
         const expires = Date.now() + 1000 * 60 * 60 * 24 * 30;
         await env.PROGRAMARI.put('__session__' + token, JSON.stringify({ username, role, perms, expires }), { expirationTtl: 60 * 60 * 24 * 30 });
+        await logActivity(env, { user: username, role, method: 'AUTH', path: 'login', ip: request.headers.get('CF-Connecting-IP') || '', ts: Date.now() });
         return json({ success: true, token, username, role, perms }, 200, request);
       } catch { return json({ error: 'Server error' }, 500, request); }
     }
@@ -1325,6 +1342,14 @@ export default {
         perms: authed.role === 'owner' ? ADMIN_SECTIONS : (Array.isArray(authed.perms) ? authed.perms : []),
         sections: ADMIN_SECTIONS,
       });
+    }
+
+    if (path === '/api/activity' && request.method === 'GET') {
+      if (!authed || authed.role !== 'owner') return json({ error: 'Unauthorised' }, 401);
+      try {
+        const raw = await env.PROGRAMARI.get('__activity__');
+        return json(raw ? JSON.parse(raw) : []);
+      } catch { return json([]); }
     }
 
     // ── ADMIN ACCOUNTS ────────────────────────────────────────
@@ -1359,6 +1384,23 @@ export default {
         const admins = raw ? JSON.parse(raw) : [];
         if (admins.some(a => a.username === u)) return json({ error: 'That username already exists' }, 400);
         admins.push({ username: u, role: 'admin', perms: cleanPerms, passHash: await sha256(p), createdAt: new Date().toISOString() });
+        await env.PROGRAMARI.put('__admins__', JSON.stringify(admins));
+        return json({ success: true });
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+
+    if (path.startsWith('/api/admins/') && path.endsWith('/password') && request.method === 'PUT') {
+      if (!authed || authed.role !== 'owner') return json({ error: 'Unauthorised' }, 401);
+      try {
+        const u = decodeURIComponent(path.replace('/api/admins/', '').replace('/password', ''));
+        const { password } = await request.json();
+        const p = String(password || '');
+        if (p.length < 8) return json({ error: 'Password must be at least 8 characters' }, 400);
+        const raw = await env.PROGRAMARI.get('__admins__');
+        const admins = raw ? JSON.parse(raw) : [];
+        const a = admins.find(x => x.username === u);
+        if (!a) return json({ error: 'Not found' }, 404);
+        a.passHash = await sha256(p);
         await env.PROGRAMARI.put('__admins__', JSON.stringify(admins));
         return json({ success: true });
       } catch { return json({ error: 'Server error' }, 500); }
