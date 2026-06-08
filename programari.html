@@ -947,6 +947,10 @@
             </select>
           </div>
         </div>
+        <div style="margin-bottom:14px;">
+          <label class="f-label" style="margin-bottom:5px;display:block;">// your prompt (optional) — tell the AI what you want</label>
+          <textarea class="f-input" id="demoGenPrompt" rows="2" placeholder="e.g. emphasise 24/7 service, family-run, mention free quotes..." style="margin-bottom:0;resize:vertical;"></textarea>
+        </div>
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
           <button class="btn-save" id="demoGenGo" onclick="runDemoGen()" style="padding:10px 20px;background:#8b5cf6;">&#x1F680; Generate demo</button>
           <span id="demoGenStatus" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;display:none;"></span>
@@ -2947,6 +2951,7 @@
     const details = document.getElementById('demoGenDetails').value.trim();
     const variant = document.getElementById('demoGenVariant').value;
     const heroType = document.getElementById('demoGenHero').value;
+    const prompt = document.getElementById('demoGenPrompt').value.trim();
     const status = document.getElementById('demoGenStatus');
     const btn = document.getElementById('demoGenGo');
     if (!industry) { alert('Enter an industry first.'); return; }
@@ -2956,7 +2961,7 @@
     try {
       const res = await fetch('/api/demo/generate?token=' + encodeURIComponent(adminToken), {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ industry, tone, businessName, details, variant, heroType }),
+        body: JSON.stringify({ industry, tone, businessName, details, variant, heroType, prompt }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.success) {

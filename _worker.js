@@ -1519,13 +1519,15 @@ export default {
         const details = String(body.details || '').trim().slice(0, 300);
         const wantVariant = ['modern', 'dark', 'minimal', 'elegant'].includes(body.variant) ? body.variant : '';
         const heroType = ['split', 'centered', 'image'].includes(body.heroType) ? body.heroType : 'split';
+        const userPrompt = String(body.prompt || '').trim().slice(0, 400);
         if (!industry) return json({ error: 'Industry is required' }, 400, request);
         if (!env.AI) return json({ error: 'AI binding unavailable — check wrangler.toml' }, 500, request);
 
         const toneLine = tone ? `\nBrand tone / style: ${tone}.` : '';
         const nameLine = wantName ? `\nThe business is called "${wantName}" — use this exact name.` : '';
         const detailsLine = details ? `\nIncorporate these real details where relevant (e.g. phone, city, services): ${details}.` : '';
-        const prompt = `You are a web copywriter and brand designer. ${wantName ? `Write the content for a one-page demo website for "${wantName}", a business in the "${industry}" industry (UK market).` : `Invent a realistic small business in the "${industry}" industry (UK market) and write the content for a one-page demo website for it.`}${toneLine}${nameLine}${detailsLine}
+        const promptLine = userPrompt ? `\nExtra instructions from the user (follow them): ${userPrompt}.` : '';
+        const prompt = `You are a web copywriter and brand designer. ${wantName ? `Write the content for a one-page demo website for "${wantName}", a business in the "${industry}" industry (UK market).` : `Invent a realistic small business in the "${industry}" industry (UK market) and write the content for a one-page demo website for it.`}${toneLine}${nameLine}${detailsLine}${promptLine}
 
 Return ONLY a valid JSON object, no text before or after, with exactly this structure:
 {
