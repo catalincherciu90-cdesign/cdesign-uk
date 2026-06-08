@@ -898,10 +898,38 @@
           <span style="font-family:'Share Tech Mono',monospace;font-size:.8rem;color:#a78bfa;">// generate_demo_site</span>
           <span style="font-size:.75rem;color:var(--muted);">— AI builds a full single-page demo with real photos; the tone picks the design style (modern / dark / minimal / elegant)</span>
         </div>
-        <div style="display:grid;grid-template-columns:2fr 1.4fr;gap:12px;margin-bottom:14px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
           <div>
             <label class="f-label" style="margin-bottom:5px;display:block;">// industry *</label>
             <input class="f-input" type="text" id="demoGenIndustry" placeholder="e.g. restaurant, dental clinic, gym, plumber..." style="margin-bottom:0;">
+          </div>
+          <div>
+            <label class="f-label" style="margin-bottom:5px;display:block;">// business name (optional)</label>
+            <input class="f-input" type="text" id="demoGenName" placeholder="leave empty and AI invents one" style="margin-bottom:0;">
+          </div>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label class="f-label" style="margin-bottom:5px;display:block;">// details (optional — phone, city, services...)</label>
+          <input class="f-input" type="text" id="demoGenDetails" placeholder="e.g. based in Leeds, 0113 555 0100, open 7 days" style="margin-bottom:0;">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px;">
+          <div>
+            <label class="f-label" style="margin-bottom:5px;display:block;">// site style</label>
+            <select class="f-input" id="demoGenVariant" style="margin-bottom:0;">
+              <option value="">Auto (from tone)</option>
+              <option value="modern">Modern (light)</option>
+              <option value="dark">Dark</option>
+              <option value="minimal">Minimal</option>
+              <option value="elegant">Elegant (serif)</option>
+            </select>
+          </div>
+          <div>
+            <label class="f-label" style="margin-bottom:5px;display:block;">// hero type</label>
+            <select class="f-input" id="demoGenHero" style="margin-bottom:0;">
+              <option value="split">Split (text + photo card)</option>
+              <option value="centered">Centered + banner</option>
+              <option value="image">Full background photo</option>
+            </select>
           </div>
           <div>
             <label class="f-label" style="margin-bottom:5px;display:block;">// tone / style</label>
@@ -2557,9 +2585,24 @@
         <a href="/demo/${encodeURIComponent(d.slug)}" target="_blank" rel="noopener" class="btn-edit" style="text-decoration:none;">↗ View</a>
         <button class="btn-del" onclick="openDemoPhotos('${esc(d.id)}', ${d.galleryCount || 3})" title="Upload your own photos">🖼 Photos</button>
         <button class="btn-del" onclick="restyleDemo('${esc(d.id)}')" title="New random design & colours, same text">🎨 Restyle</button>
+        <button class="btn-del" onclick="downloadDemo('${esc(d.slug)}','${esc((d.businessName || 'demo'))}')" title="Save as .html file">⬇ Download</button>
         <button class="btn-del" onclick="copyDemoLink('${esc(d.slug)}')">🔗 Copy link</button>
         <button class="btn-del" onclick="deleteDemo('${esc(d.id)}','${esc(d.businessName || '')}')">✕ Delete</button>
       </div>`).join('');
+  }
+
+  async function downloadDemo(slug, name) {
+    try {
+      const res = await fetch('/demo/' + encodeURIComponent(slug) + '?v=' + Date.now());
+      if (!res.ok) { alert('Could not load the demo.'); return; }
+      const html = await res.text();
+      const blob = new Blob([html], { type: 'text/html' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = (String(name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'demo') + '.html';
+      document.body.appendChild(a); a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    } catch { alert('Download failed.'); }
   }
 
   async function restyleDemo(id) {
@@ -2673,6 +2716,10 @@
   async function runDemoGen() {
     const industry = document.getElementById('demoGenIndustry').value.trim();
     const tone = document.getElementById('demoGenTone').value;
+    const businessName = document.getElementById('demoGenName').value.trim();
+    const details = document.getElementById('demoGenDetails').value.trim();
+    const variant = document.getElementById('demoGenVariant').value;
+    const heroType = document.getElementById('demoGenHero').value;
     const status = document.getElementById('demoGenStatus');
     const btn = document.getElementById('demoGenGo');
     if (!industry) { alert('Enter an industry first.'); return; }
@@ -2682,7 +2729,7 @@
     try {
       const res = await fetch('/api/demo/generate?token=' + encodeURIComponent(adminToken), {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ industry, tone }),
+        body: JSON.stringify({ industry, tone, businessName, details, variant, heroType }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.success) {
