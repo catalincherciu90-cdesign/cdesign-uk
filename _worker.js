@@ -728,7 +728,7 @@ function buildDemoSite(d) {
     { value: '100%', label: 'Satisfaction' },
   ];
 
-  const variant = ['modern', 'dark', 'minimal', 'elegant'].includes(d.variant) ? d.variant : 'modern';
+  const variant = ['modern', 'dark', 'minimal', 'elegant', 'gradient', 'corporate', 'bold'].includes(d.variant) ? d.variant : 'modern';
   const imgKw = String(d.imageKeywords || d.industry || 'business').toLowerCase().replace(/[^a-z0-9, ]/g, '').slice(0, 60) || 'business';
   const img = (kw, w, h, sig) => `https://loremflickr.com/${w}/${h}/${encodeURIComponent(String(kw).trim())}?lock=${sig}`;
   const im = (d.images && typeof d.images === 'object') ? d.images : {};
@@ -765,6 +765,35 @@ function buildDemoSite(d) {
   const hSub = `<p>${e(d.tagline || '')}</p>`;
   const hCta = `<div class="hero-cta"><a href="#contact" class="btn">${e(d.ctaText || 'Get a free quote')} →</a><a href="#services" class="btn ghost">Explore services</a></div>`;
   const hTrust = `<div class="hero-trust"><span class="stars">★★★★★</span> Rated excellent by our customers</div>`;
+
+  const pricing = (Array.isArray(d.pricing) ? d.pricing : []).filter(p => p && (p.name || p.price)).slice(0, 4);
+  const pricingSection = pricing.length ? `
+  <section id="pricing"><div class="wrap">
+    <div class="sec-head"><span class="eyebrow">Pricing</span><h2>${e(d.pricingTitle || 'Simple, honest pricing')}</h2><p>${e(d.pricingIntro || 'Choose the option that fits you best.')}</p></div>
+    <div class="pricing-grid">${pricing.map(pl => `
+      <div class="price-card reveal ${pl.featured ? 'feat' : ''}">
+        <div class="price-name">${e(pl.name || 'Plan')}</div>
+        <div class="price-amt">${e(pl.price || '')} <span>${e(pl.period || '')}</span></div>
+        <ul class="price-feats">${(Array.isArray(pl.features) ? pl.features : []).slice(0, 6).map(f => `<li>${e(f)}</li>`).join('')}</ul>
+        <a href="#contact" class="btn" style="margin-top:auto;justify-content:center;">${e(d.ctaText || 'Get started')}</a>
+      </div>`).join('')}</div>
+  </div></section>` : '';
+
+  const team = (Array.isArray(d.team) ? d.team : []).filter(m => m && m.name).slice(0, 6);
+  const teamSection = team.length ? `
+  <section id="team" class="about"><div class="wrap">
+    <div class="sec-head"><span class="eyebrow">Our team</span><h2>${e(d.teamTitle || ('The people behind ' + (d.businessName || 'us')))}</h2></div>
+    <div class="team-grid">${team.map(m => `
+      <div class="team-card reveal"><div class="team-av">${e((m.emoji && String(m.emoji).trim()) || String(m.name || '?').trim().charAt(0).toUpperCase())}</div>
+        <h3>${e(m.name || '')}</h3><p>${e(m.role || '')}</p></div>`).join('')}</div>
+  </div></section>` : '';
+
+  const faq = (Array.isArray(d.faq) ? d.faq : []).filter(f => f && (f.q || f.question)).slice(0, 6);
+  const faqSection = faq.length ? `
+  <section id="faq"><div class="wrap">
+    <div class="sec-head"><span class="eyebrow">FAQ</span><h2>${e(d.faqTitle || 'Frequently asked questions')}</h2></div>
+    <div class="faq-wrap">${faq.map(f => `<div class="faq-item reveal"><h3>${e(f.q || f.question || '')}</h3><p>${e(f.a || f.answer || '')}</p></div>`).join('')}</div>
+  </div></section>` : '';
 
   const heroSection =
     heroType === 'image' ? `
@@ -989,6 +1018,59 @@ function buildDemoSite(d) {
   .v-elegant .about{background:linear-gradient(180deg,#f6efe4,#fbf8f3);}
   .v-elegant .stats-band{background:#2a2320;}
   .v-elegant .quote-sec{background:linear-gradient(180deg,#fbf8f3,#f6efe4);}
+
+  /* ── VARIANT: GRADIENT ── */
+  .v-gradient .hero{background:linear-gradient(135deg,${primary}26,${accent}1f 55%,#fff);}
+  .v-gradient header{background:rgba(255,255,255,.72);}
+  .v-gradient .btn{background:linear-gradient(120deg,var(--p),var(--a));}
+  .v-gradient .eyebrow{background:linear-gradient(120deg,${primary}22,${accent}22);}
+  .v-gradient .card,.v-gradient form,.v-gradient .price-card{border-radius:20px;}
+  .v-gradient .card-ic{background:linear-gradient(135deg,var(--p),var(--a));color:#fff;}
+  .v-gradient .stats-band{background:linear-gradient(120deg,var(--p),var(--a));}
+  .v-gradient .stat-v{background:#fff;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:#fff;}
+  .v-gradient .about{background:linear-gradient(180deg,${primary}0e,#fff);}
+
+  /* ── VARIANT: CORPORATE ── */
+  .v-corporate .hero{background:linear-gradient(180deg,#f4f7fb,#fff);}
+  .v-corporate .badge,.v-corporate .eyebrow,.v-corporate .btn,.v-corporate .card,.v-corporate .card-ic,.v-corporate form,.v-corporate .price-card{border-radius:5px;}
+  .v-corporate .card{border-top:3px solid var(--p);}
+  .v-corporate .stats-band{background:#0f1f3d;}
+  .v-corporate .about{background:#f4f7fb;}
+  .v-corporate .info-card{border-radius:8px;}
+
+  /* ── VARIANT: BOLD ── */
+  .v-bold h1{font-weight:800;letter-spacing:-1.6px;}
+  .v-bold .hero{background:${accent}14;}
+  .v-bold .badge,.v-bold .eyebrow{border-radius:0;}
+  .v-bold .btn{border-radius:0;background:var(--ink);box-shadow:none;}
+  .v-bold .btn:hover{background:var(--p);transform:translateY(-2px);}
+  .v-bold .logo .d{border-radius:0;}
+  .v-bold .card,.v-bold form,.v-bold .price-card{border:2px solid var(--ink);border-radius:0;box-shadow:6px 6px 0 ${primary}30;}
+  .v-bold .card:hover{box-shadow:10px 10px 0 ${primary}55;transform:translate(-2px,-2px);}
+  .v-bold .card-ic{border-radius:0;background:var(--p);color:#fff;}
+  .v-bold .stats-band{background:var(--p);}
+  .v-bold .stat-v{background:#fff;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:#fff;}
+
+  /* ── EXTRA SECTIONS: pricing / team / faq ── */
+  .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px;}
+  .price-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:30px 26px;display:flex;flex-direction:column;text-align:center;position:relative;}
+  .price-card.feat{border-color:var(--p);box-shadow:0 22px 48px -26px ${primary}99;}
+  .price-card.feat::before{content:'Most popular';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--p);color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.4px;padding:5px 13px;border-radius:999px;white-space:nowrap;}
+  .price-name{font-weight:700;font-size:1.12rem;}
+  .price-amt{font-family:'Plus Jakarta Sans';font-size:2.3rem;font-weight:800;margin:10px 0 6px;letter-spacing:-1px;}
+  .price-amt span{font-size:.85rem;color:var(--mut);font-weight:500;letter-spacing:0;}
+  .price-feats{list-style:none;text-align:left;margin:16px 0 22px;display:grid;gap:10px;}
+  .price-feats li{display:flex;gap:9px;font-size:.9rem;color:var(--mut);}
+  .price-feats li::before{content:'✓';color:var(--p);font-weight:800;}
+  .team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:24px;}
+  .team-card{text-align:center;}
+  .team-av{width:96px;height:96px;border-radius:50%;margin:0 auto 14px;background:linear-gradient(135deg,var(--p),var(--a));display:grid;place-items:center;color:#fff;font-size:2.1rem;font-weight:700;box-shadow:0 14px 30px -14px ${primary}99;}
+  .team-card h3{font-size:1.05rem;margin-bottom:3px;}
+  .team-card p{color:var(--mut);font-size:.85rem;}
+  .faq-wrap{max-width:780px;margin:0 auto;display:grid;gap:12px;}
+  .faq-item{border:1px solid var(--line);border-radius:14px;padding:18px 22px;background:#fff;}
+  .faq-item h3{font-size:1.02rem;margin-bottom:7px;}
+  .faq-item p{color:var(--mut);font-size:.92rem;}
 </style>
 </head>
 <body class="v-${variant}">
@@ -1038,7 +1120,8 @@ ${heroSection}
       <div class="tiles">${galleryHtml}</div>
     </div>
   </section>
-
+${pricingSection}
+${teamSection}
   ${t ? `<section class="quote-sec">
     <div class="wrap quote">
       <div class="mk">&ldquo;</div>
@@ -1049,7 +1132,7 @@ ${heroSection}
       </div>
     </div>
   </section>` : ''}
-
+${faqSection}
   <section id="contact">
     <div class="wrap">
       <div class="sec-head"><span class="eyebrow">Get in touch</span><h2>${e(d.ctaHeadline || 'Let\'s work together')}</h2><p>${e(d.ctaText || 'Tell us about your project and we\'ll get back to you fast.')}</p></div>
@@ -1609,9 +1692,10 @@ export default {
         const tone = String(body.tone || '').trim().slice(0, 80);
         const wantName = String(body.businessName || '').trim().slice(0, 80);
         const details = String(body.details || '').trim().slice(0, 300);
-        const wantVariant = ['modern', 'dark', 'minimal', 'elegant'].includes(body.variant) ? body.variant : '';
+        const wantVariant = ['modern', 'dark', 'minimal', 'elegant', 'gradient', 'corporate', 'bold'].includes(body.variant) ? body.variant : '';
         const heroType = ['split', 'centered', 'image'].includes(body.heroType) ? body.heroType : 'split';
         const userPrompt = String(body.prompt || '').trim().slice(0, 400);
+        const versions = Math.min(Math.max(parseInt(body.versions) || 1, 1), 4);
         if (!industry) return json({ error: 'Industry is required' }, 400, request);
         if (!env.AI) return json({ error: 'AI binding unavailable — check wrangler.toml' }, 500, request);
 
@@ -1642,13 +1726,17 @@ Return ONLY a valid JSON object, no text before or after, with exactly this stru
   "address": "a plausible UK city / street",
   "colorPrimary": "a hex colour fitting the brand, e.g. #0ea5e9",
   "colorAccent": "a complementary hex accent colour",
-  "imageKeywords": "2-4 comma-separated English keywords for stock photos of this business, e.g. 'restaurant, italian food, dining'"
+  "imageKeywords": "2-4 comma-separated English keywords for stock photos of this business, e.g. 'restaurant, italian food, dining'",
+  "pricing": [ { "name": "plan name", "price": "£49", "period": "/mo", "features": ["short feature", "short feature", "short feature"], "featured": false } ],
+  "team": [ { "name": "Full Name", "role": "job title", "emoji": "an emoji for them" } ],
+  "faq": [ { "q": "a common question", "a": "a short helpful answer" } ]
 }
 
 Requirements:
 - Language: ENGLISH
 - 3 to 6 services in the "services" array
 - Exactly 4 items in "stats" with short punchy values and labels
+- 2-3 pricing plans (mark one as "featured": true), 3-4 team members, 3-5 FAQ items
 - Realistic, professional, not generic filler
 - Colours must be valid hex codes that look modern and good together
 - No text outside the JSON object`;
@@ -1667,28 +1755,54 @@ Requirements:
         parsed.heroType = heroType;
 
         // Visual variant: explicit choice wins, else map from tone, else random.
-        const VARIANTS = ['modern', 'dark', 'minimal', 'elegant'];
+        const ALL_VARIANTS = ['modern', 'dark', 'minimal', 'elegant', 'gradient', 'corporate', 'bold'];
+        const HEROES = ['split', 'centered', 'image'];
+        const PALETTES = [
+          ['#6366f1', '#f59e0b'], ['#0ea5e9', '#22c55e'], ['#e11d48', '#fb923c'],
+          ['#7c3aed', '#ec4899'], ['#0f766e', '#f59e0b'], ['#2563eb', '#06b6d4'],
+          ['#c0392b', '#e67e22'], ['#16a34a', '#84cc16'], ['#9333ea', '#06b6d4'],
+        ];
+        let baseVariant;
         if (wantVariant) {
-          parsed.variant = wantVariant;
-        } else if (!VARIANTS.includes(parsed.variant)) {
+          baseVariant = wantVariant;
+        } else {
           const tl = tone.toLowerCase();
-          parsed.variant =
+          baseVariant =
             /premium|high-end|luxury|elegant/.test(tl) ? 'elegant' :
-            /bold|playful|creative/.test(tl) ? 'dark' :
+            /bold|playful|creative/.test(tl) ? 'bold' :
             /budget|affordable|minimal|clean/.test(tl) ? 'minimal' :
-            /corporate|professional|formal/.test(tl) ? 'modern' :
-            VARIANTS[Math.floor(Math.random() * VARIANTS.length)];
+            /corporate|professional|formal/.test(tl) ? 'corporate' :
+            ALL_VARIANTS[Math.floor(Math.random() * ALL_VARIANTS.length)];
         }
 
         const raw = await env.PROGRAMARI.get('__demos__');
         const demos = raw ? JSON.parse(raw) : [];
-        const id = `demo_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
-        let slug = demoSlugify(parsed.businessName);
-        if (demos.some(x => x.slug === slug)) slug = `${slug}-${Math.random().toString(36).slice(2, 5)}`;
-        const demo = { id, slug, businessName: String(parsed.businessName).slice(0, 80), industry: String(parsed.industry).slice(0, 60), data: parsed, createdAt: new Date().toISOString() };
-        demos.unshift(demo);
+        const baseSlug = demoSlugify(parsed.businessName);
+
+        // Build one design combo per requested version (first = the chosen design).
+        const otherV = ALL_VARIANTS.filter(v => v !== baseVariant);
+        const combos = [{ variant: baseVariant, heroType, colorPrimary: parsed.colorPrimary, colorAccent: parsed.colorAccent }];
+        for (let i = 1; i < versions; i++) {
+          const pal = PALETTES[Math.floor(Math.random() * PALETTES.length)];
+          combos.push({ variant: otherV[(i - 1) % otherV.length], heroType: HEROES[i % HEROES.length], colorPrimary: pal[0], colorAccent: pal[1] });
+        }
+
+        const created = [];
+        for (let i = 0; i < combos.length; i++) {
+          const c = combos[i];
+          const data = { ...parsed, variant: c.variant, heroType: c.heroType, colorPrimary: c.colorPrimary, colorAccent: c.colorAccent };
+          const id = `demo_${Date.now()}_${Math.random().toString(36).slice(2, 6)}_${i}`;
+          let slug = i === 0 ? baseSlug : `${baseSlug}-v${i + 1}`;
+          while (demos.some(x => x.slug === slug) || created.some(x => x.slug === slug)) slug = `${baseSlug}-${Math.random().toString(36).slice(2, 5)}`;
+          created.push({ id, slug, businessName: String(parsed.businessName).slice(0, 80), industry: String(parsed.industry).slice(0, 60), data, createdAt: new Date().toISOString() });
+        }
+        demos.unshift(...created.slice().reverse());
         await env.PROGRAMARI.put('__demos__', JSON.stringify(demos));
-        return json({ success: true, demo: { id, slug, businessName: demo.businessName, industry: demo.industry, url: `/demo/${slug}` } }, 200, request);
+        return json({
+          success: true, count: created.length,
+          demo: { id: created[0].id, slug: created[0].slug, businessName: created[0].businessName, industry: created[0].industry, url: `/demo/${created[0].slug}` },
+          versions: created.map(d => ({ id: d.id, slug: d.slug, variant: d.data.variant, url: `/demo/${d.slug}` })),
+        }, 200, request);
       } catch (e) {
         return json({ error: 'Generation error: ' + (e.message || 'unknown') }, 500, request);
       }
@@ -1749,7 +1863,7 @@ Requirements:
         const demos = raw ? JSON.parse(raw) : [];
         const demo = demos.find(x => x.id === id || x.slug === id);
         if (!demo || !demo.data) return json({ error: 'Not found' }, 404);
-        const VARIANTS = ['modern', 'dark', 'minimal', 'elegant'];
+        const VARIANTS = ['modern', 'dark', 'minimal', 'elegant', 'gradient', 'corporate', 'bold'];
         const others = VARIANTS.filter(v => v !== demo.data.variant);
         demo.data.variant = others[Math.floor(Math.random() * others.length)];
         const PALETTES = [

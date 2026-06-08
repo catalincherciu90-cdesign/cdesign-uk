@@ -916,7 +916,16 @@
           <label class="f-label" style="margin-bottom:5px;display:block;">// details (optional — phone, city, services...)</label>
           <input class="f-input" type="text" id="demoGenDetails" placeholder="e.g. based in Leeds, 0113 555 0100, open 7 days" style="margin-bottom:0;">
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:14px;">
+          <div>
+            <label class="f-label" style="margin-bottom:5px;display:block;">// versions</label>
+            <select class="f-input" id="demoGenVersions" style="margin-bottom:0;" title="Generate several design variations of the same content">
+              <option value="1">1 version</option>
+              <option value="2">2 designs</option>
+              <option value="3">3 designs</option>
+              <option value="4">4 designs</option>
+            </select>
+          </div>
           <div>
             <label class="f-label" style="margin-bottom:5px;display:block;">// site style</label>
             <select class="f-input" id="demoGenVariant" style="margin-bottom:0;">
@@ -925,6 +934,9 @@
               <option value="dark">Dark</option>
               <option value="minimal">Minimal</option>
               <option value="elegant">Elegant (serif)</option>
+              <option value="gradient">Gradient (colourful)</option>
+              <option value="corporate">Corporate (professional)</option>
+              <option value="bold">Bold (high-contrast)</option>
             </select>
           </div>
           <div>
@@ -2984,23 +2996,25 @@
     const variant = document.getElementById('demoGenVariant').value;
     const heroType = document.getElementById('demoGenHero').value;
     const prompt = document.getElementById('demoGenPrompt').value.trim();
+    const versions = parseInt(document.getElementById('demoGenVersions').value) || 1;
     const status = document.getElementById('demoGenStatus');
     const btn = document.getElementById('demoGenGo');
     if (!industry) { alert('Enter an industry first.'); return; }
     status.style.display = 'inline'; status.style.color = 'var(--muted)';
-    status.textContent = '⏳ Building demo... (can take 10–25s)';
+    status.textContent = '⏳ Building ' + (versions > 1 ? versions + ' designs' : 'demo') + '... (can take 10–25s)';
     btn.disabled = true;
     try {
       const res = await fetch('/api/demo/generate?token=' + encodeURIComponent(adminToken), {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ industry, tone, businessName, details, variant, heroType, prompt }),
+        body: JSON.stringify({ industry, tone, businessName, details, variant, heroType, prompt, versions }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.success) {
         status.style.color = '#e74c3c'; status.textContent = '✗ ' + (data.error || 'Error generating');
         btn.disabled = false; return;
       }
-      status.style.color = '#4ade80'; status.textContent = '✓ Created: ' + data.demo.businessName;
+      const n = data.count || 1;
+      status.style.color = '#4ade80'; status.textContent = '✓ Created ' + n + (n > 1 ? ' design versions — open them from the list below' : ': ' + data.demo.businessName);
       document.getElementById('demoGenIndustry').value = '';
       await fetchDemos();
       window.open('/demo/' + encodeURIComponent(data.demo.slug), '_blank', 'noopener');
