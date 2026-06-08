@@ -973,6 +973,7 @@
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
           <button class="btn-save" id="demoGenGo" onclick="runDemoGen()" style="padding:10px 20px;background:#8b5cf6;">&#x1F680; Generate demo</button>
           <button class="btn-add" onclick="openDemoUpload()" style="background:rgba(0,168,168,.12);border:1px solid var(--teal-border);color:var(--teal);">&#x2B06; Upload your own (HTML / ZIP)</button>
+          <button class="btn-add" onclick="openSketch()" style="background:rgba(245,158,11,.12);border:1px solid #f59e0b;color:#f59e0b;">&#x1F58C; From a sketch (AI)</button>
           <span id="demoGenStatus" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;display:none;"></span>
         </div>
         <div style="margin-top:20px;">
@@ -2335,6 +2336,35 @@
   </div>
 </div>
 
+<!-- MODAL GENERATE FROM SKETCH -->
+<div class="modal-overlay" id="sketchOverlay">
+  <div class="modal" style="max-width:520px;">
+    <h3>Generate from a sketch</h3>
+    <p style="font-size:.8rem;color:var(--muted);margin:6px 0 18px;">Upload a photo or image of a website sketch / wireframe. The AI reads it and builds a matching demo. Clearer drawings give better results.</p>
+    <div class="f-group">
+      <label class="f-label" for="sketchFile">// sketch image (.jpg / .png) *</label>
+      <input class="f-input" type="file" id="sketchFile" accept="image/*">
+    </div>
+    <div class="f-group">
+      <label class="f-label" for="sketchIndustry">// industry hint (optional)</label>
+      <input class="f-input" type="text" id="sketchIndustry" placeholder="e.g. car dealership, dentist, café...">
+    </div>
+    <div class="f-group">
+      <label class="f-label" for="sketchLayout">// layout</label>
+      <select class="f-input" id="sketchLayout">
+        <option value="">Auto-detect from sketch</option>
+        <option value="landing">Landing page</option>
+        <option value="shop">Online shop / catalogue</option>
+      </select>
+    </div>
+    <div id="sketchStatus" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;display:none;margin-bottom:8px;"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeSketch()">Cancel</button>
+      <button class="btn-save" id="sketchBtn" onclick="submitSketch()">✨ Generate from sketch →</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL DEMO UPLOAD -->
 <div class="modal-overlay" id="demoUploadOverlay">
   <div class="modal" style="max-width:520px;">
@@ -3041,6 +3071,40 @@
   }
   function closeDemoUpload() { document.getElementById('demoUploadOverlay').classList.remove('open'); }
 
+  // ── Generate from a sketch (vision AI) ───────────────────
+  function openSketch() {
+    document.getElementById('sketchFile').value = '';
+    document.getElementById('sketchIndustry').value = '';
+    document.getElementById('sketchLayout').value = '';
+    const st = document.getElementById('sketchStatus'); st.style.display = 'none';
+    document.getElementById('sketchOverlay').classList.add('open');
+  }
+  function closeSketch() { document.getElementById('sketchOverlay').classList.remove('open'); }
+
+  async function submitSketch() {
+    const file = document.getElementById('sketchFile').files[0];
+    const industry = document.getElementById('sketchIndustry').value.trim();
+    const layout = document.getElementById('sketchLayout').value;
+    const st = document.getElementById('sketchStatus');
+    const btn = document.getElementById('sketchBtn');
+    if (!file) { alert('Choose a sketch image.'); return; }
+    if (!/^image\//.test(file.type)) { alert('Please choose an image file.'); return; }
+    st.style.display = 'block'; st.style.color = 'var(--muted)'; st.textContent = '⏳ Reading the sketch & generating... (can take 20–40s)';
+    btn.disabled = true;
+    try {
+      const q = '?token=' + encodeURIComponent(adminToken) + (industry ? '&industry=' + encodeURIComponent(industry) : '') + (layout ? '&layout=' + encodeURIComponent(layout) : '');
+      const res = await fetch('/api/demo/from-sketch' + q, {
+        method: 'POST', headers: { 'Content-Type': file.type || 'application/octet-stream' }, body: await file.arrayBuffer(),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) { st.style.color = '#e74c3c'; st.textContent = '✗ ' + (data.error || 'Failed'); btn.disabled = false; return; }
+      closeSketch();
+      await fetchDemos();
+      window.open(data.demo.url, '_blank', 'noopener');
+    } catch { st.style.color = '#e74c3c'; st.textContent = '✗ Network error'; }
+    btn.disabled = false;
+  }
+
   async function submitDemoUpload() {
     const name = document.getElementById('demoUpName').value.trim();
     const industry = document.getElementById('demoUpIndustry').value.trim();
@@ -3217,6 +3281,7 @@
   document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
   document.getElementById('demoPhotosOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeDemoPhotos(); });
   document.getElementById('demoUploadOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeDemoUpload(); });
+  document.getElementById('sketchOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeSketch(); });
   document.getElementById('crmModalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeCrmModal(); });
   document.getElementById('clientModalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeClientModal(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeCrmModal(); } });
