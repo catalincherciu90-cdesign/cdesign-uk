@@ -930,28 +930,37 @@ Requirements:
           max_tokens: 2048,
         });
 
-        const text = (ai.response || '').trim();
-        const match = text.match(/\[[\s\S]*\]/);
-        if (!match) return json({ error: 'The model did not return valid JSON. Please try again.' }, 500, request);
-
-        // Sanitize control characters inside JSON string values
-        let rawJson = match[0];
-        let sanitized = '';
-        let inStr = false, esc = false;
-        for (let i = 0; i < rawJson.length; i++) {
-          const c = rawJson[i];
-          if (esc) { sanitized += c; esc = false; continue; }
-          if (c === '\\') { sanitized += c; esc = true; continue; }
-          if (c === '"') { inStr = !inStr; sanitized += c; continue; }
-          if (inStr && c.charCodeAt(0) < 0x20) {
-            if (c === '\n') sanitized += '\\n';
-            else if (c === '\r') sanitized += '\\r';
-            else if (c === '\t') sanitized += '\\t';
-          } else { sanitized += c; }
-        }
-
+        // Workers AI normally returns { response: "..." }, but the shape can vary by model.
+        const respRaw = ai && ai.response !== undefined ? ai.response : ai;
         let arr;
-        try { arr = JSON.parse(sanitized); } catch { return json({ error: 'Invalid JSON from model. Please try again.' }, 500, request); }
+        if (respRaw && typeof respRaw === 'object') {
+          // Model already returned structured data — use it directly.
+          arr = Array.isArray(respRaw) ? respRaw
+              : Array.isArray(respRaw.examples) ? respRaw.examples
+              : [respRaw];
+        } else {
+          const text = String(respRaw ?? '').trim();
+          const match = text.match(/\[[\s\S]*\]/) || text.match(/\{[\s\S]*\}/);
+          if (!match) return json({ error: 'The model did not return valid JSON. Please try again.' }, 500, request);
+
+          // Sanitize control characters inside JSON string values
+          let rawJson = match[0];
+          let sanitized = '';
+          let inStr = false, esc = false;
+          for (let i = 0; i < rawJson.length; i++) {
+            const c = rawJson[i];
+            if (esc) { sanitized += c; esc = false; continue; }
+            if (c === '\\') { sanitized += c; esc = true; continue; }
+            if (c === '"') { inStr = !inStr; sanitized += c; continue; }
+            if (inStr && c.charCodeAt(0) < 0x20) {
+              if (c === '\n') sanitized += '\\n';
+              else if (c === '\r') sanitized += '\\r';
+              else if (c === '\t') sanitized += '\\t';
+            } else { sanitized += c; }
+          }
+
+          try { arr = JSON.parse(sanitized); } catch { return json({ error: 'Invalid JSON from model. Please try again.' }, 500, request); }
+        }
         if (!Array.isArray(arr)) arr = [arr];
         const examples = arr.filter(p => p && p.title).map(p => ({
           emoji: String(p.emoji || '🌐').slice(0, 4),
