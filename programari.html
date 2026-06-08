@@ -2886,7 +2886,7 @@
       const isShop = d.layout === 'shop';
       const label = custom ? `<span style="color:var(--teal);">custom ${esc(d.kind)}</span>` : (isShop ? `<span style="color:#22b07d;">🛒 shop</span>` : `<span style="color:#a78bfa;">${esc(d.variant || 'modern')}</span>`);
       const aiBtns = custom ? '' : `
-        ${isShop ? '' : `<button class="btn-del" onclick="openDemoPhotos('${esc(d.id)}', ${d.galleryCount || 3})" title="Upload your own photos">🖼 Photos</button>`}
+        <button class="btn-del" onclick="openDemoPhotos('${esc(d.id)}','${isShop ? 'shop' : 'landing'}',${d.galleryCount || 3},${d.bannerCount || 0},${d.productCount || 0})" title="Upload your own photos">🖼 Photos</button>
         <button class="btn-del" onclick="restyleDemo('${esc(d.id)}')" title="New random colours">🎨 Restyle</button>`;
       return `
       <div style="display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:12px 14px;margin-bottom:8px;flex-wrap:wrap;">
@@ -2929,26 +2929,29 @@
   }
 
   // ── Demo custom photos ───────────────────────────────────
-  let demoPhotoData = { hero: '', about: '', gallery: [] };
-  let demoPhotoGalleryCount = 3;
+  let demoPhotoData = { hero: '', about: '', gallery: [], banners: [], products: [] };
+  let demoPhotoLayout = 'landing', demoPhotoGalleryCount = 3, demoPhotoBannerCount = 0, demoPhotoProductCount = 0;
 
-  async function openDemoPhotos(id, galleryCount) {
+  async function openDemoPhotos(id, layout, galleryCount, bannerCount, productCount) {
     document.getElementById('demoPhotosId').value = id;
-    demoPhotoGalleryCount = galleryCount || 3;
-    demoPhotoData = { hero: '', about: '', gallery: [] };
+    demoPhotoLayout = layout === 'shop' ? 'shop' : 'landing';
+    demoPhotoGalleryCount = galleryCount || 3; demoPhotoBannerCount = bannerCount || 0; demoPhotoProductCount = productCount || 0;
+    demoPhotoData = { hero: '', about: '', gallery: [], banners: [], products: [] };
     document.getElementById('demoPhotosSlots').innerHTML = '<div class="gib-empty">Loading...</div>';
     document.getElementById('demoPhotosOverlay').classList.add('open');
     try {
       const res = await fetch('/api/demo/' + encodeURIComponent(id) + '/images?token=' + encodeURIComponent(adminToken));
       const data = await res.json().catch(() => ({}));
-      demoPhotoData = { hero: data.hero || '', about: data.about || '', gallery: Array.isArray(data.gallery) ? data.gallery : [] };
+      demoPhotoData = { hero: data.hero || '', about: data.about || '', gallery: Array.isArray(data.gallery) ? data.gallery : [], banners: Array.isArray(data.banners) ? data.banners : [], products: Array.isArray(data.products) ? data.products : [] };
     } catch {}
     renderDemoPhotoSlots();
   }
 
-  function demoSlotHtml(key, idx, title, rec) {
-    const cur = idx == null ? (demoPhotoData[key] || '') : (demoPhotoData.gallery[idx] || '');
-    const ref = idx == null ? key : ('gallery:' + idx);
+  function getDemoPhotoRef(ref) { if (ref.indexOf(':') > 0) { const p = ref.split(':'); return (demoPhotoData[p[0]] || [])[+p[1]] || ''; } return demoPhotoData[ref] || ''; }
+  function setDemoPhotoRef(ref, val) { if (ref.indexOf(':') > 0) { const p = ref.split(':'); if (!Array.isArray(demoPhotoData[p[0]])) demoPhotoData[p[0]] = []; demoPhotoData[p[0]][+p[1]] = val; } else demoPhotoData[ref] = val; }
+
+  function demoSlotHtml(ref, title, rec) {
+    const cur = getDemoPhotoRef(ref);
     return `<div style="display:flex;gap:12px;align-items:center;border:1px solid var(--border-soft);border-radius:10px;padding:10px;margin-bottom:10px;">
       <div style="width:74px;height:74px;border-radius:8px;background:var(--bg3);overflow:hidden;flex-shrink:0;display:grid;place-items:center;">
         ${cur ? `<img src="${cur}" style="width:100%;height:100%;object-fit:cover;">` : '<span style="font-size:.62rem;color:var(--muted);text-align:center;">auto<br>photo</span>'}
@@ -2963,25 +2966,27 @@
   }
 
   function renderDemoPhotoSlots() {
-    let html = demoSlotHtml('hero', null, 'Hero image', 'Square · 800×800px (1:1)');
-    html += demoSlotHtml('about', null, 'About / team image', 'Portrait · 800×1000px (4:5)');
-    for (let i = 0; i < demoPhotoGalleryCount; i++) html += demoSlotHtml('gallery', i, 'Gallery image ' + (i + 1), 'Landscape · 800×600px (4:3)');
+    let html = '';
+    if (demoPhotoLayout === 'shop') {
+      for (let i = 0; i < demoPhotoBannerCount; i++) html += demoSlotHtml('banners:' + i, 'Banner ' + (i + 1), 'Wide · 1200×500px');
+      for (let i = 0; i < demoPhotoProductCount; i++) html += demoSlotHtml('products:' + i, 'Product ' + (i + 1) + ' photo', 'Landscape · 800×600px (4:3)');
+      if (!demoPhotoBannerCount && !demoPhotoProductCount) html = '<div class="gib-empty">No image slots for this demo.</div>';
+    } else {
+      html += demoSlotHtml('hero', 'Hero image', 'Square · 800×800px (1:1)');
+      html += demoSlotHtml('about', 'About / team image', 'Portrait · 800×1000px (4:5)');
+      for (let i = 0; i < demoPhotoGalleryCount; i++) html += demoSlotHtml('gallery:' + i, 'Gallery image ' + (i + 1), 'Landscape · 800×600px (4:3)');
+    }
     document.getElementById('demoPhotosSlots').innerHTML = html;
   }
 
   async function onDemoPhotoPick(ref, input) {
     if (!input.files[0]) return;
     const dataUrl = await compressDemoImage(input.files[0]);
-    if (ref.indexOf('gallery:') === 0) demoPhotoData.gallery[+ref.split(':')[1]] = dataUrl;
-    else demoPhotoData[ref] = dataUrl;
+    setDemoPhotoRef(ref, dataUrl);
     renderDemoPhotoSlots();
   }
 
-  function clearDemoPhoto(ref) {
-    if (ref.indexOf('gallery:') === 0) demoPhotoData.gallery[+ref.split(':')[1]] = '';
-    else demoPhotoData[ref] = '';
-    renderDemoPhotoSlots();
-  }
+  function clearDemoPhoto(ref) { setDemoPhotoRef(ref, ''); renderDemoPhotoSlots(); }
 
   function closeDemoPhotos() { document.getElementById('demoPhotosOverlay').classList.remove('open'); }
 
