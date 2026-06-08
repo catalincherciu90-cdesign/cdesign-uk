@@ -598,8 +598,26 @@ const DEFAULT_PROJECTS = [
   { id: 'p6', emoji: '🔧', tag: 'Services', title: 'Technical Services Company', description: 'Presentation website with a quote-request form and project gallery.', problema: 'They were losing potential clients because they had no easy way to be contacted online.', solutie: 'Website with quick quote-request form, project gallery, and integrated Google reviews.', rezultat: 'Online quote requests: from 0 to 8–12 per month. Time saved on phone calls: 4 hrs/week.', order: 5 },
 ];
 
-function isAdmin(url, env) {
-  return url.searchParams.get('token') === (env.ADMIN_TOKEN || ADMIN_TOKEN);
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(str)));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Returns the authenticated identity for a request, or null.
+// Accepts the master token (env secret) or a valid session token (KV).
+async function getAuth(url, env) {
+  const token = url.searchParams.get('token') || '';
+  if (!token) return null;
+  if (token === (env.ADMIN_TOKEN || ADMIN_TOKEN) && token) {
+    return { username: (env.ADMIN_USER || ADMIN_USER) || 'owner', role: 'owner' };
+  }
+  try {
+    const raw = await env.PROGRAMARI.get('__session__' + token);
+    if (!raw) return null;
+    const s = JSON.parse(raw);
+    if (s.expires && s.expires < Date.now()) return null;
+    return s;
+  } catch { return null; }
 }
 
 function buildMaintenancePage(m) {
@@ -1069,6 +1087,9 @@ export default {
 
     if (request.method === 'OPTIONS') return new Response(null, { headers: getCors(request) });
 
+    // Authenticated identity (master token or session token), or null. Used by all admin routes.
+    const authed = await getAuth(url, env);
+
     // Redirect non-www → www (301 permanent) pentru canonical corect
     if (url.hostname === 'c-design.ro') {
       url.hostname = 'www.c-design.ro';
@@ -1076,10 +1097,9 @@ export default {
     }
 
     // ── MAINTENANCE MODE ──────────────────────────────────────
-    // Skip maintenance check for: admin API, admin page, static assets, token bypass
+    // Skip maintenance check for: admin API, admin page, static assets, logged-in admins
     const isAdminReq = path === '/programari' || path === '/programari.html' || path.startsWith('/api/') || path.startsWith('/demo/');
-    const hasToken = url.searchParams.get('token') === (env.ADMIN_TOKEN || ADMIN_TOKEN);
-    if (!isAdminReq && !hasToken) {
+    if (!isAdminReq && !authed) {
       try {
         const mRaw = await env.PROGRAMARI.get('__maintenance__');
         const mData = mRaw ? JSON.parse(mRaw) : { enabled: false };
@@ -1258,10 +1278,76 @@ export default {
         const { username, password } = await request.json();
         const validUser  = env.ADMIN_USER  || ADMIN_USER;
         const validToken = env.ADMIN_TOKEN || ADMIN_TOKEN;
-        if (username === validUser && password === validToken)
-          return json({ success: true }, 200, request);
-        return json({ error: 'Invalid credentials' }, 401, request);
+        let role = '';
+        if (validToken && username === validUser && password === validToken) {
+          role = 'owner';
+        } else {
+          const raw = await env.PROGRAMARI.get('__admins__');
+          const admins = raw ? JSON.parse(raw) : [];
+          const a = admins.find(x => x.username === username);
+          if (a && a.passHash === await sha256(password)) role = a.role || 'admin';
+        }
+        if (!role) return json({ error: 'Invalid credentials' }, 401, request);
+        // Issue a session token (valid 30 days) instead of exposing the master token.
+        const token = (crypto.randomUUID() + crypto.randomUUID()).replace(/-/g, '');
+        const expires = Date.now() + 1000 * 60 * 60 * 24 * 30;
+        await env.PROGRAMARI.put('__session__' + token, JSON.stringify({ username, role, expires }), { expirationTtl: 60 * 60 * 24 * 30 });
+        return json({ success: true, token, username, role }, 200, request);
       } catch { return json({ error: 'Server error' }, 500, request); }
+    }
+
+    if (path === '/api/logout' && request.method === 'POST') {
+      try {
+        const token = url.searchParams.get('token') || '';
+        if (token && token !== (env.ADMIN_TOKEN || ADMIN_TOKEN)) await env.PROGRAMARI.delete('__session__' + token);
+      } catch {}
+      return json({ success: true }, 200, request);
+    }
+
+    // ── ADMIN ACCOUNTS ────────────────────────────────────────
+
+    if (path === '/api/admins' && request.method === 'GET') {
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const raw = await env.PROGRAMARI.get('__admins__');
+        const admins = raw ? JSON.parse(raw) : [];
+        const ownerUser = (env.ADMIN_USER || ADMIN_USER) || 'owner';
+        return json({
+          owner: { username: ownerUser, role: 'owner' },
+          you: { username: authed.username, role: authed.role },
+          admins: admins.map(a => ({ username: a.username, role: a.role || 'admin', createdAt: a.createdAt })),
+        });
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+
+    if (path === '/api/admins' && request.method === 'POST') {
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const { username, password } = await request.json();
+        const u = String(username || '').trim();
+        const p = String(password || '');
+        if (!/^[a-zA-Z0-9._-]{2,40}$/.test(u)) return json({ error: 'Username must be 2–40 chars (letters, numbers, . _ -)' }, 400);
+        if (p.length < 8) return json({ error: 'Password must be at least 8 characters' }, 400);
+        if (u === ((env.ADMIN_USER || ADMIN_USER) || 'owner')) return json({ error: 'That username is reserved (owner account)' }, 400);
+        const raw = await env.PROGRAMARI.get('__admins__');
+        const admins = raw ? JSON.parse(raw) : [];
+        if (admins.some(a => a.username === u)) return json({ error: 'That username already exists' }, 400);
+        admins.push({ username: u, role: 'admin', passHash: await sha256(p), createdAt: new Date().toISOString() });
+        await env.PROGRAMARI.put('__admins__', JSON.stringify(admins));
+        return json({ success: true });
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+
+    if (path.startsWith('/api/admins/') && request.method === 'DELETE') {
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const u = decodeURIComponent(path.replace('/api/admins/', ''));
+        if (u === authed.username) return json({ error: 'You cannot delete the account you are logged in with' }, 400);
+        const raw = await env.PROGRAMARI.get('__admins__');
+        const admins = raw ? JSON.parse(raw) : [];
+        await env.PROGRAMARI.put('__admins__', JSON.stringify(admins.filter(a => a.username !== u)));
+        return json({ success: true });
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     // ── BOOKINGS ──────────────────────────────────────────────
@@ -1292,7 +1378,7 @@ export default {
     }
 
     if (path === '/api/bookings' && request.method === 'GET') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__index__');
         const index = raw ? JSON.parse(raw) : [];
@@ -1302,7 +1388,7 @@ export default {
     }
 
     if (path.startsWith('/api/booking/') && request.method === 'PATCH') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       const id = path.replace('/api/booking/', '');
       const raw = await env.PROGRAMARI.get(id);
       if (!raw) return json({ error: 'Not found' }, 404);
@@ -1340,7 +1426,7 @@ export default {
     }
 
     if (path === '/api/demo/generate' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401, request);
+      if (!authed) return json({ error: 'Unauthorised' }, 401, request);
       try {
         const body = await request.json().catch(() => ({}));
         const industry = String(body.industry || '').trim().slice(0, 60);
@@ -1431,7 +1517,7 @@ Requirements:
     }
 
     if (/^\/api\/demo\/[^/]+\/restyle$/.test(path) && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/demo/', '').replace('/restyle', '');
         const raw = await env.PROGRAMARI.get('__demos__');
@@ -1455,7 +1541,7 @@ Requirements:
     }
 
     if (/^\/api\/demo\/[^/]+\/images$/.test(path) && request.method === 'GET') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/demo/', '').replace('/images', '');
         const raw = await env.PROGRAMARI.get('__demo_img__' + id);
@@ -1464,7 +1550,7 @@ Requirements:
     }
 
     if (/^\/api\/demo\/[^/]+\/images$/.test(path) && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/demo/', '').replace('/images', '');
         const body = await request.json().catch(() => ({}));
@@ -1482,7 +1568,7 @@ Requirements:
     }
 
     if (path.startsWith('/api/demo/') && request.method === 'DELETE') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/demo/', '');
         const raw = await env.PROGRAMARI.get('__demos__');
@@ -1495,7 +1581,7 @@ Requirements:
     }
 
     if (path === '/api/project' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const { emoji, tag, title, description, problema, solutie, rezultat } = await request.json();
         if (!title) return json({ error: 'Title is required' }, 400);
@@ -1510,7 +1596,7 @@ Requirements:
     }
 
     if (path === '/api/project/generate' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401, request);
+      if (!authed) return json({ error: 'Unauthorised' }, 401, request);
       try {
         const body = await request.json().catch(() => ({}));
         const industries = Array.isArray(body.industries) ? body.industries.map(s => String(s).trim()).filter(Boolean).slice(0, 12) : [];
@@ -1598,7 +1684,7 @@ Requirements:
     }
 
     if (path.startsWith('/api/project/') && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/project/', '');
         const { emoji, tag, title, description, order } = await request.json();
@@ -1613,7 +1699,7 @@ Requirements:
     }
 
     if (path.startsWith('/api/project/') && request.method === 'DELETE') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/project/', '');
         const raw = await env.PROGRAMARI.get('__projects__');
@@ -1627,7 +1713,7 @@ Requirements:
     // ── CRM ───────────────────────────────────────────────────
 
     if (path === '/api/crm' && request.method === 'GET') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__crm__');
         const entries = raw ? JSON.parse(raw) : [];
@@ -1636,7 +1722,7 @@ Requirements:
     }
 
     if (path === '/api/crm' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const { client, proiect, valoare, termen, status, note } = await request.json();
         if (!client) return json({ error: 'Client is required' }, 400);
@@ -1650,7 +1736,7 @@ Requirements:
     }
 
     if (path.startsWith('/api/crm/') && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/crm/', '');
         const body = await request.json();
@@ -1665,7 +1751,7 @@ Requirements:
     }
 
     if (path.startsWith('/api/crm/') && request.method === 'DELETE') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/crm/', '');
         const raw = await env.PROGRAMARI.get('__crm__');
@@ -1678,7 +1764,7 @@ Requirements:
     // ── BLOG ──────────────────────────────────────────────────
 
     if (path === '/api/blog/generate' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401, request);
+      if (!authed) return json({ error: 'Unauthorised' }, 401, request);
       try {
         const { subject } = await request.json();
         if (!subject) return json({ error: 'Subject is required' }, 400, request);
@@ -1735,7 +1821,7 @@ Cerințe articol:
     }
 
     if (path === '/api/blog/research-titles' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401, request);
+      if (!authed) return json({ error: 'Unauthorised' }, 401, request);
       try {
         const { focus, audience, existing } = await request.json();
         if (!env.AI) return json({ error: 'AI binding unavailable — check wrangler.toml' }, 500, request);
@@ -1809,13 +1895,13 @@ Cerințe titluri:
       try {
         const raw = await env.PROGRAMARI.get('__blog__');
         const posts = raw ? JSON.parse(raw) : [];
-        const all = url.searchParams.get('all') === '1' && isAdmin(url, env);
+        const all = url.searchParams.get('all') === '1' && authed;
         return json(posts.filter(p => all || p.published).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
       } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path === '/api/blog' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const { title, slug, content, excerpt, published } = await request.json();
         if (!title) return json({ error: 'Title is required' }, 400);
@@ -1830,7 +1916,7 @@ Cerințe titluri:
     }
 
     if (path.startsWith('/api/blog/') && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/blog/', '');
         const body = await request.json();
@@ -1845,7 +1931,7 @@ Cerințe titluri:
     }
 
     if (path === '/api/blog/reset' && request.method === 'DELETE') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         await env.PROGRAMARI.put('__blog__', JSON.stringify([]));
         return json({ success: true });
@@ -1853,7 +1939,7 @@ Cerințe titluri:
     }
 
     if (path.startsWith('/api/blog/') && request.method === 'DELETE') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/blog/', '');
         const raw = await env.PROGRAMARI.get('__blog__');
@@ -1865,7 +1951,7 @@ Cerințe titluri:
 
     // ── CHELTUIELI ───────────────────────────────────────────
     if (path === '/api/cheltuieli' && request.method === 'GET') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__cheltuieli__');
         return json(raw ? JSON.parse(raw) : []);
@@ -1873,7 +1959,7 @@ Cerințe titluri:
     }
 
     if (path === '/api/cheltuieli' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const { descriere, categorie, suma, moneda, data, metodaPlatii, recurent, note } = await request.json();
         if (!descriere || !suma || !data) return json({ error: 'Required fields missing' }, 400);
@@ -1887,7 +1973,7 @@ Cerințe titluri:
     }
 
     if (path.startsWith('/api/cheltuieli/') && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/cheltuieli/', '');
         const updates = await request.json();
@@ -1902,7 +1988,7 @@ Cerințe titluri:
     }
 
     if (path.startsWith('/api/cheltuieli/') && request.method === 'DELETE') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/cheltuieli/', '');
         const raw = await env.PROGRAMARI.get('__cheltuieli__');
@@ -1917,7 +2003,7 @@ Cerințe titluri:
     const DEFAULT_SETTINGS = { workingDays:[1,2,3,4,5], startTime:'09:00', endTime:'18:00', slotInterval:60, blockedDates:[] };
 
     if (path === '/api/test-email' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401, request);
+      if (!authed) return json({ error: 'Unauthorised' }, 401, request);
       const apiKey = env.RESEND_API_KEY || RESEND_API_KEY;
       if (!apiKey) return json({ error: 'RESEND_API_KEY is not configured in Cloudflare Secrets.' }, 400, request);
       const toEmail = env.NOTIFY_EMAIL || NOTIFY_EMAIL;
@@ -1952,7 +2038,7 @@ Cerințe titluri:
     }
 
     if (path === '/api/settings' && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const body = await request.json();
         await env.PROGRAMARI.put('__settings__', JSON.stringify(body));
@@ -1979,7 +2065,7 @@ Cerințe titluri:
     }
 
     if (path === '/api/social' && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const body = await request.json();
         await env.PROGRAMARI.put('__social__', JSON.stringify(body));
@@ -1990,7 +2076,7 @@ Cerințe titluri:
     // ── GIBILAN ───────────────────────────────────────────────
 
     if (path === '/api/gibilan/agenda' && request.method === 'GET') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__gibilan__');
         const data = raw ? JSON.parse(raw) : { meetings: [], todos: [], deadlines: [] };
@@ -2003,7 +2089,7 @@ Cerințe titluri:
     }
 
     if (path === '/api/gibilan/meeting' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const { title, date, time, notes, clientId } = await request.json();
         if (!title || !date) return json({ error: 'Title and date are required' }, 400);
@@ -2018,7 +2104,7 @@ Cerințe titluri:
     }
 
     if (path.startsWith('/api/gibilan/meeting/') && request.method === 'PATCH') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/gibilan/meeting/', '');
         const body = await request.json();
@@ -2033,7 +2119,7 @@ Cerințe titluri:
     }
 
     if (path.startsWith('/api/gibilan/meeting/') && request.method === 'DELETE') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/gibilan/meeting/', '');
         const raw = await env.PROGRAMARI.get('__gibilan__');
@@ -2045,7 +2131,7 @@ Cerințe titluri:
     }
 
     if (path === '/api/gibilan/todo' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const { title, dueDate, priority, clientId } = await request.json();
         if (!title) return json({ error: 'Title is required' }, 400);
@@ -2060,7 +2146,7 @@ Cerințe titluri:
     }
 
     if (path.match(/^\/api\/gibilan\/todo\/[^/]+\/done$/) && request.method === 'PATCH') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/gibilan/todo/', '').replace('/done', '');
         const raw = await env.PROGRAMARI.get('__gibilan__');
@@ -2074,7 +2160,7 @@ Cerințe titluri:
     }
 
     if (path.startsWith('/api/gibilan/todo/') && !path.endsWith('/done') && request.method === 'PATCH') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/gibilan/todo/', '');
         const body = await request.json();
@@ -2089,7 +2175,7 @@ Cerințe titluri:
     }
 
     if (path.startsWith('/api/gibilan/todo/') && !path.endsWith('/done') && request.method === 'DELETE') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/gibilan/todo/', '');
         const raw = await env.PROGRAMARI.get('__gibilan__');
@@ -2101,7 +2187,7 @@ Cerințe titluri:
     }
 
     if (path === '/api/gibilan/deadline' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const { title, date, project, notes, clientId } = await request.json();
         if (!title || !date) return json({ error: 'Title and date are required' }, 400);
@@ -2116,7 +2202,7 @@ Cerințe titluri:
     }
 
     if (path.startsWith('/api/gibilan/deadline/') && request.method === 'PATCH') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/gibilan/deadline/', '');
         const body = await request.json();
@@ -2131,7 +2217,7 @@ Cerințe titluri:
     }
 
     if (path.startsWith('/api/gibilan/deadline/') && request.method === 'DELETE') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/gibilan/deadline/', '');
         const raw = await env.PROGRAMARI.get('__gibilan__');
@@ -2143,7 +2229,7 @@ Cerințe titluri:
     }
 
     if (path === '/api/gibilan/reset' && request.method === 'DELETE') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const which = url.searchParams.get('which'); // 'meetings' | 'todos' | 'deadlines' | null = all
         if (!which) {
@@ -2160,7 +2246,7 @@ Cerințe titluri:
 
     // ── CLIENȚI ──────────────────────────────────────────────
     if (path === '/api/clients' && request.method === 'GET') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__clients__');
         return json(raw ? JSON.parse(raw) : []);
@@ -2168,7 +2254,7 @@ Cerințe titluri:
     }
 
     if (path === '/api/client' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const { name, contact, phone, email, notes } = await request.json();
         if (!name) return json({ error: 'Name is required' }, 400);
@@ -2187,7 +2273,7 @@ Cerințe titluri:
     }
 
     if (path.match(/^\/api\/client\/[^/]+$/) && request.method === 'PATCH') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/client/', '');
         const body = await request.json();
@@ -2202,7 +2288,7 @@ Cerințe titluri:
     }
 
     if (path.match(/^\/api\/client\/[^/]+$/) && request.method === 'DELETE') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/client/', '');
         const raw = await env.PROGRAMARI.get('__clients__');
@@ -2335,7 +2421,7 @@ Cerințe titluri:
     }
 
     if (path === '/api/theme' && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const body = await request.json();
         await env.PROGRAMARI.put('__theme__', JSON.stringify(body));
@@ -2383,7 +2469,7 @@ Cerințe titluri:
     }
 
     if (path.startsWith('/api/layout/') && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       const page = path.replace('/api/layout/','');
       if (!LAYOUT_DEFAULTS[page]) return json({ error: 'Unknown page' }, 404);
       try {
@@ -2405,7 +2491,7 @@ Cerințe titluri:
       } catch { return json({}); }
     }
     if (path === '/api/site-settings' && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__site_settings__');
         const existing = raw ? JSON.parse(raw) : {};
@@ -2418,14 +2504,14 @@ Cerințe titluri:
 
     // ── MAINTENANCE API ───────────────────────────────────────
     if (path === '/api/maintenance' && request.method === 'GET') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__maintenance__');
         return json(raw ? JSON.parse(raw) : { enabled: false, title: '', message: '', date: '' });
       } catch { return json({ error: 'Error' }, 500); }
     }
     if (path === '/api/maintenance' && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const body = await request.json();
         await env.PROGRAMARI.put('__maintenance__', JSON.stringify({
@@ -2440,7 +2526,7 @@ Cerințe titluri:
 
     // Media upload
     if (path === '/api/media' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const ct = request.headers.get('Content-Type') || '';
         if (!ct.startsWith('image/')) return json({ error: 'Only images are accepted' }, 400);
@@ -2467,7 +2553,7 @@ Cerințe titluri:
     }
 
     if (path.startsWith('/api/media') && request.method === 'GET') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const list = await env.PROGRAMARI.list({ prefix: '__media__' });
         const files = list.keys.map(k => ({
@@ -2482,7 +2568,7 @@ Cerințe titluri:
     }
 
     if (path.startsWith('/api/media/') && request.method === 'DELETE') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       const filename = path.replace('/api/media/', '');
       try {
         await env.PROGRAMARI.delete('__media__' + filename);
@@ -2493,7 +2579,7 @@ Cerințe titluri:
     // ── SERVICII (catalog pentru oferte) ─────────────────────
 
     if (path === '/api/servicii' && request.method === 'GET') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__servicii__');
         // Servicii noi adăugate după seed inițial — migrare automată
@@ -2537,7 +2623,7 @@ Cerințe titluri:
     }
 
     if (path === '/api/servicii' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const body = await request.json();
         if (!body.nume || body.pret === undefined) return json({ error: 'Required fields missing' }, 400);
@@ -2559,7 +2645,7 @@ Cerințe titluri:
     }
 
     if (path.startsWith('/api/servicii/') && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       const id = path.replace('/api/servicii/', '');
       try {
         const body = await request.json();
@@ -2582,7 +2668,7 @@ Cerințe titluri:
     }
 
     if (path.startsWith('/api/servicii/') && request.method === 'DELETE') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       const id = path.replace('/api/servicii/', '');
       try {
         const raw = await env.PROGRAMARI.get('__servicii__');
@@ -2596,7 +2682,7 @@ Cerințe titluri:
     // ── OFERTE ───────────────────────────────────────────────
 
     if (path === '/api/oferte' && request.method === 'GET') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__oferte__');
         return json(raw ? JSON.parse(raw) : []);
@@ -2604,7 +2690,7 @@ Cerințe titluri:
     }
 
     if (path === '/api/oferte' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const body = await request.json();
         if (!body.client?.name || !body.servicii?.length) return json({ error: 'Incomplete data' }, 400);
@@ -2641,7 +2727,7 @@ Cerințe titluri:
     // ── OFERTĂ PREVIEW (print as PDF) ────────────────────────
 
     if (path.startsWith('/oferta-preview/') && request.method === 'GET') {
-      if (!isAdmin(url, env)) return new Response('Unauthorised', { status: 401 });
+      if (!authed) return new Response('Unauthorised', { status: 401 });
       const id = path.replace('/oferta-preview/', '');
       try {
         const [raw, tmplRaw] = await Promise.all([
@@ -2881,7 +2967,7 @@ Cerințe titluri:
     // ── CONTRACT TEMPLATE ────────────────────────────────────
 
     if (path === '/api/contract-template' && request.method === 'GET') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__contract_template__');
         return json(raw ? JSON.parse(raw) : {});
@@ -2889,7 +2975,7 @@ Cerințe titluri:
     }
 
     if (path === '/api/contract-template' && request.method === 'PUT') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__contract_template__');
         const existing = raw ? JSON.parse(raw) : {};
@@ -2906,7 +2992,7 @@ Cerințe titluri:
     // ── CONTRACTE ────────────────────────────────────────────
 
     if (path === '/api/contracte' && request.method === 'GET') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const raw = await env.PROGRAMARI.get('__contracte__');
         return json(raw ? JSON.parse(raw) : []);
@@ -2914,7 +3000,7 @@ Cerințe titluri:
     }
 
     if (path === '/api/contracte' && request.method === 'POST') {
-      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      if (!authed) return json({ error: 'Unauthorised' }, 401);
       try {
         const body = await request.json();
         if (!body.client?.name || !body.obiect) return json({ error: 'Incomplete data' }, 400);
@@ -2956,7 +3042,7 @@ Cerințe titluri:
     // ── CONTRACT PREVIEW (print as PDF) ──────────────────────
 
     if (path.startsWith('/contract-preview/') && request.method === 'GET') {
-      if (!isAdmin(url, env)) return new Response('Unauthorised', { status: 401 });
+      if (!authed) return new Response('Unauthorised', { status: 401 });
       const id = path.replace('/contract-preview/', '');
       try {
         const [raw, tmplRaw] = await Promise.all([
