@@ -925,6 +925,12 @@
     <h2 class="sec-title reveal" id="portofoliu-heading">Businesses like yours, real results</h2>
     <p class="sec-sub reveal" id="portofoliu-sub-el">Here are some of the projects we've delivered — small family businesses, freelancers, restaurants, construction firms. Real people, websites that work.</p>
     <div class="portfolio-grid" id="portfolioGrid" style="min-height:280px"></div>
+
+    <div id="demoShowcase" style="margin-top:56px;display:none;">
+      <h3 class="reveal" style="font-size:1.4rem;font-weight:700;text-align:center;margin-bottom:8px;">See a live demo for your industry</h3>
+      <p class="sec-sub reveal" style="margin-bottom:28px;">Click any demo below to open a full sample website — exactly the kind of site we can build for your business.</p>
+      <div class="portfolio-grid" id="demoGrid"></div>
+    </div>
   </div>
 </section>
 
@@ -1129,6 +1135,32 @@ reveals.forEach(el=>revObs.observe(el));
   } catch {
     grid.innerHTML = '<p style="color:var(--muted);font-size:.9rem;padding:24px 0">Projects could not be loaded.</p>';
   }
+})();
+
+(async function loadDemos() {
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const delays = ['', 'reveal-delay-1', 'reveal-delay-2'];
+  try {
+    const res = await fetch('/api/demos');
+    const demos = await res.json();
+    if (!Array.isArray(demos) || !demos.length) return;
+    const showcase = document.getElementById('demoShowcase');
+    const grid = document.getElementById('demoGrid');
+    grid.innerHTML = demos.map((d, i) => `
+      <a class="port-card reveal ${delays[i % 3]}" href="/demo/${encodeURIComponent(d.slug)}" target="_blank" rel="noopener noreferrer" style="display:block;color:inherit;text-decoration:none;">
+        <div class="port-thumb" aria-hidden="true">
+          <div class="port-grid-overlay"></div><span class="port-emoji">${esc(d.emoji) || '🌐'}</span>
+        </div>
+        <div class="port-info">
+          <div class="port-tag">${esc(d.industry || 'Demo')}</div>
+          <h3>${esc(d.businessName || 'Demo site')}</h3>
+          <p>${esc(d.tagline || '')}</p>
+          <span style="display:inline-block;margin-top:12px;font-size:.78rem;color:var(--teal);font-family:'Share Tech Mono',monospace;">→ Open live demo ↗</span>
+        </div>
+      </a>`).join('');
+    showcase.style.display = 'block';
+    grid.querySelectorAll('.reveal').forEach(el => revObs.observe(el));
+  } catch { /* demos are optional — ignore */ }
 })();
 
 (function(){

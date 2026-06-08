@@ -640,6 +640,185 @@ p{color:#8bbaba;font-size:1.05rem;line-height:1.75;margin-bottom:12px}
 </body></html>`;
 }
 
+// ── DEMO SITES ──────────────────────────────────────────────
+function demoSlugify(s) {
+  return String(s || 'demo').toLowerCase()
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 40) || 'demo';
+}
+
+// Robustly extract a JSON object/array from a Workers AI result (shape can vary).
+function parseAiJson(ai) {
+  const respRaw = ai && ai.response !== undefined ? ai.response : ai;
+  if (respRaw && typeof respRaw === 'object') return respRaw;
+  const text = String(respRaw ?? '').trim();
+  const match = text.match(/\{[\s\S]*\}/) || text.match(/\[[\s\S]*\]/);
+  if (!match) return null;
+  let raw = match[0], sanitized = '', inStr = false, esc = false;
+  for (let i = 0; i < raw.length; i++) {
+    const c = raw[i];
+    if (esc) { sanitized += c; esc = false; continue; }
+    if (c === '\\') { sanitized += c; esc = true; continue; }
+    if (c === '"') { inStr = !inStr; sanitized += c; continue; }
+    if (inStr && c.charCodeAt(0) < 0x20) {
+      if (c === '\n') sanitized += '\\n';
+      else if (c === '\r') sanitized += '\\r';
+      else if (c === '\t') sanitized += '\\t';
+    } else { sanitized += c; }
+  }
+  try { return JSON.parse(sanitized); } catch { return null; }
+}
+
+function buildDemoSite(d) {
+  const e = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const hex = v => /^#[0-9a-fA-F]{3,8}$/.test(String(v || '')) ? v : null;
+  const primary = hex(d.colorPrimary) || '#0ea5e9';
+  const accent = hex(d.colorAccent) || '#f59e0b';
+  const name = e(d.businessName || 'Demo Business');
+  const emoji = e(d.emoji || '🌐');
+  const services = (Array.isArray(d.services) ? d.services : []).slice(0, 6);
+  const features = (Array.isArray(d.features) ? d.features : []).slice(0, 6);
+  const t = d.testimonial && (d.testimonial.quote || d.testimonial.author) ? d.testimonial : null;
+
+  const servicesHtml = services.map(s => `
+        <div class="card">
+          <div class="card-ic">${e(s.icon || '✦')}</div>
+          <h3>${e(s.title || '')}</h3>
+          <p>${e(s.desc || '')}</p>
+        </div>`).join('');
+
+  const featuresHtml = features.map(f => `<li><span class="tick">✓</span>${e(typeof f === 'string' ? f : (f.title || ''))}</li>`).join('');
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>${name} — Demo</title>
+<style>
+  :root{--p:${primary};--a:${accent};}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#1f2937;line-height:1.6;background:#fff;}
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 22px;}
+  .demo-bar{background:#111827;color:#fff;font-size:.82rem;text-align:center;padding:8px 14px;}
+  .demo-bar a{color:var(--a);font-weight:700;}
+  header{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid #eef2f7;}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:66px;}
+  .logo{font-weight:800;font-size:1.25rem;display:flex;align-items:center;gap:8px;}
+  .logo .d{width:34px;height:34px;border-radius:9px;background:var(--p);display:grid;place-items:center;color:#fff;font-size:1.05rem;}
+  .nav-links{display:flex;gap:26px;font-size:.93rem;font-weight:500;}
+  .nav-links a:hover{color:var(--p);}
+  .btn{display:inline-block;background:var(--p);color:#fff;font-weight:700;padding:12px 26px;border-radius:9px;font-size:.95rem;transition:transform .15s,filter .15s;}
+  .btn:hover{filter:brightness(1.07);transform:translateY(-1px);}
+  .btn.alt{background:var(--a);}
+  .hero{padding:84px 0 76px;background:linear-gradient(160deg,${primary}14,${accent}10);}
+  .hero h1{font-size:clamp(2.1rem,5vw,3.4rem);line-height:1.1;font-weight:800;letter-spacing:-.5px;max-width:14ch;}
+  .hero p{margin:20px 0 30px;font-size:1.15rem;color:#475569;max-width:48ch;}
+  .pill{display:inline-block;background:var(--p);color:#fff;font-size:.74rem;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:6px 14px;border-radius:999px;margin-bottom:18px;}
+  section{padding:72px 0;}
+  .sec-head{text-align:center;max-width:60ch;margin:0 auto 48px;}
+  .sec-head h2{font-size:clamp(1.7rem,3.5vw,2.4rem);font-weight:800;letter-spacing:-.4px;}
+  .sec-head p{color:#64748b;margin-top:12px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:22px;}
+  .card{background:#fff;border:1px solid #eef2f7;border-radius:16px;padding:28px;box-shadow:0 6px 24px rgba(15,23,42,.05);transition:transform .15s,box-shadow .15s;}
+  .card:hover{transform:translateY(-4px);box-shadow:0 14px 34px rgba(15,23,42,.1);}
+  .card-ic{width:50px;height:50px;border-radius:12px;background:${primary}1a;color:var(--p);display:grid;place-items:center;font-size:1.5rem;margin-bottom:16px;}
+  .card h3{font-size:1.12rem;margin-bottom:8px;}
+  .card p{color:#64748b;font-size:.95rem;}
+  .about{background:#f8fafc;}
+  .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:46px;align-items:center;}
+  .about ul{list-style:none;margin-top:20px;display:grid;gap:12px;}
+  .about li{display:flex;align-items:flex-start;gap:10px;font-weight:500;}
+  .tick{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--p);color:#fff;font-size:.7rem;flex-shrink:0;margin-top:3px;}
+  .about-card{background:linear-gradient(160deg,var(--p),${accent});border-radius:22px;min-height:280px;display:grid;place-items:center;color:#fff;font-size:5rem;}
+  .quote{max-width:760px;margin:0 auto;text-align:center;}
+  .quote blockquote{font-size:1.5rem;font-weight:600;line-height:1.45;letter-spacing:-.3px;}
+  .quote .who{margin-top:20px;color:#64748b;font-weight:600;}
+  .cta{background:var(--p);color:#fff;text-align:center;}
+  .cta h2{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:800;}
+  .cta p{opacity:.9;margin:14px 0 28px;font-size:1.1rem;}
+  .cta .btn{background:#fff;color:var(--p);}
+  footer{background:#0f172a;color:#cbd5e1;padding:40px 0;font-size:.9rem;}
+  .foot{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center;}
+  .foot .c{color:#fff;font-weight:700;}
+  @media(max-width:760px){.nav-links{display:none;}.about-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+  <div class="demo-bar">✨ Demo website — built by <a href="https://www.cdesigns.uk" target="_blank" rel="noopener">C Design</a>. Want one like this? <a href="https://www.cdesigns.uk/programari.html" target="_blank" rel="noopener">Get yours →</a></div>
+  <header>
+    <div class="wrap nav">
+      <div class="logo"><span class="d">${emoji}</span>${name}</div>
+      <nav class="nav-links">
+        <a href="#services">Services</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <a href="#contact" class="btn">${e(d.ctaText || 'Get in touch')}</a>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="wrap">
+      <span class="pill">${e(d.industry || 'Business')}</span>
+      <h1>${e(d.heroTitle || d.tagline || name)}</h1>
+      <p>${e(d.tagline || '')}</p>
+      <a href="#contact" class="btn">${e(d.ctaText || 'Get a quote')}</a>
+    </div>
+  </section>
+
+  ${services.length ? `<section id="services">
+    <div class="wrap">
+      <div class="sec-head"><h2>What we offer</h2><p>${e(d.servicesIntro || 'Everything you need, in one place.')}</p></div>
+      <div class="grid">${servicesHtml}</div>
+    </div>
+  </section>` : ''}
+
+  <section id="about" class="about">
+    <div class="wrap about-grid">
+      <div>
+        <h2 style="font-size:clamp(1.7rem,3.5vw,2.4rem);font-weight:800;letter-spacing:-.4px;">About ${name}</h2>
+        <p style="color:#475569;margin-top:14px;">${e(d.about || '')}</p>
+        ${featuresHtml ? `<ul>${featuresHtml}</ul>` : ''}
+      </div>
+      <div class="about-card">${emoji}</div>
+    </div>
+  </section>
+
+  ${t ? `<section class="quote-sec">
+    <div class="wrap quote">
+      <blockquote>“${e(t.quote || '')}”</blockquote>
+      <div class="who">— ${e(t.author || 'Happy client')}</div>
+    </div>
+  </section>` : ''}
+
+  <section id="contact" class="cta">
+    <div class="wrap">
+      <h2>${e(d.ctaHeadline || 'Ready to get started?')}</h2>
+      <p>${e(d.ctaText || 'Contact us today for a free consultation.')}</p>
+      <a href="mailto:${e(d.email || 'hello@example.com')}" class="btn">Contact us</a>
+      <div style="margin-top:26px;font-size:.95rem;opacity:.92;display:flex;gap:24px;justify-content:center;flex-wrap:wrap;">
+        ${d.phone ? `<span>📞 ${e(d.phone)}</span>` : ''}
+        ${d.email ? `<span>✉ ${e(d.email)}</span>` : ''}
+        ${d.address ? `<span>📍 ${e(d.address)}</span>` : ''}
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap foot">
+      <span class="c">${emoji} ${name}</span>
+      <span>Demo site · Built by <a href="https://www.cdesigns.uk" style="color:var(--a);font-weight:700;">C Design</a></span>
+    </div>
+  </footer>
+</body>
+</html>`;
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -655,7 +834,7 @@ export default {
 
     // ── MAINTENANCE MODE ──────────────────────────────────────
     // Skip maintenance check for: admin API, admin page, static assets, token bypass
-    const isAdminReq = path === '/programari' || path === '/programari.html' || path.startsWith('/api/');
+    const isAdminReq = path === '/programari' || path === '/programari.html' || path.startsWith('/api/') || path.startsWith('/demo/');
     const hasToken = url.searchParams.get('token') === (env.ADMIN_TOKEN || ADMIN_TOKEN);
     if (!isAdminReq && !hasToken) {
       try {
@@ -698,6 +877,27 @@ export default {
           headers: { 'Content-Type': 'text/html;charset=utf-8', 'Cache-Control': 'public,max-age=300' },
         });
       } catch { return Response.redirect('https://www.cdesigns.uk/blog', 302); }
+    }
+
+    // ── DEMO SITES (public) ───────────────────────────────────
+
+    if (/^\/demo\/[^/]+$/.test(path) && request.method === 'GET') {
+      const slug = decodeURIComponent(path.slice(6));
+      try {
+        const raw = await env.PROGRAMARI.get('__demos__');
+        const demos = raw ? JSON.parse(raw) : [];
+        const demo = demos.find(x => x.slug === slug || x.id === slug);
+        if (!demo) {
+          return new Response('<!DOCTYPE html><meta charset="utf-8"><title>Demo not found</title><body style="font-family:system-ui;text-align:center;padding:80px 20px;color:#334155;"><h1>Demo not found</h1><p>This demo may have been removed. <a href="https://www.cdesigns.uk" style="color:#0ea5e9;">Back to C Design →</a></p></body>', {
+            status: 404, headers: { 'Content-Type': 'text/html;charset=utf-8' }
+          });
+        }
+        return new Response(buildDemoSite(demo.data || demo), {
+          headers: { ...SEC_HEADERS, 'Content-Type': 'text/html;charset=utf-8', 'Cache-Control': 'public,max-age=300' }
+        });
+      } catch {
+        return new Response('Error loading demo', { status: 500 });
+      }
     }
 
     // ── PACHET STARTUP ────────────────────────────────────────
@@ -873,6 +1073,97 @@ export default {
         const projects = raw ? JSON.parse(raw) : DEFAULT_PROJECTS;
         return json(projects.sort((a, b) => a.order - b.order));
       } catch { return json(DEFAULT_PROJECTS); }
+    }
+
+    // ── DEMO SITES API ────────────────────────────────────────
+
+    if (path === '/api/demos' && request.method === 'GET') {
+      try {
+        const raw = await env.PROGRAMARI.get('__demos__');
+        const demos = raw ? JSON.parse(raw) : [];
+        // Public summary only — full content is served at /demo/<slug>
+        return json(demos.map(x => ({
+          id: x.id, slug: x.slug, businessName: x.businessName, industry: x.industry,
+          emoji: (x.data && x.data.emoji) || '🌐', tagline: (x.data && x.data.tagline) || '',
+          createdAt: x.createdAt,
+        })));
+      } catch { return json([]); }
+    }
+
+    if (path === '/api/demo/generate' && request.method === 'POST') {
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401, request);
+      try {
+        const body = await request.json().catch(() => ({}));
+        const industry = String(body.industry || '').trim().slice(0, 60);
+        const tone = String(body.tone || '').trim().slice(0, 80);
+        if (!industry) return json({ error: 'Industry is required' }, 400, request);
+        if (!env.AI) return json({ error: 'AI binding unavailable — check wrangler.toml' }, 500, request);
+
+        const toneLine = tone ? `\nBrand tone / style: ${tone}.` : '';
+        const prompt = `You are a web copywriter and brand designer. Invent a realistic small business in the "${industry}" industry (UK market) and write the content for a one-page demo website for it.${toneLine}
+
+Return ONLY a valid JSON object, no text before or after, with exactly this structure:
+{
+  "businessName": "an invented but realistic business name",
+  "industry": "${industry}",
+  "emoji": "one emoji representing the industry",
+  "tagline": "short hero subtitle, 1 sentence",
+  "heroTitle": "punchy hero headline (max 60 chars)",
+  "servicesIntro": "one short sentence introducing the services",
+  "services": [ { "icon": "emoji", "title": "service name", "desc": "1 short sentence" } ],
+  "about": "2-3 sentences about the business",
+  "features": [ "short benefit", "short benefit", "short benefit", "short benefit" ],
+  "testimonial": { "quote": "a short client testimonial", "author": "Client name" },
+  "ctaHeadline": "call to action headline",
+  "ctaText": "short call to action sentence / button text",
+  "phone": "a plausible UK phone number",
+  "email": "a plausible contact email matching the business name",
+  "address": "a plausible UK city / street",
+  "colorPrimary": "a hex colour fitting the brand, e.g. #0ea5e9",
+  "colorAccent": "a complementary hex accent colour"
+}
+
+Requirements:
+- Language: ENGLISH
+- 3 to 5 services in the "services" array
+- Realistic, professional, not generic filler
+- Colours must be valid hex codes that look good together
+- No text outside the JSON object`;
+
+        const ai = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 2048,
+        });
+
+        const parsed = parseAiJson(ai);
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed) || !parsed.businessName) {
+          return json({ error: 'The model did not return a valid site. Please try again.' }, 500, request);
+        }
+        parsed.industry = parsed.industry || industry;
+
+        const raw = await env.PROGRAMARI.get('__demos__');
+        const demos = raw ? JSON.parse(raw) : [];
+        const id = `demo_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+        let slug = demoSlugify(parsed.businessName);
+        if (demos.some(x => x.slug === slug)) slug = `${slug}-${Math.random().toString(36).slice(2, 5)}`;
+        const demo = { id, slug, businessName: String(parsed.businessName).slice(0, 80), industry: String(parsed.industry).slice(0, 60), data: parsed, createdAt: new Date().toISOString() };
+        demos.unshift(demo);
+        await env.PROGRAMARI.put('__demos__', JSON.stringify(demos));
+        return json({ success: true, demo: { id, slug, businessName: demo.businessName, industry: demo.industry, url: `/demo/${slug}` } }, 200, request);
+      } catch (e) {
+        return json({ error: 'Generation error: ' + (e.message || 'unknown') }, 500, request);
+      }
+    }
+
+    if (path.startsWith('/api/demo/') && request.method === 'DELETE') {
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const id = path.replace('/api/demo/', '');
+        const raw = await env.PROGRAMARI.get('__demos__');
+        const demos = raw ? JSON.parse(raw) : [];
+        await env.PROGRAMARI.put('__demos__', JSON.stringify(demos.filter(x => x.id !== id && x.slug !== id)));
+        return json({ success: true });
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path === '/api/project' && request.method === 'POST') {
