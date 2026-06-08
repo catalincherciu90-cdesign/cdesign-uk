@@ -879,6 +879,10 @@
             </select>
           </div>
         </div>
+        <div style="margin-bottom:14px;">
+          <label class="f-label" style="margin-bottom:5px;display:block;">// your prompt (optional) — tell the AI what you want</label>
+          <textarea class="f-input" id="projGenPrompt" rows="2" placeholder="e.g. focus on results with big numbers, mention local SEO, friendly tone..." style="margin-bottom:0;resize:vertical;"></textarea>
+        </div>
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
           <button class="btn-save" id="projGenGo" onclick="runProjGen()" style="padding:10px 20px;">&#x2728; Generate now</button>
           <span id="projGenStatus" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;display:none;"></span>
@@ -2713,6 +2717,7 @@
     const industries = document.getElementById('projGenIndustries').value.split(',').map(s => s.trim()).filter(Boolean);
     const count = parseInt(document.getElementById('projGenCount').value) || 4;
     const tone = document.getElementById('projGenTone').value;
+    const prompt = document.getElementById('projGenPrompt').value.trim();
     const status = document.getElementById('projGenStatus');
     const btn = document.getElementById('projGenGo');
     status.style.display = 'inline'; status.style.color = 'var(--muted)';
@@ -2721,7 +2726,7 @@
     try {
       const res = await fetch('/api/project/generate?token=' + encodeURIComponent(adminToken), {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ industries, count, tone }),
+        body: JSON.stringify({ industries, count, tone, prompt }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.success) {
