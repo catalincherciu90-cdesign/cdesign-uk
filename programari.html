@@ -576,6 +576,8 @@
               <select class="gib-input" id="gib-d-client"><option value="">— no client —</option></select>
               <button class="gib-save" onclick="addDeadline()">Save</button>
             </div>
+
+            <button class="gib-add-btn" style="border-color:#e74c3c;color:#e74c3c;margin-top:8px;" onclick="resetGibilan()">🗑 Golește agenda</button>
           </div>
         </div>
 
@@ -845,6 +847,7 @@
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <button class="btn-add" onclick="toggleTitleResearch()" id="btnResearch" style="background:var(--teal-dim);border:1px solid var(--teal-border);color:var(--teal);">🔍 SEO Title Research</button>
           <button class="btn-add" onclick="openBlogModal(null)">+ New Article</button>
+          <button class="btn-add" onclick="resetBlog()" style="background:rgba(231,76,60,.12);border:1px solid #e74c3c;color:#e74c3c;">🗑 Șterge toate</button>
         </div>
       </div>
 
@@ -2822,6 +2825,17 @@
     await fetchBlog();
   }
 
+  async function resetBlog() {
+    if (!confirm('Sigur ștergi TOATE articolele de blog? Acțiunea este definitivă.')) return;
+    if (!confirm('Confirmare finală: ștergi definitiv toate articolele?')) return;
+    try {
+      const res = await fetch('/api/blog/reset?token=' + encodeURIComponent(adminToken), { method: 'DELETE' });
+      if (!res.ok) { alert('Eroare la ștergerea articolelor.'); return; }
+      await fetchBlog();
+      alert('Toate articolele au fost șterse.');
+    } catch { alert('Eroare de rețea.'); }
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('blogModalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeBlogModal(); });
   });
@@ -3918,6 +3932,17 @@
       await fetch(`/api/gibilan/${urlMap[type]}/${id}?token=` + encodeURIComponent(adminToken), { method: 'DELETE' });
       await loadGibilan();
     } catch { alert('Error deleting.'); }
+  }
+
+  async function resetGibilan() {
+    if (!confirm('Sigur golești toată agenda? Se șterg TOATE meetings, to-do-urile și deadlines. Acțiunea este definitivă.')) return;
+    if (!confirm('Confirmare finală: ștergi definitiv toată agenda?')) return;
+    try {
+      const res = await fetch('/api/gibilan/reset?token=' + encodeURIComponent(adminToken), { method: 'DELETE' });
+      if (!res.ok) { alert('Eroare la golirea agendei.'); return; }
+      await loadGibilan();
+      alert('Agenda a fost golită.');
+    } catch { alert('Eroare de rețea.'); }
   }
 
   // Rotire mesaje speech bubble la fiecare 5 secunde

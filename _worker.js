@@ -1137,6 +1137,14 @@ Cerințe titluri:
       } catch { return json({ error: 'Server error' }, 500); }
     }
 
+    if (path === '/api/blog/reset' && request.method === 'DELETE') {
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      try {
+        await env.PROGRAMARI.put('__blog__', JSON.stringify([]));
+        return json({ success: true });
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+
     if (path.startsWith('/api/blog/') && request.method === 'DELETE') {
       if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
@@ -1423,6 +1431,22 @@ Cerințe titluri:
         const data = raw ? JSON.parse(raw) : { meetings: [], todos: [], deadlines: [] };
         data.deadlines = (data.deadlines || []).filter(d => d.id !== id);
         await env.PROGRAMARI.put('__gibilan__', JSON.stringify(data));
+        return json({ success: true });
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+
+    if (path === '/api/gibilan/reset' && request.method === 'DELETE') {
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const which = url.searchParams.get('which'); // 'meetings' | 'todos' | 'deadlines' | null = all
+        if (!which) {
+          await env.PROGRAMARI.put('__gibilan__', JSON.stringify({ meetings: [], todos: [], deadlines: [] }));
+        } else {
+          const raw = await env.PROGRAMARI.get('__gibilan__');
+          const data = raw ? JSON.parse(raw) : { meetings: [], todos: [], deadlines: [] };
+          if (['meetings', 'todos', 'deadlines'].includes(which)) data[which] = [];
+          await env.PROGRAMARI.put('__gibilan__', JSON.stringify(data));
+        }
         return json({ success: true });
       } catch { return json({ error: 'Server error' }, 500); }
     }
