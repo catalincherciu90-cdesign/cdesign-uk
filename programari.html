@@ -1294,13 +1294,17 @@
           <div id="blockedDatesList" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
         </div>
 
-        <!-- ADMIN ACCOUNTS -->
-        <div style="margin-top:36px;padding-top:28px;border-top:1px solid var(--border);">
+        <!-- ADMIN ACCOUNTS (owner only) -->
+        <div id="adminAccountsSection" style="margin-top:36px;padding-top:28px;border-top:1px solid var(--border);display:none;">
           <div class="f-label" style="margin-bottom:6px;">// admin_accounts</div>
-          <p style="font-size:.78rem;color:var(--muted);margin-bottom:16px;max-width:620px;">Create extra admin logins so other people can access this panel with their own username &amp; password. The owner account (set in Cloudflare secrets) cannot be removed here.</p>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;max-width:560px;">
-            <input class="f-input" id="newAdminUser" placeholder="username" style="flex:1;min-width:140px;margin:0;" autocomplete="off">
-            <input class="f-input" id="newAdminPass" type="password" placeholder="password (min 8 chars)" style="flex:1;min-width:140px;margin:0;" autocomplete="new-password">
+          <p style="font-size:.78rem;color:var(--muted);margin-bottom:16px;max-width:620px;">Create extra admin logins so other people can access this panel with their own username &amp; password — and choose exactly which sections each one can use. The owner account (set in Cloudflare secrets) has full access and cannot be removed here.</p>
+          <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:16px;margin-bottom:18px;max-width:680px;">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+              <input class="f-input" id="newAdminUser" placeholder="username" style="flex:1;min-width:140px;margin:0;" autocomplete="off">
+              <input class="f-input" id="newAdminPass" type="password" placeholder="password (min 8 chars)" style="flex:1;min-width:140px;margin:0;" autocomplete="new-password">
+            </div>
+            <div style="font-size:.72rem;color:var(--muted);margin-bottom:8px;">// permissions — sections this account can access</div>
+            <div id="newAdminPerms" style="display:flex;flex-wrap:wrap;gap:8px 14px;margin-bottom:14px;"></div>
             <button class="btn-add" onclick="addAdmin()" style="padding:8px 16px;">+ Add admin</button>
           </div>
           <div id="adminAccountsList"><div class="gib-empty">Loading...</div></div>
@@ -2351,14 +2355,32 @@
   tickClock();
   setInterval(tickClock, 1000);
 
+  function showDashboard() {
+    document.getElementById('loginWrap').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+  }
+
+  function loadAllowedData() {
+    if (can('bookings')) fetchBookings();
+    if (can('portfolio')) fetchProjects();
+    if (can('crm')) fetchCrm();
+    if (can('blog')) fetchBlog();
+    if (can('social')) fetchSocial();
+    if (can('settings')) fetchSettings();
+    if (can('gibilan')) loadGibilan();
+    if (can('clients')) fetchClients();
+    if (can('theme')) fetchTheme();
+    if (can('expenses')) fetchCheltuieli();
+  }
+
   // Auto-login din localStorage dacă există token salvat
   (async () => {
     const saved = localStorage.getItem('cdAdmin');
     if (saved) {
       adminToken = saved;
-      const ok = await fetchBookings(true);
+      const ok = await fetchMe();
       if (!ok) { adminToken = ''; localStorage.removeItem('cdAdmin'); }
-      else { fetchProjects(); fetchCrm(); fetchBlog(); fetchSocial(); fetchSettings(); loadGibilan(); fetchClients(); fetchTheme(); fetchCheltuieli(); }
+      else { showDashboard(); applyPermissions(); loadAllowedData(); }
     }
   })();
 
@@ -2377,13 +2399,12 @@
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.token) { err.textContent = '✗ Incorrect username or password'; return; }
       adminToken = data.token;
-      currentUser = { username: data.username, role: data.role };
-      const ok = await fetchBookings(true);
-      if (!ok) { err.textContent = '✗ Authentication error'; adminToken = ''; }
-      else {
-        localStorage.setItem('cdAdmin', data.token);
-        fetchProjects(); fetchCrm(); fetchBlog(); fetchSocial(); fetchSettings(); loadGibilan(); fetchClients(); fetchTheme(); fetchCheltuieli();
-      }
+      const ok = await fetchMe();
+      if (!ok) { err.textContent = '✗ Authentication error'; adminToken = ''; return; }
+      localStorage.setItem('cdAdmin', data.token);
+      showDashboard();
+      applyPermissions();
+      loadAllowedData();
     } catch { err.textContent = '✗ Network error'; }
   }
 
@@ -2401,17 +2422,65 @@
     if (tab === 'media') fetchMedia();
     if (tab === 'cheltuieli') fetchCheltuieli();
     if (tab === 'oferte') { fetchServicii(); fetchOferte(); fetchContracte(); populateOfertaClientSel(); }
-    if (tab === 'settings') fetchAdmins();
+    if (tab === 'settings' && currentUser && currentUser.role === 'owner') fetchAdmins();
   }
 
-  // ── Admin accounts ───────────────────────────────────────
+  // ── Permissions & current user ───────────────────────────
+  const SECTION_LABELS = { bookings:'Bookings', gibilan:'Agenda', clients:'Clients', crm:'CRM & Quotes', portfolio:'Portfolio', blog:'Blog', social:'Social', pages:'Pages', media:'Media', theme:'Theme', expenses:'Expenses', oferte:'Quotes', settings:'Settings' };
+  const TAB_PERM = { bookings:'bookings', gibilan:'gibilan', clients:'clients', crm:'crm', projects:'portfolio', blog:'blog', social:'social', pagini:'pages', media:'media', tema:'theme', settings:'settings', cheltuieli:'expenses', oferte:'oferte' };
+  let allSections = Object.keys(SECTION_LABELS);
+
+  async function fetchMe() {
+    try {
+      const res = await fetch('/api/me?token=' + encodeURIComponent(adminToken));
+      if (!res.ok) return false;
+      const d = await res.json();
+      currentUser = { username: d.username, role: d.role, perms: d.perms || [] };
+      if (Array.isArray(d.sections) && d.sections.length) allSections = d.sections;
+      return true;
+    } catch { return false; }
+  }
+
+  function can(section) {
+    if (!currentUser) return false;
+    if (currentUser.role === 'owner') return true;
+    return (currentUser.perms || []).includes(section);
+  }
+
+  function applyPermissions() {
+    if (!currentUser) return;
+    const isOwner = currentUser.role === 'owner';
+    document.querySelectorAll('.tab').forEach(btn => {
+      const m = (btn.getAttribute('onclick') || '').match(/switchTab\('([^']+)'/);
+      if (!m) return;
+      const need = TAB_PERM[m[1]];
+      btn.style.display = (isOwner || !need || (currentUser.perms || []).includes(need)) ? '' : 'none';
+    });
+    const sec = document.getElementById('adminAccountsSection');
+    if (sec) sec.style.display = isOwner ? 'block' : 'none';
+    const active = document.querySelector('.tab.active');
+    if (active && active.style.display === 'none') {
+      const first = [...document.querySelectorAll('.tab')].find(b => b.style.display !== 'none');
+      if (first) first.click();
+    }
+  }
+
+  // ── Admin accounts (owner only) ──────────────────────────
+  function permChecksHtml(selected, cls) {
+    return allSections.map(s => `<label style="display:flex;align-items:center;gap:6px;font-size:.8rem;cursor:pointer;"><input type="checkbox" class="${cls}" value="${s}" ${selected.includes(s) ? 'checked' : ''}> ${SECTION_LABELS[s] || s}</label>`).join('');
+  }
+
   async function fetchAdmins() {
     const wrap = document.getElementById('adminAccountsList');
     if (!wrap) return;
+    const np = document.getElementById('newAdminPerms');
+    if (np) np.innerHTML = permChecksHtml([], 'newperm');
     try {
       const res = await fetch('/api/admins?token=' + encodeURIComponent(adminToken));
-      if (!res.ok) { wrap.innerHTML = '<div class="gib-empty">Could not load accounts.</div>'; return; }
+      if (!res.ok) { wrap.innerHTML = '<div class="gib-empty">Only the owner can manage accounts.</div>'; return; }
       const data = await res.json();
+      if (Array.isArray(data.sections)) allSections = data.sections;
+      if (np) np.innerHTML = permChecksHtml([], 'newperm');
       renderAdmins(data);
     } catch { wrap.innerHTML = '<div class="gib-empty">Could not load accounts.</div>'; }
   }
@@ -2423,15 +2492,19 @@
       <div style="display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:11px 14px;margin-bottom:8px;">
         <span style="font-size:1.2rem;">👑</span>
         <div style="flex:1;"><div style="font-weight:700;font-size:.88rem;">${esc(data.owner.username)}</div>
-        <div style="font-size:.72rem;color:var(--muted);">owner · set in Cloudflare secrets</div></div>
+        <div style="font-size:.72rem;color:var(--muted);">owner · full access · set in Cloudflare secrets</div></div>
         <span style="font-size:.7rem;color:var(--muted);">protected</span>
       </div>`;
     rows += (data.admins || []).map(a => `
-      <div style="display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:11px 14px;margin-bottom:8px;">
-        <span style="font-size:1.2rem;">👤</span>
-        <div style="flex:1;"><div style="font-weight:700;font-size:.88rem;">${esc(a.username)}${a.username === youUser ? ' <span style="color:var(--teal);font-size:.7rem;">(you)</span>' : ''}</div>
-        <div style="font-size:.72rem;color:var(--muted);">admin${a.createdAt ? ' · added ' + new Date(a.createdAt).toLocaleDateString('en-GB') : ''}</div></div>
-        ${a.username === youUser ? '' : `<button class="btn-del" onclick="deleteAdmin('${esc(a.username)}')">✕ Remove</button>`}
+      <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:13px 15px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <span style="font-size:1.2rem;">👤</span>
+          <div style="flex:1;"><span style="font-weight:700;font-size:.88rem;">${esc(a.username)}${a.username === youUser ? ' <span style="color:var(--teal);font-size:.7rem;">(you)</span>' : ''}</span>
+          <span style="font-size:.72rem;color:var(--muted);margin-left:6px;">admin${a.createdAt ? ' · added ' + new Date(a.createdAt).toLocaleDateString('en-GB') : ''}</span></div>
+          ${a.username === youUser ? '' : `<button class="btn-del" onclick="deleteAdmin('${esc(a.username)}')">✕ Remove</button>`}
+        </div>
+        <div class="perm-edit" data-user="${esc(a.username)}" style="display:flex;flex-wrap:wrap;gap:6px 12px;margin-bottom:10px;">${permChecksHtml(a.perms || [], 'editperm')}</div>
+        <button class="btn-add" style="padding:6px 14px;font-size:.78rem;" onclick="savePerms('${esc(a.username)}')">Save permissions</button>
       </div>`).join('');
     wrap.innerHTML = rows;
   }
@@ -2439,17 +2512,33 @@
   async function addAdmin() {
     const u = document.getElementById('newAdminUser').value.trim();
     const p = document.getElementById('newAdminPass').value;
+    const perms = [...document.querySelectorAll('#newAdminPerms .newperm:checked')].map(i => i.value);
     if (!u || !p) { alert('Enter a username and password.'); return; }
+    if (!perms.length) { alert('Select at least one permission.'); return; }
     try {
       const res = await fetch('/api/admins?token=' + encodeURIComponent(adminToken), {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: u, password: p }),
+        body: JSON.stringify({ username: u, password: p, perms }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.success) { alert(data.error || 'Could not add admin.'); return; }
       document.getElementById('newAdminUser').value = '';
       document.getElementById('newAdminPass').value = '';
       fetchAdmins();
+    } catch { alert('Network error.'); }
+  }
+
+  async function savePerms(username) {
+    const cont = document.querySelector('.perm-edit[data-user="' + (window.CSS && CSS.escape ? CSS.escape(username) : username) + '"]');
+    if (!cont) return;
+    const perms = [...cont.querySelectorAll('.editperm:checked')].map(i => i.value);
+    try {
+      const res = await fetch('/api/admins/' + encodeURIComponent(username) + '/perms?token=' + encodeURIComponent(adminToken), {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ perms }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) { alert(data.error || 'Could not save.'); return; }
+      alert('Permissions updated. The change takes effect next time they log in.');
     } catch { alert('Network error.'); }
   }
 
