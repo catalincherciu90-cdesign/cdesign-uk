@@ -1402,6 +1402,71 @@ function buildShopSite(d) {
 </html>`;
 }
 
+// JSON structure spec for the demo content generator (shared by /generate and /from-sketch).
+function demoJsonSpec(industry, layout) {
+  return layout === 'shop' ? `This is an ONLINE SHOP / CATALOGUE website (e.g. a car dealership, auto parts shop, or similar with many items). Return ONLY a valid JSON object, no text before or after, with exactly this structure:
+{
+  "businessName": "an invented but realistic store name",
+  "industry": "${industry}",
+  "emoji": "one emoji representing the store",
+  "tagline": "short store tagline, 1 sentence",
+  "shipNote": "a short delivery/shipping note (e.g. 'Nationwide delivery & finance available')",
+  "colorPrimary": "a hex colour fitting the brand",
+  "colorAccent": "a complementary hex accent colour",
+  "imageKeywords": "2-4 comma-separated English keywords for product photos, e.g. 'used cars, car dealership'",
+  "banners": [ { "title": "promo banner headline", "subtitle": "1 short sentence", "cta": "button text" } ],
+  "categories": [ { "name": "category name", "emoji": "an emoji", "count": 24 } ],
+  "products": [ { "name": "item / model name", "category": "its category", "price": "£12,995", "oldPrice": "£14,500", "badge": "New" } ],
+  "promo": { "title": "a special-offer headline", "subtitle": "1 sentence", "cta": "button text" },
+  "stats": [ { "value": "500+", "label": "In stock" }, { "value": "15", "label": "Years" }, { "value": "4.9", "label": "Rating" }, { "value": "4.8k", "label": "Customers" } ],
+  "about": "2-3 sentences about the store",
+  "ctaHeadline": "contact section headline",
+  "phone": "a plausible UK phone number",
+  "email": "a plausible contact email",
+  "address": "a plausible UK city / street"
+}
+
+Requirements:
+- Language: ENGLISH
+- Exactly 3 banners, 4-6 categories, 8-12 products
+- Prices must be realistic for the industry (cars: thousands like "£12,995"; parts/accessories: tens/hundreds like "£89.99"). "oldPrice" and "badge" are optional per product.
+- Realistic, not generic filler. No text outside the JSON object` : `Return ONLY a valid JSON object, no text before or after, with exactly this structure:
+{
+  "businessName": "an invented but realistic business name",
+  "industry": "${industry}",
+  "emoji": "one emoji representing the industry",
+  "tagline": "short hero subtitle, 1 sentence",
+  "heroTitle": "punchy hero headline, first part (max 45 chars)",
+  "heroHighlight": "2-4 word phrase that completes and is highlighted in the headline",
+  "servicesIntro": "one short sentence introducing the services",
+  "services": [ { "icon": "emoji", "title": "service name", "desc": "1 short sentence" } ],
+  "stats": [ { "value": "850+", "label": "Happy customers" }, { "value": "12+", "label": "Years experience" }, { "value": "4.9", "label": "Star rating" }, { "value": "100%", "label": "Satisfaction" } ],
+  "about": "2-3 sentences about the business",
+  "features": [ "short benefit", "short benefit", "short benefit", "short benefit" ],
+  "testimonial": { "quote": "a short client testimonial", "author": "Client name" },
+  "ctaHeadline": "call to action headline",
+  "ctaText": "short call to action sentence / button text",
+  "phone": "a plausible UK phone number",
+  "email": "a plausible contact email matching the business name",
+  "address": "a plausible UK city / street",
+  "colorPrimary": "a hex colour fitting the brand, e.g. #0ea5e9",
+  "colorAccent": "a complementary hex accent colour",
+  "imageKeywords": "2-4 comma-separated English keywords for stock photos of this business, e.g. 'restaurant, italian food, dining'",
+  "pricing": [ { "name": "plan name", "price": "£49", "period": "/mo", "features": ["short feature", "short feature", "short feature"], "featured": false } ],
+  "team": [ { "name": "Full Name", "role": "job title", "emoji": "an emoji for them" } ],
+  "faq": [ { "q": "a common question", "a": "a short helpful answer" } ]
+}
+
+Requirements:
+- Language: ENGLISH
+- 3 to 6 services in the "services" array
+- Exactly 4 items in "stats" with short punchy values and labels
+- 2-3 pricing plans (mark one as "featured": true), 3-4 team members, 3-5 FAQ items
+- Realistic, professional, not generic filler
+- Colours must be valid hex codes that look modern and good together
+- No text outside the JSON object`;
+}
+
 // ── Custom uploaded demos: content types + minimal ZIP reader ──
 function ctypeFor(name) {
   const ext = (String(name).split('.').pop() || '').toLowerCase();
@@ -1924,71 +1989,7 @@ export default {
         const promptLine = userPrompt ? `\nExtra instructions from the user (follow them): ${userPrompt}.` : '';
         const intro = `You are a web copywriter and brand designer. ${wantName ? `Write the content for "${wantName}", a business in the "${industry}" industry (UK market).` : `Invent a realistic ${wantLayout === 'shop' ? 'shop / dealership' : 'small business'} in the "${industry}" industry (UK market).`}${toneLine}${nameLine}${detailsLine}${promptLine}`;
 
-        const prompt = wantLayout === 'shop' ? `${intro}
-
-This is an ONLINE SHOP / CATALOGUE website (e.g. a car dealership, auto parts shop, or similar with many items). Return ONLY a valid JSON object, no text before or after, with exactly this structure:
-{
-  "businessName": "an invented but realistic store name",
-  "industry": "${industry}",
-  "emoji": "one emoji representing the store",
-  "tagline": "short store tagline, 1 sentence",
-  "shipNote": "a short delivery/shipping note (e.g. 'Nationwide delivery & finance available')",
-  "colorPrimary": "a hex colour fitting the brand",
-  "colorAccent": "a complementary hex accent colour",
-  "imageKeywords": "2-4 comma-separated English keywords for product photos, e.g. 'used cars, car dealership'",
-  "banners": [ { "title": "promo banner headline", "subtitle": "1 short sentence", "cta": "button text" } ],
-  "categories": [ { "name": "category name", "emoji": "an emoji", "count": 24 } ],
-  "products": [ { "name": "item / model name", "category": "its category", "price": "£12,995", "oldPrice": "£14,500", "badge": "New" } ],
-  "promo": { "title": "a special-offer headline", "subtitle": "1 sentence", "cta": "button text" },
-  "stats": [ { "value": "500+", "label": "In stock" }, { "value": "15", "label": "Years" }, { "value": "4.9", "label": "Rating" }, { "value": "4.8k", "label": "Customers" } ],
-  "about": "2-3 sentences about the store",
-  "ctaHeadline": "contact section headline",
-  "phone": "a plausible UK phone number",
-  "email": "a plausible contact email",
-  "address": "a plausible UK city / street"
-}
-
-Requirements:
-- Language: ENGLISH
-- Exactly 3 banners, 4-6 categories, 8-12 products
-- Prices must be realistic for the industry (cars: thousands like "£12,995"; parts/accessories: tens/hundreds like "£89.99"). "oldPrice" and "badge" are optional per product.
-- Realistic, not generic filler. No text outside the JSON object` : `${intro}
-
-Return ONLY a valid JSON object, no text before or after, with exactly this structure:
-{
-  "businessName": "an invented but realistic business name",
-  "industry": "${industry}",
-  "emoji": "one emoji representing the industry",
-  "tagline": "short hero subtitle, 1 sentence",
-  "heroTitle": "punchy hero headline, first part (max 45 chars)",
-  "heroHighlight": "2-4 word phrase that completes and is highlighted in the headline",
-  "servicesIntro": "one short sentence introducing the services",
-  "services": [ { "icon": "emoji", "title": "service name", "desc": "1 short sentence" } ],
-  "stats": [ { "value": "850+", "label": "Happy customers" }, { "value": "12+", "label": "Years experience" }, { "value": "4.9", "label": "Star rating" }, { "value": "100%", "label": "Satisfaction" } ],
-  "about": "2-3 sentences about the business",
-  "features": [ "short benefit", "short benefit", "short benefit", "short benefit" ],
-  "testimonial": { "quote": "a short client testimonial", "author": "Client name" },
-  "ctaHeadline": "call to action headline",
-  "ctaText": "short call to action sentence / button text",
-  "phone": "a plausible UK phone number",
-  "email": "a plausible contact email matching the business name",
-  "address": "a plausible UK city / street",
-  "colorPrimary": "a hex colour fitting the brand, e.g. #0ea5e9",
-  "colorAccent": "a complementary hex accent colour",
-  "imageKeywords": "2-4 comma-separated English keywords for stock photos of this business, e.g. 'restaurant, italian food, dining'",
-  "pricing": [ { "name": "plan name", "price": "£49", "period": "/mo", "features": ["short feature", "short feature", "short feature"], "featured": false } ],
-  "team": [ { "name": "Full Name", "role": "job title", "emoji": "an emoji for them" } ],
-  "faq": [ { "q": "a common question", "a": "a short helpful answer" } ]
-}
-
-Requirements:
-- Language: ENGLISH
-- 3 to 6 services in the "services" array
-- Exactly 4 items in "stats" with short punchy values and labels
-- 2-3 pricing plans (mark one as "featured": true), 3-4 team members, 3-5 FAQ items
-- Realistic, professional, not generic filler
-- Colours must be valid hex codes that look modern and good together
-- No text outside the JSON object`;
+        const prompt = intro + '\n\n' + demoJsonSpec(industry, wantLayout);
 
         const ai = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
           messages: [{ role: 'user', content: prompt }],
@@ -2055,6 +2056,60 @@ Requirements:
         }, 200, request);
       } catch (e) {
         return json({ error: 'Generation error: ' + (e.message || 'unknown') }, 500, request);
+      }
+    }
+
+    // Generate a demo from an uploaded sketch / wireframe image (vision → content)
+    if (path === '/api/demo/from-sketch' && request.method === 'POST') {
+      if (!can(authed, 'portfolio')) return json({ error: 'Unauthorised' }, 401, request);
+      try {
+        if (!env.AI) return json({ error: 'AI binding unavailable — check wrangler.toml' }, 500, request);
+        const hintIndustry = String(url.searchParams.get('industry') || '').trim().slice(0, 60);
+        let layout = url.searchParams.get('layout') === 'shop' ? 'shop' : (url.searchParams.get('layout') === 'landing' ? 'landing' : '');
+        const imgBuf = await request.arrayBuffer();
+        if (!imgBuf || imgBuf.byteLength === 0) return json({ error: 'No image received' }, 400, request);
+        if (imgBuf.byteLength > 8 * 1024 * 1024) return json({ error: 'Image too large (max 8MB)' }, 413, request);
+
+        // Step 1 — vision model describes the sketch.
+        let description = '';
+        try {
+          const vis = await env.AI.run('@cf/llava-1.5-7b-hf', {
+            image: [...new Uint8Array(imgBuf)],
+            prompt: 'This is a hand-drawn sketch or wireframe of a website. Describe it for a web designer: what kind of business/industry it is for, whether it looks like a one-page landing site or an online shop/catalogue with products, which sections are drawn (hero/banner, services, product grid, gallery, pricing, team, contact, etc.), the overall style and any colours, and any text labels you can read. Be concise and specific.',
+            max_tokens: 512,
+          });
+          description = String((vis && (vis.description || vis.response)) || '').trim();
+        } catch (e) {
+          return json({ error: 'Could not read the image (vision model unavailable). ' + (e.message || '') }, 500, request);
+        }
+        if (!description) return json({ error: 'Could not interpret the sketch. Try a clearer image.' }, 422, request);
+
+        if (!layout) layout = /shop|store|product|catalog|catalogue|e-?commerce|dealership|listing|cart|price tag/i.test(description) ? 'shop' : 'landing';
+        const industry = hintIndustry || 'as shown in the sketch';
+
+        // Step 2 — text model builds the structured content guided by the description.
+        const intro = `You are a web copywriter and brand designer. A client provided a sketch/wireframe of the website they want. Here is a description of that sketch:\n"""${description}"""\nBuild realistic demo website content that matches this sketch as closely as possible${hintIndustry ? `, for a business in the "${hintIndustry}" industry` : ''} (UK market). Mirror the sections, layout and style described.`;
+        const prompt = intro + '\n\n' + demoJsonSpec(industry, layout);
+        const ai = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', { messages: [{ role: 'user', content: prompt }], max_tokens: 2048 });
+        const parsed = parseAiJson(ai);
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed) || !parsed.businessName) {
+          return json({ error: 'The model did not return a valid site. Please try again.' }, 500, request);
+        }
+        parsed.industry = parsed.industry && parsed.industry !== 'as shown in the sketch' ? parsed.industry : (hintIndustry || 'Custom');
+        parsed.layout = layout;
+        parsed.heroType = 'split';
+        if (layout !== 'shop' && !['modern', 'dark', 'minimal', 'elegant', 'gradient', 'corporate', 'bold'].includes(parsed.variant)) parsed.variant = 'modern';
+
+        const raw = await env.PROGRAMARI.get('__demos__');
+        const demos = raw ? JSON.parse(raw) : [];
+        const id = `demo_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+        let slug = demoSlugify(parsed.businessName);
+        if (demos.some(x => x.slug === slug)) slug = `${slug}-${Math.random().toString(36).slice(2, 5)}`;
+        demos.unshift({ id, slug, businessName: String(parsed.businessName).slice(0, 80), industry: String(parsed.industry).slice(0, 60), data: parsed, createdAt: new Date().toISOString() });
+        await env.PROGRAMARI.put('__demos__', JSON.stringify(demos));
+        return json({ success: true, demo: { id, slug, businessName: parsed.businessName, url: `/demo/${slug}` }, layout, description }, 200, request);
+      } catch (e) {
+        return json({ error: 'Sketch error: ' + (e.message || 'unknown') }, 500, request);
       }
     }
 
