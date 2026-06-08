@@ -674,22 +674,42 @@ function parseAiJson(ai) {
 function buildDemoSite(d) {
   const e = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const hex = v => /^#[0-9a-fA-F]{3,8}$/.test(String(v || '')) ? v : null;
-  const primary = hex(d.colorPrimary) || '#0ea5e9';
+  const primary = hex(d.colorPrimary) || '#6366f1';
   const accent = hex(d.colorAccent) || '#f59e0b';
   const name = e(d.businessName || 'Demo Business');
   const emoji = e(d.emoji || '🌐');
   const services = (Array.isArray(d.services) ? d.services : []).slice(0, 6);
   const features = (Array.isArray(d.features) ? d.features : []).slice(0, 6);
   const t = d.testimonial && (d.testimonial.quote || d.testimonial.author) ? d.testimonial : null;
+  let stats = (Array.isArray(d.stats) ? d.stats : []).filter(s => s && (s.value || s.label)).slice(0, 4);
+  if (stats.length < 3) stats = [
+    { value: '12+', label: 'Years of experience' },
+    { value: '850+', label: 'Happy customers' },
+    { value: '4.9★', label: 'Average rating' },
+    { value: '100%', label: 'Satisfaction' },
+  ];
 
-  const servicesHtml = services.map(s => `
-        <div class="card">
+  const servicesHtml = services.map((s, i) => `
+        <div class="card reveal" style="transition-delay:${i * 70}ms">
           <div class="card-ic">${e(s.icon || '✦')}</div>
           <h3>${e(s.title || '')}</h3>
           <p>${e(s.desc || '')}</p>
         </div>`).join('');
 
-  const featuresHtml = features.map(f => `<li><span class="tick">✓</span>${e(typeof f === 'string' ? f : (f.title || ''))}</li>`).join('');
+  const featuresHtml = features.map(f => `<li><span class="tick">✓</span><span>${e(typeof f === 'string' ? f : (f.title || ''))}</span></li>`).join('');
+
+  const statsHtml = stats.map(s => `
+        <div class="stat reveal">
+          <div class="stat-v">${e(s.value || '')}</div>
+          <div class="stat-l">${e(s.label || '')}</div>
+        </div>`).join('');
+
+  const galleryHtml = (services.length ? services : [{ title: 'Project' }, { title: 'Project' }, { title: 'Project' }])
+    .slice(0, 6).map((s, i) => `
+        <div class="tile reveal" style="background:linear-gradient(${135 + i * 30}deg, ${primary}, ${accent});transition-delay:${i * 60}ms">
+          <span class="tile-em">${e(s.icon || emoji)}</span>
+          <span class="tile-t">${e(s.title || 'Our work')}</span>
+        </div>`).join('');
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -698,64 +718,134 @@ function buildDemoSite(d) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>${name} — Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{--p:${primary};--a:${accent};}
+  :root{--p:${primary};--a:${accent};--ink:#0f172a;--mut:#64748b;--line:#e9edf5;}
   *{margin:0;padding:0;box-sizing:border-box;}
-  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#1f2937;line-height:1.6;background:#fff;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);line-height:1.65;background:#fff;-webkit-font-smoothing:antialiased;}
   a{color:inherit;text-decoration:none;}
-  .wrap{max-width:1100px;margin:0 auto;padding:0 22px;}
-  .demo-bar{background:#111827;color:#fff;font-size:.82rem;text-align:center;padding:8px 14px;}
+  h1,h2,h3,.logo,.btn,.stat-v{font-family:'Plus Jakarta Sans',sans-serif;}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px;}
+  .demo-bar{background:#0b1020;color:#fff;font-size:.82rem;text-align:center;padding:9px 14px;letter-spacing:.2px;}
   .demo-bar a{color:var(--a);font-weight:700;}
-  header{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid #eef2f7;}
-  .nav{display:flex;align-items:center;justify-content:space-between;height:66px;}
-  .logo{font-weight:800;font-size:1.25rem;display:flex;align-items:center;gap:8px;}
-  .logo .d{width:34px;height:34px;border-radius:9px;background:var(--p);display:grid;place-items:center;color:#fff;font-size:1.05rem;}
-  .nav-links{display:flex;gap:26px;font-size:.93rem;font-weight:500;}
+  header{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.78);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:72px;}
+  .logo{font-weight:800;font-size:1.28rem;display:flex;align-items:center;gap:10px;letter-spacing:-.3px;}
+  .logo .d{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--p),var(--a));display:grid;place-items:center;color:#fff;font-size:1.15rem;box-shadow:0 6px 16px ${primary}55;}
+  .nav-links{display:flex;gap:30px;font-size:.94rem;font-weight:500;color:#334155;}
+  .nav-links a{position:relative;}
   .nav-links a:hover{color:var(--p);}
-  .btn{display:inline-block;background:var(--p);color:#fff;font-weight:700;padding:12px 26px;border-radius:9px;font-size:.95rem;transition:transform .15s,filter .15s;}
-  .btn:hover{filter:brightness(1.07);transform:translateY(-1px);}
-  .btn.alt{background:var(--a);}
-  .hero{padding:84px 0 76px;background:linear-gradient(160deg,${primary}14,${accent}10);}
-  .hero h1{font-size:clamp(2.1rem,5vw,3.4rem);line-height:1.1;font-weight:800;letter-spacing:-.5px;max-width:14ch;}
-  .hero p{margin:20px 0 30px;font-size:1.15rem;color:#475569;max-width:48ch;}
-  .pill{display:inline-block;background:var(--p);color:#fff;font-size:.74rem;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:6px 14px;border-radius:999px;margin-bottom:18px;}
-  section{padding:72px 0;}
-  .sec-head{text-align:center;max-width:60ch;margin:0 auto 48px;}
-  .sec-head h2{font-size:clamp(1.7rem,3.5vw,2.4rem);font-weight:800;letter-spacing:-.4px;}
-  .sec-head p{color:#64748b;margin-top:12px;}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:22px;}
-  .card{background:#fff;border:1px solid #eef2f7;border-radius:16px;padding:28px;box-shadow:0 6px 24px rgba(15,23,42,.05);transition:transform .15s,box-shadow .15s;}
-  .card:hover{transform:translateY(-4px);box-shadow:0 14px 34px rgba(15,23,42,.1);}
-  .card-ic{width:50px;height:50px;border-radius:12px;background:${primary}1a;color:var(--p);display:grid;place-items:center;font-size:1.5rem;margin-bottom:16px;}
-  .card h3{font-size:1.12rem;margin-bottom:8px;}
-  .card p{color:#64748b;font-size:.95rem;}
-  .about{background:#f8fafc;}
-  .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:46px;align-items:center;}
-  .about ul{list-style:none;margin-top:20px;display:grid;gap:12px;}
-  .about li{display:flex;align-items:flex-start;gap:10px;font-weight:500;}
-  .tick{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--p);color:#fff;font-size:.7rem;flex-shrink:0;margin-top:3px;}
-  .about-card{background:linear-gradient(160deg,var(--p),${accent});border-radius:22px;min-height:280px;display:grid;place-items:center;color:#fff;font-size:5rem;}
-  .quote{max-width:760px;margin:0 auto;text-align:center;}
-  .quote blockquote{font-size:1.5rem;font-weight:600;line-height:1.45;letter-spacing:-.3px;}
-  .quote .who{margin-top:20px;color:#64748b;font-weight:600;}
-  .cta{background:var(--p);color:#fff;text-align:center;}
-  .cta h2{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:800;}
-  .cta p{opacity:.9;margin:14px 0 28px;font-size:1.1rem;}
-  .cta .btn{background:#fff;color:var(--p);}
-  footer{background:#0f172a;color:#cbd5e1;padding:40px 0;font-size:.9rem;}
-  .foot{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center;}
-  .foot .c{color:#fff;font-weight:700;}
-  @media(max-width:760px){.nav-links{display:none;}.about-grid{grid-template-columns:1fr;}}
+  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--p);color:#fff;font-weight:700;padding:13px 28px;border-radius:11px;font-size:.95rem;border:none;cursor:pointer;transition:transform .18s,box-shadow .18s,filter .18s;box-shadow:0 8px 22px ${primary}40;}
+  .btn:hover{filter:brightness(1.06);transform:translateY(-2px);box-shadow:0 12px 28px ${primary}55;}
+  .btn.ghost{background:transparent;color:var(--ink);box-shadow:none;border:1.5px solid var(--line);}
+  .btn.ghost:hover{border-color:var(--p);color:var(--p);background:#fff;}
+  .btn.light{background:#fff;color:var(--p);box-shadow:0 8px 22px rgba(0,0,0,.12);}
+  section{padding:88px 0;position:relative;}
+  .eyebrow{display:inline-block;font-family:'Plus Jakarta Sans';font-size:.74rem;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--p);background:${primary}14;padding:7px 15px;border-radius:999px;margin-bottom:18px;}
+  .sec-head{text-align:center;max-width:62ch;margin:0 auto 54px;}
+  .sec-head h2{font-size:clamp(1.9rem,3.8vw,2.7rem);font-weight:800;letter-spacing:-.6px;line-height:1.12;}
+  .sec-head p{color:var(--mut);margin-top:14px;font-size:1.06rem;}
+  /* hero */
+  .hero{padding:96px 0 100px;overflow:hidden;background:
+     radial-gradient(60% 70% at 12% 8%, ${primary}24, transparent 60%),
+     radial-gradient(55% 65% at 92% 18%, ${accent}22, transparent 60%),
+     linear-gradient(180deg,#fbfcff,#fff);}
+  .hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center;}
+  .badge{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);box-shadow:0 4px 14px rgba(15,23,42,.05);font-size:.82rem;font-weight:600;color:#334155;padding:7px 15px;border-radius:999px;margin-bottom:22px;}
+  .badge .dot{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px #22c55e22;}
+  .hero h1{font-size:clamp(2.4rem,5.2vw,3.9rem);line-height:1.04;font-weight:800;letter-spacing:-1.2px;}
+  .hero h1 .hl{background:linear-gradient(120deg,var(--p),var(--a));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .hero p{margin:22px 0 32px;font-size:1.18rem;color:#475569;max-width:50ch;}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap;}
+  .hero-trust{margin-top:34px;display:flex;align-items:center;gap:16px;color:var(--mut);font-size:.9rem;}
+  .stars{color:#f59e0b;letter-spacing:2px;font-size:1.05rem;}
+  .hero-visual{position:relative;}
+  .hero-card{background:#fff;border:1px solid var(--line);border-radius:26px;padding:30px;box-shadow:0 30px 70px -30px rgba(15,23,42,.4);}
+  .hero-blob{aspect-ratio:1/1;border-radius:22px;background:linear-gradient(150deg,var(--p),var(--a));display:grid;place-items:center;font-size:6rem;color:#fff;position:relative;overflow:hidden;}
+  .hero-blob::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 25%,rgba(255,255,255,.35),transparent 45%);}
+  .float{position:absolute;background:#fff;border:1px solid var(--line);box-shadow:0 14px 34px rgba(15,23,42,.14);border-radius:14px;padding:12px 16px;font-size:.85rem;font-weight:600;display:flex;align-items:center;gap:9px;}
+  .float.a{top:18px;left:-22px;}
+  .float.b{bottom:24px;right:-18px;}
+  .float .ic{width:30px;height:30px;border-radius:8px;background:${primary}1a;color:var(--p);display:grid;place-items:center;}
+  /* stats */
+  .stats-band{background:var(--ink);color:#fff;padding:48px 0;}
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center;}
+  .stat-v{font-size:clamp(1.9rem,4vw,2.7rem);font-weight:800;letter-spacing:-.5px;background:linear-gradient(120deg,#fff,${accent});-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .stat-l{color:#94a3b8;font-size:.92rem;margin-top:4px;}
+  /* services */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:24px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:32px;transition:transform .2s,box-shadow .2s,border-color .2s;}
+  .card:hover{transform:translateY(-6px);box-shadow:0 24px 48px -22px rgba(15,23,42,.3);border-color:${primary}55;}
+  .card-ic{width:56px;height:56px;border-radius:15px;background:linear-gradient(135deg,${primary}1a,${accent}1a);color:var(--p);display:grid;place-items:center;font-size:1.7rem;margin-bottom:18px;}
+  .card h3{font-size:1.16rem;margin-bottom:9px;font-weight:700;}
+  .card p{color:var(--mut);font-size:.96rem;}
+  /* about */
+  .about{background:linear-gradient(180deg,#f8faff,#fff);}
+  .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;}
+  .about h2{font-size:clamp(1.9rem,3.6vw,2.6rem);font-weight:800;letter-spacing:-.6px;line-height:1.12;}
+  .about>.about-grid>div>p{color:#475569;margin-top:16px;font-size:1.05rem;}
+  .feat{list-style:none;margin-top:26px;display:grid;gap:14px;}
+  .feat li{display:flex;align-items:flex-start;gap:12px;font-weight:500;}
+  .tick{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--a));color:#fff;font-size:.72rem;flex-shrink:0;margin-top:3px;}
+  .about-visual{aspect-ratio:4/5;border-radius:26px;background:linear-gradient(150deg,var(--p),var(--a));display:grid;place-items:center;font-size:6.5rem;color:#fff;box-shadow:0 30px 60px -28px ${primary}99;position:relative;overflow:hidden;}
+  .about-visual::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.3),transparent 50%);}
+  /* gallery */
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;}
+  .tile{aspect-ratio:4/3;border-radius:20px;display:flex;flex-direction:column;justify-content:flex-end;padding:22px;color:#fff;position:relative;overflow:hidden;box-shadow:0 16px 36px -20px rgba(15,23,42,.5);transition:transform .2s;}
+  .tile:hover{transform:scale(1.02);}
+  .tile::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.35));}
+  .tile-em{position:absolute;top:18px;left:20px;font-size:2rem;z-index:1;}
+  .tile-t{position:relative;z-index:1;font-family:'Plus Jakarta Sans';font-weight:700;font-size:1.05rem;}
+  /* testimonial */
+  .quote-sec{background:linear-gradient(180deg,#fff,#f8faff);}
+  .quote{max-width:820px;margin:0 auto;text-align:center;}
+  .quote .mk{font-size:3.4rem;line-height:1;color:${primary}55;font-family:Georgia,serif;}
+  .quote blockquote{font-family:'Plus Jakarta Sans';font-size:clamp(1.3rem,2.6vw,1.7rem);font-weight:600;line-height:1.45;letter-spacing:-.3px;margin-top:-10px;}
+  .quote .who{margin-top:24px;display:flex;align-items:center;justify-content:center;gap:12px;}
+  .quote .av{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--a));display:grid;place-items:center;color:#fff;font-weight:700;}
+  .quote .who b{display:block;font-weight:700;}
+  .quote .who span{color:var(--mut);font-size:.88rem;}
+  /* contact */
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:stretch;}
+  .info-card{background:linear-gradient(150deg,var(--p),var(--a));color:#fff;border-radius:24px;padding:40px;display:flex;flex-direction:column;gap:18px;}
+  .info-card h3{font-size:1.5rem;font-weight:800;}
+  .info-card .row{display:flex;align-items:center;gap:13px;font-size:.98rem;}
+  .info-card .row .ic{width:42px;height:42px;border-radius:11px;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:1.1rem;flex-shrink:0;}
+  form{background:#fff;border:1px solid var(--line);border-radius:24px;padding:36px;box-shadow:0 20px 50px -30px rgba(15,23,42,.3);}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:.82rem;font-weight:600;color:#334155;margin-bottom:6px;}
+  .field input,.field textarea{width:100%;border:1.5px solid var(--line);border-radius:11px;padding:12px 14px;font:inherit;color:var(--ink);transition:border-color .15s;background:#fcfdff;}
+  .field input:focus,.field textarea:focus{outline:none;border-color:var(--p);}
+  /* footer */
+  footer{background:#0b1020;color:#9aa6bd;padding:56px 0 30px;font-size:.92rem;}
+  .foot-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:24px;padding-bottom:28px;border-bottom:1px solid rgba(255,255,255,.08);}
+  .foot .c{color:#fff;font-weight:800;font-family:'Plus Jakarta Sans';font-size:1.2rem;display:flex;align-items:center;gap:9px;}
+  .foot-bottom{padding-top:22px;display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;font-size:.84rem;}
+  .foot-bottom a{color:var(--a);font-weight:700;}
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1);}
+  .reveal.in{opacity:1;transform:none;}
+  @media(max-width:880px){
+    .hero-grid,.about-grid,.contact-grid{grid-template-columns:1fr;}
+    .hero-visual{order:-1;}
+    .stats-grid{grid-template-columns:repeat(2,1fr);gap:30px 20px;}
+    .nav-links{display:none;}
+    section{padding:64px 0;}
+  }
 </style>
 </head>
 <body>
   <div class="demo-bar">✨ Demo website — built by <a href="https://www.cdesigns.uk" target="_blank" rel="noopener">C Design</a>. Want one like this? <a href="https://www.cdesigns.uk/programari.html" target="_blank" rel="noopener">Get yours →</a></div>
+
   <header>
     <div class="wrap nav">
       <div class="logo"><span class="d">${emoji}</span>${name}</div>
       <nav class="nav-links">
         <a href="#services">Services</a>
         <a href="#about">About</a>
+        <a href="#work">Our work</a>
         <a href="#contact">Contact</a>
       </nav>
       <a href="#contact" class="btn">${e(d.ctaText || 'Get in touch')}</a>
@@ -763,17 +853,34 @@ function buildDemoSite(d) {
   </header>
 
   <section class="hero">
-    <div class="wrap">
-      <span class="pill">${e(d.industry || 'Business')}</span>
-      <h1>${e(d.heroTitle || d.tagline || name)}</h1>
-      <p>${e(d.tagline || '')}</p>
-      <a href="#contact" class="btn">${e(d.ctaText || 'Get a quote')}</a>
+    <div class="wrap hero-grid">
+      <div>
+        <span class="badge"><span class="dot"></span>${e(d.industry || 'Trusted local business')}</span>
+        <h1>${e(d.heroTitle || name)} <span class="hl">${e(d.heroHighlight || '')}</span></h1>
+        <p>${e(d.tagline || '')}</p>
+        <div class="hero-cta">
+          <a href="#contact" class="btn">${e(d.ctaText || 'Get a free quote')} →</a>
+          <a href="#services" class="btn ghost">Explore services</a>
+        </div>
+        <div class="hero-trust"><span class="stars">★★★★★</span> Rated excellent by our customers</div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-card">
+          <div class="hero-blob">${emoji}</div>
+        </div>
+        <div class="float a"><span class="ic">✓</span> Trusted &amp; reliable</div>
+        <div class="float b"><span class="ic">★</span> ${e((stats[2] && stats[2].value) || '4.9')} rating</div>
+      </div>
     </div>
   </section>
 
+  <div class="stats-band">
+    <div class="wrap stats-grid">${statsHtml}</div>
+  </div>
+
   ${services.length ? `<section id="services">
     <div class="wrap">
-      <div class="sec-head"><h2>What we offer</h2><p>${e(d.servicesIntro || 'Everything you need, in one place.')}</p></div>
+      <div class="sec-head"><span class="eyebrow">What we do</span><h2>Services built around your needs</h2><p>${e(d.servicesIntro || 'Everything you need, delivered with care and quality.')}</p></div>
       <div class="grid">${servicesHtml}</div>
     </div>
   </section>` : ''}
@@ -781,40 +888,80 @@ function buildDemoSite(d) {
   <section id="about" class="about">
     <div class="wrap about-grid">
       <div>
-        <h2 style="font-size:clamp(1.7rem,3.5vw,2.4rem);font-weight:800;letter-spacing:-.4px;">About ${name}</h2>
-        <p style="color:#475569;margin-top:14px;">${e(d.about || '')}</p>
-        ${featuresHtml ? `<ul>${featuresHtml}</ul>` : ''}
+        <span class="eyebrow">About us</span>
+        <h2>Why people choose ${name}</h2>
+        <p>${e(d.about || '')}</p>
+        ${featuresHtml ? `<ul class="feat">${featuresHtml}</ul>` : ''}
       </div>
-      <div class="about-card">${emoji}</div>
+      <div class="about-visual">${emoji}</div>
+    </div>
+  </section>
+
+  <section id="work">
+    <div class="wrap">
+      <div class="sec-head"><span class="eyebrow">Our work</span><h2>A glimpse of what we deliver</h2><p>Quality you can see in every project.</p></div>
+      <div class="tiles">${galleryHtml}</div>
     </div>
   </section>
 
   ${t ? `<section class="quote-sec">
     <div class="wrap quote">
-      <blockquote>“${e(t.quote || '')}”</blockquote>
-      <div class="who">— ${e(t.author || 'Happy client')}</div>
+      <div class="mk">&ldquo;</div>
+      <blockquote>${e(t.quote || '')}</blockquote>
+      <div class="who reveal">
+        <span class="av">${e((t.author || 'C')[0])}</span>
+        <span style="text-align:left;"><b>${e(t.author || 'Happy client')}</b><span>Verified customer</span></span>
+      </div>
     </div>
   </section>` : ''}
 
-  <section id="contact" class="cta">
+  <section id="contact">
     <div class="wrap">
-      <h2>${e(d.ctaHeadline || 'Ready to get started?')}</h2>
-      <p>${e(d.ctaText || 'Contact us today for a free consultation.')}</p>
-      <a href="mailto:${e(d.email || 'hello@example.com')}" class="btn">Contact us</a>
-      <div style="margin-top:26px;font-size:.95rem;opacity:.92;display:flex;gap:24px;justify-content:center;flex-wrap:wrap;">
-        ${d.phone ? `<span>📞 ${e(d.phone)}</span>` : ''}
-        ${d.email ? `<span>✉ ${e(d.email)}</span>` : ''}
-        ${d.address ? `<span>📍 ${e(d.address)}</span>` : ''}
+      <div class="sec-head"><span class="eyebrow">Get in touch</span><h2>${e(d.ctaHeadline || 'Let\'s work together')}</h2><p>${e(d.ctaText || 'Tell us about your project and we\'ll get back to you fast.')}</p></div>
+      <div class="contact-grid">
+        <div class="info-card reveal">
+          <h3>Contact details</h3>
+          <p style="opacity:.92;">We'd love to hear from you. Reach out and we'll reply within one business day.</p>
+          ${d.phone ? `<div class="row"><span class="ic">📞</span>${e(d.phone)}</div>` : ''}
+          ${d.email ? `<div class="row"><span class="ic">✉</span>${e(d.email)}</div>` : ''}
+          ${d.address ? `<div class="row"><span class="ic">📍</span>${e(d.address)}</div>` : ''}
+          <div class="row"><span class="ic">🕒</span>Mon–Fri · 9:00–18:00</div>
+        </div>
+        <form class="reveal" onsubmit="event.preventDefault();this.reset();alert('Thank you! This is a demo — on a live site your message would be sent.');">
+          <div class="field"><label>Your name</label><input type="text" placeholder="Jane Smith" required></div>
+          <div class="field"><label>Email</label><input type="email" placeholder="jane@email.com" required></div>
+          <div class="field"><label>Message</label><textarea rows="4" placeholder="How can we help?" required></textarea></div>
+          <button class="btn" type="submit" style="width:100%;justify-content:center;">Send message</button>
+        </form>
       </div>
     </div>
   </section>
 
   <footer>
-    <div class="wrap foot">
-      <span class="c">${emoji} ${name}</span>
-      <span>Demo site · Built by <a href="https://www.cdesigns.uk" style="color:var(--a);font-weight:700;">C Design</a></span>
+    <div class="wrap">
+      <div class="foot-top">
+        <div>
+          <div class="c"><span>${emoji}</span>${name}</div>
+          <p style="margin-top:10px;max-width:42ch;">${e(d.tagline || 'Quality service you can rely on.')}</p>
+        </div>
+        <div style="display:flex;gap:46px;flex-wrap:wrap;">
+          <div><div style="color:#fff;font-weight:700;margin-bottom:10px;">Explore</div><a href="#services" style="display:block;margin-bottom:6px;">Services</a><a href="#about" style="display:block;margin-bottom:6px;">About</a><a href="#contact" style="display:block;">Contact</a></div>
+          <div><div style="color:#fff;font-weight:700;margin-bottom:10px;">Contact</div>${d.phone ? `<div style="margin-bottom:6px;">${e(d.phone)}</div>` : ''}${d.email ? `<div style="margin-bottom:6px;">${e(d.email)}</div>` : ''}${d.address ? `<div>${e(d.address)}</div>` : ''}</div>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© ${new Date().getFullYear()} ${name}. All rights reserved.</span>
+        <span>Demo site · Built by <a href="https://www.cdesigns.uk">C Design</a></span>
+      </div>
     </div>
   </footer>
+
+  <script>
+    (function(){
+      var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}});},{threshold:.12});
+      document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+    })();
+  </script>
 </body>
 </html>`;
 }
@@ -1108,9 +1255,11 @@ Return ONLY a valid JSON object, no text before or after, with exactly this stru
   "industry": "${industry}",
   "emoji": "one emoji representing the industry",
   "tagline": "short hero subtitle, 1 sentence",
-  "heroTitle": "punchy hero headline (max 60 chars)",
+  "heroTitle": "punchy hero headline, first part (max 45 chars)",
+  "heroHighlight": "2-4 word phrase that completes and is highlighted in the headline",
   "servicesIntro": "one short sentence introducing the services",
   "services": [ { "icon": "emoji", "title": "service name", "desc": "1 short sentence" } ],
+  "stats": [ { "value": "850+", "label": "Happy customers" }, { "value": "12+", "label": "Years experience" }, { "value": "4.9", "label": "Star rating" }, { "value": "100%", "label": "Satisfaction" } ],
   "about": "2-3 sentences about the business",
   "features": [ "short benefit", "short benefit", "short benefit", "short benefit" ],
   "testimonial": { "quote": "a short client testimonial", "author": "Client name" },
@@ -1125,9 +1274,10 @@ Return ONLY a valid JSON object, no text before or after, with exactly this stru
 
 Requirements:
 - Language: ENGLISH
-- 3 to 5 services in the "services" array
+- 3 to 6 services in the "services" array
+- Exactly 4 items in "stats" with short punchy values and labels
 - Realistic, professional, not generic filler
-- Colours must be valid hex codes that look good together
+- Colours must be valid hex codes that look modern and good together
 - No text outside the JSON object`;
 
         const ai = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
