@@ -1294,6 +1294,18 @@
           <div id="blockedDatesList" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
         </div>
 
+        <!-- ADMIN ACCOUNTS -->
+        <div style="margin-top:36px;padding-top:28px;border-top:1px solid var(--border);">
+          <div class="f-label" style="margin-bottom:6px;">// admin_accounts</div>
+          <p style="font-size:.78rem;color:var(--muted);margin-bottom:16px;max-width:620px;">Create extra admin logins so other people can access this panel with their own username &amp; password. The owner account (set in Cloudflare secrets) cannot be removed here.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;max-width:560px;">
+            <input class="f-input" id="newAdminUser" placeholder="username" style="flex:1;min-width:140px;margin:0;" autocomplete="off">
+            <input class="f-input" id="newAdminPass" type="password" placeholder="password (min 8 chars)" style="flex:1;min-width:140px;margin:0;" autocomplete="new-password">
+            <button class="btn-add" onclick="addAdmin()" style="padding:8px 16px;">+ Add admin</button>
+          </div>
+          <div id="adminAccountsList"><div class="gib-empty">Loading...</div></div>
+        </div>
+
         <!-- HERO BANNER IMAGE -->
         <div style="margin-top:36px;padding-top:28px;border-top:1px solid var(--border);">
           <div class="f-label" style="margin-bottom:16px;">// hero_banner_image</div>
@@ -2320,6 +2332,7 @@
 
 <script>
   let adminToken = '';
+  let currentUser = null;
   let allBookings = [];
   let allProjects = [];
   let currentFilter = 'all';
@@ -2361,12 +2374,14 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
-      if (!res.ok) { err.textContent = '✗ Incorrect username or password'; return; }
-      adminToken = password;
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.token) { err.textContent = '✗ Incorrect username or password'; return; }
+      adminToken = data.token;
+      currentUser = { username: data.username, role: data.role };
       const ok = await fetchBookings(true);
       if (!ok) { err.textContent = '✗ Authentication error'; adminToken = ''; }
       else {
-        localStorage.setItem('cdAdmin', password);
+        localStorage.setItem('cdAdmin', data.token);
         fetchProjects(); fetchCrm(); fetchBlog(); fetchSocial(); fetchSettings(); loadGibilan(); fetchClients(); fetchTheme(); fetchCheltuieli();
       }
     } catch { err.textContent = '✗ Network error'; }
@@ -2386,6 +2401,66 @@
     if (tab === 'media') fetchMedia();
     if (tab === 'cheltuieli') fetchCheltuieli();
     if (tab === 'oferte') { fetchServicii(); fetchOferte(); fetchContracte(); populateOfertaClientSel(); }
+    if (tab === 'settings') fetchAdmins();
+  }
+
+  // ── Admin accounts ───────────────────────────────────────
+  async function fetchAdmins() {
+    const wrap = document.getElementById('adminAccountsList');
+    if (!wrap) return;
+    try {
+      const res = await fetch('/api/admins?token=' + encodeURIComponent(adminToken));
+      if (!res.ok) { wrap.innerHTML = '<div class="gib-empty">Could not load accounts.</div>'; return; }
+      const data = await res.json();
+      renderAdmins(data);
+    } catch { wrap.innerHTML = '<div class="gib-empty">Could not load accounts.</div>'; }
+  }
+
+  function renderAdmins(data) {
+    const wrap = document.getElementById('adminAccountsList');
+    const youUser = (data.you && data.you.username) || (currentUser && currentUser.username) || '';
+    let rows = `
+      <div style="display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:11px 14px;margin-bottom:8px;">
+        <span style="font-size:1.2rem;">👑</span>
+        <div style="flex:1;"><div style="font-weight:700;font-size:.88rem;">${esc(data.owner.username)}</div>
+        <div style="font-size:.72rem;color:var(--muted);">owner · set in Cloudflare secrets</div></div>
+        <span style="font-size:.7rem;color:var(--muted);">protected</span>
+      </div>`;
+    rows += (data.admins || []).map(a => `
+      <div style="display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:11px 14px;margin-bottom:8px;">
+        <span style="font-size:1.2rem;">👤</span>
+        <div style="flex:1;"><div style="font-weight:700;font-size:.88rem;">${esc(a.username)}${a.username === youUser ? ' <span style="color:var(--teal);font-size:.7rem;">(you)</span>' : ''}</div>
+        <div style="font-size:.72rem;color:var(--muted);">admin${a.createdAt ? ' · added ' + new Date(a.createdAt).toLocaleDateString('en-GB') : ''}</div></div>
+        ${a.username === youUser ? '' : `<button class="btn-del" onclick="deleteAdmin('${esc(a.username)}')">✕ Remove</button>`}
+      </div>`).join('');
+    wrap.innerHTML = rows;
+  }
+
+  async function addAdmin() {
+    const u = document.getElementById('newAdminUser').value.trim();
+    const p = document.getElementById('newAdminPass').value;
+    if (!u || !p) { alert('Enter a username and password.'); return; }
+    try {
+      const res = await fetch('/api/admins?token=' + encodeURIComponent(adminToken), {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: u, password: p }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) { alert(data.error || 'Could not add admin.'); return; }
+      document.getElementById('newAdminUser').value = '';
+      document.getElementById('newAdminPass').value = '';
+      fetchAdmins();
+    } catch { alert('Network error.'); }
+  }
+
+  async function deleteAdmin(username) {
+    if (!confirm('Remove admin "' + username + '"? They will no longer be able to log in.')) return;
+    try {
+      const res = await fetch('/api/admins/' + encodeURIComponent(username) + '?token=' + encodeURIComponent(adminToken), { method: 'DELETE' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) { alert(data.error || 'Could not remove admin.'); return; }
+      fetchAdmins();
+    } catch { alert('Network error.'); }
   }
 
   function refreshCurrent() {
@@ -5440,7 +5515,9 @@
   function formatDate(d) { if (!d) return '–'; const [y,m,z] = d.split('-'); return `${z}.${m}.${y}`; }
 
   function logout() {
+    if (adminToken) { fetch('/api/logout?token=' + encodeURIComponent(adminToken), { method: 'POST' }).catch(() => {}); }
     adminToken = '';
+    currentUser = null;
     localStorage.removeItem('cdAdmin');
     allBookings = [];
     allProjects = [];
