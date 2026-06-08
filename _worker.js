@@ -720,6 +720,36 @@ function buildDemoSite(d) {
           <span class="tile-t">${e(s.title || 'Our work')}</span>
         </div>`).join('');
 
+  const heroType = ['split', 'centered', 'image'].includes(d.heroType) ? d.heroType : 'split';
+  const hBadge = `<span class="badge"><span class="dot"></span>${e(d.industry || 'Trusted local business')}</span>`;
+  const hTitle = `<h1>${e(d.heroTitle || name)} <span class="hl">${e(d.heroHighlight || '')}</span></h1>`;
+  const hSub = `<p>${e(d.tagline || '')}</p>`;
+  const hCta = `<div class="hero-cta"><a href="#contact" class="btn">${e(d.ctaText || 'Get a free quote')} →</a><a href="#services" class="btn ghost">Explore services</a></div>`;
+  const hTrust = `<div class="hero-trust"><span class="stars">★★★★★</span> Rated excellent by our customers</div>`;
+
+  const heroSection =
+    heroType === 'image' ? `
+  <section class="hero hero-image">
+    <div class="hero-imgbg">${cover(imgKw, 1, im.hero)}</div>
+    <div class="hero-ovl"></div>
+    <div class="wrap hero-inner">${hBadge}${hTitle}${hSub}${hCta}${hTrust}</div>
+  </section>` :
+    heroType === 'centered' ? `
+  <section class="hero hero-centered">
+    <div class="wrap hero-inner">${hBadge}${hTitle}${hSub}${hCta}${hTrust}</div>
+    <div class="wrap"><div class="hero-banner">${cover(imgKw, 1, im.hero)}</div></div>
+  </section>` : `
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>${hBadge}${hTitle}${hSub}${hCta}${hTrust}</div>
+      <div class="hero-visual">
+        <div class="hero-card"><div class="hero-blob">${cover(imgKw, 1, im.hero)}${emoji}</div></div>
+        <div class="float a"><span class="ic">✓</span> Trusted &amp; reliable</div>
+        <div class="float b"><span class="ic">★</span> ${e((stats[2] && stats[2].value) || '4.9')} rating</div>
+      </div>
+    </div>
+  </section>`;
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -779,6 +809,24 @@ function buildDemoSite(d) {
   .float.a{top:18px;left:-22px;}
   .float.b{bottom:24px;right:-18px;}
   .float .ic{width:30px;height:30px;border-radius:8px;background:${primary}1a;color:var(--p);display:grid;place-items:center;}
+  /* hero: centered */
+  .hero-centered{text-align:center;}
+  .hero-centered .hero-inner{max-width:760px;margin:0 auto;}
+  .hero-centered .hero-cta,.hero-centered .hero-trust{justify-content:center;}
+  .hero-centered .hero p{margin-left:auto;margin-right:auto;}
+  .hero-banner{aspect-ratio:16/9;border-radius:24px;margin-top:46px;background:linear-gradient(150deg,var(--p),var(--a));position:relative;overflow:hidden;box-shadow:0 30px 70px -30px rgba(15,23,42,.4);}
+  /* hero: full image */
+  .hero-image{color:#fff;padding:118px 0;}
+  .hero-image .hero-imgbg{position:absolute;inset:0;z-index:0;background:linear-gradient(150deg,var(--p),var(--a));}
+  .hero-image .hero-ovl{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(8,11,20,.5),rgba(8,11,20,.8));}
+  .hero-image .hero-inner{position:relative;z-index:2;text-align:center;max-width:820px;margin:0 auto;}
+  .hero-image h1{color:#fff;}
+  .hero-image .hero p,.hero-image p{color:#e2e8f0;margin-left:auto;margin-right:auto;}
+  .hero-image .badge{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.3);color:#fff;}
+  .hero-image .hero-cta,.hero-image .hero-trust{justify-content:center;}
+  .hero-image .hero-trust{color:#cbd5e1;}
+  .hero-image .btn.ghost{color:#fff;border-color:rgba(255,255,255,.5);}
+  .hero-image .btn.ghost:hover{background:rgba(255,255,255,.12);border-color:#fff;color:#fff;}
   /* stats */
   .stats-band{background:var(--ink);color:#fff;padding:48px 0;}
   .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center;}
@@ -920,27 +968,7 @@ function buildDemoSite(d) {
     </div>
   </header>
 
-  <section class="hero">
-    <div class="wrap hero-grid">
-      <div>
-        <span class="badge"><span class="dot"></span>${e(d.industry || 'Trusted local business')}</span>
-        <h1>${e(d.heroTitle || name)} <span class="hl">${e(d.heroHighlight || '')}</span></h1>
-        <p>${e(d.tagline || '')}</p>
-        <div class="hero-cta">
-          <a href="#contact" class="btn">${e(d.ctaText || 'Get a free quote')} →</a>
-          <a href="#services" class="btn ghost">Explore services</a>
-        </div>
-        <div class="hero-trust"><span class="stars">★★★★★</span> Rated excellent by our customers</div>
-      </div>
-      <div class="hero-visual">
-        <div class="hero-card">
-          <div class="hero-blob">${cover(imgKw, 1, im.hero)}${emoji}</div>
-        </div>
-        <div class="float a"><span class="ic">✓</span> Trusted &amp; reliable</div>
-        <div class="float b"><span class="ic">★</span> ${e((stats[2] && stats[2].value) || '4.9')} rating</div>
-      </div>
-    </div>
-  </section>
+${heroSection}
 
   <div class="stats-band">
     <div class="wrap stats-grid">${statsHtml}</div>
@@ -1317,11 +1345,17 @@ export default {
         const body = await request.json().catch(() => ({}));
         const industry = String(body.industry || '').trim().slice(0, 60);
         const tone = String(body.tone || '').trim().slice(0, 80);
+        const wantName = String(body.businessName || '').trim().slice(0, 80);
+        const details = String(body.details || '').trim().slice(0, 300);
+        const wantVariant = ['modern', 'dark', 'minimal', 'elegant'].includes(body.variant) ? body.variant : '';
+        const heroType = ['split', 'centered', 'image'].includes(body.heroType) ? body.heroType : 'split';
         if (!industry) return json({ error: 'Industry is required' }, 400, request);
         if (!env.AI) return json({ error: 'AI binding unavailable — check wrangler.toml' }, 500, request);
 
         const toneLine = tone ? `\nBrand tone / style: ${tone}.` : '';
-        const prompt = `You are a web copywriter and brand designer. Invent a realistic small business in the "${industry}" industry (UK market) and write the content for a one-page demo website for it.${toneLine}
+        const nameLine = wantName ? `\nThe business is called "${wantName}" — use this exact name.` : '';
+        const detailsLine = details ? `\nIncorporate these real details where relevant (e.g. phone, city, services): ${details}.` : '';
+        const prompt = `You are a web copywriter and brand designer. ${wantName ? `Write the content for a one-page demo website for "${wantName}", a business in the "${industry}" industry (UK market).` : `Invent a realistic small business in the "${industry}" industry (UK market) and write the content for a one-page demo website for it.`}${toneLine}${nameLine}${detailsLine}
 
 Return ONLY a valid JSON object, no text before or after, with exactly this structure:
 {
@@ -1365,10 +1399,14 @@ Requirements:
           return json({ error: 'The model did not return a valid site. Please try again.' }, 500, request);
         }
         parsed.industry = parsed.industry || industry;
+        if (wantName) parsed.businessName = wantName;
+        parsed.heroType = heroType;
 
-        // Choose a visual variant from the requested tone (random when unspecified).
+        // Visual variant: explicit choice wins, else map from tone, else random.
         const VARIANTS = ['modern', 'dark', 'minimal', 'elegant'];
-        if (!VARIANTS.includes(parsed.variant)) {
+        if (wantVariant) {
+          parsed.variant = wantVariant;
+        } else if (!VARIANTS.includes(parsed.variant)) {
           const tl = tone.toLowerCase();
           parsed.variant =
             /premium|high-end|luxury|elegant/.test(tl) ? 'elegant' :
