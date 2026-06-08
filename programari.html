@@ -393,6 +393,8 @@
     .gib-item.done .gib-title{text-decoration:line-through;}
     .gib-del{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:2px 6px;border-radius:4px;}
     .gib-del:hover{color:#ff5f57;background:rgba(255,95,87,.1);}
+    .gib-reset-sec{background:none;border:1px solid rgba(231,76,60,.4);color:#e74c3c;cursor:pointer;font-size:.68rem;font-weight:600;padding:3px 8px;border-radius:5px;font-family:'Share Tech Mono',monospace;letter-spacing:.3px;}
+    .gib-reset-sec:hover{background:rgba(231,76,60,.14);border-color:#e74c3c;}
     .gib-empty{color:var(--muted);font-size:.85rem;font-style:italic;padding:8px 0;}
     .gib-date{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:800;color:#fff;margin-bottom:4px;}
     .gib-date-sub{font-size:.82rem;color:var(--muted);margin-bottom:20px;}
@@ -590,19 +592,28 @@
 
           <!-- Meetings -->
           <div class="gib-section">
-            <div class="gib-section-title">&#x1F550; MEETINGS</div>
+            <div class="gib-section-title" style="display:flex;align-items:center;justify-content:space-between;">
+              <span>&#x1F550; MEETINGS</span>
+              <button class="gib-reset-sec" onclick="resetGibilanSection('meetings','toate meetings')" title="Șterge toate meetings">🗑 clear</button>
+            </div>
             <div id="gib-meetings-list"><div class="gib-empty">Loading...</div></div>
           </div>
 
           <!-- To-do -->
           <div class="gib-section">
-            <div class="gib-section-title">&#x2705; TO DO</div>
+            <div class="gib-section-title" style="display:flex;align-items:center;justify-content:space-between;">
+              <span>&#x2705; TO DO</span>
+              <button class="gib-reset-sec" onclick="resetGibilanSection('todos','toate to-do-urile')" title="Șterge toate to-do-urile">🗑 clear</button>
+            </div>
             <div id="gib-todos-list"><div class="gib-empty">Loading...</div></div>
           </div>
 
           <!-- Deadlines -->
           <div class="gib-section">
-            <div class="gib-section-title">&#x26A0; DEADLINES <span style="font-size:.72rem;font-weight:400;color:var(--muted);">(today + 3 days)</span></div>
+            <div class="gib-section-title" style="display:flex;align-items:center;justify-content:space-between;">
+              <span>&#x26A0; DEADLINES <span style="font-size:.72rem;font-weight:400;color:var(--muted);">(today + 3 days)</span></span>
+              <button class="gib-reset-sec" onclick="resetGibilanSection('deadlines','toate deadlines')" title="Șterge toate deadlines">🗑 clear</button>
+            </div>
             <div id="gib-deadlines-list"><div class="gib-empty">Loading...</div></div>
           </div>
 
@@ -3942,6 +3953,15 @@
       if (!res.ok) { alert('Eroare la golirea agendei.'); return; }
       await loadGibilan();
       alert('Agenda a fost golită.');
+    } catch { alert('Eroare de rețea.'); }
+  }
+
+  async function resetGibilanSection(which, label) {
+    if (!confirm(`Sigur ștergi ${label}? Acțiunea este definitivă.`)) return;
+    try {
+      const res = await fetch('/api/gibilan/reset?which=' + encodeURIComponent(which) + '&token=' + encodeURIComponent(adminToken), { method: 'DELETE' });
+      if (!res.ok) { alert('Eroare la ștergere.'); return; }
+      await loadGibilan();
     } catch { alert('Eroare de rețea.'); }
   }
 
