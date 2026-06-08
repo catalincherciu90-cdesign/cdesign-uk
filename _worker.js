@@ -689,6 +689,12 @@ function buildDemoSite(d) {
     { value: '100%', label: 'Satisfaction' },
   ];
 
+  const variant = ['modern', 'dark', 'minimal', 'elegant'].includes(d.variant) ? d.variant : 'modern';
+  const imgKw = String(d.imageKeywords || d.industry || 'business').toLowerCase().replace(/[^a-z0-9, ]/g, '').slice(0, 60) || 'business';
+  const img = (kw, w, h, sig) => `https://loremflickr.com/${w}/${h}/${encodeURIComponent(String(kw).trim())}?lock=${sig}`;
+  // <img> over a gradient: if the photo fails to load it is removed and the gradient shows.
+  const cover = (kw, sig) => `<img class="cover" src="${img(kw, 800, 600, sig)}" alt="" loading="lazy" onerror="this.remove()">`;
+
   const servicesHtml = services.map((s, i) => `
         <div class="card reveal" style="transition-delay:${i * 70}ms">
           <div class="card-ic">${e(s.icon || '✦')}</div>
@@ -707,6 +713,7 @@ function buildDemoSite(d) {
   const galleryHtml = (services.length ? services : [{ title: 'Project' }, { title: 'Project' }, { title: 'Project' }])
     .slice(0, 6).map((s, i) => `
         <div class="tile reveal" style="background:linear-gradient(${135 + i * 30}deg, ${primary}, ${accent});transition-delay:${i * 60}ms">
+          ${cover(imgKw + ', ' + (s.title || imgKw), 100 + i)}
           <span class="tile-em">${e(s.icon || emoji)}</span>
           <span class="tile-t">${e(s.title || 'Our work')}</span>
         </div>`).join('');
@@ -720,7 +727,7 @@ function buildDemoSite(d) {
 <title>${name} — Demo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&family=Playfair+Display:wght@600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{--p:${primary};--a:${accent};--ink:#0f172a;--mut:#64748b;--line:#e9edf5;}
   *{margin:0;padding:0;box-sizing:border-box;}
@@ -834,9 +841,68 @@ function buildDemoSite(d) {
     .nav-links{display:none;}
     section{padding:64px 0;}
   }
+  /* real photos layered over the gradient placeholders (gradient shows if a photo fails) */
+  .cover{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;border:0;}
+  .hero-blob .cover,.about-visual .cover{border-radius:22px;}
+  .tile .cover{z-index:0;}
+  .tile::after{z-index:1;}
+  .tile .tile-em,.tile .tile-t{z-index:2;}
+
+  /* ── VARIANT: DARK ── */
+  .v-dark{background:#0a0e1a;--ink:#e8edf7;--mut:#94a3b8;--line:rgba(255,255,255,.1);}
+  .v-dark header{background:rgba(10,14,26,.82);border-bottom-color:rgba(255,255,255,.08);}
+  .v-dark .nav-links{color:#cbd5e1;}
+  .v-dark .hero{background:radial-gradient(60% 70% at 12% 8%,${primary}38,transparent 60%),radial-gradient(55% 65% at 92% 18%,${accent}30,transparent 60%),#0a0e1a;}
+  .v-dark .badge{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);color:#cbd5e1;}
+  .v-dark .hero p{color:#9aa6bd;}
+  .v-dark .hero-card{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1);}
+  .v-dark .btn.ghost{color:#e8edf7;border-color:rgba(255,255,255,.18);}
+  .v-dark .btn.ghost:hover{background:rgba(255,255,255,.05);}
+  .v-dark .card{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.09);}
+  .v-dark .card p{color:#9aa6bd;}
+  .v-dark .about{background:linear-gradient(180deg,#0a0e1a,#0d1322);}
+  .v-dark .about>.about-grid>div>p{color:#9aa6bd;}
+  .v-dark #services,.v-dark #work,.v-dark #contact{background:#0a0e1a;}
+  .v-dark .stats-band{background:#05080f;}
+  .v-dark .quote-sec{background:linear-gradient(180deg,#0d1322,#0a0e1a);}
+  .v-dark .float{background:#121829;border-color:rgba(255,255,255,.12);color:#e8edf7;}
+  .v-dark form{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1);}
+  .v-dark .field input,.v-dark .field textarea{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.14);color:#e8edf7;}
+  .v-dark .field label{color:#cbd5e1;}
+
+  /* ── VARIANT: MINIMAL ── */
+  .v-minimal .hero{background:#fff;}
+  .v-minimal .badge,.v-minimal .eyebrow{background:transparent;border:1px solid var(--line);color:var(--mut);box-shadow:none;}
+  .v-minimal .hero h1 .hl{background:none;color:var(--ink);-webkit-text-fill-color:var(--ink);}
+  .v-minimal .btn{box-shadow:none;border-radius:7px;background:var(--ink);}
+  .v-minimal .btn:hover{box-shadow:none;filter:none;background:#000;}
+  .v-minimal .logo .d{box-shadow:none;background:var(--ink);}
+  .v-minimal .card{box-shadow:none;border-radius:10px;}
+  .v-minimal .card:hover{box-shadow:none;transform:none;border-color:var(--ink);}
+  .v-minimal .card-ic{background:#f4f5f7;border-radius:10px;color:var(--ink);}
+  .v-minimal .stats-band{background:#fff;color:var(--ink);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .v-minimal .stat-v{background:none;color:var(--ink);-webkit-text-fill-color:var(--ink);}
+  .v-minimal .stat-l{color:var(--mut);}
+  .v-minimal .about{background:#fff;}
+  .v-minimal .info-card{background:var(--ink);}
+  .v-minimal .tile{border-radius:10px;}
+
+  /* ── VARIANT: ELEGANT ── */
+  .v-elegant{background:#fbf8f3;--ink:#2a2320;--mut:#6b5d52;--line:#ece3d6;}
+  .v-elegant h1,.v-elegant h2,.v-elegant h3,.v-elegant .quote blockquote,.v-elegant .logo,.v-elegant .stat-v{font-family:'Playfair Display',Georgia,serif;letter-spacing:0;}
+  .v-elegant header{background:rgba(251,248,243,.84);border-bottom-color:#ece3d6;}
+  .v-elegant .hero{background:radial-gradient(60% 70% at 12% 8%,${primary}22,transparent 60%),radial-gradient(55% 65% at 92% 18%,${accent}1e,transparent 60%),#fbf8f3;}
+  .v-elegant .badge{background:#fff;border-color:#ece3d6;}
+  .v-elegant .eyebrow{background:${primary}16;letter-spacing:2px;}
+  .v-elegant .btn{border-radius:3px;}
+  .v-elegant .card,.v-elegant form{border-radius:6px;background:#fffdfa;border-color:#ece3d6;}
+  .v-elegant .card-ic{border-radius:8px;}
+  .v-elegant .about{background:linear-gradient(180deg,#f6efe4,#fbf8f3);}
+  .v-elegant .stats-band{background:#2a2320;}
+  .v-elegant .quote-sec{background:linear-gradient(180deg,#fbf8f3,#f6efe4);}
 </style>
 </head>
-<body>
+<body class="v-${variant}">
   <div class="demo-bar">✨ Demo website — built by <a href="https://www.cdesigns.uk" target="_blank" rel="noopener">C Design</a>. Want one like this? <a href="https://www.cdesigns.uk/programari.html" target="_blank" rel="noopener">Get yours →</a></div>
 
   <header>
@@ -866,7 +932,7 @@ function buildDemoSite(d) {
       </div>
       <div class="hero-visual">
         <div class="hero-card">
-          <div class="hero-blob">${emoji}</div>
+          <div class="hero-blob">${cover(imgKw, 1)}${emoji}</div>
         </div>
         <div class="float a"><span class="ic">✓</span> Trusted &amp; reliable</div>
         <div class="float b"><span class="ic">★</span> ${e((stats[2] && stats[2].value) || '4.9')} rating</div>
@@ -893,7 +959,7 @@ function buildDemoSite(d) {
         <p>${e(d.about || '')}</p>
         ${featuresHtml ? `<ul class="feat">${featuresHtml}</ul>` : ''}
       </div>
-      <div class="about-visual">${emoji}</div>
+      <div class="about-visual">${cover(imgKw + ', workplace', 2)}${emoji}</div>
     </div>
   </section>
 
@@ -1232,7 +1298,7 @@ export default {
         return json(demos.map(x => ({
           id: x.id, slug: x.slug, businessName: x.businessName, industry: x.industry,
           emoji: (x.data && x.data.emoji) || '🌐', tagline: (x.data && x.data.tagline) || '',
-          createdAt: x.createdAt,
+          variant: (x.data && x.data.variant) || 'modern', createdAt: x.createdAt,
         })));
       } catch { return json([]); }
     }
@@ -1269,7 +1335,8 @@ Return ONLY a valid JSON object, no text before or after, with exactly this stru
   "email": "a plausible contact email matching the business name",
   "address": "a plausible UK city / street",
   "colorPrimary": "a hex colour fitting the brand, e.g. #0ea5e9",
-  "colorAccent": "a complementary hex accent colour"
+  "colorAccent": "a complementary hex accent colour",
+  "imageKeywords": "2-4 comma-separated English keywords for stock photos of this business, e.g. 'restaurant, italian food, dining'"
 }
 
 Requirements:
@@ -1291,6 +1358,18 @@ Requirements:
         }
         parsed.industry = parsed.industry || industry;
 
+        // Choose a visual variant from the requested tone (random when unspecified).
+        const VARIANTS = ['modern', 'dark', 'minimal', 'elegant'];
+        if (!VARIANTS.includes(parsed.variant)) {
+          const tl = tone.toLowerCase();
+          parsed.variant =
+            /premium|high-end|luxury|elegant/.test(tl) ? 'elegant' :
+            /bold|playful|creative/.test(tl) ? 'dark' :
+            /budget|affordable|minimal|clean/.test(tl) ? 'minimal' :
+            /corporate|professional|formal/.test(tl) ? 'modern' :
+            VARIANTS[Math.floor(Math.random() * VARIANTS.length)];
+        }
+
         const raw = await env.PROGRAMARI.get('__demos__');
         const demos = raw ? JSON.parse(raw) : [];
         const id = `demo_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
@@ -1303,6 +1382,30 @@ Requirements:
       } catch (e) {
         return json({ error: 'Generation error: ' + (e.message || 'unknown') }, 500, request);
       }
+    }
+
+    if (/^\/api\/demo\/[^/]+\/restyle$/.test(path) && request.method === 'POST') {
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const id = path.replace('/api/demo/', '').replace('/restyle', '');
+        const raw = await env.PROGRAMARI.get('__demos__');
+        const demos = raw ? JSON.parse(raw) : [];
+        const demo = demos.find(x => x.id === id || x.slug === id);
+        if (!demo || !demo.data) return json({ error: 'Not found' }, 404);
+        const VARIANTS = ['modern', 'dark', 'minimal', 'elegant'];
+        const others = VARIANTS.filter(v => v !== demo.data.variant);
+        demo.data.variant = others[Math.floor(Math.random() * others.length)];
+        const PALETTES = [
+          ['#6366f1', '#f59e0b'], ['#0ea5e9', '#22c55e'], ['#e11d48', '#fb923c'],
+          ['#7c3aed', '#ec4899'], ['#0f766e', '#f59e0b'], ['#2563eb', '#06b6d4'],
+          ['#c0392b', '#e67e22'], ['#16a34a', '#84cc16'], ['#9333ea', '#06b6d4'],
+        ];
+        const pal = PALETTES[Math.floor(Math.random() * PALETTES.length)];
+        demo.data.colorPrimary = pal[0];
+        demo.data.colorAccent = pal[1];
+        await env.PROGRAMARI.put('__demos__', JSON.stringify(demos));
+        return json({ success: true, variant: demo.data.variant, slug: demo.slug });
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     if (path.startsWith('/api/demo/') && request.method === 'DELETE') {
