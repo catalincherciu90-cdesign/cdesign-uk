@@ -2239,6 +2239,20 @@
   </div>
 </div>
 
+<!-- MODAL DEMO PHOTOS -->
+<div class="modal-overlay" id="demoPhotosOverlay">
+  <div class="modal" style="max-width:560px;">
+    <h3>Demo photos</h3>
+    <p style="font-size:.8rem;color:var(--muted);margin:6px 0 18px;">Upload your own photos for this demo. Use the recommended size for the best result — photos are auto-cropped to fit. Leave empty to keep the automatic stock photo.</p>
+    <input type="hidden" id="demoPhotosId">
+    <div id="demoPhotosSlots"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeDemoPhotos()">Cancel</button>
+      <button class="btn-save" id="demoPhotosSave" onclick="saveDemoPhotos()">Save photos →</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL EDITARE PROIECT -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
@@ -2541,6 +2555,7 @@
           <div style="font-size:.74rem;color:var(--muted);">${esc(d.industry || '')} · <span style="color:#a78bfa;">${esc(d.variant || 'modern')}</span> · /demo/${esc(d.slug)}</div>
         </div>
         <a href="/demo/${encodeURIComponent(d.slug)}" target="_blank" rel="noopener" class="btn-edit" style="text-decoration:none;">↗ View</a>
+        <button class="btn-del" onclick="openDemoPhotos('${esc(d.id)}', ${d.galleryCount || 3})" title="Upload your own photos">🖼 Photos</button>
         <button class="btn-del" onclick="restyleDemo('${esc(d.id)}')" title="New random design & colours, same text">🎨 Restyle</button>
         <button class="btn-del" onclick="copyDemoLink('${esc(d.slug)}')">🔗 Copy link</button>
         <button class="btn-del" onclick="deleteDemo('${esc(d.id)}','${esc(d.businessName || '')}')">✕ Delete</button>
@@ -2555,6 +2570,99 @@
       await fetchDemos();
       window.open('/demo/' + encodeURIComponent(data.slug) + '?v=' + Date.now(), '_blank', 'noopener');
     } catch { alert('Network error.'); }
+  }
+
+  // ── Demo custom photos ───────────────────────────────────
+  let demoPhotoData = { hero: '', about: '', gallery: [] };
+  let demoPhotoGalleryCount = 3;
+
+  async function openDemoPhotos(id, galleryCount) {
+    document.getElementById('demoPhotosId').value = id;
+    demoPhotoGalleryCount = galleryCount || 3;
+    demoPhotoData = { hero: '', about: '', gallery: [] };
+    document.getElementById('demoPhotosSlots').innerHTML = '<div class="gib-empty">Loading...</div>';
+    document.getElementById('demoPhotosOverlay').classList.add('open');
+    try {
+      const res = await fetch('/api/demo/' + encodeURIComponent(id) + '/images?token=' + encodeURIComponent(adminToken));
+      const data = await res.json().catch(() => ({}));
+      demoPhotoData = { hero: data.hero || '', about: data.about || '', gallery: Array.isArray(data.gallery) ? data.gallery : [] };
+    } catch {}
+    renderDemoPhotoSlots();
+  }
+
+  function demoSlotHtml(key, idx, title, rec) {
+    const cur = idx == null ? (demoPhotoData[key] || '') : (demoPhotoData.gallery[idx] || '');
+    const ref = idx == null ? key : ('gallery:' + idx);
+    return `<div style="display:flex;gap:12px;align-items:center;border:1px solid var(--border-soft);border-radius:10px;padding:10px;margin-bottom:10px;">
+      <div style="width:74px;height:74px;border-radius:8px;background:var(--bg3);overflow:hidden;flex-shrink:0;display:grid;place-items:center;">
+        ${cur ? `<img src="${cur}" style="width:100%;height:100%;object-fit:cover;">` : '<span style="font-size:.62rem;color:var(--muted);text-align:center;">auto<br>photo</span>'}
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;font-size:.86rem;">${title}</div>
+        <div style="font-size:.72rem;color:var(--muted);margin-bottom:7px;">Recommended: <strong style="color:var(--teal);">${rec}</strong></div>
+        <input type="file" accept="image/*" onchange="onDemoPhotoPick('${ref}', this)" style="font-size:.74rem;max-width:160px;">
+        ${cur ? `<button class="btn-del" style="margin-left:6px;padding:3px 8px;" onclick="clearDemoPhoto('${ref}')">✕ remove</button>` : ''}
+      </div>
+    </div>`;
+  }
+
+  function renderDemoPhotoSlots() {
+    let html = demoSlotHtml('hero', null, 'Hero image', 'Square · 800×800px (1:1)');
+    html += demoSlotHtml('about', null, 'About / team image', 'Portrait · 800×1000px (4:5)');
+    for (let i = 0; i < demoPhotoGalleryCount; i++) html += demoSlotHtml('gallery', i, 'Gallery image ' + (i + 1), 'Landscape · 800×600px (4:3)');
+    document.getElementById('demoPhotosSlots').innerHTML = html;
+  }
+
+  async function onDemoPhotoPick(ref, input) {
+    if (!input.files[0]) return;
+    const dataUrl = await compressDemoImage(input.files[0]);
+    if (ref.indexOf('gallery:') === 0) demoPhotoData.gallery[+ref.split(':')[1]] = dataUrl;
+    else demoPhotoData[ref] = dataUrl;
+    renderDemoPhotoSlots();
+  }
+
+  function clearDemoPhoto(ref) {
+    if (ref.indexOf('gallery:') === 0) demoPhotoData.gallery[+ref.split(':')[1]] = '';
+    else demoPhotoData[ref] = '';
+    renderDemoPhotoSlots();
+  }
+
+  function closeDemoPhotos() { document.getElementById('demoPhotosOverlay').classList.remove('open'); }
+
+  async function saveDemoPhotos() {
+    const id = document.getElementById('demoPhotosId').value;
+    const btn = document.getElementById('demoPhotosSave');
+    btn.disabled = true; btn.textContent = 'Saving...';
+    try {
+      const res = await fetch('/api/demo/' + encodeURIComponent(id) + '/images?token=' + encodeURIComponent(adminToken), {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(demoPhotoData),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) { alert(data.error || 'Could not save photos.'); btn.disabled = false; btn.textContent = 'Save photos →'; return; }
+      closeDemoPhotos();
+      const d = allDemos.find(x => x.id === id);
+      if (d) window.open('/demo/' + encodeURIComponent(d.slug) + '?v=' + Date.now(), '_blank', 'noopener');
+    } catch { alert('Network error.'); }
+    btn.disabled = false; btn.textContent = 'Save photos →';
+  }
+
+  function compressDemoImage(file) {
+    return new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          const MAX = 1100; let w = img.width, h = img.height;
+          if (w > h && w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+          else if (h >= w && h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
+          const c = document.createElement('canvas'); c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(c.toDataURL('image/jpeg', 0.82));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
   }
 
   function copyDemoLink(slug) {
@@ -2728,6 +2836,7 @@
   }
 
   document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+  document.getElementById('demoPhotosOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeDemoPhotos(); });
   document.getElementById('crmModalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeCrmModal(); });
   document.getElementById('clientModalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeClientModal(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeCrmModal(); } });
