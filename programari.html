@@ -1310,6 +1310,16 @@
           <div id="adminAccountsList"><div class="gib-empty">Loading...</div></div>
         </div>
 
+        <!-- ACTIVITY LOG (owner only) -->
+        <div id="activityLogSection" style="margin-top:36px;padding-top:28px;border-top:1px solid var(--border);display:none;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px;">
+            <div class="f-label">// activity_log</div>
+            <button class="btn-add" onclick="fetchActivity()" style="padding:6px 14px;font-size:.78rem;">↻ Refresh</button>
+          </div>
+          <p style="font-size:.78rem;color:var(--muted);margin-bottom:14px;max-width:620px;">Recent logins and changes — who did what. Shows the last 200 events.</p>
+          <div id="activityLogList" style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;max-height:360px;overflow:auto;"><div class="gib-empty" style="padding:12px;">Loading...</div></div>
+        </div>
+
         <!-- HERO BANNER IMAGE -->
         <div style="margin-top:36px;padding-top:28px;border-top:1px solid var(--border);">
           <div class="f-label" style="margin-bottom:16px;">// hero_banner_image</div>
@@ -2422,7 +2432,7 @@
     if (tab === 'media') fetchMedia();
     if (tab === 'cheltuieli') fetchCheltuieli();
     if (tab === 'oferte') { fetchServicii(); fetchOferte(); fetchContracte(); populateOfertaClientSel(); }
-    if (tab === 'settings' && currentUser && currentUser.role === 'owner') fetchAdmins();
+    if (tab === 'settings' && currentUser && currentUser.role === 'owner') { fetchAdmins(); fetchActivity(); }
   }
 
   // ── Permissions & current user ───────────────────────────
@@ -2458,6 +2468,8 @@
     });
     const sec = document.getElementById('adminAccountsSection');
     if (sec) sec.style.display = isOwner ? 'block' : 'none';
+    const act = document.getElementById('activityLogSection');
+    if (act) act.style.display = isOwner ? 'block' : 'none';
     const active = document.querySelector('.tab.active');
     if (active && active.style.display === 'none') {
       const first = [...document.querySelectorAll('.tab')].find(b => b.style.display !== 'none');
@@ -2501,6 +2513,7 @@
           <span style="font-size:1.2rem;">👤</span>
           <div style="flex:1;"><span style="font-weight:700;font-size:.88rem;">${esc(a.username)}${a.username === youUser ? ' <span style="color:var(--teal);font-size:.7rem;">(you)</span>' : ''}</span>
           <span style="font-size:.72rem;color:var(--muted);margin-left:6px;">admin${a.createdAt ? ' · added ' + new Date(a.createdAt).toLocaleDateString('en-GB') : ''}</span></div>
+          <button class="btn-del" onclick="resetAdminPassword('${esc(a.username)}')">🔑 Reset password</button>
           ${a.username === youUser ? '' : `<button class="btn-del" onclick="deleteAdmin('${esc(a.username)}')">✕ Remove</button>`}
         </div>
         <div class="perm-edit" data-user="${esc(a.username)}" style="display:flex;flex-wrap:wrap;gap:6px 12px;margin-bottom:10px;">${permChecksHtml(a.perms || [], 'editperm')}</div>
@@ -2550,6 +2563,51 @@
       if (!res.ok || !data.success) { alert(data.error || 'Could not remove admin.'); return; }
       fetchAdmins();
     } catch { alert('Network error.'); }
+  }
+
+  async function resetAdminPassword(username) {
+    const p = prompt('New password for "' + username + '" (min 8 characters):');
+    if (p === null) return;
+    if (p.length < 8) { alert('Password must be at least 8 characters.'); return; }
+    try {
+      const res = await fetch('/api/admins/' + encodeURIComponent(username) + '/password?token=' + encodeURIComponent(adminToken), {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: p }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) { alert(data.error || 'Could not reset password.'); return; }
+      alert('Password updated for "' + username + '". It applies at their next login.');
+    } catch { alert('Network error.'); }
+  }
+
+  // ── Activity log ─────────────────────────────────────────
+  function prettyAction(e) {
+    if (e.path === 'login') return 'Logged in';
+    const verb = { POST: 'Created', PUT: 'Updated', PATCH: 'Updated', DELETE: 'Deleted' }[e.method] || e.method;
+    const map = [['/api/bookings', 'a booking'], ['/api/booking', 'a booking'], ['/api/crm', 'a CRM entry'], ['/api/blog', 'a blog post'], ['/api/projects', 'a portfolio item'], ['/api/project', 'a portfolio item'], ['/api/demos', 'a demo site'], ['/api/demo', 'a demo site'], ['/api/cheltuieli', 'an expense'], ['/api/gibilan', 'an agenda item'], ['/api/clients', 'a client'], ['/api/client', 'a client'], ['/api/social', 'social settings'], ['/api/site-settings', 'site settings'], ['/api/settings', 'settings'], ['/api/maintenance', 'maintenance'], ['/api/media', 'media'], ['/api/theme', 'the theme'], ['/api/admins', 'an admin account'], ['/api/servicii', 'a service'], ['/api/oferte', 'a quote'], ['/api/contract', 'a contract'], ['/api/layout', 'page layout']];
+    const m = map.find(x => e.path.startsWith(x[0]));
+    return verb + ' ' + (m ? m[1] : e.path.replace('/api/', ''));
+  }
+
+  function renderActivity(list) {
+    const wrap = document.getElementById('activityLogList');
+    if (!wrap) return;
+    if (!Array.isArray(list) || !list.length) { wrap.innerHTML = '<div class="gib-empty">No activity yet.</div>'; return; }
+    wrap.innerHTML = list.map(e => `
+      <div style="display:flex;gap:12px;align-items:baseline;padding:8px 10px;border-bottom:1px solid var(--border);font-size:.8rem;">
+        <span style="color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:.7rem;min-width:140px;">${new Date(e.ts).toLocaleString('en-GB')}</span>
+        <span style="font-weight:700;min-width:90px;">${esc(e.user || '?')}</span>
+        <span style="color:var(--soft);">${esc(prettyAction(e))}</span>
+      </div>`).join('');
+  }
+
+  async function fetchActivity() {
+    const wrap = document.getElementById('activityLogList');
+    if (!wrap) return;
+    try {
+      const res = await fetch('/api/activity?token=' + encodeURIComponent(adminToken));
+      if (!res.ok) { wrap.innerHTML = '<div class="gib-empty">Owner only.</div>'; return; }
+      renderActivity(await res.json());
+    } catch { wrap.innerHTML = '<div class="gib-empty">Could not load activity.</div>'; }
   }
 
   function refreshCurrent() {
