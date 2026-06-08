@@ -692,8 +692,10 @@ function buildDemoSite(d) {
   const variant = ['modern', 'dark', 'minimal', 'elegant'].includes(d.variant) ? d.variant : 'modern';
   const imgKw = String(d.imageKeywords || d.industry || 'business').toLowerCase().replace(/[^a-z0-9, ]/g, '').slice(0, 60) || 'business';
   const img = (kw, w, h, sig) => `https://loremflickr.com/${w}/${h}/${encodeURIComponent(String(kw).trim())}?lock=${sig}`;
-  // <img> over a gradient: if the photo fails to load it is removed and the gradient shows.
-  const cover = (kw, sig) => `<img class="cover" src="${img(kw, 800, 600, sig)}" alt="" loading="lazy" onerror="this.remove()">`;
+  const im = (d.images && typeof d.images === 'object') ? d.images : {};
+  const imgTag = src => `<img class="cover" src="${String(src).replace(/"/g, '&quot;')}" alt="" loading="lazy" onerror="this.remove()">`;
+  // Uploaded photo wins; otherwise a keyword stock photo over a gradient (gradient shows if it fails).
+  const cover = (kw, sig, custom) => custom ? imgTag(custom) : `<img class="cover" src="${img(kw, 800, 600, sig)}" alt="" loading="lazy" onerror="this.remove()">`;
 
   const servicesHtml = services.map((s, i) => `
         <div class="card reveal" style="transition-delay:${i * 70}ms">
@@ -713,7 +715,7 @@ function buildDemoSite(d) {
   const galleryHtml = (services.length ? services : [{ title: 'Project' }, { title: 'Project' }, { title: 'Project' }])
     .slice(0, 6).map((s, i) => `
         <div class="tile reveal" style="background:linear-gradient(${135 + i * 30}deg, ${primary}, ${accent});transition-delay:${i * 60}ms">
-          ${cover(imgKw + ', ' + (s.title || imgKw), 100 + i)}
+          ${cover(imgKw + ', ' + (s.title || imgKw), 100 + i, im.gallery && im.gallery[i])}
           <span class="tile-em">${e(s.icon || emoji)}</span>
           <span class="tile-t">${e(s.title || 'Our work')}</span>
         </div>`).join('');
@@ -932,7 +934,7 @@ function buildDemoSite(d) {
       </div>
       <div class="hero-visual">
         <div class="hero-card">
-          <div class="hero-blob">${cover(imgKw, 1)}${emoji}</div>
+          <div class="hero-blob">${cover(imgKw, 1, im.hero)}${emoji}</div>
         </div>
         <div class="float a"><span class="ic">✓</span> Trusted &amp; reliable</div>
         <div class="float b"><span class="ic">★</span> ${e((stats[2] && stats[2].value) || '4.9')} rating</div>
@@ -959,7 +961,7 @@ function buildDemoSite(d) {
         <p>${e(d.about || '')}</p>
         ${featuresHtml ? `<ul class="feat">${featuresHtml}</ul>` : ''}
       </div>
-      <div class="about-visual">${cover(imgKw + ', workplace', 2)}${emoji}</div>
+      <div class="about-visual">${cover(imgKw + ', workplace', 2, im.about)}${emoji}</div>
     </div>
   </section>
 
@@ -1105,8 +1107,13 @@ export default {
             status: 404, headers: { 'Content-Type': 'text/html;charset=utf-8' }
           });
         }
-        return new Response(buildDemoSite(demo.data || demo), {
-          headers: { ...SEC_HEADERS, 'Content-Type': 'text/html;charset=utf-8', 'Cache-Control': 'public,max-age=300' }
+        const data = demo.data || demo;
+        try {
+          const imgRaw = await env.PROGRAMARI.get('__demo_img__' + demo.id);
+          if (imgRaw) data.images = JSON.parse(imgRaw);
+        } catch {}
+        return new Response(buildDemoSite(data), {
+          headers: { ...SEC_HEADERS, 'Content-Type': 'text/html;charset=utf-8', 'Cache-Control': 'public,max-age=120' }
         });
       } catch {
         return new Response('Error loading demo', { status: 500 });
@@ -1299,6 +1306,7 @@ export default {
           id: x.id, slug: x.slug, businessName: x.businessName, industry: x.industry,
           emoji: (x.data && x.data.emoji) || '🌐', tagline: (x.data && x.data.tagline) || '',
           variant: (x.data && x.data.variant) || 'modern', createdAt: x.createdAt,
+          galleryCount: Math.min((x.data && Array.isArray(x.data.services) ? x.data.services.length : 3) || 3, 6),
         })));
       } catch { return json([]); }
     }
@@ -1408,13 +1416,42 @@ Requirements:
       } catch { return json({ error: 'Server error' }, 500); }
     }
 
+    if (/^\/api\/demo\/[^/]+\/images$/.test(path) && request.method === 'GET') {
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const id = path.replace('/api/demo/', '').replace('/images', '');
+        const raw = await env.PROGRAMARI.get('__demo_img__' + id);
+        return json(raw ? JSON.parse(raw) : { hero: '', about: '', gallery: [] });
+      } catch { return json({ hero: '', about: '', gallery: [] }); }
+    }
+
+    if (/^\/api\/demo\/[^/]+\/images$/.test(path) && request.method === 'PUT') {
+      if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const id = path.replace('/api/demo/', '').replace('/images', '');
+        const body = await request.json().catch(() => ({}));
+        const ok = v => typeof v === 'string' && (v.startsWith('data:image/') || v.startsWith('https://') || v === '');
+        const images = {
+          hero: ok(body.hero) ? body.hero : '',
+          about: ok(body.about) ? body.about : '',
+          gallery: Array.isArray(body.gallery) ? body.gallery.slice(0, 6).map(v => ok(v) ? v : '') : [],
+        };
+        const payload = JSON.stringify(images);
+        if (payload.length > 6_000_000) return json({ error: 'Images too large. Please use smaller photos.' }, 413);
+        await env.PROGRAMARI.put('__demo_img__' + id, payload);
+        return json({ success: true });
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+
     if (path.startsWith('/api/demo/') && request.method === 'DELETE') {
       if (!isAdmin(url, env)) return json({ error: 'Unauthorised' }, 401);
       try {
         const id = path.replace('/api/demo/', '');
         const raw = await env.PROGRAMARI.get('__demos__');
         const demos = raw ? JSON.parse(raw) : [];
+        const target = demos.find(x => x.id === id || x.slug === id);
         await env.PROGRAMARI.put('__demos__', JSON.stringify(demos.filter(x => x.id !== id && x.slug !== id)));
+        if (target) await env.PROGRAMARI.delete('__demo_img__' + target.id);
         return json({ success: true });
       } catch { return json({ error: 'Server error' }, 500); }
     }
