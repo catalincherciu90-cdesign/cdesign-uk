@@ -1101,6 +1101,70 @@ ${heroSection}
 </html>`;
 }
 
+// ── Custom uploaded demos: content types + minimal ZIP reader ──
+function ctypeFor(name) {
+  const ext = (String(name).split('.').pop() || '').toLowerCase();
+  const m = { html:'text/html;charset=utf-8', htm:'text/html;charset=utf-8', css:'text/css;charset=utf-8', js:'text/javascript;charset=utf-8', mjs:'text/javascript;charset=utf-8', json:'application/json', svg:'image/svg+xml', png:'image/png', jpg:'image/jpeg', jpeg:'image/jpeg', gif:'image/gif', webp:'image/webp', avif:'image/avif', ico:'image/x-icon', woff:'font/woff', woff2:'font/woff2', ttf:'font/ttf', otf:'font/otf', eot:'application/vnd.ms-fontobject', txt:'text/plain;charset=utf-8', xml:'application/xml', mp4:'video/mp4', webm:'video/webm', mp3:'audio/mpeg', pdf:'application/pdf' };
+  return m[ext] || 'application/octet-stream';
+}
+
+// Parse a ZIP central directory → { name: { method, compSize, localOffset } }
+function zipEntries(buf) {
+  const dv = new DataView(buf);
+  const u8 = new Uint8Array(buf);
+  let eocd = -1;
+  const minI = Math.max(0, u8.length - 22 - 65536);
+  for (let i = u8.length - 22; i >= minI; i--) {
+    if (dv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+  }
+  if (eocd < 0) return null;
+  const cdCount = dv.getUint16(eocd + 10, true);
+  const cdOffset = dv.getUint32(eocd + 16, true);
+  const entries = {};
+  let p = cdOffset;
+  for (let n = 0; n < cdCount; n++) {
+    if (p + 46 > u8.length || dv.getUint32(p, true) !== 0x02014b50) break;
+    const method = dv.getUint16(p + 10, true);
+    const compSize = dv.getUint32(p + 20, true);
+    const nameLen = dv.getUint16(p + 28, true);
+    const extraLen = dv.getUint16(p + 30, true);
+    const commentLen = dv.getUint16(p + 32, true);
+    const localOffset = dv.getUint32(p + 42, true);
+    const name = new TextDecoder().decode(u8.subarray(p + 46, p + 46 + nameLen));
+    entries[name] = { method, compSize, localOffset };
+    p += 46 + nameLen + extraLen + commentLen;
+  }
+  return entries;
+}
+
+async function zipExtract(buf, entry) {
+  const dv = new DataView(buf);
+  const u8 = new Uint8Array(buf);
+  const lo = entry.localOffset;
+  if (dv.getUint32(lo, true) !== 0x04034b50) return null;
+  const nameLen = dv.getUint16(lo + 26, true);
+  const extraLen = dv.getUint16(lo + 28, true);
+  const start = lo + 30 + nameLen + extraLen;
+  const comp = u8.subarray(start, start + entry.compSize);
+  if (entry.method === 0) return comp;
+  if (entry.method === 8) {
+    const stream = new Response(comp).body.pipeThrough(new DecompressionStream('deflate-raw'));
+    return new Uint8Array(await new Response(stream).arrayBuffer());
+  }
+  return null;
+}
+
+// Pick the best index.html in a zip and the folder prefix it lives in.
+function zipFindIndex(entries) {
+  const names = Object.keys(entries).filter(n => !n.endsWith('/'));
+  const indexes = names.filter(n => n === 'index.html' || n.endsWith('/index.html'));
+  if (!indexes.length) return null;
+  indexes.sort((a, b) => a.split('/').length - b.split('/').length || a.length - b.length);
+  const indexPath = indexes[0];
+  const root = indexPath.slice(0, indexPath.length - 'index.html'.length);
+  return { indexPath, root };
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -1171,17 +1235,43 @@ export default {
 
     // ── DEMO SITES (public) ───────────────────────────────────
 
-    if (/^\/demo\/[^/]+$/.test(path) && request.method === 'GET') {
-      const slug = decodeURIComponent(path.slice(6));
+    if (/^\/demo\/[^/]+(\/.*)?$/.test(path) && request.method === 'GET') {
+      const rest = path.slice(6); // after "/demo/"
+      const slashIdx = rest.indexOf('/');
+      const slug = decodeURIComponent(slashIdx === -1 ? rest : rest.slice(0, slashIdx));
+      const subPath = slashIdx === -1 ? null : rest.slice(slashIdx + 1); // null = no trailing slash
+      const notFound = () => new Response('<!DOCTYPE html><meta charset="utf-8"><title>Demo not found</title><body style="font-family:system-ui;text-align:center;padding:80px 20px;color:#334155;"><h1>Demo not found</h1><p>This demo may have been removed. <a href="https://www.cdesigns.uk" style="color:#0ea5e9;">Back to C Design →</a></p></body>', { status: 404, headers: { 'Content-Type': 'text/html;charset=utf-8' } });
       try {
         const raw = await env.PROGRAMARI.get('__demos__');
         const demos = raw ? JSON.parse(raw) : [];
         const demo = demos.find(x => x.slug === slug || x.id === slug);
-        if (!demo) {
-          return new Response('<!DOCTYPE html><meta charset="utf-8"><title>Demo not found</title><body style="font-family:system-ui;text-align:center;padding:80px 20px;color:#334155;"><h1>Demo not found</h1><p>This demo may have been removed. <a href="https://www.cdesigns.uk" style="color:#0ea5e9;">Back to C Design →</a></p></body>', {
-            status: 404, headers: { 'Content-Type': 'text/html;charset=utf-8' }
-          });
+        if (!demo) return notFound();
+
+        // Custom uploaded single HTML file
+        if (demo.kind === 'html') {
+          const html = await env.PROGRAMARI.get('__demo_html__' + demo.id);
+          if (html == null) return notFound();
+          return new Response(html, { headers: { 'Content-Type': 'text/html;charset=utf-8', 'Cache-Control': 'public,max-age=120' } });
         }
+
+        // Custom uploaded ZIP site (multi-file)
+        if (demo.kind === 'zip') {
+          if (subPath === null) return Response.redirect(url.origin + '/demo/' + encodeURIComponent(slug) + '/', 302);
+          const zipBuf = await env.PROGRAMARI.get('__demo_zip__' + demo.id, { type: 'arrayBuffer' });
+          if (!zipBuf) return notFound();
+          const entries = zipEntries(zipBuf);
+          if (!entries) return notFound();
+          let fileName = subPath === '' ? demo.indexPath : ((demo.root || '') + decodeURIComponent(subPath));
+          let entry = entries[fileName];
+          if (!entry && (subPath === '' || subPath.endsWith('/'))) entry = entries[fileName + 'index.html'];
+          if (!entry) return notFound();
+          const bytes = await zipExtract(zipBuf, entry);
+          if (!bytes) return notFound();
+          return new Response(bytes, { headers: { 'Content-Type': ctypeFor(fileName), 'Cache-Control': 'public,max-age=120' } });
+        }
+
+        // AI-generated demo
+        if (subPath) return notFound();
         const data = demo.data || demo;
         try {
           const imgRaw = await env.PROGRAMARI.get('__demo_img__' + demo.id);
@@ -1502,8 +1592,10 @@ export default {
         // Public summary only — full content is served at /demo/<slug>
         return json(demos.map(x => ({
           id: x.id, slug: x.slug, businessName: x.businessName, industry: x.industry,
-          emoji: (x.data && x.data.emoji) || '🌐', tagline: (x.data && x.data.tagline) || '',
+          emoji: x.emoji || (x.data && x.data.emoji) || '🌐',
+          tagline: x.tagline || (x.data && x.data.tagline) || '',
           variant: (x.data && x.data.variant) || 'modern', createdAt: x.createdAt,
+          kind: x.kind || 'ai',
           galleryCount: Math.min((x.data && Array.isArray(x.data.services) ? x.data.services.length : 3) || 3, 6),
         })));
       } catch { return json([]); }
@@ -1602,6 +1694,53 @@ Requirements:
       }
     }
 
+    // Upload a custom single HTML file as a demo
+    if (path === '/api/demo/upload-html' && request.method === 'POST') {
+      if (!can(authed, 'portfolio')) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const body = await request.json().catch(() => ({}));
+        const name = String(body.businessName || body.name || 'Custom site').trim().slice(0, 80) || 'Custom site';
+        const industry = String(body.industry || 'Custom').trim().slice(0, 60) || 'Custom';
+        const html = String(body.html || '');
+        if (!html.trim()) return json({ error: 'HTML is empty' }, 400);
+        if (html.length > 3_000_000) return json({ error: 'HTML too large (max ~3MB). Use a ZIP for bigger sites.' }, 413);
+        const raw = await env.PROGRAMARI.get('__demos__');
+        const demos = raw ? JSON.parse(raw) : [];
+        const id = `demo_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+        let slug = demoSlugify(name);
+        if (demos.some(x => x.slug === slug)) slug = `${slug}-${Math.random().toString(36).slice(2, 5)}`;
+        await env.PROGRAMARI.put('__demo_html__' + id, html);
+        demos.unshift({ id, slug, businessName: name, industry, kind: 'html', emoji: '📄', tagline: 'Custom HTML upload', createdAt: new Date().toISOString() });
+        await env.PROGRAMARI.put('__demos__', JSON.stringify(demos));
+        return json({ success: true, demo: { id, slug, businessName: name, url: `/demo/${slug}` } });
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+
+    // Upload a ZIP archive (multi-file site) as a demo
+    if (path === '/api/demo/upload-zip' && request.method === 'POST') {
+      if (!can(authed, 'portfolio')) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const name = String(url.searchParams.get('name') || 'Custom site').trim().slice(0, 80) || 'Custom site';
+        const industry = String(url.searchParams.get('industry') || 'Custom').trim().slice(0, 60) || 'Custom';
+        const zipBuf = await request.arrayBuffer();
+        if (!zipBuf || zipBuf.byteLength === 0) return json({ error: 'Empty file' }, 400);
+        if (zipBuf.byteLength > 20 * 1024 * 1024) return json({ error: 'ZIP too large (max 20MB)' }, 413);
+        const entries = zipEntries(zipBuf);
+        if (!entries) return json({ error: 'Not a valid ZIP file' }, 400);
+        const idx = zipFindIndex(entries);
+        if (!idx) return json({ error: 'No index.html found in the ZIP' }, 400);
+        const raw = await env.PROGRAMARI.get('__demos__');
+        const demos = raw ? JSON.parse(raw) : [];
+        const id = `demo_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+        let slug = demoSlugify(name);
+        if (demos.some(x => x.slug === slug)) slug = `${slug}-${Math.random().toString(36).slice(2, 5)}`;
+        await env.PROGRAMARI.put('__demo_zip__' + id, zipBuf);
+        demos.unshift({ id, slug, businessName: name, industry, kind: 'zip', emoji: '🗂', tagline: 'Custom ZIP upload', root: idx.root, indexPath: idx.indexPath, createdAt: new Date().toISOString() });
+        await env.PROGRAMARI.put('__demos__', JSON.stringify(demos));
+        return json({ success: true, demo: { id, slug, businessName: name, url: `/demo/${slug}/` } });
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+
     if (/^\/api\/demo\/[^/]+\/restyle$/.test(path) && request.method === 'POST') {
       if (!can(authed, 'portfolio')) return json({ error: 'Unauthorised' }, 401);
       try {
@@ -1661,7 +1800,7 @@ Requirements:
         const demos = raw ? JSON.parse(raw) : [];
         const target = demos.find(x => x.id === id || x.slug === id);
         await env.PROGRAMARI.put('__demos__', JSON.stringify(demos.filter(x => x.id !== id && x.slug !== id)));
-        if (target) await env.PROGRAMARI.delete('__demo_img__' + target.id);
+        if (target) { await env.PROGRAMARI.delete('__demo_img__' + target.id); await env.PROGRAMARI.delete('__demo_html__' + target.id); await env.PROGRAMARI.delete('__demo_zip__' + target.id); }
         return json({ success: true });
       } catch { return json({ error: 'Server error' }, 500); }
     }
