@@ -1184,6 +1184,224 @@ ${faqSection}
 </html>`;
 }
 
+// ── Online shop / catalogue demo layout (multi-banner storefront) ──
+function buildShopSite(d) {
+  const e = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const hex = v => /^#[0-9a-fA-F]{3,8}$/.test(String(v || '')) ? v : null;
+  const primary = hex(d.colorPrimary) || '#1e3a8a';
+  const accent = hex(d.colorAccent) || '#f59e0b';
+  const name = e(d.businessName || 'Demo Store');
+  const emoji = e(d.emoji || '🛒');
+  const kw = String(d.imageKeywords || d.industry || 'cars').toLowerCase().replace(/[^a-z0-9, ]/g, '').slice(0, 60) || 'cars';
+  const img = (k, w, h, sig) => `https://loremflickr.com/${w}/${h}/${encodeURIComponent(String(k).trim())}?lock=${sig}`;
+  const cover = (k, sig) => `<img class="cover" src="${img(k, 800, 600, sig)}" alt="" loading="lazy" onerror="this.remove()">`;
+
+  let banners = (Array.isArray(d.banners) ? d.banners : []).filter(b => b && (b.title || b.subtitle)).slice(0, 4);
+  if (!banners.length) banners = [{ title: d.heroTitle || ('Welcome to ' + (d.businessName || 'our store')), subtitle: d.tagline || '', cta: d.ctaText || 'Browse stock' }];
+  let categories = (Array.isArray(d.categories) ? d.categories : []).filter(c => c && c.name).slice(0, 8);
+  let products = (Array.isArray(d.products) ? d.products : []).filter(p => p && p.name).slice(0, 12);
+  const promo = d.promo && (d.promo.title || d.promo.subtitle) ? d.promo : null;
+  const stats = (Array.isArray(d.stats) ? d.stats : []).filter(s => s && (s.value || s.label)).slice(0, 4);
+
+  const slides = banners.map((b, i) => `
+        <div class="slide ${i === 0 ? 'on' : ''}">
+          ${cover(kw + ', ' + (b.title || kw), 10 + i)}<div class="ov"></div>
+          <div class="bc"><h2>${e(b.title || '')}</h2><p>${e(b.subtitle || '')}</p><a href="#shop" class="btn">${e(b.cta || 'Shop now')} →</a></div>
+        </div>`).join('');
+  const dots = banners.length > 1 ? `<div class="bdots">${banners.map((b, i) => `<span class="bdot ${i === 0 ? 'on' : ''}" data-i="${i}"></span>`).join('')}</div>` : '';
+
+  const mini = [banners[1], banners[2]].filter(Boolean);
+  const miniHtml = (mini.length ? mini : categories.slice(0, 2).map(c => ({ title: c.name, cta: 'View' }))).slice(0, 2).map((b, i) => `
+        <div class="mini">${cover(kw + ', ' + (b.title || b.name || kw), 30 + i)}<div class="ov"></div><div class="mc"><h3>${e(b.title || b.name || '')}</h3><a href="#shop" style="color:#fff;font-weight:700;font-size:.85rem;">${e(b.cta || 'View')} →</a></div></div>`).join('');
+
+  const catsHtml = categories.map((c, i) => `
+        <a href="#shop" class="cat"><span class="ce">${e(c.emoji || '🏷️')}</span><div><b>${e(c.name || '')}</b><span>${e(c.count ? c.count + ' listings' : 'Browse')}</span></div></a>`).join('');
+
+  const prodHtml = products.map((p, i) => `
+        <div class="prod">
+          <div class="prod-img">${cover(kw + ', ' + (p.name || p.category || kw), 100 + i)}${p.badge ? `<span class="prod-badge">${e(p.badge)}</span>` : ''}</div>
+          <div class="prod-b">
+            <div class="prod-cat">${e(p.category || d.industry || '')}</div>
+            <div class="prod-name">${e(p.name || '')}</div>
+            <div class="prod-price">${e(p.price || '')}${p.oldPrice ? ` <s>${e(p.oldPrice)}</s>` : ''}</div>
+            <a href="#contact" class="btn">View details</a>
+          </div>
+        </div>`).join('');
+
+  const statsHtml = stats.length ? `<div class="stripe"><div class="wrap sgrid">${stats.map(s => `<div><div class="sv">${e(s.value || '')}</div><div class="sl">${e(s.label || '')}</div></div>`).join('')}</div></div>` : '';
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>${name} — Demo store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--p:${primary};--a:${accent};--ink:#0f172a;--mut:#64748b;--line:#e7ebf2;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:#f7f9fc;line-height:1.6;-webkit-font-smoothing:antialiased;}
+  a{text-decoration:none;color:inherit;}
+  img{display:block;}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 22px;}
+  h1,h2,h3,.logo,.btn,.sv,.prod-price{font-family:'Plus Jakarta Sans',sans-serif;}
+  .demo-bar{background:#0b1020;color:#fff;font-size:.82rem;text-align:center;padding:8px 14px;}
+  .demo-bar a{color:var(--a);font-weight:700;}
+  .topbar{background:var(--ink);color:#cbd5e1;font-size:.78rem;}
+  .topbar .wrap{display:flex;justify-content:space-between;gap:12px;padding:7px 22px;flex-wrap:wrap;}
+  header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;}
+  .nav{display:flex;align-items:center;gap:18px;height:68px;}
+  .logo{font-weight:800;font-size:1.3rem;display:flex;align-items:center;gap:9px;}
+  .logo .d{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--p),var(--a));display:grid;place-items:center;color:#fff;}
+  .nav-links{display:flex;gap:22px;margin-left:14px;font-size:.92rem;font-weight:500;}
+  .nav-links a:hover{color:var(--p);}
+  .nav-right{margin-left:auto;display:flex;align-items:center;gap:14px;}
+  .btn{display:inline-flex;align-items:center;gap:7px;background:var(--p);color:#fff;font-weight:700;padding:11px 20px;border-radius:10px;font-size:.92rem;border:none;cursor:pointer;transition:.18s;}
+  .btn:hover{filter:brightness(1.08);transform:translateY(-1px);}
+  .cart{position:relative;font-size:1.3rem;}
+  .cart b{position:absolute;top:-6px;right:-8px;background:var(--a);color:#fff;font-size:.6rem;font-weight:800;min-width:16px;height:16px;border-radius:999px;display:grid;place-items:center;padding:0 4px;}
+  section{padding:46px 0;}
+  .sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:22px;flex-wrap:wrap;}
+  .sec-head h2{font-size:clamp(1.4rem,2.6vw,2rem);font-weight:800;letter-spacing:-.5px;}
+  .sec-head a{color:var(--p);font-weight:700;font-size:.88rem;}
+  /* hero banners */
+  .shop-hero{display:grid;grid-template-columns:2fr 1fr;gap:18px;padding-top:26px;}
+  .banner{position:relative;border-radius:20px;overflow:hidden;min-height:340px;background:linear-gradient(135deg,var(--p),var(--a));}
+  .slide{position:absolute;inset:0;display:none;align-items:flex-end;}
+  .slide.on{display:flex;animation:fade .6s;}
+  @keyframes fade{from{opacity:.3}to{opacity:1}}
+  .cover{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
+  .banner .ov{position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(8,11,20,.78),rgba(8,11,20,.12));}
+  .bc{position:relative;z-index:2;padding:38px;max-width:82%;color:#fff;}
+  .bc h2{font-size:clamp(1.7rem,3.2vw,2.7rem);font-weight:800;color:#fff;line-height:1.08;}
+  .bc p{color:#e8edf7;margin:10px 0 18px;font-size:1.05rem;}
+  .bdots{position:absolute;z-index:3;bottom:18px;right:22px;display:flex;gap:7px;}
+  .bdot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.5);cursor:pointer;}
+  .bdot.on{background:#fff;}
+  .side-banners{display:grid;grid-template-rows:1fr 1fr;gap:18px;}
+  .mini{position:relative;border-radius:18px;overflow:hidden;min-height:160px;display:flex;align-items:flex-end;background:linear-gradient(135deg,var(--a),var(--p));}
+  .mini .ov{position:absolute;inset:0;z-index:1;background:linear-gradient(0deg,rgba(0,0,0,.55),transparent);}
+  .mc{position:relative;z-index:2;padding:18px;color:#fff;}
+  .mc h3{color:#fff;font-size:1.1rem;margin-bottom:4px;}
+  /* categories */
+  .cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;}
+  .cat{display:flex;align-items:center;gap:12px;padding:15px;border:1px solid var(--line);border-radius:14px;background:#fff;transition:.2s;}
+  .cat:hover{border-color:var(--p);transform:translateY(-3px);box-shadow:0 16px 32px -20px rgba(0,0,0,.35);}
+  .cat .ce{font-size:1.7rem;}
+  .cat b{font-size:.95rem;}.cat span{font-size:.76rem;color:var(--mut);}
+  /* products */
+  .prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:20px;}
+  .prod{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:.2s;}
+  .prod:hover{transform:translateY(-5px);box-shadow:0 24px 46px -26px rgba(0,0,0,.35);border-color:var(--p);}
+  .prod-img{position:relative;height:165px;background:linear-gradient(135deg,var(--p),var(--a));overflow:hidden;}
+  .prod-badge{position:absolute;top:10px;left:10px;z-index:2;background:var(--p);color:#fff;font-size:.64rem;font-weight:800;padding:4px 10px;border-radius:999px;text-transform:uppercase;letter-spacing:.4px;}
+  .prod-b{padding:15px;display:flex;flex-direction:column;flex:1;}
+  .prod-cat{font-size:.68rem;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;}
+  .prod-name{font-weight:700;margin:3px 0 8px;font-family:'Plus Jakarta Sans';}
+  .prod-price{font-weight:800;font-size:1.3rem;color:var(--p);}
+  .prod-price s{color:var(--mut);font-size:.82rem;font-weight:500;margin-left:6px;}
+  .prod .btn{margin-top:12px;justify-content:center;}
+  /* stripe stats */
+  .stripe{background:var(--ink);color:#fff;}
+  .sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;text-align:center;padding:30px 22px;}
+  .sv{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:800;color:var(--a);}
+  .sl{color:#94a3b8;font-size:.85rem;}
+  /* promo */
+  .promo{position:relative;border-radius:22px;overflow:hidden;color:#fff;background:linear-gradient(120deg,var(--p),var(--a));padding:52px 40px;text-align:center;}
+  .promo .cover{opacity:.32;}
+  .promo .pc{position:relative;z-index:2;}
+  .promo h2{color:#fff;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:800;}
+  .promo p{opacity:.95;margin:10px 0 20px;}
+  .promo .btn{background:#fff;color:var(--p);}
+  /* contact + newsletter */
+  .news{background:var(--ink);color:#fff;border-radius:20px;padding:40px;text-align:center;}
+  .news h2{color:#fff;font-size:1.6rem;font-weight:800;}
+  .news form{max-width:440px;margin:16px auto 0;display:flex;gap:8px;}
+  .news input{flex:1;border:none;border-radius:10px;padding:13px 16px;font:inherit;}
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .info{display:grid;gap:12px;align-content:start;}
+  .info .row{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;}
+  .info .ic{width:40px;height:40px;border-radius:10px;background:var(--p);color:#fff;display:grid;place-items:center;}
+  footer{background:#0b1020;color:#9aa6bd;padding:40px 0 26px;margin-top:10px;font-size:.9rem;}
+  .foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px;padding-bottom:22px;border-bottom:1px solid rgba(255,255,255,.08);}
+  .foot .c{color:#fff;font-weight:800;font-size:1.15rem;display:flex;gap:9px;align-items:center;}
+  .foot-bottom{padding-top:18px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.83rem;}
+  .foot-bottom a{color:var(--a);font-weight:700;}
+  @media(max-width:820px){.shop-hero{grid-template-columns:1fr;}.side-banners{grid-template-rows:none;grid-template-columns:1fr 1fr;}.sgrid{grid-template-columns:repeat(2,1fr);gap:24px 14px;}.nav-links{display:none;}.contact-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+  <div class="demo-bar">✨ Demo store — built by <a href="https://www.cdesigns.uk" target="_blank" rel="noopener">C Design</a>. Want one like this? <a href="https://www.cdesigns.uk/programari.html" target="_blank" rel="noopener">Get yours →</a></div>
+  <div class="topbar"><div class="wrap"><span>🚚 ${e(d.shipNote || 'Nationwide delivery available')}</span><span>📞 ${e(d.phone || 'Call us today')}</span></div></div>
+  <header>
+    <div class="wrap nav">
+      <div class="logo"><span class="d">${emoji}</span>${name}</div>
+      <nav class="nav-links"><a href="#shop">Shop</a><a href="#categories">Categories</a><a href="#about">About</a><a href="#contact">Contact</a></nav>
+      <div class="nav-right">
+        <span class="cart" title="Cart">🛒<b>0</b></span>
+        <a href="#contact" class="btn">Enquire</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap shop-hero">
+    <div class="banner"><div class="slides">${slides}</div>${dots}</div>
+    <div class="side-banners">${miniHtml}</div>
+  </div>
+
+  ${categories.length ? `<section id="categories"><div class="wrap"><div class="sec-head"><h2>Shop by category</h2><a href="#shop">View all →</a></div><div class="cats">${catsHtml}</div></div></section>` : ''}
+
+  ${products.length ? `<section id="shop"><div class="wrap"><div class="sec-head"><h2>${e(d.productsTitle || 'Featured stock')}</h2><a href="#contact">Enquire about any item →</a></div><div class="prod-grid">${prodHtml}</div></div></section>` : ''}
+
+  ${statsHtml}
+
+  ${promo ? `<section><div class="wrap"><div class="promo">${cover(kw, 5)}<div class="pc"><h2>${e(promo.title || '')}</h2><p>${e(promo.subtitle || '')}</p><a href="#contact" class="btn">${e(promo.cta || 'Get in touch')} →</a></div></div></div></section>` : ''}
+
+  ${d.about ? `<section id="about"><div class="wrap" style="max-width:820px;text-align:center;"><h2 style="font-size:clamp(1.5rem,2.6vw,2rem);font-weight:800;margin-bottom:12px;">About ${name}</h2><p style="color:var(--mut);font-size:1.05rem;">${e(d.about)}</p></div></section>` : ''}
+
+  <section id="contact"><div class="wrap">
+    <div class="sec-head"><h2>${e(d.ctaHeadline || 'Visit us or get in touch')}</h2></div>
+    <div class="contact-grid">
+      <div class="info">
+        ${d.phone ? `<div class="row"><span class="ic">📞</span><span>${e(d.phone)}</span></div>` : ''}
+        ${d.email ? `<div class="row"><span class="ic">✉</span><span>${e(d.email)}</span></div>` : ''}
+        ${d.address ? `<div class="row"><span class="ic">📍</span><span>${e(d.address)}</span></div>` : ''}
+        <div class="row"><span class="ic">🕒</span><span>Mon–Sat · 9:00–18:00</span></div>
+      </div>
+      <div class="news">
+        <h2>Get our latest offers</h2>
+        <p style="opacity:.9;margin-top:8px;">Join our newsletter for new arrivals and deals.</p>
+        <form onsubmit="event.preventDefault();this.reset();alert('Thanks! This is a demo — on a live site you would be subscribed.');"><input type="email" placeholder="Your email" required><button class="btn" type="submit">Subscribe</button></form>
+      </div>
+    </div>
+  </div></section>
+
+  <footer><div class="wrap">
+    <div class="foot">
+      <div><div class="c"><span>${emoji}</span>${name}</div><p style="margin-top:8px;max-width:40ch;">${e(d.tagline || 'Quality you can trust.')}</p></div>
+      <div style="display:flex;gap:44px;flex-wrap:wrap;">
+        <div><div style="color:#fff;font-weight:700;margin-bottom:8px;">Shop</div><a href="#categories" style="display:block;margin-bottom:5px;">Categories</a><a href="#shop" style="display:block;">Featured</a></div>
+        <div><div style="color:#fff;font-weight:700;margin-bottom:8px;">Contact</div>${d.phone ? `<div style="margin-bottom:5px;">${e(d.phone)}</div>` : ''}${d.email ? `<div style="margin-bottom:5px;">${e(d.email)}</div>` : ''}${d.address ? `<div>${e(d.address)}</div>` : ''}</div>
+      </div>
+    </div>
+    <div class="foot-bottom"><span>© ${new Date().getFullYear()} ${name}. All rights reserved.</span><span>Demo store · Built by <a href="https://www.cdesigns.uk">C Design</a></span></div>
+  </div></footer>
+
+  <script>
+    (function(){
+      var slides=document.querySelectorAll('.slide'),dots=document.querySelectorAll('.bdot'),i=0;
+      function go(n){slides.forEach(function(s,k){s.classList.toggle('on',k===n);});dots.forEach(function(dt,k){dt.classList.toggle('on',k===n);});i=n;}
+      dots.forEach(function(dt){dt.addEventListener('click',function(){go(+dt.dataset.i);});});
+      if(slides.length>1)setInterval(function(){go((i+1)%slides.length);},4500);
+    })();
+  </script>
+</body>
+</html>`;
+}
+
 // ── Custom uploaded demos: content types + minimal ZIP reader ──
 function ctypeFor(name) {
   const ext = (String(name).split('.').pop() || '').toLowerCase();
@@ -1360,7 +1578,7 @@ export default {
           const imgRaw = await env.PROGRAMARI.get('__demo_img__' + demo.id);
           if (imgRaw) data.images = JSON.parse(imgRaw);
         } catch {}
-        return new Response(buildDemoSite(data), {
+        return new Response(data.layout === 'shop' ? buildShopSite(data) : buildDemoSite(data), {
           headers: { ...SEC_HEADERS, 'Content-Type': 'text/html;charset=utf-8', 'Cache-Control': 'public,max-age=120' }
         });
       } catch {
@@ -1678,7 +1896,7 @@ export default {
           emoji: x.emoji || (x.data && x.data.emoji) || '🌐',
           tagline: x.tagline || (x.data && x.data.tagline) || '',
           variant: (x.data && x.data.variant) || 'modern', createdAt: x.createdAt,
-          kind: x.kind || 'ai',
+          kind: x.kind || 'ai', layout: (x.data && x.data.layout) || 'landing',
           galleryCount: Math.min((x.data && Array.isArray(x.data.services) ? x.data.services.length : 3) || 3, 6),
         })));
       } catch { return json([]); }
@@ -1696,6 +1914,7 @@ export default {
         const heroType = ['split', 'centered', 'image'].includes(body.heroType) ? body.heroType : 'split';
         const userPrompt = String(body.prompt || '').trim().slice(0, 400);
         const versions = Math.min(Math.max(parseInt(body.versions) || 1, 1), 4);
+        const wantLayout = body.layout === 'shop' ? 'shop' : 'landing';
         if (!industry) return json({ error: 'Industry is required' }, 400, request);
         if (!env.AI) return json({ error: 'AI binding unavailable — check wrangler.toml' }, 500, request);
 
@@ -1703,7 +1922,37 @@ export default {
         const nameLine = wantName ? `\nThe business is called "${wantName}" — use this exact name.` : '';
         const detailsLine = details ? `\nIncorporate these real details where relevant (e.g. phone, city, services): ${details}.` : '';
         const promptLine = userPrompt ? `\nExtra instructions from the user (follow them): ${userPrompt}.` : '';
-        const prompt = `You are a web copywriter and brand designer. ${wantName ? `Write the content for a one-page demo website for "${wantName}", a business in the "${industry}" industry (UK market).` : `Invent a realistic small business in the "${industry}" industry (UK market) and write the content for a one-page demo website for it.`}${toneLine}${nameLine}${detailsLine}${promptLine}
+        const intro = `You are a web copywriter and brand designer. ${wantName ? `Write the content for "${wantName}", a business in the "${industry}" industry (UK market).` : `Invent a realistic ${wantLayout === 'shop' ? 'shop / dealership' : 'small business'} in the "${industry}" industry (UK market).`}${toneLine}${nameLine}${detailsLine}${promptLine}`;
+
+        const prompt = wantLayout === 'shop' ? `${intro}
+
+This is an ONLINE SHOP / CATALOGUE website (e.g. a car dealership, auto parts shop, or similar with many items). Return ONLY a valid JSON object, no text before or after, with exactly this structure:
+{
+  "businessName": "an invented but realistic store name",
+  "industry": "${industry}",
+  "emoji": "one emoji representing the store",
+  "tagline": "short store tagline, 1 sentence",
+  "shipNote": "a short delivery/shipping note (e.g. 'Nationwide delivery & finance available')",
+  "colorPrimary": "a hex colour fitting the brand",
+  "colorAccent": "a complementary hex accent colour",
+  "imageKeywords": "2-4 comma-separated English keywords for product photos, e.g. 'used cars, car dealership'",
+  "banners": [ { "title": "promo banner headline", "subtitle": "1 short sentence", "cta": "button text" } ],
+  "categories": [ { "name": "category name", "emoji": "an emoji", "count": 24 } ],
+  "products": [ { "name": "item / model name", "category": "its category", "price": "£12,995", "oldPrice": "£14,500", "badge": "New" } ],
+  "promo": { "title": "a special-offer headline", "subtitle": "1 sentence", "cta": "button text" },
+  "stats": [ { "value": "500+", "label": "In stock" }, { "value": "15", "label": "Years" }, { "value": "4.9", "label": "Rating" }, { "value": "4.8k", "label": "Customers" } ],
+  "about": "2-3 sentences about the store",
+  "ctaHeadline": "contact section headline",
+  "phone": "a plausible UK phone number",
+  "email": "a plausible contact email",
+  "address": "a plausible UK city / street"
+}
+
+Requirements:
+- Language: ENGLISH
+- Exactly 3 banners, 4-6 categories, 8-12 products
+- Prices must be realistic for the industry (cars: thousands like "£12,995"; parts/accessories: tens/hundreds like "£89.99"). "oldPrice" and "badge" are optional per product.
+- Realistic, not generic filler. No text outside the JSON object` : `${intro}
 
 Return ONLY a valid JSON object, no text before or after, with exactly this structure:
 {
@@ -1753,6 +2002,7 @@ Requirements:
         parsed.industry = parsed.industry || industry;
         if (wantName) parsed.businessName = wantName;
         parsed.heroType = heroType;
+        parsed.layout = wantLayout;
 
         // Visual variant: explicit choice wins, else map from tone, else random.
         const ALL_VARIANTS = ['modern', 'dark', 'minimal', 'elegant', 'gradient', 'corporate', 'bold'];

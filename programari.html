@@ -900,7 +900,14 @@
       <div id="demoGenPanel" style="display:none;background:var(--bg3);border:1px solid #8b5cf6;border-radius:12px;padding:20px 22px;margin-bottom:24px;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
           <span style="font-family:'Share Tech Mono',monospace;font-size:.8rem;color:#a78bfa;">// generate_demo_site</span>
-          <span style="font-size:.75rem;color:var(--muted);">— AI builds a full single-page demo with real photos; the tone picks the design style (modern / dark / minimal / elegant)</span>
+          <span style="font-size:.75rem;color:var(--muted);">— AI builds a demo with real photos. Choose a one-page site or an online shop / catalogue layout.</span>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label class="f-label" style="margin-bottom:5px;display:block;">// layout</label>
+          <select class="f-input" id="demoGenLayout" style="margin-bottom:0;max-width:340px;">
+            <option value="landing">Landing page (one-page site)</option>
+            <option value="shop">Online shop / catalogue (multi-banner + products)</option>
+          </select>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
           <div>
@@ -2846,10 +2853,11 @@
     if (!allDemos.length) { wrap.innerHTML = '<div class="gib-empty">No demo sites yet.</div>'; return; }
     wrap.innerHTML = allDemos.map(d => {
       const custom = d.kind === 'html' || d.kind === 'zip';
-      const label = custom ? `<span style="color:var(--teal);">custom ${esc(d.kind)}</span>` : `<span style="color:#a78bfa;">${esc(d.variant || 'modern')}</span>`;
+      const isShop = d.layout === 'shop';
+      const label = custom ? `<span style="color:var(--teal);">custom ${esc(d.kind)}</span>` : (isShop ? `<span style="color:#22b07d;">🛒 shop</span>` : `<span style="color:#a78bfa;">${esc(d.variant || 'modern')}</span>`);
       const aiBtns = custom ? '' : `
-        <button class="btn-del" onclick="openDemoPhotos('${esc(d.id)}', ${d.galleryCount || 3})" title="Upload your own photos">🖼 Photos</button>
-        <button class="btn-del" onclick="restyleDemo('${esc(d.id)}')" title="New random design & colours, same text">🎨 Restyle</button>`;
+        ${isShop ? '' : `<button class="btn-del" onclick="openDemoPhotos('${esc(d.id)}', ${d.galleryCount || 3})" title="Upload your own photos">🖼 Photos</button>`}
+        <button class="btn-del" onclick="restyleDemo('${esc(d.id)}')" title="New random colours">🎨 Restyle</button>`;
       return `
       <div style="display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:12px 14px;margin-bottom:8px;flex-wrap:wrap;">
         <span style="font-size:1.5rem;">${esc(d.emoji || '🌐')}</span>
@@ -2997,6 +3005,7 @@
     const heroType = document.getElementById('demoGenHero').value;
     const prompt = document.getElementById('demoGenPrompt').value.trim();
     const versions = parseInt(document.getElementById('demoGenVersions').value) || 1;
+    const layout = document.getElementById('demoGenLayout').value;
     const status = document.getElementById('demoGenStatus');
     const btn = document.getElementById('demoGenGo');
     if (!industry) { alert('Enter an industry first.'); return; }
@@ -3006,7 +3015,7 @@
     try {
       const res = await fetch('/api/demo/generate?token=' + encodeURIComponent(adminToken), {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ industry, tone, businessName, details, variant, heroType, prompt, versions }),
+        body: JSON.stringify({ industry, tone, businessName, details, variant, heroType, prompt, versions, layout }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.success) {
