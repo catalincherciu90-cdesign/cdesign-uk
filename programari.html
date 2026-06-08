@@ -855,10 +855,21 @@
           <span style="font-family:'Share Tech Mono',monospace;font-size:.8rem;color:var(--teal);">// generate_portfolio_examples</span>
           <span style="font-size:.75rem;color:var(--muted);">— AI creates realistic website examples for the industries you choose</span>
         </div>
-        <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:14px;">
+        <div style="display:grid;grid-template-columns:2fr 1.2fr 1fr;gap:12px;margin-bottom:14px;">
           <div>
             <label class="f-label" style="margin-bottom:5px;display:block;">// industries (optional, comma-separated)</label>
             <input class="f-input" type="text" id="projGenIndustries" placeholder="e.g. restaurant, dental clinic, gym, real estate..." style="margin-bottom:0;">
+          </div>
+          <div>
+            <label class="f-label" style="margin-bottom:5px;display:block;">// tone / style</label>
+            <select class="f-input" id="projGenTone" style="margin-bottom:0;">
+              <option value="">— default —</option>
+              <option value="premium, high-end, luxury">Premium / high-end</option>
+              <option value="budget-friendly, affordable, value for money">Budget-friendly</option>
+              <option value="corporate, professional, formal">Corporate</option>
+              <option value="modern, minimalist, clean">Modern / minimalist</option>
+              <option value="bold, playful, creative">Bold / playful</option>
+            </select>
           </div>
           <div>
             <label class="f-label" style="margin-bottom:5px;display:block;">// how many</label>
@@ -2403,6 +2414,7 @@
   async function runProjGen() {
     const industries = document.getElementById('projGenIndustries').value.split(',').map(s => s.trim()).filter(Boolean);
     const count = parseInt(document.getElementById('projGenCount').value) || 4;
+    const tone = document.getElementById('projGenTone').value;
     const status = document.getElementById('projGenStatus');
     const btn = document.getElementById('projGenGo');
     status.style.display = 'inline'; status.style.color = 'var(--muted)';
@@ -2411,7 +2423,7 @@
     try {
       const res = await fetch('/api/project/generate?token=' + encodeURIComponent(adminToken), {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ industries, count }),
+        body: JSON.stringify({ industries, count, tone }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.success) {

@@ -896,13 +896,15 @@ export default {
         const body = await request.json().catch(() => ({}));
         const industries = Array.isArray(body.industries) ? body.industries.map(s => String(s).trim()).filter(Boolean).slice(0, 12) : [];
         const count = Math.min(Math.max(parseInt(body.count) || 4, 1), 8);
+        const tone = String(body.tone || '').trim().slice(0, 80);
         if (!env.AI) return json({ error: 'AI binding unavailable — check wrangler.toml' }, 500, request);
 
         const industryLine = industries.length
           ? `Use exactly these industries, one example each: ${industries.join(', ')}.`
           : `Pick ${count} varied industries relevant to small businesses (e.g. restaurant, hair salon, car service, florist, construction, dental clinic, gym, real estate, law firm, e-commerce).`;
+        const toneLine = tone ? `\nTone / style for all examples: ${tone}.` : '';
 
-        const prompt = `You are a copywriter for the web design agency "C Design". Generate ${count} realistic portfolio project examples (websites delivered for clients), each for a different industry. ${industryLine}
+        const prompt = `You are a copywriter for the web design agency "C Design". Generate ${count} realistic portfolio project examples (websites delivered for clients), each for a different industry. ${industryLine}${toneLine}
 
 Return ONLY a valid JSON array, with no text before or after, using exactly this structure:
 [
