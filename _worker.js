@@ -812,20 +812,20 @@ function buildDemoSite(d) {
   const bannerOvl = (heroMode === 'none') ? '' : `<div class="hb-ovl">${wantIcon ? `<span class="hb-ic">${emoji}</span>` : ''}${wantTitle ? `<span class="hb-cap">${e(d.heroTitle || name)}</span>` : ''}</div>`;
   const heroSection =
     heroType === 'image' ? `
-  <section class="hero hero-image">
+  <section class="hero hero-image ${im.hero ? 'hero-auto' : ''}">
     <div class="hero-imgbg">${cover(imgKw, 1, im.hero)}</div>
     ${heroImageInner}
   </section>` :
     heroType === 'centered' ? `
   <section class="hero hero-centered">
     <div class="wrap hero-inner">${hBadge}${hTitle}${hSub}${hCta}${hTrust}</div>
-    <div class="wrap"><div class="hero-banner">${cover(imgKw, 1, im.hero)}${bannerOvl}</div></div>
+    <div class="wrap"><div class="hero-banner ${im.hero ? 'banner-auto' : ''}">${cover(imgKw, 1, im.hero)}${bannerOvl}</div></div>
   </section>` : `
   <section class="hero">
     <div class="wrap hero-grid">
       <div>${hBadge}${hTitle}${hSub}${hCta}${hTrust}</div>
       <div class="hero-visual">
-        <div class="hero-card"><div class="hero-blob">${cover(imgKw, 1, im.hero)}${wantIcon ? emoji : ''}${wantTitle ? `<span class="hb-cap">${e(d.heroTitle || name)}</span>` : ''}</div></div>
+        <div class="hero-card"><div class="hero-blob ${im.hero ? 'blob-auto' : ''}">${cover(imgKw, 1, im.hero)}${wantIcon ? emoji : ''}${wantTitle ? `<span class="hb-cap">${e(d.heroTitle || name)}</span>` : ''}</div></div>
         <div class="float a"><span class="ic">✓</span> Trusted &amp; reliable</div>
         <div class="float b"><span class="ic">★</span> ${e((stats[2] && stats[2].value) || '4.9')} rating</div>
       </div>
@@ -994,6 +994,16 @@ function buildDemoSite(d) {
   .hero-image .hero-trust{color:#cbd5e1;}
   .hero-image .btn.ghost{color:#fff;border-color:rgba(255,255,255,.5);}
   .hero-image .btn.ghost:hover{background:rgba(255,255,255,.12);border-color:#fff;color:#fff;}
+  /* Uploaded hero/banner shown in full (height follows the image, never cropped) */
+  .hero-image.hero-auto{padding:0;min-height:0;}
+  .hero-image.hero-auto .hero-imgbg{position:relative;inset:auto;}
+  .hero-image.hero-auto .hero-imgbg .cover{position:relative;height:auto;object-fit:contain;}
+  .hero-image.hero-auto .hero-ovl{display:none;}
+  .hero-image.hero-auto .hero-inner{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0;text-shadow:0 2px 14px rgba(0,0,0,.7);}
+  .hero-banner.banner-auto{aspect-ratio:auto;}
+  .hero-banner.banner-auto .cover{position:relative;height:auto;object-fit:contain;}
+  .hero-blob.blob-auto{aspect-ratio:auto;}
+  .hero-blob.blob-auto .cover{position:relative;height:auto;object-fit:contain;}
   /* stats */
   .stats-band{background:var(--ink);color:#fff;padding:48px 0;}
   .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center;}
@@ -1203,7 +1213,7 @@ function buildDemoSite(d) {
 
   <header>
     <div class="wrap nav">
-      <div class="logo">${im.logo ? `<img src="${String(im.logo).replace(/"/g, '&quot;')}" alt="${name}" style="height:38px;width:auto;display:block;">` : `<span class="d">${emoji}</span>${name}`}</div>
+      <div class="logo">${im.logo ? `<img src="${String(im.logo).replace(/"/g, '&quot;')}" alt="${name}" style="height:54px;width:auto;max-width:230px;display:block;">` : `<span class="d">${emoji}</span>${name}`}</div>
       <nav class="nav-links">
         <a href="#services">Services</a>
         <a href="#about">About</a>
@@ -1263,7 +1273,7 @@ function buildShopSite(d) {
   const img = (k, w, h, sig) => `https://loremflickr.com/${w}/${h}/${encodeURIComponent(String(k).trim())}?lock=${sig}`;
   const fb = (w, h, sig) => `https://picsum.photos/seed/p${sig}/${w}/${h}`;
   const im = (d.images && typeof d.images === 'object') ? d.images : {};
-  const imgTag = src => `<img class="cover" src="${String(src).replace(/"/g, '&quot;')}" alt="" loading="lazy" onerror="this.remove()">`;
+  const imgTag = src => `<img class="cover up" src="${String(src).replace(/"/g, '&quot;')}" alt="" loading="lazy" onerror="this.remove()">`;
   const cover = (k, sig) => `<img class="cover" src="${img(k, 800, 600, sig)}" alt="" loading="lazy" onerror="this.onerror=null;this.src='${fb(800, 600, sig)}'">`;
   const cover2 = (custom, k, sig) => custom ? imgTag(custom) : cover(k, sig);
 
@@ -1359,6 +1369,8 @@ function buildShopSite(d) {
   .slide.on{display:flex;animation:fade .6s;}
   @keyframes fade{from{opacity:.3}to{opacity:1}}
   .cover{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
+  /* Uploaded banner: show the whole image (brand gradient fills any gap) */
+  .banner .cover.up{object-fit:contain;}
   .banner .ov{position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(8,11,20,.78),rgba(8,11,20,.12));}
   .bc{position:relative;z-index:2;padding:38px;max-width:82%;color:#fff;}
   .bc h2{font-size:clamp(1.7rem,3.2vw,2.7rem);font-weight:800;color:#fff;line-height:1.08;}
@@ -1370,6 +1382,7 @@ function buildShopSite(d) {
   .bdot.on{background:#fff;}
   .side-banners{display:grid;grid-template-rows:1fr 1fr;gap:18px;}
   .mini{position:relative;border-radius:18px;overflow:hidden;min-height:160px;display:flex;align-items:flex-end;background:linear-gradient(135deg,var(--a),var(--p));}
+  .mini .cover.up{object-fit:contain;}
   .mini .ov{position:absolute;inset:0;z-index:1;background:linear-gradient(0deg,rgba(0,0,0,.55),transparent);}
   .mc{position:relative;z-index:2;padding:18px;color:#fff;}
   .mc h3{color:#fff;font-size:1.1rem;margin-bottom:4px;}
@@ -1443,7 +1456,7 @@ function buildShopSite(d) {
   <div class="topbar"><div class="wrap"><span>🚚 ${e(d.shipNote || 'Nationwide delivery available')}</span><span>📞 ${e(d.phone || 'Call us today')}</span></div></div>
   <header>
     <div class="wrap nav">
-      <div class="logo">${im.logo ? `<img src="${String(im.logo).replace(/"/g, '&quot;')}" alt="${name}" style="height:38px;width:auto;display:block;">` : `<span class="d">${emoji}</span>${name}`}</div>
+      <div class="logo">${im.logo ? `<img src="${String(im.logo).replace(/"/g, '&quot;')}" alt="${name}" style="height:54px;width:auto;max-width:230px;display:block;">` : `<span class="d">${emoji}</span>${name}`}</div>
       <nav class="nav-links"><a href="#shop">Shop</a><a href="#categories">Categories</a><a href="#about">About</a><a href="#contact">Contact</a></nav>
       <div class="nav-right">
         <span class="cart" title="Cart">🛒<b>0</b></span>
@@ -1635,7 +1648,7 @@ function buildBlogSite(d) {
   const im = (d.images && typeof d.images === 'object') ? d.images : {};
   const img = (k, w, h, sig) => `https://loremflickr.com/${w}/${h}/${encodeURIComponent(String(k).trim())}?lock=${sig}`;
   const fb = (w, h, sig) => `https://picsum.photos/seed/p${sig}/${w}/${h}`;
-  const imgTag = (src, cls) => `<img class="${cls}" src="${String(src).replace(/"/g, '&quot;')}" alt="" loading="lazy" onerror="this.remove()">`;
+  const imgTag = (src, cls) => `<img class="${cls} up" src="${String(src).replace(/"/g, '&quot;')}" alt="" loading="lazy" onerror="this.remove()">`;
   const cover = (custom, k, sig, cls) => custom ? imgTag(custom, cls) : `<img class="${cls}" src="${img(k, 800, 600, sig)}" alt="" loading="lazy" onerror="this.onerror=null;this.src='${fb(800, 600, sig)}'">`;
 
   let articles = (Array.isArray(d.articles) ? d.articles : []).filter(a => a && a.title).slice(0, 9);
@@ -1698,6 +1711,9 @@ function buildBlogSite(d) {
   .img-ic{font-size:2.6rem;filter:drop-shadow(0 4px 12px rgba(0,0,0,.5));}
   .img-cap{font-family:'Fraunces',serif;font-weight:700;font-size:1.2rem;text-shadow:0 2px 12px rgba(0,0,0,.55);}
   .feat-img .cover{width:100%;height:100%;object-fit:cover;}
+  /* Uploaded featured image: show the whole image */
+  .feat-img{background:linear-gradient(135deg,var(--p),var(--a));}
+  .feat-img .cover.up{object-fit:contain;}
   .feat .lab{color:var(--a);font-weight:700;font-size:.78rem;letter-spacing:.6px;text-transform:uppercase;}
   .feat h1{font-size:clamp(2rem,4vw,3.1rem);line-height:1.05;font-weight:900;margin:12px 0 14px;letter-spacing:-1px;}
   .feat p{color:#4b5563;font-size:1.1rem;}
@@ -1742,7 +1758,7 @@ function buildBlogSite(d) {
   <header>
     <div class="wrap">
       <div class="mast">
-        <div class="logo">${im.logo ? `<img src="${String(im.logo).replace(/"/g, '&quot;')}" alt="${name}" style="height:40px;width:auto;display:block;">` : `<span>${emoji}</span>${name}`}</div>
+        <div class="logo">${im.logo ? `<img src="${String(im.logo).replace(/"/g, '&quot;')}" alt="${name}" style="height:58px;width:auto;max-width:240px;display:block;">` : `<span>${emoji}</span>${name}`}</div>
         <nav class="nav-links"><a href="#articles">Latest</a><a href="#articles">Categories</a><a href="#about">About</a><a href="#contact">Contact</a></nav>
         <a href="#contact" class="btn">Subscribe</a>
         <button class="ham" id="ham" aria-label="Menu" onclick="document.getElementById('mnav').classList.toggle('open')">☰</button>
@@ -1940,7 +1956,7 @@ function buildMultiPageSite(d, baseSlug, pageSlug) {
 <body>
   <div class="demo-bar">✨ Demo website — built by <a href="https://www.cdesigns.uk" target="_blank" rel="noopener">C Design</a>. Want one like this? <a href="https://www.cdesigns.uk/programari.html" target="_blank" rel="noopener">Get yours →</a></div>
   <header><div class="wrap nav">
-    <a href="/demo/${baseSlug}" class="logo">${im.logo ? `<img src="${String(im.logo).replace(/"/g, '&quot;')}" alt="${name}" style="height:34px;width:auto;display:block;">` : `<span class="d">${emoji}</span>${name}`}</a>
+    <a href="/demo/${baseSlug}" class="logo">${im.logo ? `<img src="${String(im.logo).replace(/"/g, '&quot;')}" alt="${name}" style="height:48px;width:auto;max-width:220px;display:block;">` : `<span class="d">${emoji}</span>${name}`}</a>
     <nav class="links">${navHtml}</nav>
     <a href="${href(isContact ? cur : (pages.find(p => /contact/i.test(p.name)) || cur))}" class="btn" style="margin-left:10px;">${e(d.ctaText || 'Contact')}</a>
     <button class="ham" id="ham" aria-label="Menu" onclick="document.getElementById('mnav').classList.toggle('open')">☰</button>
