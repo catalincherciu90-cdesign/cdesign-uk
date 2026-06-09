@@ -734,6 +734,8 @@ function buildDemoSite(d) {
   // Reliable fallback photo (picsum always returns a real image) if the keyword stock service fails.
   const fb = (w, h, sig) => `https://picsum.photos/seed/p${sig}/${w}/${h}`;
   const im = (d.images && typeof d.images === 'object') ? d.images : {};
+  const _bAR = String(im.bannerRatio || '').match(/^(\d{1,5})[x:](\d{1,5})$/);
+  const bARcss = _bAR ? `${_bAR[1]} / ${_bAR[2]}` : '';
   const imgTag = src => `<img class="cover" src="${String(src).replace(/"/g, '&quot;')}" alt="" loading="lazy" onerror="this.remove()">`;
   // Uploaded photo wins; otherwise a keyword stock photo, with a guaranteed photo fallback.
   const cover = (kw, sig, custom) => custom ? imgTag(custom) : `<img class="cover" src="${img(kw, 800, 600, sig)}" alt="" loading="lazy" onerror="this.onerror=null;this.src='${fb(800, 600, sig)}'">`;
@@ -812,20 +814,20 @@ function buildDemoSite(d) {
   const bannerOvl = (heroMode === 'none') ? '' : `<div class="hb-ovl">${wantIcon ? `<span class="hb-ic">${emoji}</span>` : ''}${wantTitle ? `<span class="hb-cap">${e(d.heroTitle || name)}</span>` : ''}</div>`;
   const heroSection =
     heroType === 'image' ? `
-  <section class="hero hero-image ${im.hero ? 'hero-auto' : ''}">
+  <section class="hero hero-image ${im.hero && !bARcss ? 'hero-auto' : ''}"${bARcss ? ` style="aspect-ratio:${bARcss};min-height:0;padding:0;"` : ''}>
     <div class="hero-imgbg">${cover(imgKw, 1, im.hero)}</div>
     ${heroImageInner}
   </section>` :
     heroType === 'centered' ? `
   <section class="hero hero-centered">
     <div class="wrap hero-inner">${hBadge}${hTitle}${hSub}${hCta}${hTrust}</div>
-    <div class="wrap"><div class="hero-banner ${im.hero ? 'banner-auto' : ''}">${cover(imgKw, 1, im.hero)}${bannerOvl}</div></div>
+    <div class="wrap"><div class="hero-banner ${im.hero && !bARcss ? 'banner-auto' : ''}"${bARcss ? ` style="aspect-ratio:${bARcss};"` : ''}>${cover(imgKw, 1, im.hero)}${bannerOvl}</div></div>
   </section>` : `
   <section class="hero">
     <div class="wrap hero-grid">
       <div>${hBadge}${hTitle}${hSub}${hCta}${hTrust}</div>
       <div class="hero-visual">
-        <div class="hero-card"><div class="hero-blob ${im.hero ? 'blob-auto' : ''}">${cover(imgKw, 1, im.hero)}${wantIcon ? emoji : ''}${wantTitle ? `<span class="hb-cap">${e(d.heroTitle || name)}</span>` : ''}</div></div>
+        <div class="hero-card"><div class="hero-blob ${im.hero && !bARcss ? 'blob-auto' : ''}"${bARcss ? ` style="aspect-ratio:${bARcss};"` : ''}>${cover(imgKw, 1, im.hero)}${wantIcon ? emoji : ''}${wantTitle ? `<span class="hb-cap">${e(d.heroTitle || name)}</span>` : ''}</div></div>
         <div class="float a"><span class="ic">✓</span> Trusted &amp; reliable</div>
         <div class="float b"><span class="ic">★</span> ${e((stats[2] && stats[2].value) || '4.9')} rating</div>
       </div>
@@ -1274,7 +1276,9 @@ function buildShopSite(d) {
   const img = (k, w, h, sig) => `https://loremflickr.com/${w}/${h}/${encodeURIComponent(String(k).trim())}?lock=${sig}`;
   const fb = (w, h, sig) => `https://picsum.photos/seed/p${sig}/${w}/${h}`;
   const im = (d.images && typeof d.images === 'object') ? d.images : {};
-  const imgTag = src => `<img class="cover up" src="${String(src).replace(/"/g, '&quot;')}" alt="" loading="lazy" onerror="this.remove()">`;
+  const _bAR = String(im.bannerRatio || '').match(/^(\d{1,5})[x:](\d{1,5})$/);
+  const bARcss = _bAR ? `${_bAR[1]} / ${_bAR[2]}` : '';
+  const imgTag = src => `<img class="cover${bARcss ? '' : ' up'}" src="${String(src).replace(/"/g, '&quot;')}" alt="" loading="lazy" onerror="this.remove()">`;
   const cover = (k, sig) => `<img class="cover" src="${img(k, 800, 600, sig)}" alt="" loading="lazy" onerror="this.onerror=null;this.src='${fb(800, 600, sig)}'">`;
   const cover2 = (custom, k, sig) => custom ? imgTag(custom) : cover(k, sig);
 
@@ -1305,7 +1309,7 @@ function buildShopSite(d) {
 
   const mini = [{ b: banners[1], idx: 1 }, { b: banners[2], idx: 2 }].filter(x => x.b);
   const miniHtml = (mini.length ? mini : categories.slice(0, 2).map((c, i) => ({ b: { title: c.name, cta: 'View' }, idx: i }))).slice(0, 2).map(({ b, idx }) => `
-        <div class="mini">${cover2(im.banners && im.banners[idx], kw + ', ' + (b.title || kw), 30 + idx)}${bannerOverlay(b, idx, false)}</div>`).join('');
+        <div class="mini"${bARcss ? ` style="aspect-ratio:${bARcss};min-height:0;"` : ''}>${cover2(im.banners && im.banners[idx], kw + ', ' + (b.title || kw), 30 + idx)}${bannerOverlay(b, idx, false)}</div>`).join('');
 
   const catsHtml = categories.map((c, i) => `
         <a href="#shop" class="cat"><span class="ce">${e(c.emoji || '🏷️')}</span><div><b>${e(c.name || '')}</b><span>${e(c.count ? c.count + ' listings' : 'Browse')}</span></div></a>`).join('');
@@ -1469,7 +1473,7 @@ function buildShopSite(d) {
   </header>
 
   <div class="wrap shop-hero">
-    <div class="banner"><div class="slides">${slides}</div>${dots}</div>
+    <div class="banner"${bARcss ? ` style="aspect-ratio:${bARcss};min-height:0;"` : ''}><div class="slides">${slides}</div>${dots}</div>
     <div class="side-banners">${miniHtml}</div>
   </div>
 
@@ -1647,9 +1651,11 @@ function buildBlogSite(d) {
   const emoji = e(d.emoji || '📰');
   const kw = String(d.imageKeywords || d.industry || 'magazine').toLowerCase().replace(/[^a-z0-9, ]/g, '').slice(0, 60) || 'magazine';
   const im = (d.images && typeof d.images === 'object') ? d.images : {};
+  const _bAR = String(im.bannerRatio || '').match(/^(\d{1,5})[x:](\d{1,5})$/);
+  const bARcss = _bAR ? `${_bAR[1]} / ${_bAR[2]}` : '';
   const img = (k, w, h, sig) => `https://loremflickr.com/${w}/${h}/${encodeURIComponent(String(k).trim())}?lock=${sig}`;
   const fb = (w, h, sig) => `https://picsum.photos/seed/p${sig}/${w}/${h}`;
-  const imgTag = (src, cls) => `<img class="${cls} up" src="${String(src).replace(/"/g, '&quot;')}" alt="" loading="lazy" onerror="this.remove()">`;
+  const imgTag = (src, cls) => `<img class="${cls}${bARcss ? '' : ' up'}" src="${String(src).replace(/"/g, '&quot;')}" alt="" loading="lazy" onerror="this.remove()">`;
   const cover = (custom, k, sig, cls) => custom ? imgTag(custom, cls) : `<img class="${cls}" src="${img(k, 800, 600, sig)}" alt="" loading="lazy" onerror="this.onerror=null;this.src='${fb(800, 600, sig)}'">`;
 
   let articles = (Array.isArray(d.articles) ? d.articles : []).filter(a => a && a.title).slice(0, 9);
@@ -1776,7 +1782,7 @@ function buildBlogSite(d) {
       <p>${e(feat.excerpt || d.tagline || '')}</p>
       <div class="meta">By ${e(feat.author || 'Editor')} · ${e(feat.date || 'Today')}${feat.readTime ? ' · ' + e(feat.readTime) : ''}</div>
     </div>
-    <div class="feat-img">${cover(im.articles && im.articles[0], kw + ', ' + (feat.category || feat.title || kw), 10, 'cover')}${imgOvl(aMode(0), emoji, feat.title || '')}</div>
+    <div class="feat-img"${bARcss ? ` style="aspect-ratio:${bARcss};"` : ''}>${cover(im.articles && im.articles[0], kw + ', ' + (feat.category || feat.title || kw), 10, 'cover')}${imgOvl(aMode(0), emoji, feat.title || '')}</div>
   </div></section>
 
   ${rest.length ? `<section id="articles"><div class="wrap"><div class="sec-title">${e(d.latestTitle || 'Latest stories')}</div><div class="posts">${restHtml}</div></div></section>` : ''}
@@ -1812,6 +1818,8 @@ function buildMultiPageSite(d, baseSlug, pageSlug) {
   const kw = String(d.imageKeywords || d.industry || 'business').toLowerCase().replace(/[^a-z0-9, ]/g, '').slice(0, 60) || 'business';
   const cover = (k, sig, r) => `<img src="https://loremflickr.com/${800}/${600}/${encodeURIComponent(String(k).trim())}?lock=${sig}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;${r ? 'border-radius:' + r + ';' : ''}" onerror="this.onerror=null;this.src='https://picsum.photos/seed/p${sig}/800/600'">`;
   const im = (d.images && typeof d.images === 'object') ? d.images : {};
+  const _bAR = String(im.bannerRatio || '').match(/^(\d{1,5})[x:](\d{1,5})$/);
+  const bARcss = _bAR ? `${_bAR[1]} / ${_bAR[2]}` : '';
   const imgTag = src => `<img src="${String(src).replace(/"/g, '&quot;')}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">`;
   const secImg = (gi, k, sig) => (im.sections && im.sections[gi]) ? imgTag(im.sections[gi]) : cover(k, sig);
   const secOvl = (gi, heading) => { const m = (Array.isArray(im.sectionModes) ? im.sectionModes[gi] : null); if (!['title', 'icon', 'both'].includes(m)) return ''; return `<div class="img-ovl">${(m === 'icon' || m === 'both') ? `<span class="img-ic">${emoji}</span>` : ''}${(m === 'title' || m === 'both') ? `<span class="img-cap">${e(heading)}</span>` : ''}</div>`; };
@@ -1963,8 +1971,8 @@ function buildMultiPageSite(d, baseSlug, pageSlug) {
     <button class="ham" id="ham" aria-label="Menu" onclick="document.getElementById('mnav').classList.toggle('open')">☰</button>
   </div><div class="mnav" id="mnav">${navHtml}</div></header>
 
-  <section class="phero ${isHome ? 'home' : ''} ${(im.pageHeroes && im.pageHeroes[curIndex]) ? 'phero-auto' : ''}">
-    <div class="phero-bg">${(im.pageHeroes && im.pageHeroes[curIndex]) ? `<img src="${String(im.pageHeroes[curIndex]).replace(/"/g, '&quot;')}" alt="" style="width:100%;height:auto;display:block;" onerror="this.style.display='none'">` : cover(kw + ', ' + (cur.name || kw), 50 + (curIndex < 0 ? 0 : curIndex))}</div>
+  <section class="phero ${isHome ? 'home' : ''} ${(im.pageHeroes && im.pageHeroes[curIndex] && !bARcss) ? 'phero-auto' : ''}"${bARcss ? ` style="aspect-ratio:${bARcss};min-height:0;padding:0;"` : ''}>
+    <div class="phero-bg">${(im.pageHeroes && im.pageHeroes[curIndex]) ? `<img src="${String(im.pageHeroes[curIndex]).replace(/"/g, '&quot;')}" alt="" style="width:100%;height:${bARcss ? '100%' : 'auto'};${bARcss ? 'object-fit:cover;' : ''}display:block;" onerror="this.style.display='none'">` : cover(kw + ', ' + (cur.name || kw), 50 + (curIndex < 0 ? 0 : curIndex))}</div>
     <div class="wrap phero-inner">${(() => {
       const m = (Array.isArray(im.pageHeroModes) ? im.pageHeroModes[curIndex] : null);
       const phm = ['title', 'icon', 'both', 'none'].includes(m) ? m : 'title';
@@ -2802,8 +2810,10 @@ Return ONLY the full updated JSON object — same keys and structure as the inpu
         const id = path.replace('/api/demo/', '').replace('/images', '');
         const body = await request.json().catch(() => ({}));
         const ok = v => typeof v === 'string' && (v.startsWith('data:image/') || v.startsWith('https://') || v === '');
+        const ratio = (() => { const r = String(body.bannerRatio || '').replace(/\s/g, '').replace(/×/g, 'x').toLowerCase(); return /^\d{1,5}[x:]\d{1,5}$/.test(r) ? r : ''; })();
         const images = {
           logo: ok(body.logo) ? body.logo : '',
+          bannerRatio: ratio,
           hero: ok(body.hero) ? body.hero : '',
           about: ok(body.about) ? body.about : '',
           gallery: Array.isArray(body.gallery) ? body.gallery.slice(0, 6).map(v => ok(v) ? v : '') : [],
