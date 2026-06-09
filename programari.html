@@ -482,99 +482,63 @@
             <div class="speech-bubble" id="gib-bubble">Hello! 👋</div>
             <svg viewBox="0 0 120 120" width="115" height="115" class="clippy-body">
               <defs>
-                <linearGradient id="gFur" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#3c3c42"/>
-                  <stop offset="45%" stop-color="#1d1d22"/>
-                  <stop offset="100%" stop-color="#0a0a0c"/>
+                <linearGradient id="gHat" x1="0.2" y1="0" x2="0.7" y2="1">
+                  <stop offset="0%" stop-color="#b98e57"/>
+                  <stop offset="45%" stop-color="#8c6438"/>
+                  <stop offset="100%" stop-color="#5f3f22"/>
                 </linearGradient>
-                <radialGradient id="gFurHi" cx="40%" cy="20%" r="62%">
-                  <stop offset="0%" stop-color="rgba(140,140,155,0.40)"/>
-                  <stop offset="60%" stop-color="transparent"/>
+                <radialGradient id="gHatHi" cx="36%" cy="30%" r="60%">
+                  <stop offset="0%" stop-color="rgba(247,224,176,0.40)"/>
+                  <stop offset="62%" stop-color="transparent"/>
                 </radialGradient>
-                <linearGradient id="gPlume" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#ff6a6a"/>
-                  <stop offset="100%" stop-color="#b91c1c"/>
-                </linearGradient>
-                <linearGradient id="gGold" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#f6e6a8"/>
-                  <stop offset="100%" stop-color="#c79b3a"/>
-                </linearGradient>
-                <linearGradient id="gSkin" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#f4cda6"/>
-                  <stop offset="100%" stop-color="#dca77f"/>
-                </linearGradient>
-                <linearGradient id="gRed" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#e01b32"/>
-                  <stop offset="100%" stop-color="#a30d22"/>
-                </linearGradient>
+                <radialGradient id="gGlint" cx="50%" cy="42%" r="55%">
+                  <stop offset="0%" stop-color="#ffe9a8"/>
+                  <stop offset="100%" stop-color="#c9912f"/>
+                </radialGradient>
                 <filter id="fDrop" x="-20%" y="-20%" width="140%" height="150%">
                   <feDropShadow dx="1" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.5"/>
                 </filter>
               </defs>
 
-              <!-- Gulerul tunicii (roșu) -->
-              <path d="M30 100 Q60 113 90 100 L98 120 L22 120 Z" fill="url(#gRed)" filter="url(#fDrop)"/>
-              <path d="M52 104 L60 116 L68 104" fill="#fff" opacity="0.92"/>
-              <circle cx="46" cy="113" r="1.8" fill="url(#gGold)"/>
-              <circle cx="74" cy="113" r="1.8" fill="url(#gGold)"/>
+              <!-- Borul flasc -->
+              <path d="M10 95 C26 85 40 88 60 88 C80 88 96 85 112 95 C96 105 80 107 60 107 C40 107 24 105 10 95 Z" fill="url(#gHat)" filter="url(#fDrop)"/>
+              <path d="M14 95 C30 99 90 99 108 95" stroke="#4a3018" stroke-width="1" fill="none" opacity="0.5"/>
 
-              <!-- Urechi -->
-              <ellipse cx="36" cy="76" rx="5" ry="7" fill="url(#gSkin)" stroke="#c98f63" stroke-width="0.8"/>
-              <ellipse cx="84" cy="76" rx="5" ry="7" fill="url(#gSkin)" stroke="#c98f63" stroke-width="0.8"/>
+              <!-- Corpul pălăriei (vechi, îndoit) -->
+              <path d="M33 95 C26 74 30 52 42 40 C51 31 62 23 71 22 C64 34 64 45 70 55 C75 64 79 80 81 95 Z" fill="url(#gHat)" filter="url(#fDrop)"/>
+              <path d="M33 95 C26 74 30 52 42 40 C51 31 62 23 71 22 C64 34 64 45 70 55 C75 64 79 80 81 95 Z" fill="url(#gHatHi)"/>
+              <!-- Vârf îndoit -->
+              <path d="M71 22 C82 21 85 31 77 37 C72 33 69 28 71 22 Z" fill="#6e4a28"/>
 
-              <!-- Față (cap) -->
-              <path d="M60 44 C41 44 37 58 38 74 C39 92 49 105 60 105 C71 105 81 92 82 74 C83 58 79 44 60 44 Z" fill="url(#gSkin)" filter="url(#fDrop)"/>
-              <!-- Obraji -->
-              <circle cx="46" cy="84" r="5" fill="#e2706e" opacity="0.38"/>
-              <circle cx="74" cy="84" r="5" fill="#e2706e" opacity="0.38"/>
-
-              <!-- Curelușă sub bărbie -->
-              <path d="M41 55 Q39 82 54 97" stroke="#15151a" stroke-width="2.4" fill="none" opacity="0.85"/>
-              <path d="M79 55 Q81 82 66 97" stroke="#15151a" stroke-width="2.4" fill="none" opacity="0.85"/>
-              <path d="M46 96 Q60 104 74 96" stroke="url(#gGold)" stroke-width="2.2" fill="none" stroke-dasharray="2.2 2" stroke-linecap="round"/>
-
-              <!-- Sprâncene -->
-              <path d="M44 63 Q49 60 54 62" stroke="#5b3b22" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-              <path d="M66 62 Q71 60 76 63" stroke="#5b3b22" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-
-              <!-- Ochi -->
-              <ellipse cx="50" cy="69" rx="6" ry="5.4" fill="#f7f7f8" stroke="#d8c0aa" stroke-width="0.8"/>
-              <circle class="pupil-left" cx="51" cy="69" r="3.3" fill="#17171b"/>
-              <circle cx="52.1" cy="67.6" r="1.2" fill="rgba(255,255,255,0.9)"/>
-              <ellipse cx="70" cy="69" rx="6" ry="5.4" fill="#f7f7f8" stroke="#d8c0aa" stroke-width="0.8"/>
-              <circle class="pupil-right" cx="71" cy="69" r="3.3" fill="#17171b"/>
-              <circle cx="72.1" cy="67.6" r="1.2" fill="rgba(255,255,255,0.9)"/>
-
-              <!-- Nas -->
-              <path d="M60 71 L56.5 81 Q60 83.5 63.5 81 Z" fill="#dca87f" stroke="#c98f63" stroke-width="0.6"/>
-
-              <!-- Gură (severă, ca o gardă) -->
-              <path d="M53 90 Q60 92.5 67 90" stroke="#9c4733" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-
-              <!-- Plume (panaș) -->
-              <g filter="url(#fDrop)">
-                <path d="M30 26 C22 14 24 4 29 1 C31 8 35 7 36 13 C40 9 42 13 40 18 C44 17 45 22 41 25 C37 29 33 28 30 26 Z" fill="url(#gPlume)"/>
-                <path d="M30 24 C26 16 27 9 30 5" stroke="#ffd0d0" stroke-width="0.8" fill="none" opacity="0.6"/>
+              <!-- Cute / pliuri -->
+              <g fill="none" stroke-linecap="round">
+                <path d="M44 44 C47 58 44 74 50 92" stroke="#4a3018" stroke-width="1.5" opacity="0.5"/>
+                <path d="M58 32 C58 48 56 66 62 92" stroke="#4a3018" stroke-width="1.5" opacity="0.5"/>
+                <path d="M68 42 C72 56 73 74 76 92" stroke="#4a3018" stroke-width="1.3" opacity="0.45"/>
+                <path d="M40 56 C44 68 45 80 48 92" stroke="#caa472" stroke-width="0.8" opacity="0.5"/>
+                <path d="M62 38 C64 52 63 70 67 90" stroke="#caa472" stroke-width="0.7" opacity="0.45"/>
+              </g>
+              <!-- Petic + cusături -->
+              <g stroke="#4a3018" stroke-width="0.9" opacity="0.55" stroke-linecap="round">
+                <path d="M52 47 l8 -1"/><path d="M53 45 l1 4"/><path d="M56 45 l0 4"/><path d="M59 45 l-1 4"/>
               </g>
 
-              <!-- Căciula de gardă (bearskin) pe cap -->
-              <path d="M26 56 C20 24 27 4 60 3 C93 4 100 24 94 56 C82 50 71 49 60 49 C49 49 38 50 26 56 Z" fill="url(#gFur)" filter="url(#fDrop)"/>
-              <path d="M26 56 C20 24 27 4 60 3 C93 4 100 24 94 56 C82 50 71 49 60 49 C49 49 38 50 26 56 Z" fill="url(#gFurHi)"/>
+              <!-- Sprâncene-cută -->
+              <path d="M38 57 C44 50 52 52 56 59 C50 58 44 58 39 62 Z" fill="#5e3f22"/>
+              <path d="M64 59 C68 51 76 52 82 60 C77 57 70 57 65 62 Z" fill="#5e3f22"/>
 
-              <!-- Textură blană -->
-              <g stroke-linecap="round" fill="none">
-                <path d="M60 4 q-3 6 -1 12" stroke="#000" stroke-width="1.4" opacity="0.45"/>
-                <path d="M48 6 q-3 6 -2 12" stroke="#000" stroke-width="1.3" opacity="0.4"/>
-                <path d="M72 6 q3 6 2 12" stroke="#000" stroke-width="1.3" opacity="0.4"/>
-                <path d="M37 12 q-3 7 -2 13" stroke="#000" stroke-width="1.2" opacity="0.4"/>
-                <path d="M83 12 q3 7 2 13" stroke="#000" stroke-width="1.2" opacity="0.4"/>
-                <path d="M30 30 q-2 8 0 16" stroke="#000" stroke-width="1.1" opacity="0.38"/>
-                <path d="M90 30 q2 8 0 16" stroke="#000" stroke-width="1.1" opacity="0.38"/>
-                <path d="M55 9 q-2 6 -1 11" stroke="#52525c" stroke-width="0.7" opacity="0.5"/>
-                <path d="M66 9 q2 6 1 11" stroke="#52525c" stroke-width="0.7" opacity="0.5"/>
-                <path d="M43 16 q-2 7 -1 12" stroke="#52525c" stroke-width="0.6" opacity="0.45"/>
-                <path d="M78 16 q2 7 1 12" stroke="#52525c" stroke-width="0.6" opacity="0.45"/>
-              </g>
+              <!-- Ochi (adânci, cu sclipire) -->
+              <ellipse cx="48" cy="64" rx="5.4" ry="3.8" fill="#23150a"/>
+              <circle class="pupil-left" cx="48.6" cy="64" r="2.5" fill="url(#gGlint)"/>
+              <circle cx="49.4" cy="63" r="0.9" fill="#fff6df"/>
+              <ellipse cx="71" cy="65" rx="5.4" ry="3.8" fill="#23150a"/>
+              <circle class="pupil-right" cx="71.6" cy="65" r="2.5" fill="url(#gGlint)"/>
+              <circle cx="72.4" cy="64" r="0.9" fill="#fff6df"/>
+
+              <!-- Gură-cută (jobenul vorbitor) -->
+              <path d="M36 79 C47 88 73 88 84 77 C80 86 72 91 60 91 C48 91 40 86 36 79 Z" fill="#22150a"/>
+              <path d="M42 81 C52 86 70 85 79 80" stroke="#0f0905" stroke-width="0.8" fill="none" opacity="0.7"/>
+              <path d="M40 80 C50 83 72 83 80 79" stroke="#caa472" stroke-width="0.7" fill="none" opacity="0.4"/>
             </svg>
           </div>
 
