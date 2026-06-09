@@ -2633,7 +2633,7 @@
 
   async function addAdmin() {
     const u = document.getElementById('newAdminUser').value.trim();
-    const p = document.getElementById('newAdminPass').value;
+    const p = document.getElementById('newAdminPass').value.trim();
     const perms = [...document.querySelectorAll('#newAdminPerms .newperm:checked')].map(i => i.value);
     if (!u || !p) { alert('Enter a username and password.'); return; }
     if (!perms.length) { alert('Select at least one permission.'); return; }
@@ -2675,8 +2675,9 @@
   }
 
   async function resetAdminPassword(username) {
-    const p = prompt('New password for "' + username + '" (min 8 characters):');
-    if (p === null) return;
+    const pRaw = prompt('New password for "' + username + '" (min 8 characters):');
+    if (pRaw === null) return;
+    const p = pRaw.trim();
     if (p.length < 8) { alert('Password must be at least 8 characters.'); return; }
     try {
       const res = await fetch('/api/admins/' + encodeURIComponent(username) + '/password?token=' + encodeURIComponent(adminToken), {
