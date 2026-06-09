@@ -1880,6 +1880,11 @@ function buildMultiPageSite(d, baseSlug, pageSlug) {
   .phero-bg{position:absolute;inset:0;z-index:0;background:linear-gradient(135deg,var(--p),var(--a));}
   .phero-bg img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;}
   .phero-inner{position:relative;z-index:2;text-align:center;max-width:780px;margin:0 auto;}
+  /* Uploaded hero: show the whole banner (height follows the image), text overlaid */
+  .phero-auto{min-height:0;padding:0;display:block;}
+  .phero-auto .phero-bg{position:relative;inset:auto;line-height:0;}
+  .phero-auto .phero-bg img{height:auto;object-fit:contain;}
+  .phero-auto .phero-inner{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0;padding:24px;}
   .phero-emoji{display:block;font-size:4rem;filter:drop-shadow(0 6px 18px rgba(0,0,0,.5));}
   .eyebrow{display:inline-block;font-size:.74rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--p);background:${primary}14;padding:7px 15px;border-radius:999px;margin-bottom:18px;}
   .phero .eyebrow{color:#fff;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);}
@@ -1918,8 +1923,13 @@ function buildMultiPageSite(d, baseSlug, pageSlug) {
     .wrap{padding:0 14px;}
     .phero{min-height:260px;padding:40px 0;}
     .phero.home{min-height:340px;}
+    .phero-auto{min-height:0;padding:0;}
     .phero h1{font-size:clamp(1.7rem,6vw,2.4rem);}
     .phero p{font-size:.96rem;}
+    .phero-auto .phero-inner{padding:14px;}
+    .phero-auto h1{font-size:clamp(1.1rem,5vw,1.7rem);}
+    .phero-auto p{font-size:.82rem;margin:8px auto 12px;}
+    .phero-auto [style*="padding:32px 40px"]{padding:14px 16px!important;}
     section{padding:44px 0;}
     .split .sgrid{gap:28px;}
     .simg{min-height:200px;}
@@ -1936,8 +1946,8 @@ function buildMultiPageSite(d, baseSlug, pageSlug) {
     <button class="ham" id="ham" aria-label="Menu" onclick="document.getElementById('mnav').classList.toggle('open')">☰</button>
   </div><div class="mnav" id="mnav">${navHtml}</div></header>
 
-  <section class="phero ${isHome ? 'home' : ''}">
-    <div class="phero-bg">${(im.pageHeroes && im.pageHeroes[curIndex]) ? imgTag(im.pageHeroes[curIndex]) : cover(kw + ', ' + (cur.name || kw), 50 + (curIndex < 0 ? 0 : curIndex))}</div>
+  <section class="phero ${isHome ? 'home' : ''} ${(im.pageHeroes && im.pageHeroes[curIndex]) ? 'phero-auto' : ''}">
+    <div class="phero-bg">${(im.pageHeroes && im.pageHeroes[curIndex]) ? `<img src="${String(im.pageHeroes[curIndex]).replace(/"/g, '&quot;')}" alt="" style="width:100%;height:auto;display:block;" onerror="this.style.display='none'">` : cover(kw + ', ' + (cur.name || kw), 50 + (curIndex < 0 ? 0 : curIndex))}</div>
     <div class="wrap phero-inner">${(() => {
       const m = (Array.isArray(im.pageHeroModes) ? im.pageHeroModes[curIndex] : null);
       const phm = ['title', 'icon', 'both', 'none'].includes(m) ? m : 'title';
