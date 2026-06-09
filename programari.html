@@ -2965,7 +2965,7 @@
     document.getElementById('demoPhotosId').value = id;
     demoPhotoLayout = layout || 'landing';
     demoPhotoGalleryCount = galleryCount || 3; demoPhotoBannerCount = bannerCount || 0; demoPhotoProductCount = productCount || 0; demoPhotoArticleCount = articleCount || 0; demoPhotoSectionCount = sectionCount || 0; demoPhotoPageCount = pageCount || 0;
-    demoPhotoData = { hero: '', about: '', gallery: [], banners: [], products: [], articles: [], sections: [], pageHeroes: [], bannerModes: [], galleryModes: [], productModes: [], articleModes: [], sectionModes: [], pageHeroModes: [], heroMode: '', aboutMode: '' };
+    demoPhotoData = { logo: '', hero: '', about: '', gallery: [], banners: [], products: [], articles: [], sections: [], pageHeroes: [], bannerModes: [], galleryModes: [], productModes: [], articleModes: [], sectionModes: [], pageHeroModes: [], heroMode: '', aboutMode: '' };
     demoPhotoMeta = { gallery: [], banners: [], products: [], articles: [], sections: [], pages: [], heroType: 'split' };
     document.getElementById('demoPhotosSlots').innerHTML = '<div class="gib-empty">Loading...</div>';
     document.getElementById('demoPhotosOverlay').classList.add('open');
@@ -2973,7 +2973,7 @@
       const res = await fetch('/api/demo/' + encodeURIComponent(id) + '/images?token=' + encodeURIComponent(adminToken));
       const data = await res.json().catch(() => ({}));
       const A = k => Array.isArray(data[k]) ? data[k] : [];
-      demoPhotoData = { hero: data.hero || '', about: data.about || '', gallery: A('gallery'), banners: A('banners'), products: A('products'), articles: A('articles'), sections: A('sections'), pageHeroes: A('pageHeroes'), bannerModes: A('bannerModes'), galleryModes: A('galleryModes'), productModes: A('productModes'), articleModes: A('articleModes'), sectionModes: A('sectionModes'), pageHeroModes: A('pageHeroModes'), heroMode: data.heroMode || '', aboutMode: data.aboutMode || '' };
+      demoPhotoData = { logo: data.logo || '', hero: data.hero || '', about: data.about || '', gallery: A('gallery'), banners: A('banners'), products: A('products'), articles: A('articles'), sections: A('sections'), pageHeroes: A('pageHeroes'), bannerModes: A('bannerModes'), galleryModes: A('galleryModes'), productModes: A('productModes'), articleModes: A('articleModes'), sectionModes: A('sectionModes'), pageHeroModes: A('pageHeroModes'), heroMode: data.heroMode || '', aboutMode: data.aboutMode || '' };
       if (data.meta) demoPhotoMeta = { gallery: data.meta.gallery || [], banners: data.meta.banners || [], products: data.meta.products || [], articles: data.meta.articles || [], sections: data.meta.sections || [], pages: data.meta.pages || [], heroType: data.meta.heroType || 'split' };
     } catch {}
     renderDemoPhotoSlots();
@@ -3044,6 +3044,8 @@
   function renderDemoPhotoSlots() {
     const m = demoPhotoMeta;
     let html = '';
+    html += photoSectionHeader('Logo (replaces the name + icon in the header)');
+    html += demoSlotHtml('logo', 'Logo', 'Site logo', 'Wide · 240×80px · transparent PNG');
     if (demoPhotoLayout === 'shop') {
       if (demoPhotoBannerCount) {
         html += photoSectionHeader('Home banners (carousel)');
@@ -3053,12 +3055,11 @@
         html += photoSectionHeader('Products (catalogue grid)');
         for (let i = 0; i < demoPhotoProductCount; i++) html += demoSlotHtml('products:' + i, 'Product', (m.products[i] || 'Product ' + (i + 1)), 'Landscape · 800×600px (4:3)', overlayChecks('product', i));
       }
-      if (!demoPhotoBannerCount && !demoPhotoProductCount) html = '<div class="gib-empty">No image slots for this demo.</div>';
     } else if (demoPhotoLayout === 'blog') {
       if (demoPhotoArticleCount) {
         html += photoSectionHeader('Articles');
         for (let i = 0; i < demoPhotoArticleCount; i++) html += demoSlotHtml('articles:' + i, (i === 0 ? 'Featured story' : 'Article'), (m.articles[i] || 'Article ' + (i + 1)), 'Landscape · 1200×750px (16:10)', overlayChecks('article', i));
-      } else html = '<div class="gib-empty">No image slots for this demo.</div>';
+      }
     } else if (demoPhotoLayout === 'multipage') {
       if (demoPhotoPageCount) {
         html += photoSectionHeader('Page hero banners');
@@ -3068,7 +3069,6 @@
         html += photoSectionHeader('Section images (across all pages)');
         for (let i = 0; i < demoPhotoSectionCount; i++) html += demoSlotHtml('sections:' + i, 'Section', (m.sections[i] || 'Section ' + (i + 1)), 'Landscape · 800×600px (4:3)', overlayChecks('section', i));
       }
-      if (!demoPhotoPageCount && !demoPhotoSectionCount) html = '<div class="gib-empty">No image slots for this demo.</div>';
     } else {
       html += photoSectionHeader('Hero & about');
       const heroImg = demoPhotoMeta.heroType === 'image';
@@ -3084,7 +3084,8 @@
 
   async function onDemoPhotoPick(ref, input) {
     if (!input.files[0]) return;
-    const dataUrl = await compressDemoImage(input.files[0]);
+    // Logo keeps transparency (PNG); other photos are compressed to JPEG.
+    const dataUrl = ref === 'logo' ? await compressDemoLogo(input.files[0]) : await compressDemoImage(input.files[0]);
     setDemoPhotoRef(ref, dataUrl);
     renderDemoPhotoSlots();
   }
@@ -3122,6 +3123,25 @@
           const c = document.createElement('canvas'); c.width = w; c.height = h;
           c.getContext('2d').drawImage(img, 0, 0, w, h);
           resolve(c.toDataURL('image/jpeg', 0.82));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function compressDemoLogo(file) {
+    return new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          const MAX = 600; let w = img.width, h = img.height;
+          if (w > h && w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+          else if (h >= w && h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
+          const c = document.createElement('canvas'); c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(c.toDataURL('image/png')); // keep transparency
         };
         img.src = e.target.result;
       };

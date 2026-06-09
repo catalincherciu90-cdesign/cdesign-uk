@@ -1203,7 +1203,7 @@ function buildDemoSite(d) {
 
   <header>
     <div class="wrap nav">
-      <div class="logo"><span class="d">${emoji}</span>${name}</div>
+      <div class="logo">${im.logo ? `<img src="${String(im.logo).replace(/"/g, '&quot;')}" alt="${name}" style="height:38px;width:auto;display:block;">` : `<span class="d">${emoji}</span>${name}`}</div>
       <nav class="nav-links">
         <a href="#services">Services</a>
         <a href="#about">About</a>
@@ -1443,7 +1443,7 @@ function buildShopSite(d) {
   <div class="topbar"><div class="wrap"><span>🚚 ${e(d.shipNote || 'Nationwide delivery available')}</span><span>📞 ${e(d.phone || 'Call us today')}</span></div></div>
   <header>
     <div class="wrap nav">
-      <div class="logo"><span class="d">${emoji}</span>${name}</div>
+      <div class="logo">${im.logo ? `<img src="${String(im.logo).replace(/"/g, '&quot;')}" alt="${name}" style="height:38px;width:auto;display:block;">` : `<span class="d">${emoji}</span>${name}`}</div>
       <nav class="nav-links"><a href="#shop">Shop</a><a href="#categories">Categories</a><a href="#about">About</a><a href="#contact">Contact</a></nav>
       <div class="nav-right">
         <span class="cart" title="Cart">🛒<b>0</b></span>
@@ -1742,7 +1742,7 @@ function buildBlogSite(d) {
   <header>
     <div class="wrap">
       <div class="mast">
-        <div class="logo"><span>${emoji}</span>${name}</div>
+        <div class="logo">${im.logo ? `<img src="${String(im.logo).replace(/"/g, '&quot;')}" alt="${name}" style="height:40px;width:auto;display:block;">` : `<span>${emoji}</span>${name}`}</div>
         <nav class="nav-links"><a href="#articles">Latest</a><a href="#articles">Categories</a><a href="#about">About</a><a href="#contact">Contact</a></nav>
         <a href="#contact" class="btn">Subscribe</a>
         <button class="ham" id="ham" aria-label="Menu" onclick="document.getElementById('mnav').classList.toggle('open')">☰</button>
@@ -1930,7 +1930,7 @@ function buildMultiPageSite(d, baseSlug, pageSlug) {
 <body>
   <div class="demo-bar">✨ Demo website — built by <a href="https://www.cdesigns.uk" target="_blank" rel="noopener">C Design</a>. Want one like this? <a href="https://www.cdesigns.uk/programari.html" target="_blank" rel="noopener">Get yours →</a></div>
   <header><div class="wrap nav">
-    <a href="/demo/${baseSlug}" class="logo"><span class="d">${emoji}</span>${name}</a>
+    <a href="/demo/${baseSlug}" class="logo">${im.logo ? `<img src="${String(im.logo).replace(/"/g, '&quot;')}" alt="${name}" style="height:34px;width:auto;display:block;">` : `<span class="d">${emoji}</span>${name}`}</a>
     <nav class="links">${navHtml}</nav>
     <a href="${href(isContact ? cur : (pages.find(p => /contact/i.test(p.name)) || cur))}" class="btn" style="margin-left:10px;">${e(d.ctaText || 'Contact')}</a>
     <button class="ham" id="ham" aria-label="Menu" onclick="document.getElementById('mnav').classList.toggle('open')">☰</button>
@@ -2775,6 +2775,7 @@ Return ONLY the full updated JSON object — same keys and structure as the inpu
         const body = await request.json().catch(() => ({}));
         const ok = v => typeof v === 'string' && (v.startsWith('data:image/') || v.startsWith('https://') || v === '');
         const images = {
+          logo: ok(body.logo) ? body.logo : '',
           hero: ok(body.hero) ? body.hero : '',
           about: ok(body.about) ? body.about : '',
           gallery: Array.isArray(body.gallery) ? body.gallery.slice(0, 6).map(v => ok(v) ? v : '') : [],
