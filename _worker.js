@@ -795,12 +795,18 @@ function buildDemoSite(d) {
     <div class="faq-wrap">${faq.map(f => `<div class="faq-item reveal"><h3>${e(f.q || f.question || '')}</h3><p>${e(f.a || f.answer || '')}</p></div>`).join('')}</div>
   </div></section>` : '';
 
+  // What shows over a full-photo hero: 'title' (text), 'icon', 'both', 'none' (clean photo)
+  const heroMode = ['title', 'icon', 'both', 'none'].includes(im.heroMode) ? im.heroMode : 'title';
+  const heroImageInner = heroMode === 'none' ? '' :
+    `<div class="hero-ovl"></div>
+    <div class="wrap hero-inner">${heroMode === 'icon'
+      ? `<span style="font-size:5rem;display:block;">${emoji}</span>`
+      : `${heroMode === 'both' ? `<span style="font-size:3.4rem;display:block;margin-bottom:10px;">${emoji}</span>` : ''}${hBadge}${hTitle}${hSub}${hCta}${hTrust}`}</div>`;
   const heroSection =
     heroType === 'image' ? `
   <section class="hero hero-image">
     <div class="hero-imgbg">${cover(imgKw, 1, im.hero)}</div>
-    <div class="hero-ovl"></div>
-    <div class="wrap hero-inner">${hBadge}${hTitle}${hSub}${hCta}${hTrust}</div>
+    ${heroImageInner}
   </section>` :
     heroType === 'centered' ? `
   <section class="hero hero-centered">
@@ -2430,13 +2436,14 @@ Return ONLY the full updated JSON object — same keys and structure as the inpu
         const raw = await env.PROGRAMARI.get('__demo_img__' + id);
         const images = raw ? JSON.parse(raw) : { hero: '', about: '', gallery: [] };
         // Build labels (which section/item each slot belongs to) from the demo content.
-        let meta = { layout: 'landing', gallery: [], banners: [], products: [], articles: [] };
+        let meta = { layout: 'landing', heroType: 'split', gallery: [], banners: [], products: [], articles: [] };
         try {
           const dRaw = await env.PROGRAMARI.get('__demos__');
           const demos = dRaw ? JSON.parse(dRaw) : [];
           const demo = demos.find(x => x.id === id || x.slug === id);
           const dd = (demo && demo.data) || {};
           meta.layout = dd.layout || 'landing';
+          meta.heroType = dd.heroType || 'split';
           meta.gallery = (Array.isArray(dd.services) ? dd.services : []).slice(0, 6).map(s => (s && s.title) || 'Project');
           meta.banners = (Array.isArray(dd.banners) ? dd.banners : []).slice(0, 4).map(b => (b && b.title) || 'Banner');
           meta.products = (Array.isArray(dd.products) ? dd.products : []).slice(0, 12).map(p => (p && p.name) || 'Product');
@@ -2461,6 +2468,7 @@ Return ONLY the full updated JSON object — same keys and structure as the inpu
           products: Array.isArray(body.products) ? body.products.slice(0, 12).map(v => ok(v) ? v : '') : [],
           articles: Array.isArray(body.articles) ? body.articles.slice(0, 9).map(v => ok(v) ? v : '') : [],
           bannerModes: Array.isArray(body.bannerModes) ? body.bannerModes.slice(0, 4).map(v => ['title', 'icon', 'none', 'both'].includes(v) ? v : 'title') : [],
+          heroMode: ['title', 'icon', 'none', 'both'].includes(body.heroMode) ? body.heroMode : 'title',
         };
         const payload = JSON.stringify(images);
         if (payload.length > 14_000_000) return json({ error: 'Images too large. Please use fewer / smaller photos.' }, 413);
