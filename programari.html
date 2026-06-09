@@ -2984,6 +2984,11 @@
   }
 
   function setBannerMode(i, val) { if (!Array.isArray(demoPhotoData.bannerModes)) demoPhotoData.bannerModes = []; demoPhotoData.bannerModes[i] = val; }
+  function updateBannerMode(i) {
+    const t = document.getElementById('bnTitle' + i).checked;
+    const ic = document.getElementById('bnIcon' + i).checked;
+    setBannerMode(i, t && ic ? 'both' : t ? 'title' : ic ? 'icon' : 'none');
+  }
 
   function demoSlotHtml(ref, category, item, rec, extra) {
     const cur = getDemoPhotoRef(ref);
@@ -3012,12 +3017,13 @@
         html += photoSectionHeader('Home banners (carousel)');
         for (let i = 0; i < demoPhotoBannerCount; i++) {
           const mode = (demoPhotoData.bannerModes && demoPhotoData.bannerModes[i]) || 'title';
-          const sel = `<div style="margin-top:7px;display:flex;align-items:center;gap:6px;"><span style="font-size:.7rem;color:var(--muted);">On the photo:</span>
-            <select onchange="setBannerMode(${i}, this.value)" class="f-input" style="margin:0;max-width:150px;font-size:.74rem;padding:5px 8px;height:auto;">
-              <option value="title"${mode === 'title' ? ' selected' : ''}>Title text</option>
-              <option value="icon"${mode === 'icon' ? ' selected' : ''}>Icon only</option>
-              <option value="none"${mode === 'none' ? ' selected' : ''}>Nothing (clean photo)</option>
-            </select></div>`;
+          const tChk = (mode === 'title' || mode === 'both') ? ' checked' : '';
+          const iChk = (mode === 'icon' || mode === 'both') ? ' checked' : '';
+          const sel = `<div style="margin-top:7px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+            <span style="font-size:.7rem;color:var(--muted);">Show on the photo:</span>
+            <label style="display:flex;align-items:center;gap:5px;font-size:.78rem;cursor:pointer;"><input type="checkbox" id="bnTitle${i}" ${tChk} onchange="updateBannerMode(${i})"> Title</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:.78rem;cursor:pointer;"><input type="checkbox" id="bnIcon${i}" ${iChk} onchange="updateBannerMode(${i})"> Icon</label>
+          </div>`;
           html += demoSlotHtml('banners:' + i, 'Banner ' + (i + 1), (m.banners[i] || 'Banner ' + (i + 1)), 'Wide · 1200×500px', sel);
         }
       }

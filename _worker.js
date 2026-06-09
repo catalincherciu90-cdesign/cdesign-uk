@@ -1221,15 +1221,16 @@ function buildShopSite(d) {
   const promo = d.promo && (d.promo.title || d.promo.subtitle) ? d.promo : null;
   const stats = (Array.isArray(d.stats) ? d.stats : []).filter(s => s && (s.value || s.label)).slice(0, 4);
 
-  // Per-banner overlay mode: 'title' (text), 'icon' (icon only), 'none' (clean photo)
-  const bMode = i => { const m = Array.isArray(im.bannerModes) ? im.bannerModes[i] : null; return (m === 'icon' || m === 'none') ? m : 'title'; };
+  // Per-banner overlay mode: 'title' (text), 'icon' (icon only), 'both' (icon + text), 'none' (clean photo)
+  const bMode = i => { const m = Array.isArray(im.bannerModes) ? im.bannerModes[i] : null; return ['icon', 'none', 'both'].includes(m) ? m : 'title'; };
   const bannerOverlay = (b, i, big) => {
     const m = bMode(i);
     if (m === 'none') return '';
     if (m === 'icon') return `<div class="ov"></div><div class="banner-center"><span class="banner-ic">${e(b.icon || emoji)}</span></div>`;
+    const ic = m === 'both' ? `<span class="banner-ic" style="display:block;${big ? 'font-size:2.8rem;margin-bottom:8px;' : 'font-size:1.7rem;margin-bottom:4px;'}">${e(b.icon || emoji)}</span>` : '';
     return big
-      ? `<div class="ov"></div><div class="bc"><h2>${e(b.title || '')}</h2><p>${e(b.subtitle || '')}</p><a href="#shop" class="btn">${e(b.cta || 'Shop now')} →</a></div>`
-      : `<div class="ov"></div><div class="mc"><h3>${e(b.title || '')}</h3><a href="#shop" style="color:#fff;font-weight:700;font-size:.85rem;">${e(b.cta || 'View')} →</a></div>`;
+      ? `<div class="ov"></div><div class="bc">${ic}<h2>${e(b.title || '')}</h2><p>${e(b.subtitle || '')}</p><a href="#shop" class="btn">${e(b.cta || 'Shop now')} →</a></div>`
+      : `<div class="ov"></div><div class="mc">${ic}<h3>${e(b.title || '')}</h3><a href="#shop" style="color:#fff;font-weight:700;font-size:.85rem;">${e(b.cta || 'View')} →</a></div>`;
   };
 
   const slides = banners.map((b, i) => `
@@ -2459,7 +2460,7 @@ Return ONLY the full updated JSON object — same keys and structure as the inpu
           banners: Array.isArray(body.banners) ? body.banners.slice(0, 4).map(v => ok(v) ? v : '') : [],
           products: Array.isArray(body.products) ? body.products.slice(0, 12).map(v => ok(v) ? v : '') : [],
           articles: Array.isArray(body.articles) ? body.articles.slice(0, 9).map(v => ok(v) ? v : '') : [],
-          bannerModes: Array.isArray(body.bannerModes) ? body.bannerModes.slice(0, 4).map(v => ['title', 'icon', 'none'].includes(v) ? v : 'title') : [],
+          bannerModes: Array.isArray(body.bannerModes) ? body.bannerModes.slice(0, 4).map(v => ['title', 'icon', 'none', 'both'].includes(v) ? v : 'title') : [],
         };
         const payload = JSON.stringify(images);
         if (payload.length > 14_000_000) return json({ error: 'Images too large. Please use fewer / smaller photos.' }, 413);
