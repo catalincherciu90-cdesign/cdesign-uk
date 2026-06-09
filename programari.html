@@ -2914,7 +2914,7 @@
       const label = custom ? `<span style="color:var(--teal);">custom ${esc(d.kind)}</span>` : (layoutBadge ? `<span style="color:#22b07d;">${layoutBadge}</span> · <span style="color:#a78bfa;">${esc(d.variant || 'modern')}</span>` : `<span style="color:#a78bfa;">${esc(d.variant || 'modern')}</span>`);
       const aiBtns = custom ? '' : `
         <button class="btn-del" onclick="openDemoEdit('${esc(d.id)}','${esc((d.businessName || 'demo'))}')" title="Tell the AI what to change" style="border-color:#8b5cf6;color:#a78bfa;">✏️ Edit (AI)</button>
-        <button class="btn-del" onclick="openDemoPhotos('${esc(d.id)}','${esc(layout)}',${d.galleryCount || 3},${d.bannerCount || 0},${d.productCount || 0},${d.articleCount || 0},${d.sectionCount || 0})" title="Upload your own photos">🖼 Photos</button>
+        <button class="btn-del" onclick="openDemoPhotos('${esc(d.id)}','${esc(layout)}',${d.galleryCount || 3},${d.bannerCount || 0},${d.productCount || 0},${d.articleCount || 0},${d.sectionCount || 0},${d.pageCount || 0})" title="Upload your own photos">🖼 Photos</button>
         <button class="btn-del" onclick="restyleDemo('${esc(d.id)}')" title="New random colours">🎨 Restyle</button>`;
       return `
       <div style="display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:12px 14px;margin-bottom:8px;flex-wrap:wrap;">
@@ -2959,22 +2959,22 @@
   // ── Demo custom photos ───────────────────────────────────
   let demoPhotoData = { hero: '', about: '', gallery: [], banners: [], products: [], articles: [] };
   let demoPhotoMeta = { gallery: [], banners: [], products: [], articles: [] };
-  let demoPhotoLayout = 'landing', demoPhotoGalleryCount = 3, demoPhotoBannerCount = 0, demoPhotoProductCount = 0, demoPhotoArticleCount = 0, demoPhotoSectionCount = 0;
+  let demoPhotoLayout = 'landing', demoPhotoGalleryCount = 3, demoPhotoBannerCount = 0, demoPhotoProductCount = 0, demoPhotoArticleCount = 0, demoPhotoSectionCount = 0, demoPhotoPageCount = 0;
 
-  async function openDemoPhotos(id, layout, galleryCount, bannerCount, productCount, articleCount, sectionCount) {
+  async function openDemoPhotos(id, layout, galleryCount, bannerCount, productCount, articleCount, sectionCount, pageCount) {
     document.getElementById('demoPhotosId').value = id;
     demoPhotoLayout = layout || 'landing';
-    demoPhotoGalleryCount = galleryCount || 3; demoPhotoBannerCount = bannerCount || 0; demoPhotoProductCount = productCount || 0; demoPhotoArticleCount = articleCount || 0; demoPhotoSectionCount = sectionCount || 0;
-    demoPhotoData = { hero: '', about: '', gallery: [], banners: [], products: [], articles: [], sections: [], bannerModes: [], galleryModes: [], productModes: [], articleModes: [], sectionModes: [], heroMode: '', aboutMode: '' };
-    demoPhotoMeta = { gallery: [], banners: [], products: [], articles: [], sections: [], heroType: 'split' };
+    demoPhotoGalleryCount = galleryCount || 3; demoPhotoBannerCount = bannerCount || 0; demoPhotoProductCount = productCount || 0; demoPhotoArticleCount = articleCount || 0; demoPhotoSectionCount = sectionCount || 0; demoPhotoPageCount = pageCount || 0;
+    demoPhotoData = { hero: '', about: '', gallery: [], banners: [], products: [], articles: [], sections: [], pageHeroes: [], bannerModes: [], galleryModes: [], productModes: [], articleModes: [], sectionModes: [], pageHeroModes: [], heroMode: '', aboutMode: '' };
+    demoPhotoMeta = { gallery: [], banners: [], products: [], articles: [], sections: [], pages: [], heroType: 'split' };
     document.getElementById('demoPhotosSlots').innerHTML = '<div class="gib-empty">Loading...</div>';
     document.getElementById('demoPhotosOverlay').classList.add('open');
     try {
       const res = await fetch('/api/demo/' + encodeURIComponent(id) + '/images?token=' + encodeURIComponent(adminToken));
       const data = await res.json().catch(() => ({}));
       const A = k => Array.isArray(data[k]) ? data[k] : [];
-      demoPhotoData = { hero: data.hero || '', about: data.about || '', gallery: A('gallery'), banners: A('banners'), products: A('products'), articles: A('articles'), sections: A('sections'), bannerModes: A('bannerModes'), galleryModes: A('galleryModes'), productModes: A('productModes'), articleModes: A('articleModes'), sectionModes: A('sectionModes'), heroMode: data.heroMode || '', aboutMode: data.aboutMode || '' };
-      if (data.meta) demoPhotoMeta = { gallery: data.meta.gallery || [], banners: data.meta.banners || [], products: data.meta.products || [], articles: data.meta.articles || [], sections: data.meta.sections || [], heroType: data.meta.heroType || 'split' };
+      demoPhotoData = { hero: data.hero || '', about: data.about || '', gallery: A('gallery'), banners: A('banners'), products: A('products'), articles: A('articles'), sections: A('sections'), pageHeroes: A('pageHeroes'), bannerModes: A('bannerModes'), galleryModes: A('galleryModes'), productModes: A('productModes'), articleModes: A('articleModes'), sectionModes: A('sectionModes'), pageHeroModes: A('pageHeroModes'), heroMode: data.heroMode || '', aboutMode: data.aboutMode || '' };
+      if (data.meta) demoPhotoMeta = { gallery: data.meta.gallery || [], banners: data.meta.banners || [], products: data.meta.products || [], articles: data.meta.articles || [], sections: data.meta.sections || [], pages: data.meta.pages || [], heroType: data.meta.heroType || 'split' };
     } catch {}
     renderDemoPhotoSlots();
   }
@@ -2989,7 +2989,7 @@
   // Generic per-slot overlay (Title / Icon) for every image, in every layout.
   function overlayDefault(kind) {
     if (kind === 'hero') return demoPhotoMeta.heroType === 'image' ? 'title' : demoPhotoMeta.heroType === 'split' ? 'icon' : 'none';
-    return { banner: 'title', gallery: 'both', about: 'icon', product: 'none', article: 'none', section: 'none' }[kind] || 'none';
+    return { banner: 'title', gallery: 'both', about: 'icon', product: 'none', article: 'none', section: 'none', pageHero: 'title' }[kind] || 'none';
   }
   function getOverlayMode(kind, i) {
     if (kind === 'hero') return demoPhotoData.heroMode || overlayDefault('hero');
@@ -3060,10 +3060,15 @@
         for (let i = 0; i < demoPhotoArticleCount; i++) html += demoSlotHtml('articles:' + i, (i === 0 ? 'Featured story' : 'Article'), (m.articles[i] || 'Article ' + (i + 1)), 'Landscape · 1200×750px (16:10)', overlayChecks('article', i));
       } else html = '<div class="gib-empty">No image slots for this demo.</div>';
     } else if (demoPhotoLayout === 'multipage') {
+      if (demoPhotoPageCount) {
+        html += photoSectionHeader('Page hero banners');
+        for (let i = 0; i < demoPhotoPageCount; i++) html += demoSlotHtml('pageHeroes:' + i, 'Hero', (m.pages[i] || 'Page ' + (i + 1)), 'Wide · 1600×900px (16:9)', overlayChecks('pageHero', i));
+      }
       if (demoPhotoSectionCount) {
         html += photoSectionHeader('Section images (across all pages)');
         for (let i = 0; i < demoPhotoSectionCount; i++) html += demoSlotHtml('sections:' + i, 'Section', (m.sections[i] || 'Section ' + (i + 1)), 'Landscape · 800×600px (4:3)', overlayChecks('section', i));
-      } else html = '<div class="gib-empty">No image slots for this demo.</div>';
+      }
+      if (!demoPhotoPageCount && !demoPhotoSectionCount) html = '<div class="gib-empty">No image slots for this demo.</div>';
     } else {
       html += photoSectionHeader('Hero & about');
       const heroImg = demoPhotoMeta.heroType === 'image';
