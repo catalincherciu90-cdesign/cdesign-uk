@@ -1221,16 +1221,26 @@ function buildShopSite(d) {
   const promo = d.promo && (d.promo.title || d.promo.subtitle) ? d.promo : null;
   const stats = (Array.isArray(d.stats) ? d.stats : []).filter(s => s && (s.value || s.label)).slice(0, 4);
 
+  // Per-banner overlay mode: 'title' (text), 'icon' (icon only), 'none' (clean photo)
+  const bMode = i => { const m = Array.isArray(im.bannerModes) ? im.bannerModes[i] : null; return (m === 'icon' || m === 'none') ? m : 'title'; };
+  const bannerOverlay = (b, i, big) => {
+    const m = bMode(i);
+    if (m === 'none') return '';
+    if (m === 'icon') return `<div class="ov"></div><div class="banner-center"><span class="banner-ic">${e(b.icon || emoji)}</span></div>`;
+    return big
+      ? `<div class="ov"></div><div class="bc"><h2>${e(b.title || '')}</h2><p>${e(b.subtitle || '')}</p><a href="#shop" class="btn">${e(b.cta || 'Shop now')} →</a></div>`
+      : `<div class="ov"></div><div class="mc"><h3>${e(b.title || '')}</h3><a href="#shop" style="color:#fff;font-weight:700;font-size:.85rem;">${e(b.cta || 'View')} →</a></div>`;
+  };
+
   const slides = banners.map((b, i) => `
         <div class="slide ${i === 0 ? 'on' : ''}">
-          ${cover2(im.banners && im.banners[i], kw + ', ' + (b.title || kw), 10 + i)}<div class="ov"></div>
-          <div class="bc"><h2>${e(b.title || '')}</h2><p>${e(b.subtitle || '')}</p><a href="#shop" class="btn">${e(b.cta || 'Shop now')} →</a></div>
+          ${cover2(im.banners && im.banners[i], kw + ', ' + (b.title || kw), 10 + i)}${bannerOverlay(b, i, true)}
         </div>`).join('');
   const dots = banners.length > 1 ? `<div class="bdots">${banners.map((b, i) => `<span class="bdot ${i === 0 ? 'on' : ''}" data-i="${i}"></span>`).join('')}</div>` : '';
 
   const mini = [{ b: banners[1], idx: 1 }, { b: banners[2], idx: 2 }].filter(x => x.b);
   const miniHtml = (mini.length ? mini : categories.slice(0, 2).map((c, i) => ({ b: { title: c.name, cta: 'View' }, idx: i }))).slice(0, 2).map(({ b, idx }) => `
-        <div class="mini">${cover2(im.banners && im.banners[idx], kw + ', ' + (b.title || kw), 30 + idx)}<div class="ov"></div><div class="mc"><h3>${e(b.title || '')}</h3><a href="#shop" style="color:#fff;font-weight:700;font-size:.85rem;">${e(b.cta || 'View')} →</a></div></div>`).join('');
+        <div class="mini">${cover2(im.banners && im.banners[idx], kw + ', ' + (b.title || kw), 30 + idx)}${bannerOverlay(b, idx, false)}</div>`).join('');
 
   const catsHtml = categories.map((c, i) => `
         <a href="#shop" class="cat"><span class="ce">${e(c.emoji || '🏷️')}</span><div><b>${e(c.name || '')}</b><span>${e(c.count ? c.count + ' listings' : 'Browse')}</span></div></a>`).join('');
@@ -1296,6 +1306,8 @@ function buildShopSite(d) {
   .bc{position:relative;z-index:2;padding:38px;max-width:82%;color:#fff;}
   .bc h2{font-size:clamp(1.7rem,3.2vw,2.7rem);font-weight:800;color:#fff;line-height:1.08;}
   .bc p{color:#e8edf7;margin:10px 0 18px;font-size:1.05rem;}
+  .banner-center{position:absolute;inset:0;z-index:2;display:grid;place-items:center;}
+  .banner-ic{font-size:clamp(3rem,7vw,5rem);filter:drop-shadow(0 6px 18px rgba(0,0,0,.5));}
   .bdots{position:absolute;z-index:3;bottom:18px;right:22px;display:flex;gap:7px;}
   .bdot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.5);cursor:pointer;}
   .bdot.on{background:#fff;}
@@ -2447,6 +2459,7 @@ Return ONLY the full updated JSON object — same keys and structure as the inpu
           banners: Array.isArray(body.banners) ? body.banners.slice(0, 4).map(v => ok(v) ? v : '') : [],
           products: Array.isArray(body.products) ? body.products.slice(0, 12).map(v => ok(v) ? v : '') : [],
           articles: Array.isArray(body.articles) ? body.articles.slice(0, 9).map(v => ok(v) ? v : '') : [],
+          bannerModes: Array.isArray(body.bannerModes) ? body.bannerModes.slice(0, 4).map(v => ['title', 'icon', 'none'].includes(v) ? v : 'title') : [],
         };
         const payload = JSON.stringify(images);
         if (payload.length > 14_000_000) return json({ error: 'Images too large. Please use fewer / smaller photos.' }, 413);
