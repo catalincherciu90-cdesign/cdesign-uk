@@ -904,9 +904,14 @@
         </div>
         <div style="margin-bottom:12px;">
           <label class="f-label" style="margin-bottom:5px;display:block;">// layout</label>
-          <select class="f-input" id="demoGenLayout" style="margin-bottom:0;max-width:340px;">
-            <option value="landing">Landing page (one-page site)</option>
-            <option value="shop">Online shop / catalogue (multi-banner + products)</option>
+          <select class="f-input" id="demoGenLayout" style="margin-bottom:0;max-width:380px;">
+            <option value="landing">Landing page (one-page, all sections)</option>
+            <option value="services">Services / booking (services + pricing)</option>
+            <option value="saas">SaaS / product (features + pricing + FAQ)</option>
+            <option value="agency">Agency (services + work + team)</option>
+            <option value="portfolio">Portfolio / showcase (gallery-focused)</option>
+            <option value="shop">Online shop / catalogue (banners + products)</option>
+            <option value="blog">Blog / magazine (article feed)</option>
           </select>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
@@ -2883,10 +2888,11 @@
     if (!allDemos.length) { wrap.innerHTML = '<div class="gib-empty">No demo sites yet.</div>'; return; }
     wrap.innerHTML = allDemos.map(d => {
       const custom = d.kind === 'html' || d.kind === 'zip';
-      const isShop = d.layout === 'shop';
-      const label = custom ? `<span style="color:var(--teal);">custom ${esc(d.kind)}</span>` : (isShop ? `<span style="color:#22b07d;">🛒 shop</span>` : `<span style="color:#a78bfa;">${esc(d.variant || 'modern')}</span>`);
+      const layout = d.layout || 'landing';
+      const layoutBadge = { shop: '🛒 shop', blog: '📰 blog', services: '🛠 services', saas: '💻 saas', agency: '🏢 agency', portfolio: '🖼 portfolio' }[layout];
+      const label = custom ? `<span style="color:var(--teal);">custom ${esc(d.kind)}</span>` : (layoutBadge ? `<span style="color:#22b07d;">${layoutBadge}</span> · <span style="color:#a78bfa;">${esc(d.variant || 'modern')}</span>` : `<span style="color:#a78bfa;">${esc(d.variant || 'modern')}</span>`);
       const aiBtns = custom ? '' : `
-        <button class="btn-del" onclick="openDemoPhotos('${esc(d.id)}','${isShop ? 'shop' : 'landing'}',${d.galleryCount || 3},${d.bannerCount || 0},${d.productCount || 0})" title="Upload your own photos">🖼 Photos</button>
+        <button class="btn-del" onclick="openDemoPhotos('${esc(d.id)}','${esc(layout)}',${d.galleryCount || 3},${d.bannerCount || 0},${d.productCount || 0},${d.articleCount || 0})" title="Upload your own photos">🖼 Photos</button>
         <button class="btn-del" onclick="restyleDemo('${esc(d.id)}')" title="New random colours">🎨 Restyle</button>`;
       return `
       <div style="display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:12px 14px;margin-bottom:8px;flex-wrap:wrap;">
@@ -2929,20 +2935,20 @@
   }
 
   // ── Demo custom photos ───────────────────────────────────
-  let demoPhotoData = { hero: '', about: '', gallery: [], banners: [], products: [] };
-  let demoPhotoLayout = 'landing', demoPhotoGalleryCount = 3, demoPhotoBannerCount = 0, demoPhotoProductCount = 0;
+  let demoPhotoData = { hero: '', about: '', gallery: [], banners: [], products: [], articles: [] };
+  let demoPhotoLayout = 'landing', demoPhotoGalleryCount = 3, demoPhotoBannerCount = 0, demoPhotoProductCount = 0, demoPhotoArticleCount = 0;
 
-  async function openDemoPhotos(id, layout, galleryCount, bannerCount, productCount) {
+  async function openDemoPhotos(id, layout, galleryCount, bannerCount, productCount, articleCount) {
     document.getElementById('demoPhotosId').value = id;
-    demoPhotoLayout = layout === 'shop' ? 'shop' : 'landing';
-    demoPhotoGalleryCount = galleryCount || 3; demoPhotoBannerCount = bannerCount || 0; demoPhotoProductCount = productCount || 0;
-    demoPhotoData = { hero: '', about: '', gallery: [], banners: [], products: [] };
+    demoPhotoLayout = layout || 'landing';
+    demoPhotoGalleryCount = galleryCount || 3; demoPhotoBannerCount = bannerCount || 0; demoPhotoProductCount = productCount || 0; demoPhotoArticleCount = articleCount || 0;
+    demoPhotoData = { hero: '', about: '', gallery: [], banners: [], products: [], articles: [] };
     document.getElementById('demoPhotosSlots').innerHTML = '<div class="gib-empty">Loading...</div>';
     document.getElementById('demoPhotosOverlay').classList.add('open');
     try {
       const res = await fetch('/api/demo/' + encodeURIComponent(id) + '/images?token=' + encodeURIComponent(adminToken));
       const data = await res.json().catch(() => ({}));
-      demoPhotoData = { hero: data.hero || '', about: data.about || '', gallery: Array.isArray(data.gallery) ? data.gallery : [], banners: Array.isArray(data.banners) ? data.banners : [], products: Array.isArray(data.products) ? data.products : [] };
+      demoPhotoData = { hero: data.hero || '', about: data.about || '', gallery: Array.isArray(data.gallery) ? data.gallery : [], banners: Array.isArray(data.banners) ? data.banners : [], products: Array.isArray(data.products) ? data.products : [], articles: Array.isArray(data.articles) ? data.articles : [] };
     } catch {}
     renderDemoPhotoSlots();
   }
@@ -2971,6 +2977,9 @@
       for (let i = 0; i < demoPhotoBannerCount; i++) html += demoSlotHtml('banners:' + i, 'Banner ' + (i + 1), 'Wide · 1200×500px');
       for (let i = 0; i < demoPhotoProductCount; i++) html += demoSlotHtml('products:' + i, 'Product ' + (i + 1) + ' photo', 'Landscape · 800×600px (4:3)');
       if (!demoPhotoBannerCount && !demoPhotoProductCount) html = '<div class="gib-empty">No image slots for this demo.</div>';
+    } else if (demoPhotoLayout === 'blog') {
+      for (let i = 0; i < demoPhotoArticleCount; i++) html += demoSlotHtml('articles:' + i, (i === 0 ? 'Featured article' : 'Article ' + (i + 1)) + ' image', 'Landscape · 1200×750px (16:10)');
+      if (!demoPhotoArticleCount) html = '<div class="gib-empty">No image slots for this demo.</div>';
     } else {
       html += demoSlotHtml('hero', 'Hero image', 'Square · 800×800px (1:1)');
       html += demoSlotHtml('about', 'About / team image', 'Portrait · 800×1000px (4:5)');

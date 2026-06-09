@@ -818,6 +818,86 @@ function buildDemoSite(d) {
     </div>
   </section>`;
 
+  const statsSection = `
+  <div class="stats-band">
+    <div class="wrap stats-grid">${statsHtml}</div>
+  </div>`;
+
+  const servicesSection = services.length ? `
+  <section id="services">
+    <div class="wrap">
+      <div class="sec-head"><span class="eyebrow">What we do</span><h2>${e(d.servicesTitle || 'Services built around your needs')}</h2><p>${e(d.servicesIntro || 'Everything you need, delivered with care and quality.')}</p></div>
+      <div class="grid">${servicesHtml}</div>
+    </div>
+  </section>` : '';
+
+  const aboutSection = `
+  <section id="about" class="about">
+    <div class="wrap about-grid">
+      <div>
+        <span class="eyebrow">About us</span>
+        <h2>Why people choose ${name}</h2>
+        <p>${e(d.about || '')}</p>
+        ${featuresHtml ? `<ul class="feat">${featuresHtml}</ul>` : ''}
+      </div>
+      <div class="about-visual">${cover(imgKw + ', workplace', 2, im.about)}${emoji}</div>
+    </div>
+  </section>`;
+
+  const workSection = `
+  <section id="work">
+    <div class="wrap">
+      <div class="sec-head"><span class="eyebrow">${e(d.workEyebrow || 'Our work')}</span><h2>${e(d.workTitle || 'A glimpse of what we deliver')}</h2><p>${e(d.workIntro || 'Quality you can see in every project.')}</p></div>
+      <div class="tiles">${galleryHtml}</div>
+    </div>
+  </section>`;
+
+  const testimonialSection = t ? `
+  <section class="quote-sec">
+    <div class="wrap quote">
+      <div class="mk">&ldquo;</div>
+      <blockquote>${e(t.quote || '')}</blockquote>
+      <div class="who reveal">
+        <span class="av">${e((t.author || 'C')[0])}</span>
+        <span style="text-align:left;"><b>${e(t.author || 'Happy client')}</b><span>Verified customer</span></span>
+      </div>
+    </div>
+  </section>` : '';
+
+  const contactSection = `
+  <section id="contact">
+    <div class="wrap">
+      <div class="sec-head"><span class="eyebrow">Get in touch</span><h2>${e(d.ctaHeadline || 'Let\'s work together')}</h2><p>${e(d.ctaText || 'Tell us about your project and we\'ll get back to you fast.')}</p></div>
+      <div class="contact-grid">
+        <div class="info-card reveal">
+          <h3>Contact details</h3>
+          <p style="opacity:.92;">We'd love to hear from you. Reach out and we'll reply within one business day.</p>
+          ${d.phone ? `<div class="row"><span class="ic">📞</span>${e(d.phone)}</div>` : ''}
+          ${d.email ? `<div class="row"><span class="ic">✉</span>${e(d.email)}</div>` : ''}
+          ${d.address ? `<div class="row"><span class="ic">📍</span>${e(d.address)}</div>` : ''}
+          <div class="row"><span class="ic">🕒</span>Mon–Fri · 9:00–18:00</div>
+        </div>
+        <form class="reveal" onsubmit="event.preventDefault();this.reset();alert('Thank you! This is a demo — on a live site your message would be sent.');">
+          <div class="field"><label>Your name</label><input type="text" placeholder="Jane Smith" required></div>
+          <div class="field"><label>Email</label><input type="email" placeholder="jane@email.com" required></div>
+          <div class="field"><label>Message</label><textarea rows="4" placeholder="How can we help?" required></textarea></div>
+          <button class="btn" type="submit" style="width:100%;justify-content:center;">Send message</button>
+        </form>
+      </div>
+    </div>
+  </section>`;
+
+  const sectionMap = { hero: heroSection, stats: statsSection, services: servicesSection, about: aboutSection, work: workSection, pricing: pricingSection, team: teamSection, testimonial: testimonialSection, faq: faqSection, contact: contactSection };
+  const LAYOUTS = {
+    landing:   ['hero', 'stats', 'services', 'about', 'work', 'pricing', 'team', 'testimonial', 'faq', 'contact'],
+    services:  ['hero', 'services', 'stats', 'about', 'pricing', 'testimonial', 'faq', 'contact'],
+    saas:      ['hero', 'stats', 'services', 'pricing', 'faq', 'testimonial', 'contact'],
+    agency:    ['hero', 'services', 'work', 'team', 'testimonial', 'pricing', 'contact'],
+    portfolio: ['hero', 'work', 'about', 'services', 'testimonial', 'contact'],
+  };
+  const lay = LAYOUTS[d.layout] ? d.layout : 'landing';
+  const body = LAYOUTS[lay].map(k => sectionMap[k] || '').join('\n');
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1088,72 +1168,7 @@ function buildDemoSite(d) {
       <a href="#contact" class="btn">${e(d.ctaText || 'Get in touch')}</a>
     </div>
   </header>
-
-${heroSection}
-
-  <div class="stats-band">
-    <div class="wrap stats-grid">${statsHtml}</div>
-  </div>
-
-  ${services.length ? `<section id="services">
-    <div class="wrap">
-      <div class="sec-head"><span class="eyebrow">What we do</span><h2>Services built around your needs</h2><p>${e(d.servicesIntro || 'Everything you need, delivered with care and quality.')}</p></div>
-      <div class="grid">${servicesHtml}</div>
-    </div>
-  </section>` : ''}
-
-  <section id="about" class="about">
-    <div class="wrap about-grid">
-      <div>
-        <span class="eyebrow">About us</span>
-        <h2>Why people choose ${name}</h2>
-        <p>${e(d.about || '')}</p>
-        ${featuresHtml ? `<ul class="feat">${featuresHtml}</ul>` : ''}
-      </div>
-      <div class="about-visual">${cover(imgKw + ', workplace', 2, im.about)}${emoji}</div>
-    </div>
-  </section>
-
-  <section id="work">
-    <div class="wrap">
-      <div class="sec-head"><span class="eyebrow">Our work</span><h2>A glimpse of what we deliver</h2><p>Quality you can see in every project.</p></div>
-      <div class="tiles">${galleryHtml}</div>
-    </div>
-  </section>
-${pricingSection}
-${teamSection}
-  ${t ? `<section class="quote-sec">
-    <div class="wrap quote">
-      <div class="mk">&ldquo;</div>
-      <blockquote>${e(t.quote || '')}</blockquote>
-      <div class="who reveal">
-        <span class="av">${e((t.author || 'C')[0])}</span>
-        <span style="text-align:left;"><b>${e(t.author || 'Happy client')}</b><span>Verified customer</span></span>
-      </div>
-    </div>
-  </section>` : ''}
-${faqSection}
-  <section id="contact">
-    <div class="wrap">
-      <div class="sec-head"><span class="eyebrow">Get in touch</span><h2>${e(d.ctaHeadline || 'Let\'s work together')}</h2><p>${e(d.ctaText || 'Tell us about your project and we\'ll get back to you fast.')}</p></div>
-      <div class="contact-grid">
-        <div class="info-card reveal">
-          <h3>Contact details</h3>
-          <p style="opacity:.92;">We'd love to hear from you. Reach out and we'll reply within one business day.</p>
-          ${d.phone ? `<div class="row"><span class="ic">📞</span>${e(d.phone)}</div>` : ''}
-          ${d.email ? `<div class="row"><span class="ic">✉</span>${e(d.email)}</div>` : ''}
-          ${d.address ? `<div class="row"><span class="ic">📍</span>${e(d.address)}</div>` : ''}
-          <div class="row"><span class="ic">🕒</span>Mon–Fri · 9:00–18:00</div>
-        </div>
-        <form class="reveal" onsubmit="event.preventDefault();this.reset();alert('Thank you! This is a demo — on a live site your message would be sent.');">
-          <div class="field"><label>Your name</label><input type="text" placeholder="Jane Smith" required></div>
-          <div class="field"><label>Email</label><input type="email" placeholder="jane@email.com" required></div>
-          <div class="field"><label>Message</label><textarea rows="4" placeholder="How can we help?" required></textarea></div>
-          <button class="btn" type="submit" style="width:100%;justify-content:center;">Send message</button>
-        </form>
-      </div>
-    </div>
-  </section>
+${body}
 
   <footer>
     <div class="wrap">
@@ -1407,6 +1422,27 @@ function buildShopSite(d) {
 
 // JSON structure spec for the demo content generator (shared by /generate and /from-sketch).
 function demoJsonSpec(industry, layout) {
+  if (layout === 'blog') return `This is a BLOG / MAGAZINE / online publication. Return ONLY a valid JSON object, no text before or after, with exactly this structure:
+{
+  "businessName": "the publication / magazine name",
+  "industry": "${industry}",
+  "emoji": "one emoji representing the publication",
+  "tagline": "short tagline, 1 sentence",
+  "colorPrimary": "a hex colour fitting the brand",
+  "colorAccent": "a complementary hex accent colour",
+  "imageKeywords": "2-4 comma-separated English keywords for article photos",
+  "categories": [ "Category", "Category", "Category", "Category" ],
+  "articles": [ { "title": "an engaging article headline", "excerpt": "1 sentence summary", "category": "its category", "author": "Author Name", "date": "e.g. 2 Jun", "readTime": "e.g. 5 min" } ],
+  "about": "2-3 sentences about the publication",
+  "ctaHeadline": "newsletter CTA headline",
+  "ctaText": "1 short sentence for the newsletter",
+  "email": "a plausible contact email"
+}
+
+Requirements:
+- Language: ENGLISH
+- 4-6 categories, 6-9 articles (the first is the featured story)
+- Realistic, specific headlines — not generic filler. No text outside the JSON object`;
   return layout === 'shop' ? `This is an ONLINE SHOP / CATALOGUE website (e.g. a car dealership, auto parts shop, or similar with many items). Return ONLY a valid JSON object, no text before or after, with exactly this structure:
 {
   "businessName": "an invented but realistic store name",
@@ -1468,6 +1504,146 @@ Requirements:
 - Realistic, professional, not generic filler
 - Colours must be valid hex codes that look modern and good together
 - No text outside the JSON object`;
+}
+
+// ── Blog / magazine demo layout ──
+function buildBlogSite(d) {
+  const e = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const hex = v => /^#[0-9a-fA-F]{3,8}$/.test(String(v || '')) ? v : null;
+  const primary = hex(d.colorPrimary) || '#111827';
+  const accent = hex(d.colorAccent) || '#e11d48';
+  const name = e(d.businessName || 'The Journal');
+  const emoji = e(d.emoji || '📰');
+  const kw = String(d.imageKeywords || d.industry || 'magazine').toLowerCase().replace(/[^a-z0-9, ]/g, '').slice(0, 60) || 'magazine';
+  const im = (d.images && typeof d.images === 'object') ? d.images : {};
+  const img = (k, w, h, sig) => `https://loremflickr.com/${w}/${h}/${encodeURIComponent(String(k).trim())}?lock=${sig}`;
+  const imgTag = (src, cls) => `<img class="${cls}" src="${String(src).replace(/"/g, '&quot;')}" alt="" loading="lazy" onerror="this.remove()">`;
+  const cover = (custom, k, sig, cls) => custom ? imgTag(custom, cls) : imgTag(img(k, 800, 600, sig), cls);
+
+  let articles = (Array.isArray(d.articles) ? d.articles : []).filter(a => a && a.title).slice(0, 9);
+  if (!articles.length) articles = [{ title: d.tagline || 'Welcome', excerpt: '', category: 'News', author: 'Editor', date: '' }];
+  const categories = (Array.isArray(d.categories) ? d.categories : []).filter(c => c && (c.name || typeof c === 'string')).slice(0, 8).map(c => typeof c === 'string' ? c : c.name);
+  const feat = articles[0];
+  const rest = articles.slice(1);
+
+  const catPills = categories.length ? `<div class="cats">${categories.map(c => `<a href="#articles" class="catp">${e(c)}</a>`).join('')}</div>` : '';
+  const restHtml = rest.map((a, i) => `
+        <a href="#articles" class="post reveal">
+          <div class="post-img">${cover(im.articles && im.articles[i + 1], kw + ', ' + (a.category || a.title || kw), 20 + i, 'cover')}</div>
+          <div class="post-b">
+            <span class="post-cat">${e(a.category || 'Article')}</span>
+            <h3>${e(a.title || '')}</h3>
+            <p>${e(a.excerpt || '')}</p>
+            <div class="post-meta">${e(a.author || 'Editor')} · ${e(a.date || 'Today')}${a.readTime ? ' · ' + e(a.readTime) : ''}</div>
+          </div>
+        </a>`).join('');
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow">
+<title>${name} — Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--p:${primary};--a:${accent};--ink:#16181d;--mut:#6b7280;--line:#e8e8ea;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:#fff;line-height:1.65;-webkit-font-smoothing:antialiased;}
+  a{text-decoration:none;color:inherit;}img{display:block;}
+  h1,h2,h3,.logo,blockquote{font-family:'Fraunces',Georgia,serif;}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px;}
+  .demo-bar{background:#0b1020;color:#fff;font-size:.82rem;text-align:center;padding:8px 14px;}
+  .demo-bar a{color:var(--a);font-weight:700;}
+  header{border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);z-index:30;}
+  .mast{display:flex;align-items:center;justify-content:space-between;padding:18px 0;gap:16px;flex-wrap:wrap;}
+  .logo{font-weight:900;font-size:1.7rem;letter-spacing:-.5px;display:flex;align-items:center;gap:10px;}
+  .nav-links{display:flex;gap:24px;font-size:.92rem;font-weight:500;}
+  .nav-links a:hover{color:var(--a);}
+  .btn{display:inline-flex;align-items:center;gap:7px;background:var(--p);color:#fff;font-weight:600;padding:11px 22px;border-radius:999px;font-size:.9rem;border:none;cursor:pointer;}
+  .btn:hover{background:var(--a);}
+  .cats{display:flex;gap:8px;flex-wrap:wrap;padding:16px 0 0;}
+  .catp{font-size:.78rem;font-weight:600;color:var(--mut);border:1px solid var(--line);padding:6px 14px;border-radius:999px;}
+  .catp:hover{color:#fff;background:var(--a);border-color:var(--a);}
+  section{padding:40px 0;}
+  /* featured */
+  .feat{display:grid;grid-template-columns:1.3fr 1fr;gap:36px;align-items:center;padding-top:36px;}
+  .feat-img{border-radius:16px;overflow:hidden;aspect-ratio:16/10;background:linear-gradient(135deg,var(--p),var(--a));}
+  .feat-img .cover{width:100%;height:100%;object-fit:cover;}
+  .feat .lab{color:var(--a);font-weight:700;font-size:.78rem;letter-spacing:.6px;text-transform:uppercase;}
+  .feat h1{font-size:clamp(2rem,4vw,3.1rem);line-height:1.05;font-weight:900;margin:12px 0 14px;letter-spacing:-1px;}
+  .feat p{color:#4b5563;font-size:1.1rem;}
+  .feat .meta{margin-top:16px;color:var(--mut);font-size:.9rem;}
+  /* article grid */
+  .sec-title{font-family:'Fraunces';font-size:1.5rem;font-weight:700;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:24px;display:inline-block;}
+  .posts{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:30px;}
+  .post{display:flex;flex-direction:column;}
+  .post-img{border-radius:12px;overflow:hidden;aspect-ratio:16/10;background:linear-gradient(135deg,var(--p),var(--a));margin-bottom:14px;}
+  .post-img .cover{width:100%;height:100%;object-fit:cover;transition:transform .5s;}
+  .post:hover .post-img .cover{transform:scale(1.05);}
+  .post-cat{color:var(--a);font-weight:700;font-size:.72rem;letter-spacing:.5px;text-transform:uppercase;}
+  .post h3{font-size:1.25rem;line-height:1.2;font-weight:700;margin:6px 0 8px;}
+  .post:hover h3{color:var(--a);}
+  .post p{color:var(--mut);font-size:.92rem;}
+  .post-meta{margin-top:auto;padding-top:12px;color:var(--mut);font-size:.82rem;}
+  /* newsletter + footer */
+  .news{background:var(--p);color:#fff;border-radius:18px;padding:48px 40px;text-align:center;margin:20px 0;}
+  .news h2{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:900;}
+  .news p{opacity:.85;margin:10px 0 20px;}
+  .news form{max-width:440px;margin:0 auto;display:flex;gap:8px;}
+  .news input{flex:1;border:none;border-radius:999px;padding:13px 18px;font:inherit;}
+  .news .btn{background:var(--a);}
+  footer{border-top:1px solid var(--line);padding:36px 0;color:var(--mut);font-size:.9rem;}
+  .foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;align-items:center;}
+  .foot .c{font-family:'Fraunces';font-weight:900;color:var(--ink);font-size:1.3rem;}
+  .foot a{color:var(--a);font-weight:700;}
+  .reveal{opacity:0;transform:translateY(18px);transition:.6s;}.reveal.in{opacity:1;transform:none;}
+  @media(max-width:820px){.feat{grid-template-columns:1fr;}.feat-img{order:-1;}.nav-links{display:none;}}
+</style>
+</head>
+<body>
+  <div class="demo-bar">✨ Demo magazine — built by <a href="https://www.cdesigns.uk" target="_blank" rel="noopener">C Design</a>. Want one like this? <a href="https://www.cdesigns.uk/programari.html" target="_blank" rel="noopener">Get yours →</a></div>
+  <header>
+    <div class="wrap">
+      <div class="mast">
+        <div class="logo"><span>${emoji}</span>${name}</div>
+        <nav class="nav-links"><a href="#articles">Latest</a><a href="#articles">Categories</a><a href="#about">About</a><a href="#contact">Contact</a></nav>
+        <a href="#contact" class="btn">Subscribe</a>
+      </div>
+      ${catPills}
+    </div>
+  </header>
+
+  <section class="feat-sec"><div class="wrap feat">
+    <div>
+      <span class="lab">${e(feat.category || 'Featured')}</span>
+      <h1>${e(feat.title || '')}</h1>
+      <p>${e(feat.excerpt || d.tagline || '')}</p>
+      <div class="meta">By ${e(feat.author || 'Editor')} · ${e(feat.date || 'Today')}${feat.readTime ? ' · ' + e(feat.readTime) : ''}</div>
+    </div>
+    <div class="feat-img">${cover(im.articles && im.articles[0], kw + ', ' + (feat.category || feat.title || kw), 10, 'cover')}</div>
+  </div></section>
+
+  ${rest.length ? `<section id="articles"><div class="wrap"><div class="sec-title">${e(d.latestTitle || 'Latest stories')}</div><div class="posts">${restHtml}</div></div></section>` : ''}
+
+  ${d.about ? `<section id="about"><div class="wrap" style="max-width:760px;text-align:center;"><div class="sec-title">About ${name}</div><p style="color:#4b5563;font-size:1.1rem;">${e(d.about)}</p></div></section>` : ''}
+
+  <section id="contact"><div class="wrap"><div class="news">
+    <h2>${e(d.ctaHeadline || 'Never miss a story')}</h2>
+    <p>${e(d.ctaText || 'Get our best articles in your inbox every week.')}</p>
+    <form onsubmit="event.preventDefault();this.reset();alert('Thanks! This is a demo — on a live site you would be subscribed.');"><input type="email" placeholder="Your email" required><button class="btn" type="submit">Subscribe</button></form>
+  </div></div></section>
+
+  <footer><div class="wrap foot">
+    <span class="c">${emoji} ${name}</span>
+    <span>${d.email ? e(d.email) + ' · ' : ''}Demo magazine · Built by <a href="https://www.cdesigns.uk">C Design</a></span>
+  </div></footer>
+
+  <script>
+    (function(){var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}});},{threshold:.12});document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});})();
+  </script>
+</body>
+</html>`;
 }
 
 // ── Custom uploaded demos: content types + minimal ZIP reader ──
@@ -1646,7 +1822,8 @@ export default {
           const imgRaw = await env.PROGRAMARI.get('__demo_img__' + demo.id);
           if (imgRaw) data.images = JSON.parse(imgRaw);
         } catch {}
-        return new Response(data.layout === 'shop' ? buildShopSite(data) : buildDemoSite(data), {
+        const render = data.layout === 'shop' ? buildShopSite(data) : data.layout === 'blog' ? buildBlogSite(data) : buildDemoSite(data);
+        return new Response(render, {
           headers: { ...SEC_HEADERS, 'Content-Type': 'text/html;charset=utf-8', 'Cache-Control': 'public,max-age=120' }
         });
       } catch {
@@ -1968,6 +2145,7 @@ export default {
           galleryCount: Math.min((x.data && Array.isArray(x.data.services) ? x.data.services.length : 3) || 3, 6),
           bannerCount: Math.min((x.data && Array.isArray(x.data.banners) ? x.data.banners.length : 0) || 0, 4),
           productCount: Math.min((x.data && Array.isArray(x.data.products) ? x.data.products.length : 0) || 0, 12),
+          articleCount: Math.min((x.data && Array.isArray(x.data.articles) ? x.data.articles.length : 0) || 0, 9),
         })));
       } catch { return json([]); }
     }
@@ -1984,15 +2162,17 @@ export default {
         const heroType = ['split', 'centered', 'image'].includes(body.heroType) ? body.heroType : 'split';
         const userPrompt = String(body.prompt || '').trim().slice(0, 400);
         const versions = Math.min(Math.max(parseInt(body.versions) || 1, 1), 4);
-        const wantLayout = body.layout === 'shop' ? 'shop' : 'landing';
+        const LAYOUT_LIST = ['landing', 'services', 'saas', 'agency', 'portfolio', 'shop', 'blog'];
+        const wantLayout = LAYOUT_LIST.includes(body.layout) ? body.layout : 'landing';
         if (!industry) return json({ error: 'Industry is required' }, 400, request);
         if (!env.AI) return json({ error: 'AI binding unavailable — check wrangler.toml' }, 500, request);
 
+        const kindWord = wantLayout === 'shop' ? 'shop / dealership' : wantLayout === 'blog' ? 'magazine / publication' : wantLayout === 'portfolio' ? 'creative studio / freelancer' : 'small business';
         const toneLine = tone ? `\nBrand tone / style: ${tone}.` : '';
         const nameLine = wantName ? `\nThe business is called "${wantName}" — use this exact name.` : '';
         const detailsLine = details ? `\nIncorporate these real details where relevant (e.g. phone, city, services): ${details}.` : '';
         const promptLine = userPrompt ? `\nExtra instructions from the user (follow them): ${userPrompt}.` : '';
-        const intro = `You are a web copywriter and brand designer. ${wantName ? `Write the content for "${wantName}", a business in the "${industry}" industry (UK market).` : `Invent a realistic ${wantLayout === 'shop' ? 'shop / dealership' : 'small business'} in the "${industry}" industry (UK market).`}${toneLine}${nameLine}${detailsLine}${promptLine}`;
+        const intro = `You are a web copywriter and brand designer. ${wantName ? `Write the content for "${wantName}", a business in the "${industry}" industry (UK market).` : `Invent a realistic ${kindWord} in the "${industry}" industry (UK market).`}${toneLine}${nameLine}${detailsLine}${promptLine}`;
 
         const prompt = intro + '\n\n' + demoJsonSpec(industry, wantLayout);
 
@@ -2210,6 +2390,7 @@ export default {
           gallery: Array.isArray(body.gallery) ? body.gallery.slice(0, 6).map(v => ok(v) ? v : '') : [],
           banners: Array.isArray(body.banners) ? body.banners.slice(0, 4).map(v => ok(v) ? v : '') : [],
           products: Array.isArray(body.products) ? body.products.slice(0, 12).map(v => ok(v) ? v : '') : [],
+          articles: Array.isArray(body.articles) ? body.articles.slice(0, 9).map(v => ok(v) ? v : '') : [],
         };
         const payload = JSON.stringify(images);
         if (payload.length > 14_000_000) return json({ error: 'Images too large. Please use fewer / smaller photos.' }, 413);
