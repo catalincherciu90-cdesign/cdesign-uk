@@ -2374,8 +2374,23 @@ export default {
       try {
         const id = path.replace('/api/demo/', '').replace('/images', '');
         const raw = await env.PROGRAMARI.get('__demo_img__' + id);
-        return json(raw ? JSON.parse(raw) : { hero: '', about: '', gallery: [] });
-      } catch { return json({ hero: '', about: '', gallery: [] }); }
+        const images = raw ? JSON.parse(raw) : { hero: '', about: '', gallery: [] };
+        // Build labels (which section/item each slot belongs to) from the demo content.
+        let meta = { layout: 'landing', gallery: [], banners: [], products: [], articles: [] };
+        try {
+          const dRaw = await env.PROGRAMARI.get('__demos__');
+          const demos = dRaw ? JSON.parse(dRaw) : [];
+          const demo = demos.find(x => x.id === id || x.slug === id);
+          const dd = (demo && demo.data) || {};
+          meta.layout = dd.layout || 'landing';
+          meta.gallery = (Array.isArray(dd.services) ? dd.services : []).slice(0, 6).map(s => (s && s.title) || 'Project');
+          meta.banners = (Array.isArray(dd.banners) ? dd.banners : []).slice(0, 4).map(b => (b && b.title) || 'Banner');
+          meta.products = (Array.isArray(dd.products) ? dd.products : []).slice(0, 12).map(p => (p && p.name) || 'Product');
+          meta.articles = (Array.isArray(dd.articles) ? dd.articles : []).slice(0, 9).map(a => (a && a.title) || 'Article');
+        } catch {}
+        images.meta = meta;
+        return json(images);
+      } catch { return json({ hero: '', about: '', gallery: [], meta: { layout: 'landing', gallery: [], banners: [], products: [], articles: [] } }); }
     }
 
     if (/^\/api\/demo\/[^/]+\/images$/.test(path) && request.method === 'PUT') {
