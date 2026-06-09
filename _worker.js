@@ -1805,9 +1805,9 @@ function buildMultiPageSite(d, baseSlug, pageSlug) {
   .btn{display:inline-flex;align-items:center;gap:7px;background:var(--p);color:#fff;font-weight:700;padding:11px 22px;border-radius:10px;font-size:.92rem;border:none;cursor:pointer;}
   .btn:hover{filter:brightness(1.08);}
   .phero{position:relative;min-height:340px;display:flex;align-items:center;color:#fff;overflow:hidden;padding:56px 0;}
-  .phero.home{min-height:440px;}
+  .phero.home{min-height:480px;}
   .phero-bg{position:absolute;inset:0;z-index:0;background:linear-gradient(135deg,var(--p),var(--a));}
-  .phero-ovl{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(8,11,20,.42),rgba(8,11,20,.72));}
+  .phero-bg img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;}
   .phero-inner{position:relative;z-index:2;text-align:center;max-width:780px;margin:0 auto;}
   .phero-emoji{display:block;font-size:4rem;filter:drop-shadow(0 6px 18px rgba(0,0,0,.5));}
   .eyebrow{display:inline-block;font-size:.74rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--p);background:${primary}14;padding:7px 15px;border-radius:999px;margin-bottom:18px;}
@@ -1855,13 +1855,14 @@ function buildMultiPageSite(d, baseSlug, pageSlug) {
 
   <section class="phero ${isHome ? 'home' : ''}">
     <div class="phero-bg">${(im.pageHeroes && im.pageHeroes[curIndex]) ? imgTag(im.pageHeroes[curIndex]) : cover(kw + ', ' + (cur.name || kw), 50 + (curIndex < 0 ? 0 : curIndex))}</div>
-    <div class="phero-ovl"></div>
     <div class="wrap phero-inner">${(() => {
       const m = (Array.isArray(im.pageHeroModes) ? im.pageHeroModes[curIndex] : null);
       const phm = ['title', 'icon', 'both', 'none'].includes(m) ? m : 'title';
       if (phm === 'none') return '';
+      const hasText = phm === 'title' || phm === 'both';
+      const textStyle = hasText ? ' style="background:rgba(8,11,20,.52);border-radius:18px;padding:32px 40px;backdrop-filter:blur(4px);"' : '';
       if (phm === 'icon') return `<span class="phero-emoji">${emoji}</span>`;
-      return `${phm === 'both' ? `<span class="phero-emoji" style="font-size:2.8rem;margin-bottom:10px;">${emoji}</span>` : ''}<span class="eyebrow">${e(isHome ? (d.industry || d.tagline || 'Welcome') : cur.name)}</span><h1>${e(cur.heading || cur.name || name)}</h1><p>${e(cur.subheading || cur.intro || (isHome ? d.tagline : '') || '')}</p>${isHome ? `<a href="${href(nextP)}" class="btn">Explore ${e(nextP.name)} →</a>` : ''}`;
+      return `<div${textStyle}>${phm === 'both' ? `<span class="phero-emoji" style="font-size:2.8rem;margin-bottom:10px;">${emoji}</span>` : ''}<span class="eyebrow">${e(isHome ? (d.industry || d.tagline || 'Welcome') : cur.name)}</span><h1>${e(cur.heading || cur.name || name)}</h1><p>${e(cur.subheading || cur.intro || (isHome ? d.tagline : '') || '')}</p>${isHome ? `<a href="${href(nextP)}" class="btn">Explore ${e(nextP.name)} →</a>` : ''}</div>`;
     })()}</div>
   </section>
 
