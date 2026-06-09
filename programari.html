@@ -2963,14 +2963,14 @@
     document.getElementById('demoPhotosId').value = id;
     demoPhotoLayout = layout || 'landing';
     demoPhotoGalleryCount = galleryCount || 3; demoPhotoBannerCount = bannerCount || 0; demoPhotoProductCount = productCount || 0; demoPhotoArticleCount = articleCount || 0;
-    demoPhotoData = { hero: '', about: '', gallery: [], banners: [], products: [], articles: [] };
+    demoPhotoData = { hero: '', about: '', gallery: [], banners: [], products: [], articles: [], bannerModes: [] };
     demoPhotoMeta = { gallery: [], banners: [], products: [], articles: [] };
     document.getElementById('demoPhotosSlots').innerHTML = '<div class="gib-empty">Loading...</div>';
     document.getElementById('demoPhotosOverlay').classList.add('open');
     try {
       const res = await fetch('/api/demo/' + encodeURIComponent(id) + '/images?token=' + encodeURIComponent(adminToken));
       const data = await res.json().catch(() => ({}));
-      demoPhotoData = { hero: data.hero || '', about: data.about || '', gallery: Array.isArray(data.gallery) ? data.gallery : [], banners: Array.isArray(data.banners) ? data.banners : [], products: Array.isArray(data.products) ? data.products : [], articles: Array.isArray(data.articles) ? data.articles : [] };
+      demoPhotoData = { hero: data.hero || '', about: data.about || '', gallery: Array.isArray(data.gallery) ? data.gallery : [], banners: Array.isArray(data.banners) ? data.banners : [], products: Array.isArray(data.products) ? data.products : [], articles: Array.isArray(data.articles) ? data.articles : [], bannerModes: Array.isArray(data.bannerModes) ? data.bannerModes : [] };
       if (data.meta) demoPhotoMeta = { gallery: data.meta.gallery || [], banners: data.meta.banners || [], products: data.meta.products || [], articles: data.meta.articles || [] };
     } catch {}
     renderDemoPhotoSlots();
@@ -2983,7 +2983,9 @@
     return `<div style="font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--muted);letter-spacing:.04em;margin:14px 0 8px;text-transform:uppercase;">// ${txt}</div>`;
   }
 
-  function demoSlotHtml(ref, category, item, rec) {
+  function setBannerMode(i, val) { if (!Array.isArray(demoPhotoData.bannerModes)) demoPhotoData.bannerModes = []; demoPhotoData.bannerModes[i] = val; }
+
+  function demoSlotHtml(ref, category, item, rec, extra) {
     const cur = getDemoPhotoRef(ref);
     return `<div style="display:flex;gap:12px;align-items:center;border:1px solid var(--border-soft);border-radius:10px;padding:10px;margin-bottom:8px;">
       <div style="width:74px;height:74px;border-radius:8px;background:var(--bg3);overflow:hidden;flex-shrink:0;display:grid;place-items:center;">
@@ -2997,6 +2999,7 @@
         <div style="font-size:.72rem;color:var(--muted);margin-bottom:7px;">Recommended: <strong style="color:var(--teal);">${rec}</strong></div>
         <input type="file" accept="image/*" onchange="onDemoPhotoPick('${ref}', this)" style="font-size:.74rem;max-width:160px;">
         ${cur ? `<button class="btn-del" style="margin-left:6px;padding:3px 8px;" onclick="clearDemoPhoto('${ref}')">✕ remove</button>` : ''}
+        ${extra || ''}
       </div>
     </div>`;
   }
@@ -3007,7 +3010,16 @@
     if (demoPhotoLayout === 'shop') {
       if (demoPhotoBannerCount) {
         html += photoSectionHeader('Home banners (carousel)');
-        for (let i = 0; i < demoPhotoBannerCount; i++) html += demoSlotHtml('banners:' + i, 'Banner ' + (i + 1), (m.banners[i] || 'Banner ' + (i + 1)), 'Wide · 1200×500px');
+        for (let i = 0; i < demoPhotoBannerCount; i++) {
+          const mode = (demoPhotoData.bannerModes && demoPhotoData.bannerModes[i]) || 'title';
+          const sel = `<div style="margin-top:7px;display:flex;align-items:center;gap:6px;"><span style="font-size:.7rem;color:var(--muted);">On the photo:</span>
+            <select onchange="setBannerMode(${i}, this.value)" class="f-input" style="margin:0;max-width:150px;font-size:.74rem;padding:5px 8px;height:auto;">
+              <option value="title"${mode === 'title' ? ' selected' : ''}>Title text</option>
+              <option value="icon"${mode === 'icon' ? ' selected' : ''}>Icon only</option>
+              <option value="none"${mode === 'none' ? ' selected' : ''}>Nothing (clean photo)</option>
+            </select></div>`;
+          html += demoSlotHtml('banners:' + i, 'Banner ' + (i + 1), (m.banners[i] || 'Banner ' + (i + 1)), 'Wide · 1200×500px', sel);
+        }
       }
       if (demoPhotoProductCount) {
         html += photoSectionHeader('Products (catalogue grid)');
