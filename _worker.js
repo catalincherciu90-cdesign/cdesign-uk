@@ -1724,6 +1724,10 @@ function buildMultiPageSite(d, baseSlug, pageSlug) {
   const emoji = e(d.emoji || '🌐');
   const kw = String(d.imageKeywords || d.industry || 'business').toLowerCase().replace(/[^a-z0-9, ]/g, '').slice(0, 60) || 'business';
   const cover = (k, sig, r) => `<img src="https://loremflickr.com/${800}/${600}/${encodeURIComponent(String(k).trim())}?lock=${sig}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;${r ? 'border-radius:' + r + ';' : ''}" onerror="this.style.display='none'">`;
+  const im = (d.images && typeof d.images === 'object') ? d.images : {};
+  const imgTag = src => `<img src="${String(src).replace(/"/g, '&quot;')}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">`;
+  const secImg = (gi, k, sig) => (im.sections && im.sections[gi]) ? imgTag(im.sections[gi]) : cover(k, sig);
+  const secOvl = (gi, heading) => { const m = (Array.isArray(im.sectionModes) ? im.sectionModes[gi] : null); if (!['title', 'icon', 'both'].includes(m)) return ''; return `<div class="img-ovl">${(m === 'icon' || m === 'both') ? `<span class="img-ic">${emoji}</span>` : ''}${(m === 'title' || m === 'both') ? `<span class="img-cap">${e(heading)}</span>` : ''}</div>`; };
 
   let pages = (Array.isArray(d.pages) ? d.pages : []).filter(p => p && p.name).slice(0, 8);
   if (!pages.length) pages = [{ name: 'Home', heading: d.businessName || 'Welcome', subheading: d.tagline || '' }];
@@ -1739,6 +1743,10 @@ function buildMultiPageSite(d, baseSlug, pageSlug) {
   const sections = (Array.isArray(cur.sections) ? cur.sections : []).filter(x => x && (x.heading || x.text)).slice(0, 5);
   const isContact = /contact/i.test(cur.name) || /contact/i.test(cur.slug);
   const nextP = pages[1] || pages[0];
+  // Global index of the first section image on this page (images are addressed across all pages).
+  const secCount = p => (Array.isArray(p.sections) ? p.sections : []).filter(x => x && (x.heading || x.text)).slice(0, 5).length;
+  const curIndex = pages.findIndex(p => p.slug === cur.slug);
+  const baseIdx = pages.slice(0, curIndex < 0 ? 0 : curIndex).reduce((n, p) => n + secCount(p), 0);
 
   const itemsHtml = items.length ? `
   <section class="band"><div class="wrap">
@@ -1748,7 +1756,7 @@ function buildMultiPageSite(d, baseSlug, pageSlug) {
   const sectionsHtml = sections.map((s, i) => `
   <section class="split ${i % 2 ? 'alt' : ''}"><div class="wrap sgrid">
     <div class="stext"><h2>${e(s.heading || '')}</h2><p>${e(s.text || '')}</p></div>
-    <div class="simg">${cover(kw + ', ' + (s.heading || cur.name || kw), 200 + i)}</div>
+    <div class="simg">${secImg(baseIdx + i, kw + ', ' + (s.heading || cur.name || kw), 200 + baseIdx + i)}${secOvl(baseIdx + i, s.heading || cur.name)}</div>
   </div></section>`).join('');
 
   const contactHtml = isContact ? `
@@ -1809,7 +1817,10 @@ function buildMultiPageSite(d, baseSlug, pageSlug) {
   .split.alt .stext{order:2;}
   .split h2{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800;letter-spacing:-.5px;margin-bottom:14px;}
   .split p{color:#475569;font-size:1.05rem;}
-  .simg{aspect-ratio:4/3;border-radius:20px;overflow:hidden;background:linear-gradient(135deg,var(--p),var(--a));box-shadow:0 24px 50px -28px ${primary}99;}
+  .simg{aspect-ratio:4/3;border-radius:20px;overflow:hidden;background:linear-gradient(135deg,var(--p),var(--a));box-shadow:0 24px 50px -28px ${primary}99;position:relative;}
+  .img-ovl{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:linear-gradient(0deg,rgba(0,0,0,.4),transparent 60%);color:#fff;text-align:center;padding:16px;}
+  .img-ic{font-size:3rem;filter:drop-shadow(0 6px 16px rgba(0,0,0,.5));}
+  .img-cap{font-family:'Plus Jakarta Sans';font-weight:800;font-size:1.3rem;text-shadow:0 2px 14px rgba(0,0,0,.55);}
   .contact .cgrid{display:grid;grid-template-columns:1fr 1fr;gap:40px;}
   .info h2{font-size:1.8rem;font-weight:800;margin-bottom:18px;}
   .info .row{display:flex;align-items:center;gap:12px;background:#f7f9fc;border:1px solid var(--line);border-radius:12px;padding:13px 16px;margin-bottom:10px;}
@@ -2361,6 +2372,7 @@ export default {
           bannerCount: Math.min((x.data && Array.isArray(x.data.banners) ? x.data.banners.length : 0) || 0, 4),
           productCount: Math.min((x.data && Array.isArray(x.data.products) ? x.data.products.length : 0) || 0, 12),
           articleCount: Math.min((x.data && Array.isArray(x.data.articles) ? x.data.articles.length : 0) || 0, 9),
+          sectionCount: Math.min((x.data && Array.isArray(x.data.pages) ? x.data.pages.slice(0, 8).reduce((n, p) => n + ((Array.isArray(p.sections) ? p.sections : []).filter(s => s && (s.heading || s.text)).slice(0, 5).length), 0) : 0) || 0, 30),
         })));
       } catch { return json([]); }
     }
@@ -2645,6 +2657,12 @@ Return ONLY the full updated JSON object — same keys and structure as the inpu
           meta.banners = (Array.isArray(dd.banners) ? dd.banners : []).slice(0, 4).map(b => (b && b.title) || 'Banner');
           meta.products = (Array.isArray(dd.products) ? dd.products : []).slice(0, 12).map(p => (p && p.name) || 'Product');
           meta.articles = (Array.isArray(dd.articles) ? dd.articles : []).slice(0, 9).map(a => (a && a.title) || 'Article');
+          meta.sections = [];
+          (Array.isArray(dd.pages) ? dd.pages : []).slice(0, 8).forEach(p => {
+            (Array.isArray(p.sections) ? p.sections : []).filter(x => x && (x.heading || x.text)).slice(0, 5).forEach(s => {
+              if (meta.sections.length < 30) meta.sections.push((p.name || 'Page') + ' — ' + (s.heading || 'Section'));
+            });
+          });
         } catch {}
         images.meta = meta;
         return json(images);
@@ -2668,6 +2686,8 @@ Return ONLY the full updated JSON object — same keys and structure as the inpu
           galleryModes: Array.isArray(body.galleryModes) ? body.galleryModes.slice(0, 6).map(v => ['title', 'icon', 'none', 'both'].includes(v) ? v : 'both') : [],
           productModes: Array.isArray(body.productModes) ? body.productModes.slice(0, 12).map(v => ['title', 'icon', 'none', 'both'].includes(v) ? v : 'none') : [],
           articleModes: Array.isArray(body.articleModes) ? body.articleModes.slice(0, 9).map(v => ['title', 'icon', 'none', 'both'].includes(v) ? v : 'none') : [],
+          sections: Array.isArray(body.sections) ? body.sections.slice(0, 30).map(v => ok(v) ? v : '') : [],
+          sectionModes: Array.isArray(body.sectionModes) ? body.sectionModes.slice(0, 30).map(v => ['title', 'icon', 'none', 'both'].includes(v) ? v : 'none') : [],
           heroMode: ['title', 'icon', 'none', 'both'].includes(body.heroMode) ? body.heroMode : 'title',
           aboutMode: ['title', 'icon', 'none', 'both'].includes(body.aboutMode) ? body.aboutMode : 'icon',
         };
