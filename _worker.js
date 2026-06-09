@@ -1976,8 +1976,8 @@ function buildMultiPageSite(d, baseSlug, pageSlug) {
     })()}</div>
   </section>
 
-  ${itemsHtml}
   ${sectionsHtml}
+  ${itemsHtml}
   ${contactHtml}
 
   <footer><div class="wrap">
