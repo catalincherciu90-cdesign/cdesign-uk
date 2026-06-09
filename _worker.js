@@ -939,7 +939,11 @@ function buildDemoSite(d) {
   .nav-links{display:flex;gap:30px;font-size:.94rem;font-weight:500;color:#334155;}
   .nav-links a{position:relative;}
   .nav-links a:hover{color:var(--p);}
-  .ham{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:8px;font-size:1.5rem;color:var(--ink);align-items:center;justify-content:center;}
+  .ham{display:none;cursor:pointer;background:none;border:none;padding:8px;font-size:1.5rem;color:var(--ink);line-height:1;align-items:center;justify-content:center;}
+  .mnav{position:absolute;top:100%;left:0;right:0;background:rgba(255,255,255,.98);backdrop-filter:blur(14px);flex-direction:column;display:none;z-index:29;border-bottom:1px solid var(--line);box-shadow:0 16px 30px -18px rgba(15,23,42,.3);}
+  .mnav.open{display:flex;}
+  .mnav a{padding:14px 24px;border-bottom:1px solid var(--line);font-weight:500;color:#334155;}
+  .mnav a:hover{color:var(--p);}
   .btn{display:inline-flex;align-items:center;gap:8px;background:var(--p);color:#fff;font-weight:700;padding:13px 28px;border-radius:11px;font-size:.95rem;border:none;cursor:pointer;transition:transform .18s,box-shadow .18s,filter .18s;box-shadow:0 8px 22px ${primary}40;}
   .btn:hover{filter:brightness(1.06);transform:translateY(-2px);box-shadow:0 12px 28px ${primary}55;}
   .btn.ghost{background:transparent;color:var(--ink);box-shadow:none;border:1.5px solid var(--line);}
@@ -1057,6 +1061,7 @@ function buildDemoSite(d) {
     .hero-visual{order:-1;}
     .stats-grid{grid-template-columns:repeat(2,1fr);gap:30px 20px;}
     .nav-links{display:none;}
+    .ham{display:flex;}
     section{padding:64px 0;}
   }
   @media(max-width:640px){
@@ -1078,11 +1083,6 @@ function buildDemoSite(d) {
     .info-card{padding:26px;}
     form{padding:24px;}
     .float{display:none;}
-    .ham{display:flex;}
-    .mnav{position:absolute;top:60px;left:0;right:0;background:rgba(255,255,255,.98);backdrop-filter:blur(14px);flex-direction:column;display:none;z-index:29;}
-    .mnav.open{display:flex;}
-    .mnav a{padding:14px 16px;border-bottom:1px solid var(--line);font-weight:500;color:#334155;}
-    .mnav a:hover{color:var(--p);}
   }
   /* real photos layered over the gradient placeholders (gradient shows if a photo fails) */
   .cover{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;border:0;}
@@ -1342,6 +1342,7 @@ function buildShopSite(d) {
   .logo .d{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--p),var(--a));display:grid;place-items:center;color:#fff;}
   .nav-links{display:flex;gap:22px;margin-left:14px;font-size:.92rem;font-weight:500;}
   .nav-links a:hover{color:var(--p);}
+  .ham{display:none;cursor:pointer;background:none;border:none;padding:8px;font-size:1.5rem;color:var(--ink);line-height:1;margin-left:auto;}
   .nav-right{margin-left:auto;display:flex;align-items:center;gap:14px;}
   .btn{display:inline-flex;align-items:center;gap:7px;background:var(--p);color:#fff;font-weight:700;padding:11px 20px;border-radius:10px;font-size:.92rem;border:none;cursor:pointer;transition:.18s;}
   .btn:hover{filter:brightness(1.08);transform:translateY(-1px);}
@@ -1419,7 +1420,7 @@ function buildShopSite(d) {
   .foot .c{color:#fff;font-weight:800;font-size:1.15rem;display:flex;gap:9px;align-items:center;}
   .foot-bottom{padding-top:18px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.83rem;}
   .foot-bottom a{color:var(--a);font-weight:700;}
-  @media(max-width:820px){.shop-hero{grid-template-columns:1fr;}.side-banners{grid-template-rows:none;grid-template-columns:1fr 1fr;}.sgrid{grid-template-columns:repeat(2,1fr);gap:24px 14px;}.nav-links{display:none;}.contact-grid{grid-template-columns:1fr;}}
+  @media(max-width:820px){.shop-hero{grid-template-columns:1fr;}.side-banners{grid-template-rows:none;grid-template-columns:1fr 1fr;}.sgrid{grid-template-columns:repeat(2,1fr);gap:24px 14px;}.nav-links,.nav-right{display:none;}.ham{display:block;}.contact-grid{grid-template-columns:1fr;}}
   @media(max-width:640px){
     .wrap{padding:0 14px;}
     .nav{height:58px;}
@@ -1430,12 +1431,11 @@ function buildShopSite(d) {
     .sgrid{grid-template-columns:1fr 1fr;}
     .prod-img{height:150px;}
     section{padding:44px 0;}
-    .ham{display:flex;}
-    .mnav{position:absolute;top:58px;left:0;right:0;background:rgba(255,255,255,.98);backdrop-filter:blur(14px);flex-direction:column;display:none;z-index:29;}
-    .mnav.open{display:flex;}
-    .mnav a{padding:14px 16px;border-bottom:1px solid var(--line);font-weight:500;color:#334155;}
-    .mnav a:hover{color:var(--p);}
   }
+  .mnav{position:absolute;top:100%;left:0;right:0;background:rgba(255,255,255,.98);backdrop-filter:blur(14px);flex-direction:column;display:none;z-index:29;border-bottom:1px solid var(--line);box-shadow:0 16px 30px -18px rgba(15,23,42,.3);}
+  .mnav.open{display:flex;}
+  .mnav a{padding:14px 24px;border-bottom:1px solid var(--line);font-weight:500;color:#334155;}
+  .mnav a:hover{color:var(--p);}
 </style>
 </head>
 <body>
@@ -1449,7 +1449,9 @@ function buildShopSite(d) {
         <span class="cart" title="Cart">🛒<b>0</b></span>
         <a href="#contact" class="btn">Enquire</a>
       </div>
+      <button class="ham" id="ham" aria-label="Menu" onclick="document.getElementById('mnav').classList.toggle('open')">☰</button>
     </div>
+    <div class="mnav" id="mnav"><a href="#shop">Shop</a><a href="#categories">Categories</a><a href="#about">About</a><a href="#contact">Contact</a></div>
   </header>
 
   <div class="wrap shop-hero">
@@ -1678,6 +1680,11 @@ function buildBlogSite(d) {
   .logo{font-weight:900;font-size:1.7rem;letter-spacing:-.5px;display:flex;align-items:center;gap:10px;}
   .nav-links{display:flex;gap:24px;font-size:.92rem;font-weight:500;}
   .nav-links a:hover{color:var(--a);}
+  .ham{display:none;cursor:pointer;background:none;border:none;padding:8px;font-size:1.5rem;color:var(--ink);line-height:1;}
+  .mnav{position:absolute;top:100%;left:0;right:0;background:rgba(255,255,255,.98);backdrop-filter:blur(14px);flex-direction:column;display:none;z-index:29;border-bottom:1px solid var(--line);box-shadow:0 16px 30px -18px rgba(15,23,42,.3);}
+  .mnav.open{display:flex;}
+  .mnav a{padding:14px 24px;border-bottom:1px solid var(--line);font-weight:500;}
+  .mnav a:hover{color:var(--a);}
   .btn{display:inline-flex;align-items:center;gap:7px;background:var(--p);color:#fff;font-weight:600;padding:11px 22px;border-radius:999px;font-size:.9rem;border:none;cursor:pointer;}
   .btn:hover{background:var(--a);}
   .cats{display:flex;gap:8px;flex-wrap:wrap;padding:16px 0 0;}
@@ -1719,7 +1726,7 @@ function buildBlogSite(d) {
   .foot .c{font-family:'Fraunces';font-weight:900;color:var(--ink);font-size:1.3rem;}
   .foot a{color:var(--a);font-weight:700;}
   .reveal{opacity:0;transform:translateY(18px);transition:.6s;}.reveal.in{opacity:1;transform:none;}
-  @media(max-width:820px){.feat{grid-template-columns:1fr;}.feat-img{order:-1;}.nav-links{display:none;}}
+  @media(max-width:820px){.feat{grid-template-columns:1fr;}.feat-img{order:-1;}.nav-links{display:none;}.ham{display:block;}}
   @media(max-width:640px){
     .wrap{padding:0 14px;}
     .nav{height:58px;}
@@ -1727,11 +1734,6 @@ function buildBlogSite(d) {
     .hero-blog h1{font-size:clamp(1.7rem,6vw,2.4rem);}
     .feat{grid-template-columns:1fr;}
     section{padding:44px 0;}
-    .ham{display:flex;}
-    .mnav{position:absolute;top:58px;left:0;right:0;background:rgba(255,255,255,.98);backdrop-filter:blur(14px);flex-direction:column;display:none;z-index:29;}
-    .mnav.open{display:flex;}
-    .mnav a{padding:14px 16px;border-bottom:1px solid var(--line);font-weight:500;color:#334155;}
-    .mnav a:hover{color:var(--p);}
   }
 </style>
 </head>
@@ -1743,9 +1745,11 @@ function buildBlogSite(d) {
         <div class="logo"><span>${emoji}</span>${name}</div>
         <nav class="nav-links"><a href="#articles">Latest</a><a href="#articles">Categories</a><a href="#about">About</a><a href="#contact">Contact</a></nav>
         <a href="#contact" class="btn">Subscribe</a>
+        <button class="ham" id="ham" aria-label="Menu" onclick="document.getElementById('mnav').classList.toggle('open')">☰</button>
       </div>
       ${catPills}
     </div>
+    <div class="mnav" id="mnav"><a href="#articles">Latest</a><a href="#articles">Categories</a><a href="#about">About</a><a href="#contact">Contact</a></div>
   </header>
 
   <section class="feat-sec"><div class="wrap feat">
@@ -1864,6 +1868,11 @@ function buildMultiPageSite(d, baseSlug, pageSlug) {
   .logo .d{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--p),var(--a));display:grid;place-items:center;color:#fff;}
   nav.links{margin-left:auto;display:flex;gap:22px;font-size:.93rem;font-weight:500;color:#334155;flex-wrap:wrap;}
   nav.links a:hover{color:var(--p);}nav.links a.on{color:var(--p);font-weight:700;}
+  .ham{display:none;cursor:pointer;background:none;border:none;padding:8px;font-size:1.5rem;color:#334155;line-height:1;margin-left:auto;}
+  .mnav{position:absolute;top:100%;left:0;right:0;background:rgba(255,255,255,.98);backdrop-filter:blur(14px);flex-direction:column;display:none;z-index:29;border-bottom:1px solid var(--line);box-shadow:0 16px 30px -18px rgba(15,23,42,.3);}
+  .mnav.open{display:flex;}
+  .mnav a{padding:14px 24px;border-bottom:1px solid var(--line);font-weight:500;color:#334155;}
+  .mnav a:hover{color:var(--p);}.mnav a.on{color:var(--p);font-weight:700;}
   .btn{display:inline-flex;align-items:center;gap:7px;background:var(--p);color:#fff;font-weight:700;padding:11px 22px;border-radius:10px;font-size:.92rem;border:none;cursor:pointer;}
   .btn:hover{filter:brightness(1.08);}
   .phero{position:relative;min-height:340px;display:flex;align-items:center;color:#fff;overflow:hidden;padding:56px 0;}
@@ -1904,10 +1913,9 @@ function buildMultiPageSite(d, baseSlug, pageSlug) {
   .foot-b{padding-top:18px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.83rem;}
   .foot-b a{color:var(--a);font-weight:700;}
   .reveal{opacity:0;transform:translateY(18px);transition:.6s;}.reveal.in{opacity:1;transform:none;}
-  @media(max-width:820px){.split .sgrid,.contact .cgrid{grid-template-columns:1fr;}.split.alt .stext{order:0;}.simg{order:-1;}}
+  @media(max-width:820px){.split .sgrid,.contact .cgrid{grid-template-columns:1fr;}.split.alt .stext{order:0;}.simg{order:-1;}nav.links{display:none;}.ham{display:block;}}
   @media(max-width:640px){
     .wrap{padding:0 14px;}
-    .mnav-links{display:none;}
     .phero{min-height:260px;padding:40px 0;}
     .phero.home{min-height:340px;}
     .phero h1{font-size:clamp(1.7rem,6vw,2.4rem);}
@@ -1925,7 +1933,8 @@ function buildMultiPageSite(d, baseSlug, pageSlug) {
     <a href="/demo/${baseSlug}" class="logo"><span class="d">${emoji}</span>${name}</a>
     <nav class="links">${navHtml}</nav>
     <a href="${href(isContact ? cur : (pages.find(p => /contact/i.test(p.name)) || cur))}" class="btn" style="margin-left:10px;">${e(d.ctaText || 'Contact')}</a>
-  </div></header>
+    <button class="ham" id="ham" aria-label="Menu" onclick="document.getElementById('mnav').classList.toggle('open')">☰</button>
+  </div><div class="mnav" id="mnav">${navHtml}</div></header>
 
   <section class="phero ${isHome ? 'home' : ''}">
     <div class="phero-bg">${(im.pageHeroes && im.pageHeroes[curIndex]) ? imgTag(im.pageHeroes[curIndex]) : cover(kw + ', ' + (cur.name || kw), 50 + (curIndex < 0 ? 0 : curIndex))}</div>
