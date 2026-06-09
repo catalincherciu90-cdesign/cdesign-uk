@@ -2299,7 +2299,8 @@ export default {
           const raw = await env.PROGRAMARI.get('__admins__');
           const admins = raw ? JSON.parse(raw) : [];
           const a = admins.find(x => x.username === username);
-          if (a && a.passHash === await sha256(password)) { role = a.role || 'admin'; perms = Array.isArray(a.perms) ? a.perms : []; }
+          const passTry = String(password == null ? '' : password).trim();
+          if (a && a.passHash === await sha256(passTry)) { role = a.role || 'admin'; perms = Array.isArray(a.perms) ? a.perms : []; }
         }
         if (!role) return json({ error: 'Invalid credentials' }, 401, request);
         // Issue a session token (valid 30 days) instead of exposing the master token.
@@ -2360,7 +2361,7 @@ export default {
       try {
         const { username, password, perms } = await request.json();
         const u = String(username || '').trim();
-        const p = String(password || '');
+        const p = String(password || '').trim();
         if (!/^[a-zA-Z0-9._-]{2,40}$/.test(u)) return json({ error: 'Username must be 2–40 chars (letters, numbers, . _ -)' }, 400);
         if (p.length < 8) return json({ error: 'Password must be at least 8 characters' }, 400);
         if (u === ((env.ADMIN_USER || ADMIN_USER) || 'owner')) return json({ error: 'That username is reserved (owner account)' }, 400);
@@ -2380,7 +2381,7 @@ export default {
       try {
         const u = decodeURIComponent(path.replace('/api/admins/', '').replace('/password', ''));
         const { password } = await request.json();
-        const p = String(password || '');
+        const p = String(password || '').trim();
         if (p.length < 8) return json({ error: 'Password must be at least 8 characters' }, 400);
         const raw = await env.PROGRAMARI.get('__admins__');
         const admins = raw ? JSON.parse(raw) : [];
