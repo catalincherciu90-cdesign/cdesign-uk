@@ -2345,6 +2345,47 @@ export default {
       } catch { return json({ error: 'Server error' }, 500); }
     }
 
+    if (/^\/api\/demo\/[^/]+\/edit$/.test(path) && request.method === 'POST') {
+      if (!can(authed, 'portfolio')) return json({ error: 'Unauthorised' }, 401, request);
+      try {
+        const id = path.replace('/api/demo/', '').replace('/edit', '');
+        const body = await request.json().catch(() => ({}));
+        const instruction = String(body.instruction || '').trim().slice(0, 600);
+        if (!instruction) return json({ error: 'Tell the AI what to change.' }, 400, request);
+        if (!env.AI) return json({ error: 'AI binding unavailable — check wrangler.toml' }, 500, request);
+        const raw = await env.PROGRAMARI.get('__demos__');
+        const demos = raw ? JSON.parse(raw) : [];
+        const demo = demos.find(x => x.id === id || x.slug === id);
+        if (!demo || !demo.data) return json({ error: 'Not found' }, 404, request);
+        if (demo.kind === 'html' || demo.kind === 'zip') return json({ error: 'AI editing only works on generated demos, not uploaded files.' }, 400, request);
+
+        const current = { ...demo.data };
+        const keepLayout = current.layout, keepVariant = current.variant, keepHero = current.heroType;
+        const prompt = `You are editing the JSON content of a one-page demo website. Here is the current content:
+${JSON.stringify(current)}
+
+Apply EXACTLY this change requested by the user: "${instruction}"
+
+Return ONLY the full updated JSON object — same keys and structure as the input. Keep every field the change does not affect (do not drop sections). English. No commentary, no text outside the JSON.`;
+        const ai = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', { messages: [{ role: 'user', content: prompt }], max_tokens: 4096 });
+        const parsed = parseAiJson(ai);
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed) || !parsed.businessName) {
+          return json({ error: 'The AI could not apply that change. Try rephrasing.' }, 500, request);
+        }
+        // Preserve structural choices (layout/variant/hero) unless still present.
+        parsed.layout = keepLayout;
+        if (!parsed.variant) parsed.variant = keepVariant;
+        if (!parsed.heroType) parsed.heroType = keepHero;
+        demo.data = parsed;
+        demo.businessName = String(parsed.businessName || demo.businessName).slice(0, 80);
+        demo.industry = String(parsed.industry || demo.industry).slice(0, 60);
+        await env.PROGRAMARI.put('__demos__', JSON.stringify(demos));
+        return json({ success: true, slug: demo.slug, url: `/demo/${demo.slug}` }, 200, request);
+      } catch (e) {
+        return json({ error: 'Edit error: ' + (e.message || 'unknown') }, 500, request);
+      }
+    }
+
     if (/^\/api\/demo\/[^/]+\/restyle$/.test(path) && request.method === 'POST') {
       if (!can(authed, 'portfolio')) return json({ error: 'Unauthorised' }, 401);
       try {
