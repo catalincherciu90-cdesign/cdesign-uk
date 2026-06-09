@@ -2050,17 +2050,17 @@ export default {
           return new Response(bytes, { headers: { 'Content-Type': ctypeFor(fileName), 'Cache-Control': 'public,max-age=120' } });
         }
 
-        // AI-generated demo
+        // AI-generated demo — load any uploaded photos first (applies to every layout)
         const data = demo.data || demo;
+        try {
+          const imgRaw = await env.PROGRAMARI.get('__demo_img__' + demo.id);
+          if (imgRaw) data.images = JSON.parse(imgRaw);
+        } catch {}
         if (data.layout === 'multipage') {
           const render = buildMultiPageSite(data, demo.slug, subPath ? decodeURIComponent(subPath.replace(/\/$/, '')) : '');
           return new Response(render, { headers: { ...SEC_HEADERS, 'Content-Type': 'text/html;charset=utf-8', 'Cache-Control': 'public,max-age=120' } });
         }
         if (subPath) return notFound();
-        try {
-          const imgRaw = await env.PROGRAMARI.get('__demo_img__' + demo.id);
-          if (imgRaw) data.images = JSON.parse(imgRaw);
-        } catch {}
         const render = data.layout === 'shop' ? buildShopSite(data) : data.layout === 'blog' ? buildBlogSite(data) : buildDemoSite(data);
         return new Response(render, {
           headers: { ...SEC_HEADERS, 'Content-Type': 'text/html;charset=utf-8', 'Cache-Control': 'public,max-age=120' }
