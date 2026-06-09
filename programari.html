@@ -2341,6 +2341,25 @@
   </div>
 </div>
 
+<!-- MODAL EDIT DEMO WITH AI -->
+<div class="modal-overlay" id="demoEditOverlay">
+  <div class="modal" style="max-width:540px;">
+    <h3>Edit demo with AI</h3>
+    <p style="font-size:.8rem;color:var(--muted);margin:6px 0 14px;">Describe in plain words what you want changed and the AI will rewrite the demo's content. <strong id="demoEditName"></strong></p>
+    <input type="hidden" id="demoEditId">
+    <div class="f-group">
+      <label class="f-label" for="demoEditInstr">// what should change?</label>
+      <textarea class="f-input" id="demoEditInstr" rows="3" placeholder="e.g. rename the business to 'Apex Motors', make the prices 10% higher, change the tone to more premium, add a service about EV servicing, rewrite the hero headline..."></textarea>
+    </div>
+    <div style="font-size:.72rem;color:var(--muted);margin-bottom:10px;">💡 Good for: text, names, prices, services/products/articles, tone, colours. For the visual style use Restyle; for photos use 🖼 Photos.</div>
+    <div id="demoEditStatus" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;display:none;margin-bottom:8px;"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeDemoEdit()">Cancel</button>
+      <button class="btn-save" id="demoEditBtn" onclick="submitDemoEdit()">✨ Apply change →</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL GENERATE FROM SKETCH -->
 <div class="modal-overlay" id="sketchOverlay">
   <div class="modal" style="max-width:520px;">
@@ -2892,6 +2911,7 @@
       const layoutBadge = { shop: '🛒 shop', blog: '📰 blog', services: '🛠 services', saas: '💻 saas', agency: '🏢 agency', portfolio: '🖼 portfolio' }[layout];
       const label = custom ? `<span style="color:var(--teal);">custom ${esc(d.kind)}</span>` : (layoutBadge ? `<span style="color:#22b07d;">${layoutBadge}</span> · <span style="color:#a78bfa;">${esc(d.variant || 'modern')}</span>` : `<span style="color:#a78bfa;">${esc(d.variant || 'modern')}</span>`);
       const aiBtns = custom ? '' : `
+        <button class="btn-del" onclick="openDemoEdit('${esc(d.id)}','${esc((d.businessName || 'demo'))}')" title="Tell the AI what to change" style="border-color:#8b5cf6;color:#a78bfa;">✏️ Edit (AI)</button>
         <button class="btn-del" onclick="openDemoPhotos('${esc(d.id)}','${esc(layout)}',${d.galleryCount || 3},${d.bannerCount || 0},${d.productCount || 0},${d.articleCount || 0})" title="Upload your own photos">🖼 Photos</button>
         <button class="btn-del" onclick="restyleDemo('${esc(d.id)}')" title="New random colours">🎨 Restyle</button>`;
       return `
@@ -3109,6 +3129,37 @@
   function closeDemoUpload() { document.getElementById('demoUploadOverlay').classList.remove('open'); }
 
   // ── Generate from a sketch (vision AI) ───────────────────
+  // ── Edit a demo with AI ──────────────────────────────────
+  function openDemoEdit(id, name) {
+    document.getElementById('demoEditId').value = id;
+    document.getElementById('demoEditName').textContent = name ? '(' + name + ')' : '';
+    document.getElementById('demoEditInstr').value = '';
+    const st = document.getElementById('demoEditStatus'); st.style.display = 'none';
+    document.getElementById('demoEditOverlay').classList.add('open');
+  }
+  function closeDemoEdit() { document.getElementById('demoEditOverlay').classList.remove('open'); }
+
+  async function submitDemoEdit() {
+    const id = document.getElementById('demoEditId').value;
+    const instruction = document.getElementById('demoEditInstr').value.trim();
+    const st = document.getElementById('demoEditStatus');
+    const btn = document.getElementById('demoEditBtn');
+    if (!instruction) { alert('Tell the AI what to change.'); return; }
+    st.style.display = 'block'; st.style.color = 'var(--muted)'; st.textContent = '⏳ Applying change... (can take 10–25s)';
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/demo/' + encodeURIComponent(id) + '/edit?token=' + encodeURIComponent(adminToken), {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ instruction }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) { st.style.color = '#e74c3c'; st.textContent = '✗ ' + (data.error || 'Failed'); btn.disabled = false; return; }
+      closeDemoEdit();
+      await fetchDemos();
+      window.open('/demo/' + encodeURIComponent(data.slug) + '?v=' + Date.now(), '_blank', 'noopener');
+    } catch { st.style.color = '#e74c3c'; st.textContent = '✗ Network error'; }
+    btn.disabled = false;
+  }
+
   function openSketch() {
     document.getElementById('sketchFile').value = '';
     document.getElementById('sketchIndustry').value = '';
@@ -3319,6 +3370,7 @@
   document.getElementById('demoPhotosOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeDemoPhotos(); });
   document.getElementById('demoUploadOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeDemoUpload(); });
   document.getElementById('sketchOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeSketch(); });
+  document.getElementById('demoEditOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeDemoEdit(); });
   document.getElementById('crmModalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeCrmModal(); });
   document.getElementById('clientModalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeClientModal(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeCrmModal(); } });
