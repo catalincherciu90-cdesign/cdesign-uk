@@ -713,8 +713,8 @@ function parseAiJson(ai) {
 function buildDemoSite(d) {
   const e = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const hex = v => /^#[0-9a-fA-F]{3,8}$/.test(String(v || '')) ? v : null;
-  const primary = hex(d.colorPrimary) || '#6366f1';
-  const accent = hex(d.colorAccent) || '#f59e0b';
+  const primary = hex((d.images && d.images.colorPrimary) || d.colorPrimary) || '#6366f1';
+  const accent = hex((d.images && d.images.colorAccent) || d.colorAccent) || '#f59e0b';
   const name = e(d.businessName || 'Demo Business');
   const emoji = e(d.emoji || '🌐');
   const services = (Array.isArray(d.services) ? d.services : []).slice(0, 6);
@@ -1268,8 +1268,8 @@ ${body}
 function buildShopSite(d) {
   const e = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const hex = v => /^#[0-9a-fA-F]{3,8}$/.test(String(v || '')) ? v : null;
-  const primary = hex(d.colorPrimary) || '#1e3a8a';
-  const accent = hex(d.colorAccent) || '#f59e0b';
+  const primary = hex((d.images && d.images.colorPrimary) || d.colorPrimary) || '#1e3a8a';
+  const accent = hex((d.images && d.images.colorAccent) || d.colorAccent) || '#f59e0b';
   const name = e(d.businessName || 'Demo Store');
   const emoji = e(d.emoji || '🛒');
   const kw = String(d.imageKeywords || d.industry || 'cars').toLowerCase().replace(/[^a-z0-9, ]/g, '').slice(0, 60) || 'cars';
@@ -1645,8 +1645,8 @@ Requirements:
 function buildBlogSite(d) {
   const e = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const hex = v => /^#[0-9a-fA-F]{3,8}$/.test(String(v || '')) ? v : null;
-  const primary = hex(d.colorPrimary) || '#111827';
-  const accent = hex(d.colorAccent) || '#e11d48';
+  const primary = hex((d.images && d.images.colorPrimary) || d.colorPrimary) || '#111827';
+  const accent = hex((d.images && d.images.colorAccent) || d.colorAccent) || '#e11d48';
   const name = e(d.businessName || 'The Journal');
   const emoji = e(d.emoji || '📰');
   const kw = String(d.imageKeywords || d.industry || 'magazine').toLowerCase().replace(/[^a-z0-9, ]/g, '').slice(0, 60) || 'magazine';
@@ -1811,8 +1811,8 @@ function buildBlogSite(d) {
 function buildMultiPageSite(d, baseSlug, pageSlug) {
   const e = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const hex = v => /^#[0-9a-fA-F]{3,8}$/.test(String(v || '')) ? v : null;
-  const primary = hex(d.colorPrimary) || '#4f46e5';
-  const accent = hex(d.colorAccent) || '#f59e0b';
+  const primary = hex((d.images && d.images.colorPrimary) || d.colorPrimary) || '#4f46e5';
+  const accent = hex((d.images && d.images.colorAccent) || d.colorAccent) || '#f59e0b';
   const name = e(d.businessName || 'Demo Company');
   const emoji = e(d.emoji || '🌐');
   const kw = String(d.imageKeywords || d.industry || 'business').toLowerCase().replace(/[^a-z0-9, ]/g, '').slice(0, 60) || 'business';
@@ -2787,6 +2787,8 @@ Return ONLY the full updated JSON object — same keys and structure as the inpu
           const dd = (demo && demo.data) || {};
           meta.layout = dd.layout || 'landing';
           meta.heroType = dd.heroType || 'split';
+          meta.colorPrimary = dd.colorPrimary || '';
+          meta.colorAccent = dd.colorAccent || '';
           meta.gallery = (Array.isArray(dd.services) ? dd.services : []).slice(0, 6).map(s => (s && s.title) || 'Project');
           meta.banners = (Array.isArray(dd.banners) ? dd.banners : []).slice(0, 4).map(b => (b && b.title) || 'Banner');
           meta.products = (Array.isArray(dd.products) ? dd.products : []).slice(0, 12).map(p => (p && p.name) || 'Product');
@@ -2811,9 +2813,12 @@ Return ONLY the full updated JSON object — same keys and structure as the inpu
         const body = await request.json().catch(() => ({}));
         const ok = v => typeof v === 'string' && (v.startsWith('data:image/') || v.startsWith('https://') || v === '');
         const ratio = (() => { const r = String(body.bannerRatio || '').replace(/\s/g, '').replace(/×/g, 'x').toLowerCase(); return /^\d{1,5}[x:]\d{1,5}$/.test(r) ? r : ''; })();
+        const okHex = v => (typeof v === 'string' && /^#[0-9a-fA-F]{3,8}$/.test(v)) ? v : '';
         const images = {
           logo: ok(body.logo) ? body.logo : '',
           bannerRatio: ratio,
+          colorPrimary: okHex(body.colorPrimary),
+          colorAccent: okHex(body.colorAccent),
           hero: ok(body.hero) ? body.hero : '',
           about: ok(body.about) ? body.about : '',
           gallery: Array.isArray(body.gallery) ? body.gallery.slice(0, 6).map(v => ok(v) ? v : '') : [],

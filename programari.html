@@ -2966,7 +2966,7 @@
     document.getElementById('demoPhotosId').value = id;
     demoPhotoLayout = layout || 'landing';
     demoPhotoGalleryCount = galleryCount || 3; demoPhotoBannerCount = bannerCount || 0; demoPhotoProductCount = productCount || 0; demoPhotoArticleCount = articleCount || 0; demoPhotoSectionCount = sectionCount || 0; demoPhotoPageCount = pageCount || 0;
-    demoPhotoData = { logo: '', bannerRatio: '', hero: '', about: '', gallery: [], banners: [], products: [], articles: [], sections: [], pageHeroes: [], bannerModes: [], galleryModes: [], productModes: [], articleModes: [], sectionModes: [], pageHeroModes: [], heroMode: '', aboutMode: '' };
+    demoPhotoData = { logo: '', bannerRatio: '', colorPrimary: '', colorAccent: '', hero: '', about: '', gallery: [], banners: [], products: [], articles: [], sections: [], pageHeroes: [], bannerModes: [], galleryModes: [], productModes: [], articleModes: [], sectionModes: [], pageHeroModes: [], heroMode: '', aboutMode: '' };
     demoPhotoMeta = { gallery: [], banners: [], products: [], articles: [], sections: [], pages: [], heroType: 'split' };
     document.getElementById('demoPhotosSlots').innerHTML = '<div class="gib-empty">Loading...</div>';
     document.getElementById('demoPhotosOverlay').classList.add('open');
@@ -2974,8 +2974,8 @@
       const res = await fetch('/api/demo/' + encodeURIComponent(id) + '/images?token=' + encodeURIComponent(adminToken));
       const data = await res.json().catch(() => ({}));
       const A = k => Array.isArray(data[k]) ? data[k] : [];
-      demoPhotoData = { logo: data.logo || '', bannerRatio: data.bannerRatio || '', hero: data.hero || '', about: data.about || '', gallery: A('gallery'), banners: A('banners'), products: A('products'), articles: A('articles'), sections: A('sections'), pageHeroes: A('pageHeroes'), bannerModes: A('bannerModes'), galleryModes: A('galleryModes'), productModes: A('productModes'), articleModes: A('articleModes'), sectionModes: A('sectionModes'), pageHeroModes: A('pageHeroModes'), heroMode: data.heroMode || '', aboutMode: data.aboutMode || '' };
-      if (data.meta) demoPhotoMeta = { gallery: data.meta.gallery || [], banners: data.meta.banners || [], products: data.meta.products || [], articles: data.meta.articles || [], sections: data.meta.sections || [], pages: data.meta.pages || [], heroType: data.meta.heroType || 'split' };
+      demoPhotoData = { logo: data.logo || '', bannerRatio: data.bannerRatio || '', colorPrimary: data.colorPrimary || '', colorAccent: data.colorAccent || '', hero: data.hero || '', about: data.about || '', gallery: A('gallery'), banners: A('banners'), products: A('products'), articles: A('articles'), sections: A('sections'), pageHeroes: A('pageHeroes'), bannerModes: A('bannerModes'), galleryModes: A('galleryModes'), productModes: A('productModes'), articleModes: A('articleModes'), sectionModes: A('sectionModes'), pageHeroModes: A('pageHeroModes'), heroMode: data.heroMode || '', aboutMode: data.aboutMode || '' };
+      if (data.meta) demoPhotoMeta = { gallery: data.meta.gallery || [], banners: data.meta.banners || [], products: data.meta.products || [], articles: data.meta.articles || [], sections: data.meta.sections || [], pages: data.meta.pages || [], heroType: data.meta.heroType || 'split', colorPrimary: data.meta.colorPrimary || '', colorAccent: data.meta.colorAccent || '' };
     } catch {}
     renderDemoPhotoSlots();
   }
@@ -3052,6 +3052,17 @@
       <div style="font-size:.78rem;color:var(--muted);margin-bottom:7px;">Set the banner shape as <strong style="color:var(--teal);">width × height</strong> (e.g. <code>1600x500</code>). Leave empty for the default. Tip: use your image's own size so nothing gets cropped.</div>
       <input type="text" id="demoBannerRatio" placeholder="e.g. 1600x500" value="${esc(demoPhotoData.bannerRatio || '')}" oninput="demoPhotoData.bannerRatio=this.value.trim()" style="font-size:.86rem;padding:7px 10px;max-width:180px;border:1px solid var(--border-soft);border-radius:7px;background:var(--bg3);color:var(--text);">
     </div>`;
+    html += photoSectionHeader('Colour scheme');
+    const _cp = demoPhotoData.colorPrimary || m.colorPrimary || '#6366f1';
+    const _ca = demoPhotoData.colorAccent || m.colorAccent || '#f59e0b';
+    const _con = !!demoPhotoData.colorPrimary;
+    html += `<div style="border:1px solid var(--border-soft);border-radius:10px;padding:12px;margin-bottom:8px;">
+      <label style="display:flex;align-items:center;gap:7px;font-size:.84rem;cursor:pointer;margin-bottom:${_con ? '10px' : '0'};"><input type="checkbox" id="demoColorOn" ${_con ? 'checked' : ''} onchange="onColorToggle()"> Set the colours manually</label>
+      <div id="demoColorRow" style="display:${_con ? 'flex' : 'none'};gap:18px;align-items:center;flex-wrap:wrap;">
+        <label style="display:flex;align-items:center;gap:7px;font-size:.8rem;">Primary <input type="color" id="demoColorP" value="${_cp}" oninput="if(document.getElementById('demoColorOn').checked)demoPhotoData.colorPrimary=this.value" style="width:42px;height:30px;border:none;background:none;cursor:pointer;"></label>
+        <label style="display:flex;align-items:center;gap:7px;font-size:.8rem;">Accent <input type="color" id="demoColorA" value="${_ca}" oninput="if(document.getElementById('demoColorOn').checked)demoPhotoData.colorAccent=this.value" style="width:42px;height:30px;border:none;background:none;cursor:pointer;"></label>
+      </div>
+    </div>`;
     if (demoPhotoLayout === 'shop') {
       if (demoPhotoBannerCount) {
         html += photoSectionHeader('Home banners (carousel)');
@@ -3094,6 +3105,18 @@
     const dataUrl = ref === 'logo' ? await compressDemoLogo(input.files[0]) : await compressDemoImage(input.files[0]);
     setDemoPhotoRef(ref, dataUrl);
     renderDemoPhotoSlots();
+  }
+
+  function onColorToggle() {
+    const on = document.getElementById('demoColorOn').checked;
+    document.getElementById('demoColorRow').style.display = on ? 'flex' : 'none';
+    if (on) {
+      demoPhotoData.colorPrimary = document.getElementById('demoColorP').value;
+      demoPhotoData.colorAccent = document.getElementById('demoColorA').value;
+    } else {
+      demoPhotoData.colorPrimary = '';
+      demoPhotoData.colorAccent = '';
+    }
   }
 
   function clearDemoPhoto(ref) { setDemoPhotoRef(ref, ''); renderDemoPhotoSlots(); }
