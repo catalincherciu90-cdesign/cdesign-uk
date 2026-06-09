@@ -2963,14 +2963,15 @@
     document.getElementById('demoPhotosId').value = id;
     demoPhotoLayout = layout || 'landing';
     demoPhotoGalleryCount = galleryCount || 3; demoPhotoBannerCount = bannerCount || 0; demoPhotoProductCount = productCount || 0; demoPhotoArticleCount = articleCount || 0;
-    demoPhotoData = { hero: '', about: '', gallery: [], banners: [], products: [], articles: [], bannerModes: [], heroMode: 'title' };
+    demoPhotoData = { hero: '', about: '', gallery: [], banners: [], products: [], articles: [], bannerModes: [], galleryModes: [], productModes: [], articleModes: [], heroMode: '', aboutMode: '' };
     demoPhotoMeta = { gallery: [], banners: [], products: [], articles: [], heroType: 'split' };
     document.getElementById('demoPhotosSlots').innerHTML = '<div class="gib-empty">Loading...</div>';
     document.getElementById('demoPhotosOverlay').classList.add('open');
     try {
       const res = await fetch('/api/demo/' + encodeURIComponent(id) + '/images?token=' + encodeURIComponent(adminToken));
       const data = await res.json().catch(() => ({}));
-      demoPhotoData = { hero: data.hero || '', about: data.about || '', gallery: Array.isArray(data.gallery) ? data.gallery : [], banners: Array.isArray(data.banners) ? data.banners : [], products: Array.isArray(data.products) ? data.products : [], articles: Array.isArray(data.articles) ? data.articles : [], bannerModes: Array.isArray(data.bannerModes) ? data.bannerModes : [], heroMode: data.heroMode || 'title' };
+      const A = k => Array.isArray(data[k]) ? data[k] : [];
+      demoPhotoData = { hero: data.hero || '', about: data.about || '', gallery: A('gallery'), banners: A('banners'), products: A('products'), articles: A('articles'), bannerModes: A('bannerModes'), galleryModes: A('galleryModes'), productModes: A('productModes'), articleModes: A('articleModes'), heroMode: data.heroMode || '', aboutMode: data.aboutMode || '' };
       if (data.meta) demoPhotoMeta = { gallery: data.meta.gallery || [], banners: data.meta.banners || [], products: data.meta.products || [], articles: data.meta.articles || [], heroType: data.meta.heroType || 'split' };
     } catch {}
     renderDemoPhotoSlots();
@@ -2983,16 +2984,40 @@
     return `<div style="font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--muted);letter-spacing:.04em;margin:14px 0 8px;text-transform:uppercase;">// ${txt}</div>`;
   }
 
-  function setBannerMode(i, val) { if (!Array.isArray(demoPhotoData.bannerModes)) demoPhotoData.bannerModes = []; demoPhotoData.bannerModes[i] = val; }
-  function updateBannerMode(i) {
-    const t = document.getElementById('bnTitle' + i).checked;
-    const ic = document.getElementById('bnIcon' + i).checked;
-    setBannerMode(i, t && ic ? 'both' : t ? 'title' : ic ? 'icon' : 'none');
+  // Generic per-slot overlay (Title / Icon) for every image, in every layout.
+  function overlayDefault(kind) {
+    if (kind === 'hero') return demoPhotoMeta.heroType === 'image' ? 'title' : demoPhotoMeta.heroType === 'split' ? 'icon' : 'none';
+    return { banner: 'title', gallery: 'both', about: 'icon', product: 'none', article: 'none' }[kind] || 'none';
   }
-  function updateHeroMode() {
-    const t = document.getElementById('heroTitle').checked;
-    const ic = document.getElementById('heroIcon').checked;
-    demoPhotoData.heroMode = t && ic ? 'both' : t ? 'title' : ic ? 'icon' : 'none';
+  function getOverlayMode(kind, i) {
+    if (kind === 'hero') return demoPhotoData.heroMode || overlayDefault('hero');
+    if (kind === 'about') return demoPhotoData.aboutMode || overlayDefault('about');
+    const m = (demoPhotoData[kind + 'Modes'] || [])[i];
+    return m || overlayDefault(kind);
+  }
+  function setOverlayMode(kind, i, val) {
+    if (kind === 'hero') { demoPhotoData.heroMode = val; return; }
+    if (kind === 'about') { demoPhotoData.aboutMode = val; return; }
+    const key = kind + 'Modes';
+    if (!Array.isArray(demoPhotoData[key])) demoPhotoData[key] = [];
+    demoPhotoData[key][i] = val;
+  }
+  function overlayChecks(kind, i) {
+    const mode = getOverlayMode(kind, i);
+    const t = (mode === 'title' || mode === 'both') ? ' checked' : '';
+    const ic = (mode === 'icon' || mode === 'both') ? ' checked' : '';
+    const uid = kind + (i == null ? '' : i);
+    return `<div style="margin-top:7px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <span style="font-size:.7rem;color:var(--muted);">Show on the photo:</span>
+      <label style="display:flex;align-items:center;gap:5px;font-size:.78rem;cursor:pointer;"><input type="checkbox" id="ovT_${uid}" ${t} onchange="onOverlayChange('${kind}',${i == null ? 'null' : i})"> Title</label>
+      <label style="display:flex;align-items:center;gap:5px;font-size:.78rem;cursor:pointer;"><input type="checkbox" id="ovI_${uid}" ${ic} onchange="onOverlayChange('${kind}',${i == null ? 'null' : i})"> Icon</label>
+    </div>`;
+  }
+  function onOverlayChange(kind, i) {
+    const uid = kind + (i == null ? '' : i);
+    const t = document.getElementById('ovT_' + uid).checked;
+    const ic = document.getElementById('ovI_' + uid).checked;
+    setOverlayMode(kind, i, t && ic ? 'both' : t ? 'title' : ic ? 'icon' : 'none');
   }
 
   function demoSlotHtml(ref, category, item, rec, extra) {
@@ -3020,47 +3045,26 @@
     if (demoPhotoLayout === 'shop') {
       if (demoPhotoBannerCount) {
         html += photoSectionHeader('Home banners (carousel)');
-        for (let i = 0; i < demoPhotoBannerCount; i++) {
-          const mode = (demoPhotoData.bannerModes && demoPhotoData.bannerModes[i]) || 'title';
-          const tChk = (mode === 'title' || mode === 'both') ? ' checked' : '';
-          const iChk = (mode === 'icon' || mode === 'both') ? ' checked' : '';
-          const sel = `<div style="margin-top:7px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-            <span style="font-size:.7rem;color:var(--muted);">Show on the photo:</span>
-            <label style="display:flex;align-items:center;gap:5px;font-size:.78rem;cursor:pointer;"><input type="checkbox" id="bnTitle${i}" ${tChk} onchange="updateBannerMode(${i})"> Title</label>
-            <label style="display:flex;align-items:center;gap:5px;font-size:.78rem;cursor:pointer;"><input type="checkbox" id="bnIcon${i}" ${iChk} onchange="updateBannerMode(${i})"> Icon</label>
-          </div>`;
-          html += demoSlotHtml('banners:' + i, 'Banner ' + (i + 1), (m.banners[i] || 'Banner ' + (i + 1)), 'Wide · 1200×500px', sel);
-        }
+        for (let i = 0; i < demoPhotoBannerCount; i++) html += demoSlotHtml('banners:' + i, 'Banner ' + (i + 1), (m.banners[i] || 'Banner ' + (i + 1)), 'Wide · 1200×500px', overlayChecks('banner', i));
       }
       if (demoPhotoProductCount) {
         html += photoSectionHeader('Products (catalogue grid)');
-        for (let i = 0; i < demoPhotoProductCount; i++) html += demoSlotHtml('products:' + i, 'Product', (m.products[i] || 'Product ' + (i + 1)), 'Landscape · 800×600px (4:3)');
+        for (let i = 0; i < demoPhotoProductCount; i++) html += demoSlotHtml('products:' + i, 'Product', (m.products[i] || 'Product ' + (i + 1)), 'Landscape · 800×600px (4:3)', overlayChecks('product', i));
       }
       if (!demoPhotoBannerCount && !demoPhotoProductCount) html = '<div class="gib-empty">No image slots for this demo.</div>';
     } else if (demoPhotoLayout === 'blog') {
       if (demoPhotoArticleCount) {
         html += photoSectionHeader('Articles');
-        for (let i = 0; i < demoPhotoArticleCount; i++) html += demoSlotHtml('articles:' + i, (i === 0 ? 'Featured story' : 'Article'), (m.articles[i] || 'Article ' + (i + 1)), 'Landscape · 1200×750px (16:10)');
+        for (let i = 0; i < demoPhotoArticleCount; i++) html += demoSlotHtml('articles:' + i, (i === 0 ? 'Featured story' : 'Article'), (m.articles[i] || 'Article ' + (i + 1)), 'Landscape · 1200×750px (16:10)', overlayChecks('article', i));
       } else html = '<div class="gib-empty">No image slots for this demo.</div>';
     } else {
       html += photoSectionHeader('Hero & about');
-      if (demoPhotoMeta.heroType === 'image') {
-        const hm = demoPhotoData.heroMode || 'title';
-        const ht = (hm === 'title' || hm === 'both') ? ' checked' : '';
-        const hi = (hm === 'icon' || hm === 'both') ? ' checked' : '';
-        const heroSel = `<div style="margin-top:7px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-          <span style="font-size:.7rem;color:var(--muted);">Show on the photo:</span>
-          <label style="display:flex;align-items:center;gap:5px;font-size:.78rem;cursor:pointer;"><input type="checkbox" id="heroTitle" ${ht} onchange="updateHeroMode()"> Title</label>
-          <label style="display:flex;align-items:center;gap:5px;font-size:.78rem;cursor:pointer;"><input type="checkbox" id="heroIcon" ${hi} onchange="updateHeroMode()"> Icon</label>
-        </div>`;
-        html += demoSlotHtml('hero', 'Hero (full photo)', 'Hero background image', 'Wide · 1600×900px (16:9)', heroSel);
-      } else {
-        html += demoSlotHtml('hero', 'Hero', 'Hero image', 'Square · 800×800px (1:1)');
-      }
-      html += demoSlotHtml('about', 'About', 'About / team image', 'Portrait · 800×1000px (4:5)');
+      const heroImg = demoPhotoMeta.heroType === 'image';
+      html += demoSlotHtml('hero', heroImg ? 'Hero (full photo)' : 'Hero', heroImg ? 'Hero background image' : 'Hero image', heroImg ? 'Wide · 1600×900px (16:9)' : 'Square · 800×800px (1:1)', overlayChecks('hero', null));
+      html += demoSlotHtml('about', 'About', 'About / team image', 'Portrait · 800×1000px (4:5)', overlayChecks('about', null));
       if (demoPhotoGalleryCount) {
         html += photoSectionHeader('“Our work” gallery (one per service)');
-        for (let i = 0; i < demoPhotoGalleryCount; i++) html += demoSlotHtml('gallery:' + i, 'Gallery', (m.gallery[i] || 'Gallery ' + (i + 1)), 'Landscape · 800×600px (4:3)');
+        for (let i = 0; i < demoPhotoGalleryCount; i++) html += demoSlotHtml('gallery:' + i, 'Gallery', (m.gallery[i] || 'Gallery ' + (i + 1)), 'Landscape · 800×600px (4:3)', overlayChecks('gallery', i));
       }
     }
     document.getElementById('demoPhotosSlots').innerHTML = html;

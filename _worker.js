@@ -751,13 +751,16 @@ function buildDemoSite(d) {
           <div class="stat-l">${e(s.label || '')}</div>
         </div>`).join('');
 
+  const modeOf = (arr, i, def) => { const m = Array.isArray(im[arr]) ? im[arr][i] : null; return ['title', 'icon', 'both', 'none'].includes(m) ? m : def; };
+  const scalarMode = (key, def) => ['title', 'icon', 'both', 'none'].includes(im[key]) ? im[key] : def;
+  const aMode = scalarMode('aboutMode', 'icon');
   const galleryHtml = (services.length ? services : [{ title: 'Project' }, { title: 'Project' }, { title: 'Project' }])
-    .slice(0, 6).map((s, i) => `
+    .slice(0, 6).map((s, i) => { const gm = modeOf('galleryModes', i, 'both'); return `
         <div class="tile reveal" style="background:linear-gradient(${135 + i * 30}deg, ${primary}, ${accent});transition-delay:${i * 60}ms">
           ${cover(imgKw + ', ' + (s.title || imgKw), 100 + i, im.gallery && im.gallery[i])}
-          <span class="tile-em">${e(s.icon || emoji)}</span>
-          <span class="tile-t">${e(s.title || 'Our work')}</span>
-        </div>`).join('');
+          ${gm === 'icon' || gm === 'both' ? `<span class="tile-em">${e(s.icon || emoji)}</span>` : ''}
+          ${gm === 'title' || gm === 'both' ? `<span class="tile-t">${e(s.title || 'Our work')}</span>` : ''}
+        </div>`; }).join('');
 
   const heroType = ['split', 'centered', 'image'].includes(d.heroType) ? d.heroType : 'split';
   const hBadge = `<span class="badge"><span class="dot"></span>${e(d.industry || 'Trusted local business')}</span>`;
@@ -796,12 +799,15 @@ function buildDemoSite(d) {
   </div></section>` : '';
 
   // What shows over a full-photo hero: 'title' (text), 'icon', 'both', 'none' (clean photo)
-  const heroMode = ['title', 'icon', 'both', 'none'].includes(im.heroMode) ? im.heroMode : 'title';
+  const heroMode = scalarMode('heroMode', heroType === 'image' ? 'title' : heroType === 'split' ? 'icon' : 'none');
+  const wantIcon = heroMode === 'icon' || heroMode === 'both';
+  const wantTitle = heroMode === 'title' || heroMode === 'both';
   const heroImageInner = heroMode === 'none' ? '' :
     `<div class="hero-ovl"></div>
     <div class="wrap hero-inner">${heroMode === 'icon'
       ? `<span style="font-size:5rem;display:block;">${emoji}</span>`
       : `${heroMode === 'both' ? `<span style="font-size:3.4rem;display:block;margin-bottom:10px;">${emoji}</span>` : ''}${hBadge}${hTitle}${hSub}${hCta}${hTrust}`}</div>`;
+  const bannerOvl = (heroMode === 'none') ? '' : `<div class="hb-ovl">${wantIcon ? `<span class="hb-ic">${emoji}</span>` : ''}${wantTitle ? `<span class="hb-cap">${e(d.heroTitle || name)}</span>` : ''}</div>`;
   const heroSection =
     heroType === 'image' ? `
   <section class="hero hero-image">
@@ -811,13 +817,13 @@ function buildDemoSite(d) {
     heroType === 'centered' ? `
   <section class="hero hero-centered">
     <div class="wrap hero-inner">${hBadge}${hTitle}${hSub}${hCta}${hTrust}</div>
-    <div class="wrap"><div class="hero-banner">${cover(imgKw, 1, im.hero)}</div></div>
+    <div class="wrap"><div class="hero-banner">${cover(imgKw, 1, im.hero)}${bannerOvl}</div></div>
   </section>` : `
   <section class="hero">
     <div class="wrap hero-grid">
       <div>${hBadge}${hTitle}${hSub}${hCta}${hTrust}</div>
       <div class="hero-visual">
-        <div class="hero-card"><div class="hero-blob">${cover(imgKw, 1, im.hero)}${emoji}</div></div>
+        <div class="hero-card"><div class="hero-blob">${cover(imgKw, 1, im.hero)}${wantIcon ? emoji : ''}${wantTitle ? `<span class="hb-cap">${e(d.heroTitle || name)}</span>` : ''}</div></div>
         <div class="float a"><span class="ic">✓</span> Trusted &amp; reliable</div>
         <div class="float b"><span class="ic">★</span> ${e((stats[2] && stats[2].value) || '4.9')} rating</div>
       </div>
@@ -846,7 +852,7 @@ function buildDemoSite(d) {
         <p>${e(d.about || '')}</p>
         ${featuresHtml ? `<ul class="feat">${featuresHtml}</ul>` : ''}
       </div>
-      <div class="about-visual">${cover(imgKw + ', workplace', 2, im.about)}${emoji}</div>
+      <div class="about-visual">${cover(imgKw + ', workplace', 2, im.about)}${aMode === 'icon' || aMode === 'both' ? emoji : ''}${aMode === 'title' || aMode === 'both' ? `<span class="about-cap">${name}</span>` : ''}</div>
     </div>
   </section>`;
 
@@ -1002,6 +1008,11 @@ function buildDemoSite(d) {
   .feat li{display:flex;align-items:flex-start;gap:12px;font-weight:500;}
   .tick{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--a));color:#fff;font-size:.72rem;flex-shrink:0;margin-top:3px;}
   .about-visual{aspect-ratio:4/5;border-radius:26px;background:linear-gradient(150deg,var(--p),var(--a));display:grid;place-items:center;font-size:6.5rem;color:#fff;box-shadow:0 30px 60px -28px ${primary}99;position:relative;overflow:hidden;}
+  .about-cap{position:absolute;bottom:18px;left:0;right:0;text-align:center;font-family:'Plus Jakarta Sans';font-weight:800;font-size:1.3rem;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.5);z-index:2;}
+  .hb-ovl{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:linear-gradient(0deg,rgba(0,0,0,.28),transparent 60%);}
+  .hb-ic{font-size:clamp(2.6rem,6vw,4rem);filter:drop-shadow(0 6px 18px rgba(0,0,0,.5));}
+  .hb-cap{font-family:'Plus Jakarta Sans';font-weight:800;font-size:clamp(1.1rem,2.4vw,1.8rem);color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.55);text-align:center;padding:0 16px;z-index:2;}
+  .hero-blob .hb-cap{position:absolute;bottom:16px;left:0;right:0;}
   .about-visual::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.3),transparent 50%);}
   /* gallery */
   .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;}
@@ -1252,9 +1263,11 @@ function buildShopSite(d) {
   const catsHtml = categories.map((c, i) => `
         <a href="#shop" class="cat"><span class="ce">${e(c.emoji || '🏷️')}</span><div><b>${e(c.name || '')}</b><span>${e(c.count ? c.count + ' listings' : 'Browse')}</span></div></a>`).join('');
 
+  const pMode = i => { const m = Array.isArray(im.productModes) ? im.productModes[i] : null; return ['title', 'icon', 'both', 'none'].includes(m) ? m : 'none'; };
+  const imgOvl = (mode, icon, title) => mode === 'none' ? '' : `<div class="img-ovl">${(mode === 'icon' || mode === 'both') ? `<span class="img-ic">${e(icon)}</span>` : ''}${(mode === 'title' || mode === 'both') ? `<span class="img-cap">${e(title)}</span>` : ''}</div>`;
   const prodHtml = products.map((p, i) => `
         <div class="prod">
-          <div class="prod-img">${cover2(im.products && im.products[i], kw + ', ' + (p.name || p.category || kw), 100 + i)}${p.badge ? `<span class="prod-badge">${e(p.badge)}</span>` : ''}</div>
+          <div class="prod-img">${cover2(im.products && im.products[i], kw + ', ' + (p.name || p.category || kw), 100 + i)}${p.badge ? `<span class="prod-badge">${e(p.badge)}</span>` : ''}${imgOvl(pMode(i), p.icon || emoji, p.name || '')}</div>
           <div class="prod-b">
             <div class="prod-cat">${e(p.category || d.industry || '')}</div>
             <div class="prod-name">${e(p.name || '')}</div>
@@ -1334,6 +1347,9 @@ function buildShopSite(d) {
   .prod{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:.2s;}
   .prod:hover{transform:translateY(-5px);box-shadow:0 24px 46px -26px rgba(0,0,0,.35);border-color:var(--p);}
   .prod-img{position:relative;height:165px;background:linear-gradient(135deg,var(--p),var(--a));overflow:hidden;}
+  .img-ovl{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:linear-gradient(0deg,rgba(0,0,0,.42),transparent 65%);color:#fff;text-align:center;padding:10px;}
+  .img-ic{font-size:2.2rem;filter:drop-shadow(0 4px 12px rgba(0,0,0,.5));}
+  .img-cap{font-family:'Plus Jakarta Sans';font-weight:800;font-size:1rem;text-shadow:0 2px 10px rgba(0,0,0,.55);}
   .prod-badge{position:absolute;top:10px;left:10px;z-index:2;background:var(--p);color:#fff;font-size:.64rem;font-weight:800;padding:4px 10px;border-radius:999px;text-transform:uppercase;letter-spacing:.4px;}
   .prod-b{padding:15px;display:flex;flex-direction:column;flex:1;}
   .prod-cat{font-size:.68rem;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;}
@@ -1545,10 +1561,12 @@ function buildBlogSite(d) {
   const feat = articles[0];
   const rest = articles.slice(1);
 
+  const aMode = i => { const m = Array.isArray(im.articleModes) ? im.articleModes[i] : null; return ['title', 'icon', 'both', 'none'].includes(m) ? m : 'none'; };
+  const imgOvl = (mode, icon, title) => mode === 'none' ? '' : `<div class="img-ovl">${(mode === 'icon' || mode === 'both') ? `<span class="img-ic">${e(icon)}</span>` : ''}${(mode === 'title' || mode === 'both') ? `<span class="img-cap">${e(title)}</span>` : ''}</div>`;
   const catPills = categories.length ? `<div class="cats">${categories.map(c => `<a href="#articles" class="catp">${e(c)}</a>`).join('')}</div>` : '';
   const restHtml = rest.map((a, i) => `
         <a href="#articles" class="post reveal">
-          <div class="post-img">${cover(im.articles && im.articles[i + 1], kw + ', ' + (a.category || a.title || kw), 20 + i, 'cover')}</div>
+          <div class="post-img">${cover(im.articles && im.articles[i + 1], kw + ', ' + (a.category || a.title || kw), 20 + i, 'cover')}${imgOvl(aMode(i + 1), emoji, a.title || '')}</div>
           <div class="post-b">
             <span class="post-cat">${e(a.category || 'Article')}</span>
             <h3>${e(a.title || '')}</h3>
@@ -1587,7 +1605,10 @@ function buildBlogSite(d) {
   section{padding:40px 0;}
   /* featured */
   .feat{display:grid;grid-template-columns:1.3fr 1fr;gap:36px;align-items:center;padding-top:36px;}
-  .feat-img{border-radius:16px;overflow:hidden;aspect-ratio:16/10;background:linear-gradient(135deg,var(--p),var(--a));}
+  .feat-img{border-radius:16px;overflow:hidden;aspect-ratio:16/10;background:linear-gradient(135deg,var(--p),var(--a));position:relative;}
+  .img-ovl{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:linear-gradient(0deg,rgba(0,0,0,.42),transparent 65%);color:#fff;text-align:center;padding:12px;}
+  .img-ic{font-size:2.6rem;filter:drop-shadow(0 4px 12px rgba(0,0,0,.5));}
+  .img-cap{font-family:'Fraunces',serif;font-weight:700;font-size:1.2rem;text-shadow:0 2px 12px rgba(0,0,0,.55);}
   .feat-img .cover{width:100%;height:100%;object-fit:cover;}
   .feat .lab{color:var(--a);font-weight:700;font-size:.78rem;letter-spacing:.6px;text-transform:uppercase;}
   .feat h1{font-size:clamp(2rem,4vw,3.1rem);line-height:1.05;font-weight:900;margin:12px 0 14px;letter-spacing:-1px;}
@@ -1597,7 +1618,7 @@ function buildBlogSite(d) {
   .sec-title{font-family:'Fraunces';font-size:1.5rem;font-weight:700;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:24px;display:inline-block;}
   .posts{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:30px;}
   .post{display:flex;flex-direction:column;}
-  .post-img{border-radius:12px;overflow:hidden;aspect-ratio:16/10;background:linear-gradient(135deg,var(--p),var(--a));margin-bottom:14px;}
+  .post-img{border-radius:12px;overflow:hidden;aspect-ratio:16/10;background:linear-gradient(135deg,var(--p),var(--a));margin-bottom:14px;position:relative;}
   .post-img .cover{width:100%;height:100%;object-fit:cover;transition:transform .5s;}
   .post:hover .post-img .cover{transform:scale(1.05);}
   .post-cat{color:var(--a);font-weight:700;font-size:.72rem;letter-spacing:.5px;text-transform:uppercase;}
@@ -1640,7 +1661,7 @@ function buildBlogSite(d) {
       <p>${e(feat.excerpt || d.tagline || '')}</p>
       <div class="meta">By ${e(feat.author || 'Editor')} · ${e(feat.date || 'Today')}${feat.readTime ? ' · ' + e(feat.readTime) : ''}</div>
     </div>
-    <div class="feat-img">${cover(im.articles && im.articles[0], kw + ', ' + (feat.category || feat.title || kw), 10, 'cover')}</div>
+    <div class="feat-img">${cover(im.articles && im.articles[0], kw + ', ' + (feat.category || feat.title || kw), 10, 'cover')}${imgOvl(aMode(0), emoji, feat.title || '')}</div>
   </div></section>
 
   ${rest.length ? `<section id="articles"><div class="wrap"><div class="sec-title">${e(d.latestTitle || 'Latest stories')}</div><div class="posts">${restHtml}</div></div></section>` : ''}
@@ -2468,7 +2489,11 @@ Return ONLY the full updated JSON object — same keys and structure as the inpu
           products: Array.isArray(body.products) ? body.products.slice(0, 12).map(v => ok(v) ? v : '') : [],
           articles: Array.isArray(body.articles) ? body.articles.slice(0, 9).map(v => ok(v) ? v : '') : [],
           bannerModes: Array.isArray(body.bannerModes) ? body.bannerModes.slice(0, 4).map(v => ['title', 'icon', 'none', 'both'].includes(v) ? v : 'title') : [],
+          galleryModes: Array.isArray(body.galleryModes) ? body.galleryModes.slice(0, 6).map(v => ['title', 'icon', 'none', 'both'].includes(v) ? v : 'both') : [],
+          productModes: Array.isArray(body.productModes) ? body.productModes.slice(0, 12).map(v => ['title', 'icon', 'none', 'both'].includes(v) ? v : 'none') : [],
+          articleModes: Array.isArray(body.articleModes) ? body.articleModes.slice(0, 9).map(v => ['title', 'icon', 'none', 'both'].includes(v) ? v : 'none') : [],
           heroMode: ['title', 'icon', 'none', 'both'].includes(body.heroMode) ? body.heroMode : 'title',
+          aboutMode: ['title', 'icon', 'none', 'both'].includes(body.aboutMode) ? body.aboutMode : 'icon',
         };
         const payload = JSON.stringify(images);
         if (payload.length > 14_000_000) return json({ error: 'Images too large. Please use fewer / smaller photos.' }, 413);
