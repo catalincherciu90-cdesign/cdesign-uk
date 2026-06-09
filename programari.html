@@ -2963,15 +2963,15 @@
     document.getElementById('demoPhotosId').value = id;
     demoPhotoLayout = layout || 'landing';
     demoPhotoGalleryCount = galleryCount || 3; demoPhotoBannerCount = bannerCount || 0; demoPhotoProductCount = productCount || 0; demoPhotoArticleCount = articleCount || 0;
-    demoPhotoData = { hero: '', about: '', gallery: [], banners: [], products: [], articles: [], bannerModes: [] };
-    demoPhotoMeta = { gallery: [], banners: [], products: [], articles: [] };
+    demoPhotoData = { hero: '', about: '', gallery: [], banners: [], products: [], articles: [], bannerModes: [], heroMode: 'title' };
+    demoPhotoMeta = { gallery: [], banners: [], products: [], articles: [], heroType: 'split' };
     document.getElementById('demoPhotosSlots').innerHTML = '<div class="gib-empty">Loading...</div>';
     document.getElementById('demoPhotosOverlay').classList.add('open');
     try {
       const res = await fetch('/api/demo/' + encodeURIComponent(id) + '/images?token=' + encodeURIComponent(adminToken));
       const data = await res.json().catch(() => ({}));
-      demoPhotoData = { hero: data.hero || '', about: data.about || '', gallery: Array.isArray(data.gallery) ? data.gallery : [], banners: Array.isArray(data.banners) ? data.banners : [], products: Array.isArray(data.products) ? data.products : [], articles: Array.isArray(data.articles) ? data.articles : [], bannerModes: Array.isArray(data.bannerModes) ? data.bannerModes : [] };
-      if (data.meta) demoPhotoMeta = { gallery: data.meta.gallery || [], banners: data.meta.banners || [], products: data.meta.products || [], articles: data.meta.articles || [] };
+      demoPhotoData = { hero: data.hero || '', about: data.about || '', gallery: Array.isArray(data.gallery) ? data.gallery : [], banners: Array.isArray(data.banners) ? data.banners : [], products: Array.isArray(data.products) ? data.products : [], articles: Array.isArray(data.articles) ? data.articles : [], bannerModes: Array.isArray(data.bannerModes) ? data.bannerModes : [], heroMode: data.heroMode || 'title' };
+      if (data.meta) demoPhotoMeta = { gallery: data.meta.gallery || [], banners: data.meta.banners || [], products: data.meta.products || [], articles: data.meta.articles || [], heroType: data.meta.heroType || 'split' };
     } catch {}
     renderDemoPhotoSlots();
   }
@@ -2988,6 +2988,11 @@
     const t = document.getElementById('bnTitle' + i).checked;
     const ic = document.getElementById('bnIcon' + i).checked;
     setBannerMode(i, t && ic ? 'both' : t ? 'title' : ic ? 'icon' : 'none');
+  }
+  function updateHeroMode() {
+    const t = document.getElementById('heroTitle').checked;
+    const ic = document.getElementById('heroIcon').checked;
+    demoPhotoData.heroMode = t && ic ? 'both' : t ? 'title' : ic ? 'icon' : 'none';
   }
 
   function demoSlotHtml(ref, category, item, rec, extra) {
@@ -3039,7 +3044,19 @@
       } else html = '<div class="gib-empty">No image slots for this demo.</div>';
     } else {
       html += photoSectionHeader('Hero & about');
-      html += demoSlotHtml('hero', 'Hero', 'Hero image', 'Square · 800×800px (1:1)');
+      if (demoPhotoMeta.heroType === 'image') {
+        const hm = demoPhotoData.heroMode || 'title';
+        const ht = (hm === 'title' || hm === 'both') ? ' checked' : '';
+        const hi = (hm === 'icon' || hm === 'both') ? ' checked' : '';
+        const heroSel = `<div style="margin-top:7px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+          <span style="font-size:.7rem;color:var(--muted);">Show on the photo:</span>
+          <label style="display:flex;align-items:center;gap:5px;font-size:.78rem;cursor:pointer;"><input type="checkbox" id="heroTitle" ${ht} onchange="updateHeroMode()"> Title</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:.78rem;cursor:pointer;"><input type="checkbox" id="heroIcon" ${hi} onchange="updateHeroMode()"> Icon</label>
+        </div>`;
+        html += demoSlotHtml('hero', 'Hero (full photo)', 'Hero background image', 'Wide · 1600×900px (16:9)', heroSel);
+      } else {
+        html += demoSlotHtml('hero', 'Hero', 'Hero image', 'Square · 800×800px (1:1)');
+      }
       html += demoSlotHtml('about', 'About', 'About / team image', 'Portrait · 800×1000px (4:5)');
       if (demoPhotoGalleryCount) {
         html += photoSectionHeader('“Our work” gallery (one per service)');
