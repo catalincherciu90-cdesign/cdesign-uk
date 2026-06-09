@@ -811,6 +811,10 @@ function buildDemoSite(d) {
       : `${heroMode === 'both' ? `<span style="font-size:3.4rem;display:block;margin-bottom:10px;">${emoji}</span>` : ''}${hBadge}${hTitle}${hSub}${hCta}${hTrust}`}</div>`;
   const bannerOvl = (heroMode === 'none') ? '' : `<div class="hb-ovl">${wantIcon ? `<span class="hb-ic">${emoji}</span>` : ''}${wantTitle ? `<span class="hb-cap">${e(d.heroTitle || name)}</span>` : ''}</div>`;
   const heroSection =
+    d.layout === 'portfolio' ? `
+  <section class="hero hero-image hero-portfolio ${im.hero ? 'hero-auto' : ''}">
+    <div class="hero-imgbg">${cover(imgKw, 1, im.hero)}</div>
+  </section>` :
     heroType === 'image' ? `
   <section class="hero hero-image ${im.hero ? 'hero-auto' : ''}">
     <div class="hero-imgbg">${cover(imgKw, 1, im.hero)}</div>
@@ -994,6 +998,9 @@ function buildDemoSite(d) {
   .hero-image .hero-trust{color:#cbd5e1;}
   .hero-image .btn.ghost{color:#fff;border-color:rgba(255,255,255,.5);}
   .hero-image .btn.ghost:hover{background:rgba(255,255,255,.12);border-color:#fff;color:#fff;}
+  /* Portfolio: clean image-only hero (no text between nav and hero) */
+  .hero-portfolio{padding:0;min-height:360px;}
+  .hero-portfolio.hero-auto{min-height:0;}
   /* Uploaded hero/banner shown in full (height follows the image, never cropped) */
   .hero-image.hero-auto{padding:0;min-height:0;}
   .hero-image.hero-auto .hero-imgbg{position:relative;inset:auto;}
