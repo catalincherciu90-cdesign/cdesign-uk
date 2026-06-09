@@ -2936,6 +2936,7 @@
 
   // ── Demo custom photos ───────────────────────────────────
   let demoPhotoData = { hero: '', about: '', gallery: [], banners: [], products: [], articles: [] };
+  let demoPhotoMeta = { gallery: [], banners: [], products: [], articles: [] };
   let demoPhotoLayout = 'landing', demoPhotoGalleryCount = 3, demoPhotoBannerCount = 0, demoPhotoProductCount = 0, demoPhotoArticleCount = 0;
 
   async function openDemoPhotos(id, layout, galleryCount, bannerCount, productCount, articleCount) {
@@ -2943,12 +2944,14 @@
     demoPhotoLayout = layout || 'landing';
     demoPhotoGalleryCount = galleryCount || 3; demoPhotoBannerCount = bannerCount || 0; demoPhotoProductCount = productCount || 0; demoPhotoArticleCount = articleCount || 0;
     demoPhotoData = { hero: '', about: '', gallery: [], banners: [], products: [], articles: [] };
+    demoPhotoMeta = { gallery: [], banners: [], products: [], articles: [] };
     document.getElementById('demoPhotosSlots').innerHTML = '<div class="gib-empty">Loading...</div>';
     document.getElementById('demoPhotosOverlay').classList.add('open');
     try {
       const res = await fetch('/api/demo/' + encodeURIComponent(id) + '/images?token=' + encodeURIComponent(adminToken));
       const data = await res.json().catch(() => ({}));
       demoPhotoData = { hero: data.hero || '', about: data.about || '', gallery: Array.isArray(data.gallery) ? data.gallery : [], banners: Array.isArray(data.banners) ? data.banners : [], products: Array.isArray(data.products) ? data.products : [], articles: Array.isArray(data.articles) ? data.articles : [] };
+      if (data.meta) demoPhotoMeta = { gallery: data.meta.gallery || [], banners: data.meta.banners || [], products: data.meta.products || [], articles: data.meta.articles || [] };
     } catch {}
     renderDemoPhotoSlots();
   }
@@ -2956,14 +2959,21 @@
   function getDemoPhotoRef(ref) { if (ref.indexOf(':') > 0) { const p = ref.split(':'); return (demoPhotoData[p[0]] || [])[+p[1]] || ''; } return demoPhotoData[ref] || ''; }
   function setDemoPhotoRef(ref, val) { if (ref.indexOf(':') > 0) { const p = ref.split(':'); if (!Array.isArray(demoPhotoData[p[0]])) demoPhotoData[p[0]] = []; demoPhotoData[p[0]][+p[1]] = val; } else demoPhotoData[ref] = val; }
 
-  function demoSlotHtml(ref, title, rec) {
+  function photoSectionHeader(txt) {
+    return `<div style="font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--muted);letter-spacing:.04em;margin:14px 0 8px;text-transform:uppercase;">// ${txt}</div>`;
+  }
+
+  function demoSlotHtml(ref, category, item, rec) {
     const cur = getDemoPhotoRef(ref);
-    return `<div style="display:flex;gap:12px;align-items:center;border:1px solid var(--border-soft);border-radius:10px;padding:10px;margin-bottom:10px;">
+    return `<div style="display:flex;gap:12px;align-items:center;border:1px solid var(--border-soft);border-radius:10px;padding:10px;margin-bottom:8px;">
       <div style="width:74px;height:74px;border-radius:8px;background:var(--bg3);overflow:hidden;flex-shrink:0;display:grid;place-items:center;">
         ${cur ? `<img src="${cur}" style="width:100%;height:100%;object-fit:cover;">` : '<span style="font-size:.62rem;color:var(--muted);text-align:center;">auto<br>photo</span>'}
       </div>
       <div style="flex:1;min-width:0;">
-        <div style="font-weight:700;font-size:.86rem;">${title}</div>
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;flex-wrap:wrap;">
+          <span style="font-family:'Share Tech Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.04em;color:var(--teal);background:var(--teal-dim);border:1px solid var(--teal-border);padding:2px 8px;border-radius:6px;white-space:nowrap;">${esc(category)}</span>
+          <span style="font-weight:700;font-size:.86rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(item)}</span>
+        </div>
         <div style="font-size:.72rem;color:var(--muted);margin-bottom:7px;">Recommended: <strong style="color:var(--teal);">${rec}</strong></div>
         <input type="file" accept="image/*" onchange="onDemoPhotoPick('${ref}', this)" style="font-size:.74rem;max-width:160px;">
         ${cur ? `<button class="btn-del" style="margin-left:6px;padding:3px 8px;" onclick="clearDemoPhoto('${ref}')">✕ remove</button>` : ''}
@@ -2972,18 +2982,31 @@
   }
 
   function renderDemoPhotoSlots() {
+    const m = demoPhotoMeta;
     let html = '';
     if (demoPhotoLayout === 'shop') {
-      for (let i = 0; i < demoPhotoBannerCount; i++) html += demoSlotHtml('banners:' + i, 'Banner ' + (i + 1), 'Wide · 1200×500px');
-      for (let i = 0; i < demoPhotoProductCount; i++) html += demoSlotHtml('products:' + i, 'Product ' + (i + 1) + ' photo', 'Landscape · 800×600px (4:3)');
+      if (demoPhotoBannerCount) {
+        html += photoSectionHeader('Home banners (carousel)');
+        for (let i = 0; i < demoPhotoBannerCount; i++) html += demoSlotHtml('banners:' + i, 'Banner ' + (i + 1), (m.banners[i] || 'Banner ' + (i + 1)), 'Wide · 1200×500px');
+      }
+      if (demoPhotoProductCount) {
+        html += photoSectionHeader('Products (catalogue grid)');
+        for (let i = 0; i < demoPhotoProductCount; i++) html += demoSlotHtml('products:' + i, 'Product', (m.products[i] || 'Product ' + (i + 1)), 'Landscape · 800×600px (4:3)');
+      }
       if (!demoPhotoBannerCount && !demoPhotoProductCount) html = '<div class="gib-empty">No image slots for this demo.</div>';
     } else if (demoPhotoLayout === 'blog') {
-      for (let i = 0; i < demoPhotoArticleCount; i++) html += demoSlotHtml('articles:' + i, (i === 0 ? 'Featured article' : 'Article ' + (i + 1)) + ' image', 'Landscape · 1200×750px (16:10)');
-      if (!demoPhotoArticleCount) html = '<div class="gib-empty">No image slots for this demo.</div>';
+      if (demoPhotoArticleCount) {
+        html += photoSectionHeader('Articles');
+        for (let i = 0; i < demoPhotoArticleCount; i++) html += demoSlotHtml('articles:' + i, (i === 0 ? 'Featured story' : 'Article'), (m.articles[i] || 'Article ' + (i + 1)), 'Landscape · 1200×750px (16:10)');
+      } else html = '<div class="gib-empty">No image slots for this demo.</div>';
     } else {
-      html += demoSlotHtml('hero', 'Hero image', 'Square · 800×800px (1:1)');
-      html += demoSlotHtml('about', 'About / team image', 'Portrait · 800×1000px (4:5)');
-      for (let i = 0; i < demoPhotoGalleryCount; i++) html += demoSlotHtml('gallery:' + i, 'Gallery image ' + (i + 1), 'Landscape · 800×600px (4:3)');
+      html += photoSectionHeader('Hero & about');
+      html += demoSlotHtml('hero', 'Hero', 'Hero image', 'Square · 800×800px (1:1)');
+      html += demoSlotHtml('about', 'About', 'About / team image', 'Portrait · 800×1000px (4:5)');
+      if (demoPhotoGalleryCount) {
+        html += photoSectionHeader('“Our work” gallery (one per service)');
+        for (let i = 0; i < demoPhotoGalleryCount; i++) html += demoSlotHtml('gallery:' + i, 'Gallery', (m.gallery[i] || 'Gallery ' + (i + 1)), 'Landscape · 800×600px (4:3)');
+      }
     }
     document.getElementById('demoPhotosSlots').innerHTML = html;
   }
