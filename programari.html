@@ -2966,7 +2966,7 @@
     document.getElementById('demoPhotosId').value = id;
     demoPhotoLayout = layout || 'landing';
     demoPhotoGalleryCount = galleryCount || 3; demoPhotoBannerCount = bannerCount || 0; demoPhotoProductCount = productCount || 0; demoPhotoArticleCount = articleCount || 0; demoPhotoSectionCount = sectionCount || 0; demoPhotoPageCount = pageCount || 0;
-    demoPhotoData = { logo: '', hero: '', about: '', gallery: [], banners: [], products: [], articles: [], sections: [], pageHeroes: [], bannerModes: [], galleryModes: [], productModes: [], articleModes: [], sectionModes: [], pageHeroModes: [], heroMode: '', aboutMode: '' };
+    demoPhotoData = { logo: '', bannerRatio: '', hero: '', about: '', gallery: [], banners: [], products: [], articles: [], sections: [], pageHeroes: [], bannerModes: [], galleryModes: [], productModes: [], articleModes: [], sectionModes: [], pageHeroModes: [], heroMode: '', aboutMode: '' };
     demoPhotoMeta = { gallery: [], banners: [], products: [], articles: [], sections: [], pages: [], heroType: 'split' };
     document.getElementById('demoPhotosSlots').innerHTML = '<div class="gib-empty">Loading...</div>';
     document.getElementById('demoPhotosOverlay').classList.add('open');
@@ -2974,7 +2974,7 @@
       const res = await fetch('/api/demo/' + encodeURIComponent(id) + '/images?token=' + encodeURIComponent(adminToken));
       const data = await res.json().catch(() => ({}));
       const A = k => Array.isArray(data[k]) ? data[k] : [];
-      demoPhotoData = { logo: data.logo || '', hero: data.hero || '', about: data.about || '', gallery: A('gallery'), banners: A('banners'), products: A('products'), articles: A('articles'), sections: A('sections'), pageHeroes: A('pageHeroes'), bannerModes: A('bannerModes'), galleryModes: A('galleryModes'), productModes: A('productModes'), articleModes: A('articleModes'), sectionModes: A('sectionModes'), pageHeroModes: A('pageHeroModes'), heroMode: data.heroMode || '', aboutMode: data.aboutMode || '' };
+      demoPhotoData = { logo: data.logo || '', bannerRatio: data.bannerRatio || '', hero: data.hero || '', about: data.about || '', gallery: A('gallery'), banners: A('banners'), products: A('products'), articles: A('articles'), sections: A('sections'), pageHeroes: A('pageHeroes'), bannerModes: A('bannerModes'), galleryModes: A('galleryModes'), productModes: A('productModes'), articleModes: A('articleModes'), sectionModes: A('sectionModes'), pageHeroModes: A('pageHeroModes'), heroMode: data.heroMode || '', aboutMode: data.aboutMode || '' };
       if (data.meta) demoPhotoMeta = { gallery: data.meta.gallery || [], banners: data.meta.banners || [], products: data.meta.products || [], articles: data.meta.articles || [], sections: data.meta.sections || [], pages: data.meta.pages || [], heroType: data.meta.heroType || 'split' };
     } catch {}
     renderDemoPhotoSlots();
@@ -3047,6 +3047,11 @@
     let html = '';
     html += photoSectionHeader('Logo (replaces the name + icon in the header)');
     html += demoSlotHtml('logo', 'Logo', 'Site logo', 'Wide · 240×80px · transparent PNG');
+    html += photoSectionHeader('Banner ratio (applies to all banners on the site)');
+    html += `<div style="border:1px solid var(--border-soft);border-radius:10px;padding:12px;margin-bottom:8px;">
+      <div style="font-size:.78rem;color:var(--muted);margin-bottom:7px;">Set the banner shape as <strong style="color:var(--teal);">width × height</strong> (e.g. <code>1600x500</code>). Leave empty for the default. Tip: use your image's own size so nothing gets cropped.</div>
+      <input type="text" id="demoBannerRatio" placeholder="e.g. 1600x500" value="${esc(demoPhotoData.bannerRatio || '')}" oninput="demoPhotoData.bannerRatio=this.value.trim()" style="font-size:.86rem;padding:7px 10px;max-width:180px;border:1px solid var(--border-soft);border-radius:7px;background:var(--bg3);color:var(--text);">
+    </div>`;
     if (demoPhotoLayout === 'shop') {
       if (demoPhotoBannerCount) {
         html += photoSectionHeader('Home banners (carousel)');
