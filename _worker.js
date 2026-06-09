@@ -1800,12 +1800,16 @@ function buildMultiPageSite(d, baseSlug, pageSlug) {
   nav.links a:hover{color:var(--p);}nav.links a.on{color:var(--p);font-weight:700;}
   .btn{display:inline-flex;align-items:center;gap:7px;background:var(--p);color:#fff;font-weight:700;padding:11px 22px;border-radius:10px;font-size:.92rem;border:none;cursor:pointer;}
   .btn:hover{filter:brightness(1.08);}
-  .phero{padding:74px 0 60px;background:radial-gradient(60% 70% at 15% 10%,${primary}1f,transparent 60%),radial-gradient(50% 60% at 90% 15%,${accent}1c,transparent 60%),linear-gradient(180deg,#fbfcff,#fff);}
-  .phero.home{padding:96px 0 84px;}
+  .phero{position:relative;min-height:340px;display:flex;align-items:center;color:#fff;overflow:hidden;padding:56px 0;}
+  .phero.home{min-height:440px;}
+  .phero-bg{position:absolute;inset:0;z-index:0;background:linear-gradient(135deg,var(--p),var(--a));}
+  .phero-ovl{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(8,11,20,.42),rgba(8,11,20,.72));}
+  .phero-inner{position:relative;z-index:2;text-align:center;max-width:780px;margin:0 auto;}
+  .phero-emoji{display:block;font-size:4rem;filter:drop-shadow(0 6px 18px rgba(0,0,0,.5));}
   .eyebrow{display:inline-block;font-size:.74rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--p);background:${primary}14;padding:7px 15px;border-radius:999px;margin-bottom:18px;}
-  .phero h1{font-size:clamp(2rem,4.6vw,3.3rem);font-weight:800;letter-spacing:-1px;line-height:1.08;max-width:18ch;}
-  .phero.home h1{max-width:14ch;}
-  .phero p{margin:18px 0 26px;font-size:1.12rem;color:#475569;max-width:54ch;}
+  .phero .eyebrow{color:#fff;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);}
+  .phero h1{color:#fff;font-size:clamp(2rem,4.6vw,3.2rem);font-weight:800;letter-spacing:-1px;line-height:1.08;max-width:18ch;margin:0 auto;}
+  .phero p{margin:16px auto 24px;font-size:1.12rem;color:#e8edf7;max-width:54ch;}
   section{padding:60px 0;}
   .band{background:#f7f9fc;}
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:22px;}
@@ -1845,12 +1849,17 @@ function buildMultiPageSite(d, baseSlug, pageSlug) {
     <a href="${href(isContact ? cur : (pages.find(p => /contact/i.test(p.name)) || cur))}" class="btn" style="margin-left:10px;">${e(d.ctaText || 'Contact')}</a>
   </div></header>
 
-  <section class="phero ${isHome ? 'home' : ''}"><div class="wrap">
-    <span class="eyebrow">${e(isHome ? (d.industry || d.tagline || 'Welcome') : cur.name)}</span>
-    <h1>${e(cur.heading || cur.name || name)}</h1>
-    <p>${e(cur.subheading || cur.intro || (isHome ? d.tagline : '') || '')}</p>
-    ${isHome ? `<a href="${href(nextP)}" class="btn">Explore ${e(nextP.name)} →</a>` : ''}
-  </div></section>
+  <section class="phero ${isHome ? 'home' : ''}">
+    <div class="phero-bg">${(im.pageHeroes && im.pageHeroes[curIndex]) ? imgTag(im.pageHeroes[curIndex]) : cover(kw + ', ' + (cur.name || kw), 50 + (curIndex < 0 ? 0 : curIndex))}</div>
+    <div class="phero-ovl"></div>
+    <div class="wrap phero-inner">${(() => {
+      const m = (Array.isArray(im.pageHeroModes) ? im.pageHeroModes[curIndex] : null);
+      const phm = ['title', 'icon', 'both', 'none'].includes(m) ? m : 'title';
+      if (phm === 'none') return '';
+      if (phm === 'icon') return `<span class="phero-emoji">${emoji}</span>`;
+      return `${phm === 'both' ? `<span class="phero-emoji" style="font-size:2.8rem;margin-bottom:10px;">${emoji}</span>` : ''}<span class="eyebrow">${e(isHome ? (d.industry || d.tagline || 'Welcome') : cur.name)}</span><h1>${e(cur.heading || cur.name || name)}</h1><p>${e(cur.subheading || cur.intro || (isHome ? d.tagline : '') || '')}</p>${isHome ? `<a href="${href(nextP)}" class="btn">Explore ${e(nextP.name)} →</a>` : ''}`;
+    })()}</div>
+  </section>
 
   ${itemsHtml}
   ${sectionsHtml}
@@ -2373,6 +2382,7 @@ export default {
           productCount: Math.min((x.data && Array.isArray(x.data.products) ? x.data.products.length : 0) || 0, 12),
           articleCount: Math.min((x.data && Array.isArray(x.data.articles) ? x.data.articles.length : 0) || 0, 9),
           sectionCount: Math.min((x.data && Array.isArray(x.data.pages) ? x.data.pages.slice(0, 8).reduce((n, p) => n + ((Array.isArray(p.sections) ? p.sections : []).filter(s => s && (s.heading || s.text)).slice(0, 5).length), 0) : 0) || 0, 30),
+          pageCount: Math.min((x.data && Array.isArray(x.data.pages) ? x.data.pages.length : 0) || 0, 8),
         })));
       } catch { return json([]); }
     }
@@ -2657,6 +2667,7 @@ Return ONLY the full updated JSON object — same keys and structure as the inpu
           meta.banners = (Array.isArray(dd.banners) ? dd.banners : []).slice(0, 4).map(b => (b && b.title) || 'Banner');
           meta.products = (Array.isArray(dd.products) ? dd.products : []).slice(0, 12).map(p => (p && p.name) || 'Product');
           meta.articles = (Array.isArray(dd.articles) ? dd.articles : []).slice(0, 9).map(a => (a && a.title) || 'Article');
+          meta.pages = (Array.isArray(dd.pages) ? dd.pages : []).slice(0, 8).map(p => (p && p.name) || 'Page');
           meta.sections = [];
           (Array.isArray(dd.pages) ? dd.pages : []).slice(0, 8).forEach(p => {
             (Array.isArray(p.sections) ? p.sections : []).filter(x => x && (x.heading || x.text)).slice(0, 5).forEach(s => {
@@ -2688,6 +2699,8 @@ Return ONLY the full updated JSON object — same keys and structure as the inpu
           articleModes: Array.isArray(body.articleModes) ? body.articleModes.slice(0, 9).map(v => ['title', 'icon', 'none', 'both'].includes(v) ? v : 'none') : [],
           sections: Array.isArray(body.sections) ? body.sections.slice(0, 30).map(v => ok(v) ? v : '') : [],
           sectionModes: Array.isArray(body.sectionModes) ? body.sectionModes.slice(0, 30).map(v => ['title', 'icon', 'none', 'both'].includes(v) ? v : 'none') : [],
+          pageHeroes: Array.isArray(body.pageHeroes) ? body.pageHeroes.slice(0, 8).map(v => ok(v) ? v : '') : [],
+          pageHeroModes: Array.isArray(body.pageHeroModes) ? body.pageHeroModes.slice(0, 8).map(v => ['title', 'icon', 'none', 'both'].includes(v) ? v : 'title') : [],
           heroMode: ['title', 'icon', 'none', 'both'].includes(body.heroMode) ? body.heroMode : 'title',
           aboutMode: ['title', 'icon', 'none', 'both'].includes(body.aboutMode) ? body.aboutMode : 'icon',
         };
