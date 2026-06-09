@@ -731,10 +731,12 @@ function buildDemoSite(d) {
   const variant = ['modern', 'dark', 'minimal', 'elegant', 'gradient', 'corporate', 'bold'].includes(d.variant) ? d.variant : 'modern';
   const imgKw = String(d.imageKeywords || d.industry || 'business').toLowerCase().replace(/[^a-z0-9, ]/g, '').slice(0, 60) || 'business';
   const img = (kw, w, h, sig) => `https://loremflickr.com/${w}/${h}/${encodeURIComponent(String(kw).trim())}?lock=${sig}`;
+  // Reliable fallback photo (picsum always returns a real image) if the keyword stock service fails.
+  const fb = (w, h, sig) => `https://picsum.photos/seed/p${sig}/${w}/${h}`;
   const im = (d.images && typeof d.images === 'object') ? d.images : {};
   const imgTag = src => `<img class="cover" src="${String(src).replace(/"/g, '&quot;')}" alt="" loading="lazy" onerror="this.remove()">`;
-  // Uploaded photo wins; otherwise a keyword stock photo over a gradient (gradient shows if it fails).
-  const cover = (kw, sig, custom) => custom ? imgTag(custom) : `<img class="cover" src="${img(kw, 800, 600, sig)}" alt="" loading="lazy" onerror="this.remove()">`;
+  // Uploaded photo wins; otherwise a keyword stock photo, with a guaranteed photo fallback.
+  const cover = (kw, sig, custom) => custom ? imgTag(custom) : `<img class="cover" src="${img(kw, 800, 600, sig)}" alt="" loading="lazy" onerror="this.onerror=null;this.src='${fb(800, 600, sig)}'">`;
 
   const servicesHtml = services.map((s, i) => `
         <div class="card reveal" style="transition-delay:${i * 70}ms">
@@ -1226,9 +1228,10 @@ function buildShopSite(d) {
   const emoji = e(d.emoji || '🛒');
   const kw = String(d.imageKeywords || d.industry || 'cars').toLowerCase().replace(/[^a-z0-9, ]/g, '').slice(0, 60) || 'cars';
   const img = (k, w, h, sig) => `https://loremflickr.com/${w}/${h}/${encodeURIComponent(String(k).trim())}?lock=${sig}`;
+  const fb = (w, h, sig) => `https://picsum.photos/seed/p${sig}/${w}/${h}`;
   const im = (d.images && typeof d.images === 'object') ? d.images : {};
   const imgTag = src => `<img class="cover" src="${String(src).replace(/"/g, '&quot;')}" alt="" loading="lazy" onerror="this.remove()">`;
-  const cover = (k, sig) => `<img class="cover" src="${img(k, 800, 600, sig)}" alt="" loading="lazy" onerror="this.remove()">`;
+  const cover = (k, sig) => `<img class="cover" src="${img(k, 800, 600, sig)}" alt="" loading="lazy" onerror="this.onerror=null;this.src='${fb(800, 600, sig)}'">`;
   const cover2 = (custom, k, sig) => custom ? imgTag(custom) : cover(k, sig);
 
   let banners = (Array.isArray(d.banners) ? d.banners : []).filter(b => b && (b.title || b.subtitle)).slice(0, 4);
@@ -1580,8 +1583,9 @@ function buildBlogSite(d) {
   const kw = String(d.imageKeywords || d.industry || 'magazine').toLowerCase().replace(/[^a-z0-9, ]/g, '').slice(0, 60) || 'magazine';
   const im = (d.images && typeof d.images === 'object') ? d.images : {};
   const img = (k, w, h, sig) => `https://loremflickr.com/${w}/${h}/${encodeURIComponent(String(k).trim())}?lock=${sig}`;
+  const fb = (w, h, sig) => `https://picsum.photos/seed/p${sig}/${w}/${h}`;
   const imgTag = (src, cls) => `<img class="${cls}" src="${String(src).replace(/"/g, '&quot;')}" alt="" loading="lazy" onerror="this.remove()">`;
-  const cover = (custom, k, sig, cls) => custom ? imgTag(custom, cls) : imgTag(img(k, 800, 600, sig), cls);
+  const cover = (custom, k, sig, cls) => custom ? imgTag(custom, cls) : `<img class="${cls}" src="${img(k, 800, 600, sig)}" alt="" loading="lazy" onerror="this.onerror=null;this.src='${fb(800, 600, sig)}'">`;
 
   let articles = (Array.isArray(d.articles) ? d.articles : []).filter(a => a && a.title).slice(0, 9);
   if (!articles.length) articles = [{ title: d.tagline || 'Welcome', excerpt: '', category: 'News', author: 'Editor', date: '' }];
@@ -1723,7 +1727,7 @@ function buildMultiPageSite(d, baseSlug, pageSlug) {
   const name = e(d.businessName || 'Demo Company');
   const emoji = e(d.emoji || '🌐');
   const kw = String(d.imageKeywords || d.industry || 'business').toLowerCase().replace(/[^a-z0-9, ]/g, '').slice(0, 60) || 'business';
-  const cover = (k, sig, r) => `<img src="https://loremflickr.com/${800}/${600}/${encodeURIComponent(String(k).trim())}?lock=${sig}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;${r ? 'border-radius:' + r + ';' : ''}" onerror="this.style.display='none'">`;
+  const cover = (k, sig, r) => `<img src="https://loremflickr.com/${800}/${600}/${encodeURIComponent(String(k).trim())}?lock=${sig}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;${r ? 'border-radius:' + r + ';' : ''}" onerror="this.onerror=null;this.src='https://picsum.photos/seed/p${sig}/800/600'">`;
   const im = (d.images && typeof d.images === 'object') ? d.images : {};
   const imgTag = src => `<img src="${String(src).replace(/"/g, '&quot;')}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">`;
   const secImg = (gi, k, sig) => (im.sections && im.sections[gi]) ? imgTag(im.sections[gi]) : cover(k, sig);
