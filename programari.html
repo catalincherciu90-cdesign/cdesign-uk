@@ -901,7 +901,7 @@
         </div>
         <div style="margin-bottom:12px;">
           <label class="f-label" style="margin-bottom:5px;display:block;">// layout</label>
-          <select class="f-input" id="demoGenLayout" style="margin-bottom:0;max-width:380px;">
+          <select class="f-input" id="demoGenLayout" style="margin-bottom:0;max-width:380px;" onchange="toggleMpPages()">
             <option value="landing">Landing page (one-page, all sections)</option>
             <option value="services">Services / booking (services + pricing)</option>
             <option value="saas">SaaS / product (features + pricing + FAQ)</option>
@@ -909,7 +909,12 @@
             <option value="portfolio">Portfolio / showcase (gallery-focused)</option>
             <option value="shop">Online shop / catalogue (banners + products)</option>
             <option value="blog">Blog / magazine (article feed)</option>
+            <option value="multipage">Multi-page site (separate pages + menu)</option>
           </select>
+        </div>
+        <div id="mpPagesRow" style="margin-bottom:12px;display:none;">
+          <label class="f-label" style="margin-bottom:5px;display:block;">// pages (comma-separated) — which pages should the site have?</label>
+          <input class="f-input" type="text" id="demoGenPages" placeholder="e.g. Home, About, Services, Gallery, Pricing, Contact" style="margin-bottom:0;">
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
           <div>
@@ -2905,11 +2910,11 @@
     wrap.innerHTML = allDemos.map(d => {
       const custom = d.kind === 'html' || d.kind === 'zip';
       const layout = d.layout || 'landing';
-      const layoutBadge = { shop: '🛒 shop', blog: '📰 blog', services: '🛠 services', saas: '💻 saas', agency: '🏢 agency', portfolio: '🖼 portfolio' }[layout];
+      const layoutBadge = { shop: '🛒 shop', blog: '📰 blog', services: '🛠 services', saas: '💻 saas', agency: '🏢 agency', portfolio: '🖼 portfolio', multipage: '📑 multi-page' }[layout];
       const label = custom ? `<span style="color:var(--teal);">custom ${esc(d.kind)}</span>` : (layoutBadge ? `<span style="color:#22b07d;">${layoutBadge}</span> · <span style="color:#a78bfa;">${esc(d.variant || 'modern')}</span>` : `<span style="color:#a78bfa;">${esc(d.variant || 'modern')}</span>`);
       const aiBtns = custom ? '' : `
         <button class="btn-del" onclick="openDemoEdit('${esc(d.id)}','${esc((d.businessName || 'demo'))}')" title="Tell the AI what to change" style="border-color:#8b5cf6;color:#a78bfa;">✏️ Edit (AI)</button>
-        <button class="btn-del" onclick="openDemoPhotos('${esc(d.id)}','${esc(layout)}',${d.galleryCount || 3},${d.bannerCount || 0},${d.productCount || 0},${d.articleCount || 0})" title="Upload your own photos">🖼 Photos</button>
+        ${layout === 'multipage' ? '' : `<button class="btn-del" onclick="openDemoPhotos('${esc(d.id)}','${esc(layout)}',${d.galleryCount || 3},${d.bannerCount || 0},${d.productCount || 0},${d.articleCount || 0})" title="Upload your own photos">🖼 Photos</button>`}
         <button class="btn-del" onclick="restyleDemo('${esc(d.id)}')" title="New random colours">🎨 Restyle</button>`;
       return `
       <div style="display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:12px 14px;margin-bottom:8px;flex-wrap:wrap;">
@@ -3119,6 +3124,11 @@
     navigator.clipboard?.writeText(url).then(() => alert('Link copied:\n' + url)).catch(() => prompt('Copy this link:', url));
   }
 
+  function toggleMpPages() {
+    const mp = document.getElementById('demoGenLayout').value === 'multipage';
+    document.getElementById('mpPagesRow').style.display = mp ? 'block' : 'none';
+  }
+
   async function runDemoGen() {
     const industry = document.getElementById('demoGenIndustry').value.trim();
     const tone = document.getElementById('demoGenTone').value;
@@ -3129,16 +3139,17 @@
     const prompt = document.getElementById('demoGenPrompt').value.trim();
     const versions = parseInt(document.getElementById('demoGenVersions').value) || 1;
     const layout = document.getElementById('demoGenLayout').value;
+    const pages = document.getElementById('demoGenPages').value.trim();
     const status = document.getElementById('demoGenStatus');
     const btn = document.getElementById('demoGenGo');
     if (!industry) { alert('Enter an industry first.'); return; }
     status.style.display = 'inline'; status.style.color = 'var(--muted)';
-    status.textContent = '⏳ Building ' + (versions > 1 ? versions + ' designs' : 'demo') + '... (can take 10–25s)';
+    status.textContent = '⏳ Building ' + (layout === 'multipage' ? 'multi-page site' : versions > 1 ? versions + ' designs' : 'demo') + '... (can take 10–30s)';
     btn.disabled = true;
     try {
       const res = await fetch('/api/demo/generate?token=' + encodeURIComponent(adminToken), {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ industry, tone, businessName, details, variant, heroType, prompt, versions, layout }),
+        body: JSON.stringify({ industry, tone, businessName, details, variant, heroType, prompt, versions, layout, pages }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.success) {

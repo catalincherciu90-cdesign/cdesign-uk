@@ -1456,7 +1456,35 @@ function buildShopSite(d) {
 }
 
 // JSON structure spec for the demo content generator (shared by /generate and /from-sketch).
-function demoJsonSpec(industry, layout) {
+function demoJsonSpec(industry, layout, extra) {
+  if (layout === 'multipage') {
+    const pagesHint = (extra && String(extra).trim()) ? `Create exactly these pages, in this order: ${String(extra).trim()}.` : `Create these pages, in order: Home, About, Services, Contact.`;
+    return `This is a MULTI-PAGE website (separate pages with shared navigation). ${pagesHint} Return ONLY a valid JSON object, no text before or after, with exactly this structure:
+{
+  "businessName": "an invented but realistic business name",
+  "industry": "${industry}",
+  "emoji": "one emoji representing the business",
+  "tagline": "short company tagline, 1 sentence",
+  "colorPrimary": "a hex brand colour",
+  "colorAccent": "a complementary hex accent colour",
+  "imageKeywords": "2-4 comma-separated English keywords for photos",
+  "ctaText": "short nav button label, e.g. Contact us",
+  "phone": "a plausible UK phone number",
+  "email": "a plausible contact email",
+  "address": "a plausible UK city / street",
+  "pages": [
+    { "name": "page name (as requested)", "slug": "url-slug", "heading": "page H1", "subheading": "1 sentence under the heading", "sections": [ { "heading": "section title", "text": "2-3 sentences" } ], "items": [ { "icon": "emoji", "title": "short", "desc": "1 sentence" } ] }
+  ]
+}
+
+Requirements:
+- Language: ENGLISH
+- ONE object in "pages" per requested page, in the requested order; the FIRST page is the home page.
+- Home page: a strong heading + 3-6 "items" (key highlights/services) + 2 sections.
+- Other pages: heading + subheading + 2-4 sections; add "items" where it fits (e.g. Services, Team, Menu).
+- A Contact page only needs a heading + subheading (the contact form is added automatically).
+- Realistic, specific copy — not filler. No text outside the JSON object`;
+  }
   if (layout === 'blog') return `This is a BLOG / MAGAZINE / online publication. Return ONLY a valid JSON object, no text before or after, with exactly this structure:
 {
   "businessName": "the publication / magazine name",
@@ -1686,6 +1714,149 @@ function buildBlogSite(d) {
 </html>`;
 }
 
+// ── Multi-page site demo ──
+function buildMultiPageSite(d, baseSlug, pageSlug) {
+  const e = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const hex = v => /^#[0-9a-fA-F]{3,8}$/.test(String(v || '')) ? v : null;
+  const primary = hex(d.colorPrimary) || '#4f46e5';
+  const accent = hex(d.colorAccent) || '#f59e0b';
+  const name = e(d.businessName || 'Demo Company');
+  const emoji = e(d.emoji || '🌐');
+  const kw = String(d.imageKeywords || d.industry || 'business').toLowerCase().replace(/[^a-z0-9, ]/g, '').slice(0, 60) || 'business';
+  const cover = (k, sig, r) => `<img src="https://loremflickr.com/${800}/${600}/${encodeURIComponent(String(k).trim())}?lock=${sig}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;${r ? 'border-radius:' + r + ';' : ''}" onerror="this.style.display='none'">`;
+
+  let pages = (Array.isArray(d.pages) ? d.pages : []).filter(p => p && p.name).slice(0, 8);
+  if (!pages.length) pages = [{ name: 'Home', heading: d.businessName || 'Welcome', subheading: d.tagline || '' }];
+  const seen = {};
+  pages = pages.map((p, i) => { let s = demoSlugify(p.slug || p.name) || ('page-' + i); while (seen[s]) s = s + '-' + i; seen[s] = 1; return { ...p, slug: s }; });
+  const homeSlug = pages[0].slug;
+  const cur = pages.find(p => p.slug === pageSlug) || pages[0];
+  const isHome = cur.slug === homeSlug;
+  const href = p => '/demo/' + baseSlug + (p.slug === homeSlug ? '' : '/' + p.slug);
+  const navHtml = pages.map(p => `<a href="${href(p)}"${p.slug === cur.slug ? ' class="on"' : ''}>${e(p.name)}</a>`).join('');
+
+  const items = (Array.isArray(cur.items) ? cur.items : []).filter(x => x && (x.title || x.name)).slice(0, 6);
+  const sections = (Array.isArray(cur.sections) ? cur.sections : []).filter(x => x && (x.heading || x.text)).slice(0, 5);
+  const isContact = /contact/i.test(cur.name) || /contact/i.test(cur.slug);
+  const nextP = pages[1] || pages[0];
+
+  const itemsHtml = items.length ? `
+  <section class="band"><div class="wrap">
+    <div class="grid">${items.map(it => `<div class="card reveal"><div class="ic">${e(it.icon || emoji)}</div><h3>${e(it.title || it.name || '')}</h3><p>${e(it.desc || it.description || '')}</p></div>`).join('')}</div>
+  </div></section>` : '';
+
+  const sectionsHtml = sections.map((s, i) => `
+  <section class="split ${i % 2 ? 'alt' : ''}"><div class="wrap sgrid">
+    <div class="stext"><h2>${e(s.heading || '')}</h2><p>${e(s.text || '')}</p></div>
+    <div class="simg">${cover(kw + ', ' + (s.heading || cur.name || kw), 200 + i)}</div>
+  </div></section>`).join('');
+
+  const contactHtml = isContact ? `
+  <section class="contact"><div class="wrap cgrid">
+    <div class="info">
+      <h2>Get in touch</h2>
+      ${d.phone ? `<div class="row"><span>📞</span>${e(d.phone)}</div>` : ''}
+      ${d.email ? `<div class="row"><span>✉</span>${e(d.email)}</div>` : ''}
+      ${d.address ? `<div class="row"><span>📍</span>${e(d.address)}</div>` : ''}
+      <div class="row"><span>🕒</span>Mon–Fri · 9:00–18:00</div>
+    </div>
+    <form onsubmit="event.preventDefault();this.reset();alert('Thanks! This is a demo — on a live site your message would be sent.');">
+      <input type="text" placeholder="Your name" required>
+      <input type="email" placeholder="Email" required>
+      <textarea rows="4" placeholder="Message" required></textarea>
+      <button class="btn" type="submit">Send message</button>
+    </form>
+  </div></section>` : '';
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow">
+<title>${name} — ${e(cur.name)}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--p:${primary};--a:${accent};--ink:#0f172a;--mut:#64748b;--line:#e8edf5;}
+  *{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:#fff;line-height:1.65;-webkit-font-smoothing:antialiased;}
+  a{text-decoration:none;color:inherit;}img{display:block;}
+  h1,h2,h3,.logo,.btn{font-family:'Plus Jakarta Sans',sans-serif;}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px;}
+  .demo-bar{background:#0b1020;color:#fff;font-size:.82rem;text-align:center;padding:8px 14px;}
+  .demo-bar a{color:var(--a);font-weight:700;}
+  header{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);}
+  .nav{display:flex;align-items:center;gap:18px;height:68px;}
+  .logo{font-weight:800;font-size:1.25rem;display:flex;align-items:center;gap:9px;}
+  .logo .d{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--p),var(--a));display:grid;place-items:center;color:#fff;}
+  nav.links{margin-left:auto;display:flex;gap:22px;font-size:.93rem;font-weight:500;color:#334155;flex-wrap:wrap;}
+  nav.links a:hover{color:var(--p);}nav.links a.on{color:var(--p);font-weight:700;}
+  .btn{display:inline-flex;align-items:center;gap:7px;background:var(--p);color:#fff;font-weight:700;padding:11px 22px;border-radius:10px;font-size:.92rem;border:none;cursor:pointer;}
+  .btn:hover{filter:brightness(1.08);}
+  .phero{padding:74px 0 60px;background:radial-gradient(60% 70% at 15% 10%,${primary}1f,transparent 60%),radial-gradient(50% 60% at 90% 15%,${accent}1c,transparent 60%),linear-gradient(180deg,#fbfcff,#fff);}
+  .phero.home{padding:96px 0 84px;}
+  .eyebrow{display:inline-block;font-size:.74rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--p);background:${primary}14;padding:7px 15px;border-radius:999px;margin-bottom:18px;}
+  .phero h1{font-size:clamp(2rem,4.6vw,3.3rem);font-weight:800;letter-spacing:-1px;line-height:1.08;max-width:18ch;}
+  .phero.home h1{max-width:14ch;}
+  .phero p{margin:18px 0 26px;font-size:1.12rem;color:#475569;max-width:54ch;}
+  section{padding:60px 0;}
+  .band{background:#f7f9fc;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:22px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:28px;transition:transform .2s,box-shadow .2s;}
+  .card:hover{transform:translateY(-5px);box-shadow:0 22px 44px -24px rgba(15,23,42,.3);}
+  .card .ic{width:52px;height:52px;border-radius:13px;background:linear-gradient(135deg,${primary}1a,${accent}1a);color:var(--p);display:grid;place-items:center;font-size:1.6rem;margin-bottom:16px;}
+  .card h3{font-size:1.12rem;margin-bottom:8px;}.card p{color:var(--mut);font-size:.95rem;}
+  .split .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:46px;align-items:center;}
+  .split.alt .stext{order:2;}
+  .split h2{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800;letter-spacing:-.5px;margin-bottom:14px;}
+  .split p{color:#475569;font-size:1.05rem;}
+  .simg{aspect-ratio:4/3;border-radius:20px;overflow:hidden;background:linear-gradient(135deg,var(--p),var(--a));box-shadow:0 24px 50px -28px ${primary}99;}
+  .contact .cgrid{display:grid;grid-template-columns:1fr 1fr;gap:40px;}
+  .info h2{font-size:1.8rem;font-weight:800;margin-bottom:18px;}
+  .info .row{display:flex;align-items:center;gap:12px;background:#f7f9fc;border:1px solid var(--line);border-radius:12px;padding:13px 16px;margin-bottom:10px;}
+  form{display:grid;gap:10px;}
+  form input,form textarea{border:1.5px solid var(--line);border-radius:11px;padding:12px 14px;font:inherit;background:#fcfdff;}
+  form input:focus,form textarea:focus{outline:none;border-color:var(--p);}
+  footer{background:#0b1020;color:#9aa6bd;padding:40px 0 26px;font-size:.9rem;}
+  .foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.08);}
+  .foot .c{color:#fff;font-weight:800;font-size:1.2rem;display:flex;gap:9px;align-items:center;}
+  .foot nav{display:flex;gap:18px;flex-wrap:wrap;}.foot a:hover{color:#fff;}
+  .foot-b{padding-top:18px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.83rem;}
+  .foot-b a{color:var(--a);font-weight:700;}
+  .reveal{opacity:0;transform:translateY(18px);transition:.6s;}.reveal.in{opacity:1;transform:none;}
+  @media(max-width:820px){.split .sgrid,.contact .cgrid{grid-template-columns:1fr;}.split.alt .stext{order:0;}.simg{order:-1;}}
+</style>
+</head>
+<body>
+  <div class="demo-bar">✨ Demo website — built by <a href="https://www.cdesigns.uk" target="_blank" rel="noopener">C Design</a>. Want one like this? <a href="https://www.cdesigns.uk/programari.html" target="_blank" rel="noopener">Get yours →</a></div>
+  <header><div class="wrap nav">
+    <a href="/demo/${baseSlug}" class="logo"><span class="d">${emoji}</span>${name}</a>
+    <nav class="links">${navHtml}</nav>
+    <a href="${href(isContact ? cur : (pages.find(p => /contact/i.test(p.name)) || cur))}" class="btn" style="margin-left:10px;">${e(d.ctaText || 'Contact')}</a>
+  </div></header>
+
+  <section class="phero ${isHome ? 'home' : ''}"><div class="wrap">
+    <span class="eyebrow">${e(isHome ? (d.industry || d.tagline || 'Welcome') : cur.name)}</span>
+    <h1>${e(cur.heading || cur.name || name)}</h1>
+    <p>${e(cur.subheading || cur.intro || (isHome ? d.tagline : '') || '')}</p>
+    ${isHome ? `<a href="${href(nextP)}" class="btn">Explore ${e(nextP.name)} →</a>` : ''}
+  </div></section>
+
+  ${itemsHtml}
+  ${sectionsHtml}
+  ${contactHtml}
+
+  <footer><div class="wrap">
+    <div class="foot">
+      <div class="c"><span>${emoji}</span>${name}</div>
+      <nav>${navHtml}</nav>
+    </div>
+    <div class="foot-b"><span>© ${new Date().getFullYear()} ${name}. All rights reserved.</span><span>Demo site · Built by <a href="https://www.cdesigns.uk">C Design</a></span></div>
+  </div></footer>
+  <script>(function(){var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}});},{threshold:.12});document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});})();</script>
+</body>
+</html>`;
+}
+
 // ── Custom uploaded demos: content types + minimal ZIP reader ──
 function ctypeFor(name) {
   const ext = (String(name).split('.').pop() || '').toLowerCase();
@@ -1856,8 +2027,12 @@ export default {
         }
 
         // AI-generated demo
-        if (subPath) return notFound();
         const data = demo.data || demo;
+        if (data.layout === 'multipage') {
+          const render = buildMultiPageSite(data, demo.slug, subPath ? decodeURIComponent(subPath.replace(/\/$/, '')) : '');
+          return new Response(render, { headers: { ...SEC_HEADERS, 'Content-Type': 'text/html;charset=utf-8', 'Cache-Control': 'public,max-age=120' } });
+        }
+        if (subPath) return notFound();
         try {
           const imgRaw = await env.PROGRAMARI.get('__demo_img__' + demo.id);
           if (imgRaw) data.images = JSON.parse(imgRaw);
@@ -2202,8 +2377,9 @@ export default {
         const heroType = ['split', 'centered', 'image'].includes(body.heroType) ? body.heroType : 'split';
         const userPrompt = String(body.prompt || '').trim().slice(0, 400);
         const versions = Math.min(Math.max(parseInt(body.versions) || 1, 1), 4);
-        const LAYOUT_LIST = ['landing', 'services', 'saas', 'agency', 'portfolio', 'shop', 'blog'];
+        const LAYOUT_LIST = ['landing', 'services', 'saas', 'agency', 'portfolio', 'shop', 'blog', 'multipage'];
         const wantLayout = LAYOUT_LIST.includes(body.layout) ? body.layout : 'landing';
+        const pagesHint = String(body.pages || '').trim().slice(0, 200);
         if (!industry) return json({ error: 'Industry is required' }, 400, request);
         if (!env.AI) return json({ error: 'AI binding unavailable — check wrangler.toml' }, 500, request);
 
@@ -2214,11 +2390,11 @@ export default {
         const promptLine = userPrompt ? `\nExtra instructions from the user (follow them): ${userPrompt}.` : '';
         const intro = `You are a web copywriter and brand designer. ${wantName ? `Write the content for "${wantName}", a business in the "${industry}" industry (UK market).` : `Invent a realistic ${kindWord} in the "${industry}" industry (UK market).`}${toneLine}${nameLine}${detailsLine}${promptLine}`;
 
-        const prompt = intro + '\n\n' + demoJsonSpec(industry, wantLayout);
+        const prompt = intro + '\n\n' + demoJsonSpec(industry, wantLayout, pagesHint);
 
         const ai = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
           messages: [{ role: 'user', content: prompt }],
-          max_tokens: 2048,
+          max_tokens: wantLayout === 'multipage' ? 4096 : 2048,
         });
 
         const parsed = parseAiJson(ai);
