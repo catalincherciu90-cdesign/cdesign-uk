@@ -13,7 +13,7 @@ binding = "ASSETS"
 # (The placeholder is intentional so a deploy can't accidentally land on the RO database.)
 [[kv_namespaces]]
 binding = "PROGRAMARI"
-id = "REPLACE_WITH_UK_KV_NAMESPACE_ID"
+id = "aba4ead89d234af1a1dda8dcd8676308"
 
 [ai]
 binding = "AI"
