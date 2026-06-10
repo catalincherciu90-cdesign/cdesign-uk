@@ -393,6 +393,8 @@
     .gib-item.done .gib-title{text-decoration:line-through;}
     .gib-del{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:2px 6px;border-radius:4px;}
     .gib-del:hover{color:#ff5f57;background:rgba(255,95,87,.1);}
+    .gib-reset-sec{background:none;border:1px solid rgba(231,76,60,.4);color:#e74c3c;cursor:pointer;font-size:.68rem;font-weight:600;padding:3px 8px;border-radius:5px;font-family:'Share Tech Mono',monospace;letter-spacing:.3px;}
+    .gib-reset-sec:hover{background:rgba(231,76,60,.14);border-color:#e74c3c;}
     .gib-empty{color:var(--muted);font-size:.85rem;font-style:italic;padding:8px 0;}
     .gib-date{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:800;color:#fff;margin-bottom:4px;}
     .gib-date-sub{font-size:.82rem;color:var(--muted);margin-bottom:20px;}
@@ -427,7 +429,7 @@
 <!-- LOGIN -->
 <div class="login-wrap" id="loginWrap">
   <div class="login-box">
-    <div class="login-logo"><span>C</span>DESIGN</div>
+    <div class="login-logo"><img src="/logo-c-design.webp" alt="C Design" style="height:54px;width:auto;display:block;margin:0 auto;"></div>
     <div class="login-sub">// admin.dashboard</div>
     <label class="login-label" for="userInput">// username</label>
     <input class="login-input" type="text" id="userInput" placeholder="username" autocomplete="username">
@@ -442,7 +444,7 @@
 <div id="dashboard">
   <div class="top-bar">
     <div>
-      <div class="top-logo"><span>C</span>DESIGN</div>
+      <div class="top-logo"><img src="/logo-c-design.webp" alt="C Design" style="height:30px;width:auto;display:block;"></div>
     </div>
     <div class="top-right">
       <div class="top-clock">
@@ -480,66 +482,63 @@
             <div class="speech-bubble" id="gib-bubble">Hello! 👋</div>
             <svg viewBox="0 0 120 120" width="115" height="115" class="clippy-body">
               <defs>
-                <!-- Gradient argintiu metalic -->
-                <radialGradient id="gCoin" cx="38%" cy="33%" r="68%">
-                  <stop offset="0%"   stop-color="#f0eeee"/>
-                  <stop offset="22%"  stop-color="#d4d2d2"/>
-                  <stop offset="52%"  stop-color="#a8a6a6"/>
-                  <stop offset="78%"  stop-color="#c2c0c0"/>
-                  <stop offset="100%" stop-color="#787676"/>
+                <linearGradient id="gHat" x1="0.2" y1="0" x2="0.7" y2="1">
+                  <stop offset="0%" stop-color="#b98e57"/>
+                  <stop offset="45%" stop-color="#8c6438"/>
+                  <stop offset="100%" stop-color="#5f3f22"/>
+                </linearGradient>
+                <radialGradient id="gHatHi" cx="36%" cy="30%" r="60%">
+                  <stop offset="0%" stop-color="rgba(247,224,176,0.40)"/>
+                  <stop offset="62%" stop-color="transparent"/>
                 </radialGradient>
-                <!-- Umbra marginii -->
-                <radialGradient id="gEdge" cx="50%" cy="50%" r="50%">
-                  <stop offset="76%" stop-color="transparent"/>
-                  <stop offset="100%" stop-color="rgba(0,0,0,0.28)"/>
+                <radialGradient id="gGlint" cx="50%" cy="42%" r="55%">
+                  <stop offset="0%" stop-color="#ffe9a8"/>
+                  <stop offset="100%" stop-color="#c9912f"/>
                 </radialGradient>
-                <!-- Umbra drop -->
-                <filter id="fDrop" x="-15%" y="-15%" width="140%" height="145%">
+                <filter id="fDrop" x="-20%" y="-20%" width="140%" height="150%">
                   <feDropShadow dx="1" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.5"/>
                 </filter>
               </defs>
 
-              <!-- Corp moneda -->
-              <circle cx="60" cy="60" r="52" fill="url(#gCoin)" filter="url(#fDrop)"/>
+              <!-- Borul flasc -->
+              <path d="M10 95 C26 85 40 88 60 88 C80 88 96 85 112 95 C96 105 80 107 60 107 C40 107 24 105 10 95 Z" fill="url(#gHat)" filter="url(#fDrop)"/>
+              <path d="M14 95 C30 99 90 99 108 95" stroke="#4a3018" stroke-width="1" fill="none" opacity="0.5"/>
 
-              <!-- Muchie zimtata (milled edge) -->
-              <circle cx="60" cy="60" r="51.5" fill="none" stroke="#888" stroke-width="4" stroke-dasharray="3.1 5.8"/>
+              <!-- Corpul pălăriei (vechi, îndoit) -->
+              <path d="M33 95 C26 74 30 52 42 40 C51 31 62 23 71 22 C64 34 64 45 70 55 C75 64 79 80 81 95 Z" fill="url(#gHat)" filter="url(#fDrop)"/>
+              <path d="M33 95 C26 74 30 52 42 40 C51 31 62 23 71 22 C64 34 64 45 70 55 C75 64 79 80 81 95 Z" fill="url(#gHatHi)"/>
+              <!-- Vârf îndoit -->
+              <path d="M71 22 C82 21 85 31 77 37 C72 33 69 28 71 22 Z" fill="#6e4a28"/>
 
-              <!-- Ingrosare margine -->
-              <circle cx="60" cy="60" r="52" fill="url(#gEdge)"/>
+              <!-- Cute / pliuri -->
+              <g fill="none" stroke-linecap="round">
+                <path d="M44 44 C47 58 44 74 50 92" stroke="#4a3018" stroke-width="1.5" opacity="0.5"/>
+                <path d="M58 32 C58 48 56 66 62 92" stroke="#4a3018" stroke-width="1.5" opacity="0.5"/>
+                <path d="M68 42 C72 56 73 74 76 92" stroke="#4a3018" stroke-width="1.3" opacity="0.45"/>
+                <path d="M40 56 C44 68 45 80 48 92" stroke="#caa472" stroke-width="0.8" opacity="0.5"/>
+                <path d="M62 38 C64 52 63 70 67 90" stroke="#caa472" stroke-width="0.7" opacity="0.45"/>
+              </g>
+              <!-- Petic + cusături -->
+              <g stroke="#4a3018" stroke-width="0.9" opacity="0.55" stroke-linecap="round">
+                <path d="M52 47 l8 -1"/><path d="M53 45 l1 4"/><path d="M56 45 l0 4"/><path d="M59 45 l-1 4"/>
+              </g>
 
-              <!-- Inel interior relief (moneda clasica) -->
-              <circle cx="60" cy="60" r="45" fill="none" stroke="#6e6e6e" stroke-width="1.2" opacity="0.7"/>
-              <circle cx="60" cy="60" r="43.5" fill="none" stroke="#dcdada" stroke-width="0.7" opacity="0.55"/>
+              <!-- Sprâncene-cută -->
+              <path d="M38 57 C44 50 52 52 56 59 C50 58 44 58 39 62 Z" fill="#5e3f22"/>
+              <path d="M64 59 C68 51 76 52 82 60 C77 57 70 57 65 62 Z" fill="#5e3f22"/>
 
-              <!-- Zgarieturi uzura (patina) -->
-              <path d="M30 43 Q56 38 90 47" stroke="#909090" stroke-width="0.7" fill="none" opacity="0.55"/>
-              <path d="M26 74 Q52 69 84 77" stroke="#888" stroke-width="0.5" fill="none" opacity="0.45"/>
-              <path d="M72 22 Q76 55 70 88" stroke="#8a8a8a" stroke-width="0.5" fill="none" opacity="0.4"/>
-              <path d="M38 28 Q42 52 36 80" stroke="#909090" stroke-width="0.4" fill="none" opacity="0.3"/>
+              <!-- Ochi (adânci, cu sclipire) -->
+              <ellipse cx="48" cy="64" rx="5.4" ry="3.8" fill="#23150a"/>
+              <circle class="pupil-left" cx="48.6" cy="64" r="2.5" fill="url(#gGlint)"/>
+              <circle cx="49.4" cy="63" r="0.9" fill="#fff6df"/>
+              <ellipse cx="71" cy="65" rx="5.4" ry="3.8" fill="#23150a"/>
+              <circle class="pupil-right" cx="71.6" cy="65" r="2.5" fill="url(#gGlint)"/>
+              <circle cx="72.4" cy="64" r="0.9" fill="#fff6df"/>
 
-              <!-- Ochi (stil relief/emboss pe moneda) -->
-              <circle cx="47" cy="57" r="9" fill="#b2b0b0" stroke="#7a7a7a" stroke-width="1.2"/>
-              <circle cx="47" cy="57" r="8" fill="#c4c2c2" stroke="#ddd" stroke-width="0.6" opacity="0.45"/>
-              <circle class="pupil-left" cx="48" cy="57" r="4.5" fill="#3e3e3e"/>
-              <circle cx="49.5" cy="55.2" r="1.6" fill="rgba(255,255,255,0.65)"/>
-
-              <circle cx="73" cy="57" r="9" fill="#b2b0b0" stroke="#7a7a7a" stroke-width="1.2"/>
-              <circle cx="73" cy="57" r="8" fill="#c4c2c2" stroke="#ddd" stroke-width="0.6" opacity="0.45"/>
-              <circle class="pupil-right" cx="74" cy="57" r="4.5" fill="#3e3e3e"/>
-              <circle cx="75.5" cy="55.2" r="1.6" fill="rgba(255,255,255,0.65)"/>
-
-              <!-- Zambet -->
-              <path d="M46 72 Q60 84 74 72" stroke="#6a6a6a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-
-              <!-- Stralucire (reflexie metalica) -->
-              <ellipse cx="43" cy="37" rx="15" ry="8" fill="white" opacity="0.13" transform="rotate(-28,43,37)"/>
-
-              <!-- Puncte patina -->
-              <circle cx="34" cy="44" r="1.5" fill="#808080" opacity="0.3"/>
-              <circle cx="88" cy="68" r="1.1" fill="#808080" opacity="0.25"/>
-              <circle cx="38" cy="80" r="1.3" fill="#808080" opacity="0.22"/>
-              <circle cx="85" cy="38" r="1.0" fill="#808080" opacity="0.2"/>
+              <!-- Gură-cută (jobenul vorbitor) -->
+              <path d="M36 79 C47 88 73 88 84 77 C80 86 72 91 60 91 C48 91 40 86 36 79 Z" fill="#22150a"/>
+              <path d="M42 81 C52 86 70 85 79 80" stroke="#0f0905" stroke-width="0.8" fill="none" opacity="0.7"/>
+              <path d="M40 80 C50 83 72 83 80 79" stroke="#caa472" stroke-width="0.7" fill="none" opacity="0.4"/>
             </svg>
           </div>
 
@@ -576,6 +575,8 @@
               <select class="gib-input" id="gib-d-client"><option value="">— no client —</option></select>
               <button class="gib-save" onclick="addDeadline()">Save</button>
             </div>
+
+            <button class="gib-add-btn" style="border-color:#e74c3c;color:#e74c3c;margin-top:8px;" onclick="resetGibilan()">🗑 Golește agenda</button>
           </div>
         </div>
 
@@ -588,19 +589,28 @@
 
           <!-- Meetings -->
           <div class="gib-section">
-            <div class="gib-section-title">&#x1F550; MEETINGS</div>
+            <div class="gib-section-title" style="display:flex;align-items:center;justify-content:space-between;">
+              <span>&#x1F550; MEETINGS</span>
+              <button class="gib-reset-sec" onclick="resetGibilanSection('meetings','toate meetings')" title="Șterge toate meetings">🗑 clear</button>
+            </div>
             <div id="gib-meetings-list"><div class="gib-empty">Loading...</div></div>
           </div>
 
           <!-- To-do -->
           <div class="gib-section">
-            <div class="gib-section-title">&#x2705; TO DO</div>
+            <div class="gib-section-title" style="display:flex;align-items:center;justify-content:space-between;">
+              <span>&#x2705; TO DO</span>
+              <button class="gib-reset-sec" onclick="resetGibilanSection('todos','toate to-do-urile')" title="Șterge toate to-do-urile">🗑 clear</button>
+            </div>
             <div id="gib-todos-list"><div class="gib-empty">Loading...</div></div>
           </div>
 
           <!-- Deadlines -->
           <div class="gib-section">
-            <div class="gib-section-title">&#x26A0; DEADLINES <span style="font-size:.72rem;font-weight:400;color:var(--muted);">(today + 3 days)</span></div>
+            <div class="gib-section-title" style="display:flex;align-items:center;justify-content:space-between;">
+              <span>&#x26A0; DEADLINES <span style="font-size:.72rem;font-weight:400;color:var(--muted);">(today + 3 days)</span></span>
+              <button class="gib-reset-sec" onclick="resetGibilanSection('deadlines','toate deadlines')" title="Șterge toate deadlines">🗑 clear</button>
+            </div>
             <div id="gib-deadlines-list"><div class="gib-empty">Loading...</div></div>
           </div>
 
@@ -737,7 +747,7 @@
             <div class="stat-box"><div class="stat-box-num" id="crmOferta" style="color:var(--yellow)">&ndash;</div><div class="stat-box-lbl">// quotes</div></div>
             <div class="stat-box"><div class="stat-box-num" id="crmInLucru" style="color:var(--teal)">&ndash;</div><div class="stat-box-lbl">// in progress</div></div>
             <div class="stat-box"><div class="stat-box-num" id="crmFinalizat" style="color:var(--green)">&ndash;</div><div class="stat-box-lbl">// completed</div></div>
-            <div class="stat-box"><div class="stat-box-num" id="crmValoare" style="color:var(--teal)">&ndash;</div><div class="stat-box-lbl">// RON in progress</div></div>
+            <div class="stat-box"><div class="stat-box-num" id="crmValoare" style="color:var(--teal)">&ndash;</div><div class="stat-box-lbl">// GBP in progress</div></div>
           </div>
           <div class="crm-toolbar">
             <div class="filters" style="margin-bottom:0">
@@ -830,8 +840,155 @@
     <div class="main">
       <div class="proj-toolbar">
         <h3>// our_projects &mdash; visible on site</h3>
-        <button class="btn-add" onclick="openModal()">+ New Project</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn-add" onclick="toggleProjGen()" id="btnProjGen" style="background:var(--teal-dim);border:1px solid var(--teal-border);color:var(--teal);">&#x2728; Generate examples</button>
+          <button class="btn-add" onclick="toggleDemoGen()" id="btnDemoGen" style="background:rgba(139,92,246,.12);border:1px solid #8b5cf6;color:#a78bfa;">&#x1F680; Generate demo site</button>
+          <button class="btn-add" onclick="openModal()">+ New Project</button>
+        </div>
       </div>
+
+      <!-- AI PORTFOLIO GENERATOR PANEL -->
+      <div id="projGenPanel" style="display:none;background:var(--bg3);border:1px solid var(--teal-border);border-radius:12px;padding:20px 22px;margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <span style="font-family:'Share Tech Mono',monospace;font-size:.8rem;color:var(--teal);">// generate_portfolio_examples</span>
+          <span style="font-size:.75rem;color:var(--muted);">— AI creates realistic website examples for the industries you choose</span>
+        </div>
+        <div style="display:grid;grid-template-columns:2fr 1.2fr 1fr;gap:12px;margin-bottom:14px;">
+          <div>
+            <label class="f-label" style="margin-bottom:5px;display:block;">// industries (optional, comma-separated)</label>
+            <input class="f-input" type="text" id="projGenIndustries" placeholder="e.g. restaurant, dental clinic, gym, real estate..." style="margin-bottom:0;">
+          </div>
+          <div>
+            <label class="f-label" style="margin-bottom:5px;display:block;">// tone / style</label>
+            <select class="f-input" id="projGenTone" style="margin-bottom:0;">
+              <option value="">— default —</option>
+              <option value="premium, high-end, luxury">Premium / high-end</option>
+              <option value="budget-friendly, affordable, value for money">Budget-friendly</option>
+              <option value="corporate, professional, formal">Corporate</option>
+              <option value="modern, minimalist, clean">Modern / minimalist</option>
+              <option value="bold, playful, creative">Bold / playful</option>
+            </select>
+          </div>
+          <div>
+            <label class="f-label" style="margin-bottom:5px;display:block;">// how many</label>
+            <select class="f-input" id="projGenCount" style="margin-bottom:0;">
+              <option>3</option><option selected>4</option><option>5</option><option>6</option><option>8</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label class="f-label" style="margin-bottom:5px;display:block;">// your prompt (optional) — tell the AI what you want</label>
+          <textarea class="f-input" id="projGenPrompt" rows="2" placeholder="e.g. focus on results with big numbers, mention local SEO, friendly tone..." style="margin-bottom:0;resize:vertical;"></textarea>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <button class="btn-save" id="projGenGo" onclick="runProjGen()" style="padding:10px 20px;">&#x2728; Generate now</button>
+          <span id="projGenStatus" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;display:none;"></span>
+        </div>
+        <div id="projGenResults" style="margin-top:20px;display:none;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--muted);">// review &amp; pick the ones to add to the portfolio</div>
+            <button class="btn-save" onclick="addGeneratedProjects()" id="projGenAddBtn" style="padding:8px 16px;">+ Add selected to portfolio</button>
+          </div>
+          <div id="projGenGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;"></div>
+        </div>
+      </div>
+
+      <!-- AI DEMO SITE GENERATOR PANEL -->
+      <div id="demoGenPanel" style="display:none;background:var(--bg3);border:1px solid #8b5cf6;border-radius:12px;padding:20px 22px;margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <span style="font-family:'Share Tech Mono',monospace;font-size:.8rem;color:#a78bfa;">// generate_demo_site</span>
+          <span style="font-size:.75rem;color:var(--muted);">— AI builds a demo with real photos. Choose a one-page site or an online shop / catalogue layout.</span>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label class="f-label" style="margin-bottom:5px;display:block;">// layout</label>
+          <select class="f-input" id="demoGenLayout" style="margin-bottom:0;max-width:380px;" onchange="toggleMpPages()">
+            <option value="landing">Landing page (one-page, all sections)</option>
+            <option value="services">Services / booking (services + pricing)</option>
+            <option value="saas">SaaS / product (features + pricing + FAQ)</option>
+            <option value="agency">Agency (services + work + team)</option>
+            <option value="portfolio">Portfolio / showcase (gallery-focused)</option>
+            <option value="shop">Online shop / catalogue (banners + products)</option>
+            <option value="blog">Blog / magazine (article feed)</option>
+            <option value="multipage">Multi-page site (separate pages + menu)</option>
+          </select>
+        </div>
+        <div id="mpPagesRow" style="margin-bottom:12px;display:none;">
+          <label class="f-label" style="margin-bottom:5px;display:block;">// pages (comma-separated) — which pages should the site have?</label>
+          <input class="f-input" type="text" id="demoGenPages" placeholder="e.g. Home, About, Services, Gallery, Pricing, Contact" style="margin-bottom:0;">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div>
+            <label class="f-label" style="margin-bottom:5px;display:block;">// industry *</label>
+            <input class="f-input" type="text" id="demoGenIndustry" placeholder="e.g. restaurant, dental clinic, gym, plumber..." style="margin-bottom:0;">
+          </div>
+          <div>
+            <label class="f-label" style="margin-bottom:5px;display:block;">// business name (optional)</label>
+            <input class="f-input" type="text" id="demoGenName" placeholder="leave empty and AI invents one" style="margin-bottom:0;">
+          </div>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label class="f-label" style="margin-bottom:5px;display:block;">// details (optional — phone, city, services...)</label>
+          <input class="f-input" type="text" id="demoGenDetails" placeholder="e.g. based in Leeds, 0113 555 0100, open 7 days" style="margin-bottom:0;">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:14px;">
+          <div>
+            <label class="f-label" style="margin-bottom:5px;display:block;">// versions</label>
+            <select class="f-input" id="demoGenVersions" style="margin-bottom:0;" title="Generate several design variations of the same content">
+              <option value="1">1 version</option>
+              <option value="2">2 designs</option>
+              <option value="3">3 designs</option>
+              <option value="4">4 designs</option>
+            </select>
+          </div>
+          <div>
+            <label class="f-label" style="margin-bottom:5px;display:block;">// site style</label>
+            <select class="f-input" id="demoGenVariant" style="margin-bottom:0;">
+              <option value="">Auto (from tone)</option>
+              <option value="modern">Modern (light)</option>
+              <option value="dark">Dark</option>
+              <option value="minimal">Minimal</option>
+              <option value="elegant">Elegant (serif)</option>
+              <option value="gradient">Gradient (colourful)</option>
+              <option value="corporate">Corporate (professional)</option>
+              <option value="bold">Bold (high-contrast)</option>
+            </select>
+          </div>
+          <div>
+            <label class="f-label" style="margin-bottom:5px;display:block;">// hero type</label>
+            <select class="f-input" id="demoGenHero" style="margin-bottom:0;">
+              <option value="split">Split (text + photo card)</option>
+              <option value="centered">Centered + banner</option>
+              <option value="image">Full background photo</option>
+            </select>
+          </div>
+          <div>
+            <label class="f-label" style="margin-bottom:5px;display:block;">// tone / style</label>
+            <select class="f-input" id="demoGenTone" style="margin-bottom:0;">
+              <option value="">— default —</option>
+              <option value="premium, high-end, luxury">Premium / high-end</option>
+              <option value="budget-friendly, affordable, value for money">Budget-friendly</option>
+              <option value="corporate, professional, formal">Corporate</option>
+              <option value="modern, minimalist, clean">Modern / minimalist</option>
+              <option value="bold, playful, creative">Bold / playful</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label class="f-label" style="margin-bottom:5px;display:block;">// your prompt (optional) — tell the AI what you want</label>
+          <textarea class="f-input" id="demoGenPrompt" rows="2" placeholder="e.g. emphasise 24/7 service, family-run, mention free quotes..." style="margin-bottom:0;resize:vertical;"></textarea>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <button class="btn-save" id="demoGenGo" onclick="runDemoGen()" style="padding:10px 20px;background:#8b5cf6;">&#x1F680; Generate demo</button>
+          <button class="btn-add" onclick="openDemoUpload()" style="background:rgba(0,168,168,.12);border:1px solid var(--teal-border);color:var(--teal);">&#x2B06; Upload your own (HTML / ZIP)</button>
+          <button class="btn-add" onclick="openSketch()" style="background:rgba(245,158,11,.12);border:1px solid #f59e0b;color:#f59e0b;">&#x1F58C; From a sketch (AI)</button>
+          <span id="demoGenStatus" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;display:none;"></span>
+        </div>
+        <div style="margin-top:20px;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--muted);margin-bottom:12px;">// live demo sites</div>
+          <div id="demoList"><div class="gib-empty">No demo sites yet.</div></div>
+        </div>
+      </div>
+
       <div class="projects-grid" id="projectsGrid">
         <div class="loading">Loading projects...</div>
       </div>
@@ -845,6 +1002,7 @@
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <button class="btn-add" onclick="toggleTitleResearch()" id="btnResearch" style="background:var(--teal-dim);border:1px solid var(--teal-border);color:var(--teal);">🔍 SEO Title Research</button>
           <button class="btn-add" onclick="openBlogModal(null)">+ New Article</button>
+          <button class="btn-add" onclick="resetBlog()" style="background:rgba(231,76,60,.12);border:1px solid #e74c3c;color:#e74c3c;">🗑 Șterge toate</button>
         </div>
       </div>
 
@@ -1172,6 +1330,32 @@
           <div id="blockedDatesList" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
         </div>
 
+        <!-- ADMIN ACCOUNTS (owner only) -->
+        <div id="adminAccountsSection" style="margin-top:36px;padding-top:28px;border-top:1px solid var(--border);display:none;">
+          <div class="f-label" style="margin-bottom:6px;">// admin_accounts</div>
+          <p style="font-size:.78rem;color:var(--muted);margin-bottom:16px;max-width:620px;">Create extra admin logins so other people can access this panel with their own username &amp; password — and choose exactly which sections each one can use. The owner account (set in Cloudflare secrets) has full access and cannot be removed here.</p>
+          <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:16px;margin-bottom:18px;max-width:680px;">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+              <input class="f-input" id="newAdminUser" placeholder="username" style="flex:1;min-width:140px;margin:0;" autocomplete="off">
+              <input class="f-input" id="newAdminPass" type="password" placeholder="password (min 8 chars)" style="flex:1;min-width:140px;margin:0;" autocomplete="new-password">
+            </div>
+            <div style="font-size:.72rem;color:var(--muted);margin-bottom:8px;">// permissions — sections this account can access</div>
+            <div id="newAdminPerms" style="display:flex;flex-wrap:wrap;gap:8px 14px;margin-bottom:14px;"></div>
+            <button class="btn-add" onclick="addAdmin()" style="padding:8px 16px;">+ Add admin</button>
+          </div>
+          <div id="adminAccountsList"><div class="gib-empty">Loading...</div></div>
+        </div>
+
+        <!-- ACTIVITY LOG (owner only) -->
+        <div id="activityLogSection" style="margin-top:36px;padding-top:28px;border-top:1px solid var(--border);display:none;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px;">
+            <div class="f-label">// activity_log</div>
+            <button class="btn-add" onclick="fetchActivity()" style="padding:6px 14px;font-size:.78rem;">↻ Refresh</button>
+          </div>
+          <p style="font-size:.78rem;color:var(--muted);margin-bottom:14px;max-width:620px;">Recent logins and changes — who did what. Shows the last 200 events.</p>
+          <div id="activityLogList" style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;max-height:360px;overflow:auto;"><div class="gib-empty" style="padding:12px;">Loading...</div></div>
+        </div>
+
         <!-- HERO BANNER IMAGE -->
         <div style="margin-top:36px;padding-top:28px;border-top:1px solid var(--border);">
           <div class="f-label" style="margin-bottom:16px;">// hero_banner_image</div>
@@ -1481,19 +1665,19 @@
             <div style="font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--teal);margin-bottom:14px;">&#x1F680; pachet-startup.html — /pachet-startup</div>
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
               <div>
-                <div class="f-label" style="font-size:.7rem;">// Pre&#x21A2; minim (€)</div>
+                <div class="f-label" style="font-size:.7rem;">// Pre&#x21A2; minim (£)</div>
                 <input class="f-input" type="number" id="pkg-startup-min" placeholder="300" min="0" step="1" style="margin-top:4px;">
-                <div style="font-size:.68rem;color:var(--muted);margin-top:4px;">displayed as "<strong>from</strong> X €"</div>
+                <div style="font-size:.68rem;color:var(--muted);margin-top:4px;">displayed as "<strong>from</strong> X £"</div>
               </div>
               <div>
-                <div class="f-label" style="font-size:.7rem;">// Pre&#x21A2; maxim (€)</div>
+                <div class="f-label" style="font-size:.7rem;">// Pre&#x21A2; maxim (£)</div>
                 <input class="f-input" type="number" id="pkg-startup-max" placeholder="450" min="0" step="1" style="margin-top:4px;">
-                <div style="font-size:.68rem;color:var(--muted);margin-top:4px;">displayed as "– Y €"</div>
+                <div style="font-size:.68rem;color:var(--muted);margin-top:4px;">displayed as "– Y £"</div>
               </div>
               <div>
-                <div class="f-label" style="font-size:.7rem;">// Valoare separat&#x103; (€)</div>
+                <div class="f-label" style="font-size:.7rem;">// Valoare separat&#x103; (£)</div>
                 <input class="f-input" type="number" id="pkg-startup-sep" placeholder="590" min="0" step="1" style="margin-top:4px;">
-                <div style="font-size:.68rem;color:var(--muted);margin-top:4px;">displayed strikethrough: "~Z€"</div>
+                <div style="font-size:.68rem;color:var(--muted);margin-top:4px;">displayed strikethrough: "~Z£"</div>
               </div>
             </div>
           </div>
@@ -1667,7 +1851,7 @@
         <div class="f-group">
           <label class="f-label">// currency</label>
           <select class="f-select" id="cheltMoneda">
-            <option value="RON">RON</option>
+            <option value="GBP">GBP</option>
             <option value="EUR">EUR</option>
             <option value="USD">USD</option>
           </select>
@@ -1764,7 +1948,7 @@
                 <label class="f-label">// currency</label>
                 <select class="f-select" id="oferta-moneda" onchange="renderOfertaTotal()">
                   <option value="EUR">EUR</option>
-                  <option value="RON">RON</option>
+                  <option value="GBP">GBP</option>
                 </select>
               </div>
 
@@ -1778,7 +1962,7 @@
                 <div id="oferta-sumar-items" style="font-size:.8rem;color:var(--soft);margin-bottom:8px;max-height:120px;overflow-y:auto;"></div>
                 <div style="display:flex;justify-content:space-between;align-items:center;">
                   <span style="font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--muted);">// total</span>
-                  <span id="oferta-total" style="font-family:'Space Grotesk',sans-serif;font-size:1.3rem;font-weight:800;color:var(--teal);">0 EUR</span>
+                  <span id="oferta-total" style="font-family:'Space Grotesk',sans-serif;font-size:1.3rem;font-weight:800;color:var(--teal);">0 GBP</span>
                 </div>
               </div>
 
@@ -1855,7 +2039,7 @@
             </div>
             <div class="f-group">
               <label class="f-label">// detailed_services (appear in contract)</label>
-              <textarea class="f-input" id="cnt-servicii-text" placeholder="1. Brochure website — 5 pages — 899 EUR&#10;2. Basic SEO — included&#10;3. Monthly maintenance — 100 EUR/month" style="min-height:100px;font-family:'Share Tech Mono',monospace;font-size:.82rem;margin-top:4px;"></textarea>
+              <textarea class="f-input" id="cnt-servicii-text" placeholder="1. Brochure website — 5 pages — 899 GBP&#10;2. Basic SEO — included&#10;3. Monthly maintenance — 100 GBP/month" style="min-height:100px;font-family:'Share Tech Mono',monospace;font-size:.82rem;margin-top:4px;"></textarea>
             </div>
           </div>
 
@@ -1870,7 +2054,7 @@
                   <input class="f-input" type="number" id="cnt-total" placeholder="0" min="0" style="flex:1;" oninput="updateCntAvans()">
                   <select class="f-select" id="cnt-moneda" style="width:80px;" onchange="updateCntAvans()">
                     <option value="EUR">EUR</option>
-                    <option value="RON">RON</option>
+                    <option value="GBP">GBP</option>
                   </select>
                 </div>
               </div>
@@ -1958,7 +2142,7 @@
           <label class="f-label">// currency</label>
           <select class="f-select" id="svcMoneda">
             <option value="EUR">EUR</option>
-            <option value="RON">RON</option>
+            <option value="GBP">GBP</option>
           </select>
         </div>
       </div>
@@ -2084,7 +2268,7 @@
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
       <div class="f-group" style="margin-bottom:0;">
-        <label class="f-label" for="crmValoare">// value_quoted (RON)</label>
+        <label class="f-label" for="crmValoare">// value_quoted (GBP)</label>
         <input class="f-input" type="number" id="crmValoare" placeholder="e.g. 2500" min="0">
       </div>
       <div class="f-group" style="margin-bottom:0;">
@@ -2145,6 +2329,93 @@
   </div>
 </div>
 
+<!-- MODAL DEMO PHOTOS -->
+<div class="modal-overlay" id="demoPhotosOverlay">
+  <div class="modal" style="max-width:560px;">
+    <h3>Demo photos</h3>
+    <p style="font-size:.8rem;color:var(--muted);margin:6px 0 18px;">Upload your own photos for this demo. Use the recommended size for the best result — photos are auto-cropped to fit. Leave empty to keep the automatic stock photo.</p>
+    <input type="hidden" id="demoPhotosId">
+    <div id="demoPhotosSlots"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeDemoPhotos()">Cancel</button>
+      <button class="btn-save" id="demoPhotosSave" onclick="saveDemoPhotos()">Save photos →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDIT DEMO WITH AI -->
+<div class="modal-overlay" id="demoEditOverlay">
+  <div class="modal" style="max-width:540px;">
+    <h3>Edit demo with AI</h3>
+    <p style="font-size:.8rem;color:var(--muted);margin:6px 0 14px;">Describe in plain words what you want changed and the AI will rewrite the demo's content. <strong id="demoEditName"></strong></p>
+    <input type="hidden" id="demoEditId">
+    <div class="f-group">
+      <label class="f-label" for="demoEditInstr">// what should change?</label>
+      <textarea class="f-input" id="demoEditInstr" rows="3" placeholder="e.g. rename the business to 'Apex Motors', make the prices 10% higher, change the tone to more premium, add a service about EV servicing, rewrite the hero headline..."></textarea>
+    </div>
+    <div style="font-size:.72rem;color:var(--muted);margin-bottom:10px;">💡 Good for: text, names, prices, services/products/articles, tone, colours. For the visual style use Restyle; for photos use 🖼 Photos.</div>
+    <div id="demoEditStatus" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;display:none;margin-bottom:8px;"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeDemoEdit()">Cancel</button>
+      <button class="btn-save" id="demoEditBtn" onclick="submitDemoEdit()">✨ Apply change →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL GENERATE FROM SKETCH -->
+<div class="modal-overlay" id="sketchOverlay">
+  <div class="modal" style="max-width:520px;">
+    <h3>Generate from a sketch</h3>
+    <p style="font-size:.8rem;color:var(--muted);margin:6px 0 18px;">Upload a photo or image of a website sketch / wireframe. The AI reads it and builds a matching demo. Clearer drawings give better results.</p>
+    <div class="f-group">
+      <label class="f-label" for="sketchFile">// sketch image (.jpg / .png) *</label>
+      <input class="f-input" type="file" id="sketchFile" accept="image/*">
+    </div>
+    <div class="f-group">
+      <label class="f-label" for="sketchIndustry">// industry hint (optional)</label>
+      <input class="f-input" type="text" id="sketchIndustry" placeholder="e.g. car dealership, dentist, café...">
+    </div>
+    <div class="f-group">
+      <label class="f-label" for="sketchLayout">// layout</label>
+      <select class="f-input" id="sketchLayout">
+        <option value="">Auto-detect from sketch</option>
+        <option value="landing">Landing page</option>
+        <option value="shop">Online shop / catalogue</option>
+      </select>
+    </div>
+    <div id="sketchStatus" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;display:none;margin-bottom:8px;"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeSketch()">Cancel</button>
+      <button class="btn-save" id="sketchBtn" onclick="submitSketch()">✨ Generate from sketch →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DEMO UPLOAD -->
+<div class="modal-overlay" id="demoUploadOverlay">
+  <div class="modal" style="max-width:520px;">
+    <h3>Upload your own demo</h3>
+    <p style="font-size:.8rem;color:var(--muted);margin:6px 0 18px;">Upload a single <strong>.html</strong> file, or a <strong>.zip</strong> archive of a whole site (must contain an <code>index.html</code>). It goes live at <code>/demo/&lt;name&gt;</code>.</p>
+    <div class="f-group">
+      <label class="f-label" for="demoUpName">// name *</label>
+      <input class="f-input" type="text" id="demoUpName" placeholder="e.g. Joe's Garage">
+    </div>
+    <div class="f-group">
+      <label class="f-label" for="demoUpIndustry">// industry / label (optional)</label>
+      <input class="f-input" type="text" id="demoUpIndustry" placeholder="e.g. Auto repair">
+    </div>
+    <div class="f-group">
+      <label class="f-label" for="demoUpFile">// file (.html or .zip) *</label>
+      <input class="f-input" type="file" id="demoUpFile" accept=".html,.htm,.zip,text/html,application/zip">
+    </div>
+    <div id="demoUpStatus" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;display:none;margin-bottom:8px;"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeDemoUpload()">Cancel</button>
+      <button class="btn-save" id="demoUpBtn" onclick="submitDemoUpload()">Upload →</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL EDITARE PROIECT -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
@@ -2184,6 +2455,7 @@
 
 <script>
   let adminToken = '';
+  let currentUser = null;
   let allBookings = [];
   let allProjects = [];
   let currentFilter = 'all';
@@ -2202,14 +2474,32 @@
   tickClock();
   setInterval(tickClock, 1000);
 
+  function showDashboard() {
+    document.getElementById('loginWrap').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+  }
+
+  function loadAllowedData() {
+    if (can('bookings')) fetchBookings();
+    if (can('portfolio')) fetchProjects();
+    if (can('crm')) fetchCrm();
+    if (can('blog')) fetchBlog();
+    if (can('social')) fetchSocial();
+    if (can('settings')) fetchSettings();
+    if (can('gibilan')) loadGibilan();
+    if (can('clients')) fetchClients();
+    if (can('theme')) fetchTheme();
+    if (can('expenses')) fetchCheltuieli();
+  }
+
   // Auto-login din localStorage dacă există token salvat
   (async () => {
     const saved = localStorage.getItem('cdAdmin');
     if (saved) {
       adminToken = saved;
-      const ok = await fetchBookings(true);
+      const ok = await fetchMe();
       if (!ok) { adminToken = ''; localStorage.removeItem('cdAdmin'); }
-      else { fetchProjects(); fetchCrm(); fetchBlog(); fetchSocial(); fetchSettings(); loadGibilan(); fetchClients(); fetchTheme(); fetchCheltuieli(); }
+      else { showDashboard(); applyPermissions(); loadAllowedData(); }
     }
   })();
 
@@ -2225,14 +2515,15 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
-      if (!res.ok) { err.textContent = '✗ Incorrect username or password'; return; }
-      adminToken = password;
-      const ok = await fetchBookings(true);
-      if (!ok) { err.textContent = '✗ Authentication error'; adminToken = ''; }
-      else {
-        localStorage.setItem('cdAdmin', password);
-        fetchProjects(); fetchCrm(); fetchBlog(); fetchSocial(); fetchSettings(); loadGibilan(); fetchClients(); fetchTheme(); fetchCheltuieli();
-      }
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.token) { err.textContent = '✗ Incorrect username or password'; return; }
+      adminToken = data.token;
+      const ok = await fetchMe();
+      if (!ok) { err.textContent = '✗ Authentication error'; adminToken = ''; return; }
+      localStorage.setItem('cdAdmin', data.token);
+      showDashboard();
+      applyPermissions();
+      loadAllowedData();
     } catch { err.textContent = '✗ Network error'; }
   }
 
@@ -2250,6 +2541,183 @@
     if (tab === 'media') fetchMedia();
     if (tab === 'cheltuieli') fetchCheltuieli();
     if (tab === 'oferte') { fetchServicii(); fetchOferte(); fetchContracte(); populateOfertaClientSel(); }
+    if (tab === 'settings' && currentUser && currentUser.role === 'owner') { fetchAdmins(); fetchActivity(); }
+  }
+
+  // ── Permissions & current user ───────────────────────────
+  const SECTION_LABELS = { bookings:'Bookings', gibilan:'Agenda', clients:'Clients', crm:'CRM & Quotes', portfolio:'Portfolio', blog:'Blog', social:'Social', pages:'Pages', media:'Media', theme:'Theme', expenses:'Expenses', oferte:'Quotes', settings:'Settings' };
+  const TAB_PERM = { bookings:'bookings', gibilan:'gibilan', clients:'clients', crm:'crm', projects:'portfolio', blog:'blog', social:'social', pagini:'pages', media:'media', tema:'theme', settings:'settings', cheltuieli:'expenses', oferte:'oferte' };
+  let allSections = Object.keys(SECTION_LABELS);
+
+  async function fetchMe() {
+    try {
+      const res = await fetch('/api/me?token=' + encodeURIComponent(adminToken));
+      if (!res.ok) return false;
+      const d = await res.json();
+      currentUser = { username: d.username, role: d.role, perms: d.perms || [] };
+      if (Array.isArray(d.sections) && d.sections.length) allSections = d.sections;
+      return true;
+    } catch { return false; }
+  }
+
+  function can(section) {
+    if (!currentUser) return false;
+    if (currentUser.role === 'owner') return true;
+    return (currentUser.perms || []).includes(section);
+  }
+
+  function applyPermissions() {
+    if (!currentUser) return;
+    const isOwner = currentUser.role === 'owner';
+    document.querySelectorAll('.tab').forEach(btn => {
+      const m = (btn.getAttribute('onclick') || '').match(/switchTab\('([^']+)'/);
+      if (!m) return;
+      const need = TAB_PERM[m[1]];
+      btn.style.display = (isOwner || !need || (currentUser.perms || []).includes(need)) ? '' : 'none';
+    });
+    const sec = document.getElementById('adminAccountsSection');
+    if (sec) sec.style.display = isOwner ? 'block' : 'none';
+    const act = document.getElementById('activityLogSection');
+    if (act) act.style.display = isOwner ? 'block' : 'none';
+    const active = document.querySelector('.tab.active');
+    if (active && active.style.display === 'none') {
+      const first = [...document.querySelectorAll('.tab')].find(b => b.style.display !== 'none');
+      if (first) first.click();
+    }
+  }
+
+  // ── Admin accounts (owner only) ──────────────────────────
+  function permChecksHtml(selected, cls) {
+    return allSections.map(s => `<label style="display:flex;align-items:center;gap:6px;font-size:.8rem;cursor:pointer;"><input type="checkbox" class="${cls}" value="${s}" ${selected.includes(s) ? 'checked' : ''}> ${SECTION_LABELS[s] || s}</label>`).join('');
+  }
+
+  async function fetchAdmins() {
+    const wrap = document.getElementById('adminAccountsList');
+    if (!wrap) return;
+    const np = document.getElementById('newAdminPerms');
+    if (np) np.innerHTML = permChecksHtml([], 'newperm');
+    try {
+      const res = await fetch('/api/admins?token=' + encodeURIComponent(adminToken));
+      if (!res.ok) { wrap.innerHTML = '<div class="gib-empty">Only the owner can manage accounts.</div>'; return; }
+      const data = await res.json();
+      if (Array.isArray(data.sections)) allSections = data.sections;
+      if (np) np.innerHTML = permChecksHtml([], 'newperm');
+      renderAdmins(data);
+    } catch { wrap.innerHTML = '<div class="gib-empty">Could not load accounts.</div>'; }
+  }
+
+  function renderAdmins(data) {
+    const wrap = document.getElementById('adminAccountsList');
+    const youUser = (data.you && data.you.username) || (currentUser && currentUser.username) || '';
+    let rows = `
+      <div style="display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:11px 14px;margin-bottom:8px;">
+        <span style="font-size:1.2rem;">👑</span>
+        <div style="flex:1;"><div style="font-weight:700;font-size:.88rem;">${esc(data.owner.username)}</div>
+        <div style="font-size:.72rem;color:var(--muted);">owner · full access · set in Cloudflare secrets</div></div>
+        <span style="font-size:.7rem;color:var(--muted);">protected</span>
+      </div>`;
+    rows += (data.admins || []).map(a => `
+      <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:13px 15px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <span style="font-size:1.2rem;">👤</span>
+          <div style="flex:1;"><span style="font-weight:700;font-size:.88rem;">${esc(a.username)}${a.username === youUser ? ' <span style="color:var(--teal);font-size:.7rem;">(you)</span>' : ''}</span>
+          <span style="font-size:.72rem;color:var(--muted);margin-left:6px;">admin${a.createdAt ? ' · added ' + new Date(a.createdAt).toLocaleDateString('en-GB') : ''}</span></div>
+          <button class="btn-del" onclick="resetAdminPassword('${esc(a.username)}')">🔑 Reset password</button>
+          ${a.username === youUser ? '' : `<button class="btn-del" onclick="deleteAdmin('${esc(a.username)}')">✕ Remove</button>`}
+        </div>
+        <div class="perm-edit" data-user="${esc(a.username)}" style="display:flex;flex-wrap:wrap;gap:6px 12px;margin-bottom:10px;">${permChecksHtml(a.perms || [], 'editperm')}</div>
+        <button class="btn-add" style="padding:6px 14px;font-size:.78rem;" onclick="savePerms('${esc(a.username)}')">Save permissions</button>
+      </div>`).join('');
+    wrap.innerHTML = rows;
+  }
+
+  async function addAdmin() {
+    const u = document.getElementById('newAdminUser').value.trim();
+    const p = document.getElementById('newAdminPass').value.trim();
+    const perms = [...document.querySelectorAll('#newAdminPerms .newperm:checked')].map(i => i.value);
+    if (!u || !p) { alert('Enter a username and password.'); return; }
+    if (!perms.length) { alert('Select at least one permission.'); return; }
+    try {
+      const res = await fetch('/api/admins?token=' + encodeURIComponent(adminToken), {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: u, password: p, perms }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) { alert(data.error || 'Could not add admin.'); return; }
+      document.getElementById('newAdminUser').value = '';
+      document.getElementById('newAdminPass').value = '';
+      fetchAdmins();
+    } catch { alert('Network error.'); }
+  }
+
+  async function savePerms(username) {
+    const cont = document.querySelector('.perm-edit[data-user="' + (window.CSS && CSS.escape ? CSS.escape(username) : username) + '"]');
+    if (!cont) return;
+    const perms = [...cont.querySelectorAll('.editperm:checked')].map(i => i.value);
+    try {
+      const res = await fetch('/api/admins/' + encodeURIComponent(username) + '/perms?token=' + encodeURIComponent(adminToken), {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ perms }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) { alert(data.error || 'Could not save.'); return; }
+      alert('Permissions updated. The change takes effect next time they log in.');
+    } catch { alert('Network error.'); }
+  }
+
+  async function deleteAdmin(username) {
+    if (!confirm('Remove admin "' + username + '"? They will no longer be able to log in.')) return;
+    try {
+      const res = await fetch('/api/admins/' + encodeURIComponent(username) + '?token=' + encodeURIComponent(adminToken), { method: 'DELETE' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) { alert(data.error || 'Could not remove admin.'); return; }
+      fetchAdmins();
+    } catch { alert('Network error.'); }
+  }
+
+  async function resetAdminPassword(username) {
+    const pRaw = prompt('New password for "' + username + '" (min 8 characters):');
+    if (pRaw === null) return;
+    const p = pRaw.trim();
+    if (p.length < 8) { alert('Password must be at least 8 characters.'); return; }
+    try {
+      const res = await fetch('/api/admins/' + encodeURIComponent(username) + '/password?token=' + encodeURIComponent(adminToken), {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: p }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) { alert(data.error || 'Could not reset password.'); return; }
+      alert('Password updated for "' + username + '". It applies at their next login.');
+    } catch { alert('Network error.'); }
+  }
+
+  // ── Activity log ─────────────────────────────────────────
+  function prettyAction(e) {
+    if (e.path === 'login') return 'Logged in';
+    const verb = { POST: 'Created', PUT: 'Updated', PATCH: 'Updated', DELETE: 'Deleted' }[e.method] || e.method;
+    const map = [['/api/bookings', 'a booking'], ['/api/booking', 'a booking'], ['/api/crm', 'a CRM entry'], ['/api/blog', 'a blog post'], ['/api/projects', 'a portfolio item'], ['/api/project', 'a portfolio item'], ['/api/demos', 'a demo site'], ['/api/demo', 'a demo site'], ['/api/cheltuieli', 'an expense'], ['/api/gibilan', 'an agenda item'], ['/api/clients', 'a client'], ['/api/client', 'a client'], ['/api/social', 'social settings'], ['/api/site-settings', 'site settings'], ['/api/settings', 'settings'], ['/api/maintenance', 'maintenance'], ['/api/media', 'media'], ['/api/theme', 'the theme'], ['/api/admins', 'an admin account'], ['/api/servicii', 'a service'], ['/api/oferte', 'a quote'], ['/api/contract', 'a contract'], ['/api/layout', 'page layout']];
+    const m = map.find(x => e.path.startsWith(x[0]));
+    return verb + ' ' + (m ? m[1] : e.path.replace('/api/', ''));
+  }
+
+  function renderActivity(list) {
+    const wrap = document.getElementById('activityLogList');
+    if (!wrap) return;
+    if (!Array.isArray(list) || !list.length) { wrap.innerHTML = '<div class="gib-empty">No activity yet.</div>'; return; }
+    wrap.innerHTML = list.map(e => `
+      <div style="display:flex;gap:12px;align-items:baseline;padding:8px 10px;border-bottom:1px solid var(--border);font-size:.8rem;">
+        <span style="color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:.7rem;min-width:140px;">${new Date(e.ts).toLocaleString('en-GB')}</span>
+        <span style="font-weight:700;min-width:90px;">${esc(e.user || '?')}</span>
+        <span style="color:var(--soft);">${esc(prettyAction(e))}</span>
+      </div>`).join('');
+  }
+
+  async function fetchActivity() {
+    const wrap = document.getElementById('activityLogList');
+    if (!wrap) return;
+    try {
+      const res = await fetch('/api/activity?token=' + encodeURIComponent(adminToken));
+      if (!res.ok) { wrap.innerHTML = '<div class="gib-empty">Owner only.</div>'; return; }
+      renderActivity(await res.json());
+    } catch { wrap.innerHTML = '<div class="gib-empty">Could not load activity.</div>'; }
   }
 
   function refreshCurrent() {
@@ -2341,6 +2809,537 @@
       allProjects = await res.json();
       renderProjects();
     } catch { document.getElementById('projectsGrid').innerHTML = '<div class="empty-state"><p>// Error loading data.</p></div>'; }
+  }
+
+  // ── AI portfolio generator ───────────────────────────────
+  let generatedProjects = [];
+
+  function toggleProjGen() {
+    const p = document.getElementById('projGenPanel');
+    p.style.display = p.style.display === 'none' ? 'block' : 'none';
+  }
+
+  async function runProjGen() {
+    const industries = document.getElementById('projGenIndustries').value.split(',').map(s => s.trim()).filter(Boolean);
+    const count = parseInt(document.getElementById('projGenCount').value) || 4;
+    const tone = document.getElementById('projGenTone').value;
+    const prompt = document.getElementById('projGenPrompt').value.trim();
+    const status = document.getElementById('projGenStatus');
+    const btn = document.getElementById('projGenGo');
+    status.style.display = 'inline'; status.style.color = 'var(--muted)';
+    status.textContent = '⏳ Generating... (can take 10–20s)';
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/project/generate?token=' + encodeURIComponent(adminToken), {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ industries, count, tone, prompt }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) {
+        status.style.color = '#e74c3c'; status.textContent = '✗ ' + (data.error || 'Error generating');
+        btn.disabled = false; return;
+      }
+      generatedProjects = data.examples || [];
+      renderProjGenResults();
+      status.style.display = 'none';
+    } catch { status.style.color = '#e74c3c'; status.textContent = '✗ Network error'; }
+    btn.disabled = false;
+  }
+
+  function renderProjGenResults() {
+    const wrap = document.getElementById('projGenResults');
+    const grid = document.getElementById('projGenGrid');
+    if (!generatedProjects.length) { wrap.style.display = 'none'; return; }
+    grid.innerHTML = generatedProjects.map((p, i) => `
+      <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:14px;">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:8px;">
+          <input type="checkbox" class="projGenChk" data-i="${i}" checked>
+          <span style="font-size:1.4rem;">${esc(p.emoji)}</span>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--teal);">${esc(p.tag)}</span>
+        </label>
+        <div style="font-weight:700;font-size:.9rem;margin-bottom:6px;">${esc(p.title)}</div>
+        <div style="font-size:.8rem;color:var(--muted);margin-bottom:8px;">${esc(p.description)}</div>
+        ${p.problema ? `<div style="font-size:.74rem;color:var(--muted);margin-bottom:3px;"><span style="color:#f59e0b;font-weight:600;">Challenge:</span> ${esc(p.problema)}</div>` : ''}
+        ${p.solutie ? `<div style="font-size:.74rem;color:var(--muted);margin-bottom:3px;"><span style="color:var(--teal);font-weight:600;">Solution:</span> ${esc(p.solutie)}</div>` : ''}
+        ${p.rezultat ? `<div style="font-size:.74rem;color:var(--muted);"><span style="color:#4ade80;font-weight:600;">Result:</span> ${esc(p.rezultat)}</div>` : ''}
+      </div>`).join('');
+    wrap.style.display = 'block';
+  }
+
+  async function addGeneratedProjects() {
+    const checked = [...document.querySelectorAll('.projGenChk:checked')].map(c => parseInt(c.dataset.i));
+    if (!checked.length) { alert('Select at least one example.'); return; }
+    const btn = document.getElementById('projGenAddBtn');
+    btn.disabled = true; btn.textContent = 'Adding...';
+    try {
+      for (const i of checked) {
+        await fetch('/api/project?token=' + encodeURIComponent(adminToken), {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(generatedProjects[i]),
+        });
+      }
+      document.getElementById('projGenResults').style.display = 'none';
+      document.getElementById('projGenPanel').style.display = 'none';
+      generatedProjects = [];
+      await fetchProjects();
+      alert(checked.length + ' example(s) added to the portfolio.');
+    } catch { alert('Error adding examples.'); }
+    btn.disabled = false; btn.textContent = '+ Add selected to portfolio';
+  }
+
+  // ── AI demo site generator ───────────────────────────────
+  let allDemos = [];
+
+  function toggleDemoGen() {
+    const p = document.getElementById('demoGenPanel');
+    const show = p.style.display === 'none';
+    p.style.display = show ? 'block' : 'none';
+    if (show) fetchDemos();
+  }
+
+  async function fetchDemos() {
+    try {
+      const res = await fetch('/api/demos');
+      allDemos = await res.json();
+      renderDemoList();
+    } catch { /* ignore */ }
+  }
+
+  function renderDemoList() {
+    const wrap = document.getElementById('demoList');
+    if (!allDemos.length) { wrap.innerHTML = '<div class="gib-empty">No demo sites yet.</div>'; return; }
+    wrap.innerHTML = allDemos.map(d => {
+      const custom = d.kind === 'html' || d.kind === 'zip';
+      const layout = d.layout || 'landing';
+      const layoutBadge = { shop: '🛒 shop', blog: '📰 blog', services: '🛠 services', saas: '💻 saas', agency: '🏢 agency', portfolio: '🖼 portfolio', multipage: '📑 multi-page' }[layout];
+      const label = custom ? `<span style="color:var(--teal);">custom ${esc(d.kind)}</span>` : (layoutBadge ? `<span style="color:#22b07d;">${layoutBadge}</span> · <span style="color:#a78bfa;">${esc(d.variant || 'modern')}</span>` : `<span style="color:#a78bfa;">${esc(d.variant || 'modern')}</span>`);
+      const aiBtns = custom ? '' : `
+        <button class="btn-del" onclick="openDemoEdit('${esc(d.id)}','${esc((d.businessName || 'demo'))}')" title="Tell the AI what to change" style="border-color:#8b5cf6;color:#a78bfa;">✏️ Edit (AI)</button>
+        <button class="btn-del" onclick="openDemoPhotos('${esc(d.id)}','${esc(layout)}',${d.galleryCount || 3},${d.bannerCount || 0},${d.productCount || 0},${d.articleCount || 0},${d.sectionCount || 0},${d.pageCount || 0})" title="Upload your own photos">🖼 Photos</button>
+        <button class="btn-del" onclick="restyleDemo('${esc(d.id)}')" title="New random colours">🎨 Restyle</button>`;
+      return `
+      <div style="display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:12px 14px;margin-bottom:8px;flex-wrap:wrap;">
+        <span style="font-size:1.5rem;">${esc(d.emoji || '🌐')}</span>
+        <div style="flex:1;min-width:160px;">
+          <div style="font-weight:700;font-size:.9rem;">${esc(d.businessName || 'Demo')}</div>
+          <div style="font-size:.74rem;color:var(--muted);">${esc(d.industry || '')} · ${label} · /demo/${esc(d.slug)}</div>
+        </div>
+        <a href="/demo/${encodeURIComponent(d.slug)}" target="_blank" rel="noopener" class="btn-edit" style="text-decoration:none;">↗ View</a>
+        ${aiBtns}
+        ${d.kind === 'zip' ? '' : `<button class="btn-del" onclick="downloadDemo('${esc(d.slug)}','${esc((d.businessName || 'demo'))}')" title="Save as .html file">⬇ Download</button>`}
+        <button class="btn-del" onclick="copyDemoLink('${esc(d.slug)}')">🔗 Copy link</button>
+        <button class="btn-del" onclick="deleteDemo('${esc(d.id)}','${esc(d.businessName || '')}')">✕ Delete</button>
+      </div>`;
+    }).join('');
+  }
+
+  async function downloadDemo(slug, name) {
+    try {
+      const res = await fetch('/demo/' + encodeURIComponent(slug) + '?v=' + Date.now());
+      if (!res.ok) { alert('Could not load the demo.'); return; }
+      const html = await res.text();
+      const blob = new Blob([html], { type: 'text/html' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = (String(name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'demo') + '.html';
+      document.body.appendChild(a); a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    } catch { alert('Download failed.'); }
+  }
+
+  async function restyleDemo(id) {
+    try {
+      const res = await fetch('/api/demo/' + encodeURIComponent(id) + '/restyle?token=' + encodeURIComponent(adminToken), { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) { alert(data.error || 'Could not restyle.'); return; }
+      await fetchDemos();
+      window.open('/demo/' + encodeURIComponent(data.slug) + '?v=' + Date.now(), '_blank', 'noopener');
+    } catch { alert('Network error.'); }
+  }
+
+  // ── Demo custom photos ───────────────────────────────────
+  let demoPhotoData = { hero: '', about: '', gallery: [], banners: [], products: [], articles: [] };
+  let demoPhotoMeta = { gallery: [], banners: [], products: [], articles: [] };
+  let demoPhotoLayout = 'landing', demoPhotoGalleryCount = 3, demoPhotoBannerCount = 0, demoPhotoProductCount = 0, demoPhotoArticleCount = 0, demoPhotoSectionCount = 0, demoPhotoPageCount = 0;
+
+  async function openDemoPhotos(id, layout, galleryCount, bannerCount, productCount, articleCount, sectionCount, pageCount) {
+    document.getElementById('demoPhotosId').value = id;
+    demoPhotoLayout = layout || 'landing';
+    demoPhotoGalleryCount = galleryCount || 3; demoPhotoBannerCount = bannerCount || 0; demoPhotoProductCount = productCount || 0; demoPhotoArticleCount = articleCount || 0; demoPhotoSectionCount = sectionCount || 0; demoPhotoPageCount = pageCount || 0;
+    demoPhotoData = { logo: '', bannerRatio: '', colorPrimary: '', colorAccent: '', hero: '', about: '', gallery: [], banners: [], products: [], articles: [], sections: [], pageHeroes: [], bannerModes: [], galleryModes: [], productModes: [], articleModes: [], sectionModes: [], pageHeroModes: [], heroMode: '', aboutMode: '' };
+    demoPhotoMeta = { gallery: [], banners: [], products: [], articles: [], sections: [], pages: [], heroType: 'split' };
+    document.getElementById('demoPhotosSlots').innerHTML = '<div class="gib-empty">Loading...</div>';
+    document.getElementById('demoPhotosOverlay').classList.add('open');
+    try {
+      const res = await fetch('/api/demo/' + encodeURIComponent(id) + '/images?token=' + encodeURIComponent(adminToken));
+      const data = await res.json().catch(() => ({}));
+      const A = k => Array.isArray(data[k]) ? data[k] : [];
+      demoPhotoData = { logo: data.logo || '', bannerRatio: data.bannerRatio || '', colorPrimary: data.colorPrimary || '', colorAccent: data.colorAccent || '', hero: data.hero || '', about: data.about || '', gallery: A('gallery'), banners: A('banners'), products: A('products'), articles: A('articles'), sections: A('sections'), pageHeroes: A('pageHeroes'), bannerModes: A('bannerModes'), galleryModes: A('galleryModes'), productModes: A('productModes'), articleModes: A('articleModes'), sectionModes: A('sectionModes'), pageHeroModes: A('pageHeroModes'), heroMode: data.heroMode || '', aboutMode: data.aboutMode || '' };
+      if (data.meta) demoPhotoMeta = { gallery: data.meta.gallery || [], banners: data.meta.banners || [], products: data.meta.products || [], articles: data.meta.articles || [], sections: data.meta.sections || [], pages: data.meta.pages || [], heroType: data.meta.heroType || 'split', colorPrimary: data.meta.colorPrimary || '', colorAccent: data.meta.colorAccent || '' };
+    } catch {}
+    renderDemoPhotoSlots();
+  }
+
+  function getDemoPhotoRef(ref) { if (ref.indexOf(':') > 0) { const p = ref.split(':'); return (demoPhotoData[p[0]] || [])[+p[1]] || ''; } return demoPhotoData[ref] || ''; }
+  function setDemoPhotoRef(ref, val) { if (ref.indexOf(':') > 0) { const p = ref.split(':'); if (!Array.isArray(demoPhotoData[p[0]])) demoPhotoData[p[0]] = []; demoPhotoData[p[0]][+p[1]] = val; } else demoPhotoData[ref] = val; }
+
+  function photoSectionHeader(txt) {
+    return `<div style="font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--muted);letter-spacing:.04em;margin:14px 0 8px;text-transform:uppercase;">// ${txt}</div>`;
+  }
+
+  // Generic per-slot overlay (Title / Icon) for every image, in every layout.
+  function overlayDefault(kind) {
+    if (kind === 'hero') return demoPhotoMeta.heroType === 'image' ? 'title' : demoPhotoMeta.heroType === 'split' ? 'icon' : 'none';
+    return { banner: 'title', gallery: 'both', about: 'icon', product: 'none', article: 'none', section: 'none', pageHero: 'title' }[kind] || 'none';
+  }
+  function getOverlayMode(kind, i) {
+    if (kind === 'hero') return demoPhotoData.heroMode || overlayDefault('hero');
+    if (kind === 'about') return demoPhotoData.aboutMode || overlayDefault('about');
+    const m = (demoPhotoData[kind + 'Modes'] || [])[i];
+    return m || overlayDefault(kind);
+  }
+  function setOverlayMode(kind, i, val) {
+    if (kind === 'hero') { demoPhotoData.heroMode = val; return; }
+    if (kind === 'about') { demoPhotoData.aboutMode = val; return; }
+    const key = kind + 'Modes';
+    if (!Array.isArray(demoPhotoData[key])) demoPhotoData[key] = [];
+    demoPhotoData[key][i] = val;
+  }
+  function overlayChecks(kind, i) {
+    const mode = getOverlayMode(kind, i);
+    const t = (mode === 'title' || mode === 'both') ? ' checked' : '';
+    const ic = (mode === 'icon' || mode === 'both') ? ' checked' : '';
+    const uid = kind + (i == null ? '' : i);
+    return `<div style="margin-top:7px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <span style="font-size:.7rem;color:var(--muted);">Show on the photo:</span>
+      <label style="display:flex;align-items:center;gap:5px;font-size:.78rem;cursor:pointer;"><input type="checkbox" id="ovT_${uid}" ${t} onchange="onOverlayChange('${kind}',${i == null ? 'null' : i})"> Title</label>
+      <label style="display:flex;align-items:center;gap:5px;font-size:.78rem;cursor:pointer;"><input type="checkbox" id="ovI_${uid}" ${ic} onchange="onOverlayChange('${kind}',${i == null ? 'null' : i})"> Icon</label>
+    </div>`;
+  }
+  function onOverlayChange(kind, i) {
+    const uid = kind + (i == null ? '' : i);
+    const t = document.getElementById('ovT_' + uid).checked;
+    const ic = document.getElementById('ovI_' + uid).checked;
+    setOverlayMode(kind, i, t && ic ? 'both' : t ? 'title' : ic ? 'icon' : 'none');
+  }
+
+  function demoSlotHtml(ref, category, item, rec, extra) {
+    const cur = getDemoPhotoRef(ref);
+    return `<div style="display:flex;gap:12px;align-items:center;border:1px solid var(--border-soft);border-radius:10px;padding:10px;margin-bottom:8px;">
+      <div style="width:74px;height:74px;border-radius:8px;background:var(--bg3);overflow:hidden;flex-shrink:0;display:grid;place-items:center;">
+        ${cur ? `<img src="${cur}" style="width:100%;height:100%;object-fit:cover;">` : '<span style="font-size:.62rem;color:var(--muted);text-align:center;">auto<br>photo</span>'}
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;flex-wrap:wrap;">
+          <span style="font-family:'Share Tech Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.04em;color:var(--teal);background:var(--teal-dim);border:1px solid var(--teal-border);padding:2px 8px;border-radius:6px;white-space:nowrap;">${esc(category)}</span>
+          <span style="font-weight:700;font-size:.86rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(item)}</span>
+        </div>
+        <div style="font-size:.72rem;color:var(--muted);margin-bottom:7px;">Recommended: <strong style="color:var(--teal);">${rec}</strong></div>
+        <input type="file" accept="image/*" onchange="onDemoPhotoPick('${ref}', this)" style="font-size:.74rem;max-width:160px;">
+        ${cur ? `<button class="btn-del" style="margin-left:6px;padding:3px 8px;" onclick="clearDemoPhoto('${ref}')">✕ remove</button>` : ''}
+        ${extra || ''}
+      </div>
+    </div>`;
+  }
+
+  function renderDemoPhotoSlots() {
+    const m = demoPhotoMeta;
+    let html = '';
+    html += photoSectionHeader('Logo (replaces the name + icon in the header)');
+    html += demoSlotHtml('logo', 'Logo', 'Site logo', 'Wide · 240×80px · transparent PNG');
+    html += photoSectionHeader('Banner ratio (applies to all banners on the site)');
+    html += `<div style="border:1px solid var(--border-soft);border-radius:10px;padding:12px;margin-bottom:8px;">
+      <div style="font-size:.78rem;color:var(--muted);margin-bottom:7px;">Set the banner shape as <strong style="color:var(--teal);">width × height</strong> (e.g. <code>1600x500</code>). Leave empty for the default. Tip: use your image's own size so nothing gets cropped.</div>
+      <input type="text" id="demoBannerRatio" placeholder="e.g. 1600x500" value="${esc(demoPhotoData.bannerRatio || '')}" oninput="demoPhotoData.bannerRatio=this.value.trim()" style="font-size:.86rem;padding:7px 10px;max-width:180px;border:1px solid var(--border-soft);border-radius:7px;background:var(--bg3);color:var(--text);">
+    </div>`;
+    html += photoSectionHeader('Colour scheme');
+    const _cp = demoPhotoData.colorPrimary || m.colorPrimary || '#6366f1';
+    const _ca = demoPhotoData.colorAccent || m.colorAccent || '#f59e0b';
+    const _con = !!demoPhotoData.colorPrimary;
+    html += `<div style="border:1px solid var(--border-soft);border-radius:10px;padding:12px;margin-bottom:8px;">
+      <label style="display:flex;align-items:center;gap:7px;font-size:.84rem;cursor:pointer;margin-bottom:${_con ? '10px' : '0'};"><input type="checkbox" id="demoColorOn" ${_con ? 'checked' : ''} onchange="onColorToggle()"> Set the colours manually</label>
+      <div id="demoColorRow" style="display:${_con ? 'flex' : 'none'};gap:18px;align-items:center;flex-wrap:wrap;">
+        <label style="display:flex;align-items:center;gap:7px;font-size:.8rem;">Primary <input type="color" id="demoColorP" value="${_cp}" oninput="if(document.getElementById('demoColorOn').checked)demoPhotoData.colorPrimary=this.value" style="width:42px;height:30px;border:none;background:none;cursor:pointer;"></label>
+        <label style="display:flex;align-items:center;gap:7px;font-size:.8rem;">Accent <input type="color" id="demoColorA" value="${_ca}" oninput="if(document.getElementById('demoColorOn').checked)demoPhotoData.colorAccent=this.value" style="width:42px;height:30px;border:none;background:none;cursor:pointer;"></label>
+      </div>
+    </div>`;
+    if (demoPhotoLayout === 'shop') {
+      if (demoPhotoBannerCount) {
+        html += photoSectionHeader('Home banners (carousel)');
+        for (let i = 0; i < demoPhotoBannerCount; i++) html += demoSlotHtml('banners:' + i, 'Banner ' + (i + 1), (m.banners[i] || 'Banner ' + (i + 1)), 'Wide · 1200×500px', overlayChecks('banner', i));
+      }
+      if (demoPhotoProductCount) {
+        html += photoSectionHeader('Products (catalogue grid)');
+        for (let i = 0; i < demoPhotoProductCount; i++) html += demoSlotHtml('products:' + i, 'Product', (m.products[i] || 'Product ' + (i + 1)), 'Landscape · 800×600px (4:3)', overlayChecks('product', i));
+      }
+    } else if (demoPhotoLayout === 'blog') {
+      if (demoPhotoArticleCount) {
+        html += photoSectionHeader('Articles');
+        for (let i = 0; i < demoPhotoArticleCount; i++) html += demoSlotHtml('articles:' + i, (i === 0 ? 'Featured story' : 'Article'), (m.articles[i] || 'Article ' + (i + 1)), 'Landscape · 1200×750px (16:10)', overlayChecks('article', i));
+      }
+    } else if (demoPhotoLayout === 'multipage') {
+      if (demoPhotoPageCount) {
+        html += photoSectionHeader('Page hero banners');
+        for (let i = 0; i < demoPhotoPageCount; i++) html += demoSlotHtml('pageHeroes:' + i, 'Hero', (m.pages[i] || 'Page ' + (i + 1)), 'Wide · 1600×900px (16:9)', overlayChecks('pageHero', i));
+      }
+      if (demoPhotoSectionCount) {
+        html += photoSectionHeader('Section images (across all pages)');
+        for (let i = 0; i < demoPhotoSectionCount; i++) html += demoSlotHtml('sections:' + i, 'Section', (m.sections[i] || 'Section ' + (i + 1)), 'Landscape · 800×600px (4:3)', overlayChecks('section', i));
+      }
+    } else {
+      html += photoSectionHeader('Hero & about');
+      const heroImg = demoPhotoMeta.heroType === 'image';
+      html += demoSlotHtml('hero', heroImg ? 'Hero (full photo)' : 'Hero', heroImg ? 'Hero background image' : 'Hero image', heroImg ? 'Wide · 1600×900px (16:9)' : 'Square · 800×800px (1:1)', overlayChecks('hero', null));
+      html += demoSlotHtml('about', 'About', 'About / team image', 'Portrait · 800×1000px (4:5)', overlayChecks('about', null));
+      if (demoPhotoGalleryCount) {
+        html += photoSectionHeader('“Our work” gallery (one per service)');
+        for (let i = 0; i < demoPhotoGalleryCount; i++) html += demoSlotHtml('gallery:' + i, 'Gallery', (m.gallery[i] || 'Gallery ' + (i + 1)), 'Landscape · 800×600px (4:3)', overlayChecks('gallery', i));
+      }
+    }
+    document.getElementById('demoPhotosSlots').innerHTML = html;
+  }
+
+  async function onDemoPhotoPick(ref, input) {
+    if (!input.files[0]) return;
+    // Logo keeps transparency (PNG); other photos are compressed to JPEG.
+    const dataUrl = ref === 'logo' ? await compressDemoLogo(input.files[0]) : await compressDemoImage(input.files[0]);
+    setDemoPhotoRef(ref, dataUrl);
+    renderDemoPhotoSlots();
+  }
+
+  function onColorToggle() {
+    const on = document.getElementById('demoColorOn').checked;
+    document.getElementById('demoColorRow').style.display = on ? 'flex' : 'none';
+    if (on) {
+      demoPhotoData.colorPrimary = document.getElementById('demoColorP').value;
+      demoPhotoData.colorAccent = document.getElementById('demoColorA').value;
+    } else {
+      demoPhotoData.colorPrimary = '';
+      demoPhotoData.colorAccent = '';
+    }
+  }
+
+  function clearDemoPhoto(ref) { setDemoPhotoRef(ref, ''); renderDemoPhotoSlots(); }
+
+  function closeDemoPhotos() { document.getElementById('demoPhotosOverlay').classList.remove('open'); }
+
+  async function saveDemoPhotos() {
+    const id = document.getElementById('demoPhotosId').value;
+    const btn = document.getElementById('demoPhotosSave');
+    btn.disabled = true; btn.textContent = 'Saving...';
+    try {
+      const res = await fetch('/api/demo/' + encodeURIComponent(id) + '/images?token=' + encodeURIComponent(adminToken), {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(demoPhotoData),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) { alert(data.error || 'Could not save photos.'); btn.disabled = false; btn.textContent = 'Save photos →'; return; }
+      closeDemoPhotos();
+      const d = allDemos.find(x => x.id === id);
+      if (d) window.open('/demo/' + encodeURIComponent(d.slug) + '?v=' + Date.now(), '_blank', 'noopener');
+    } catch { alert('Network error.'); }
+    btn.disabled = false; btn.textContent = 'Save photos →';
+  }
+
+  function compressDemoImage(file) {
+    return new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          const MAX = 1100; let w = img.width, h = img.height;
+          if (w > h && w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+          else if (h >= w && h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
+          const c = document.createElement('canvas'); c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(c.toDataURL('image/jpeg', 0.82));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function compressDemoLogo(file) {
+    return new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          const MAX = 600; let w = img.width, h = img.height;
+          if (w > h && w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+          else if (h >= w && h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
+          const c = document.createElement('canvas'); c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(c.toDataURL('image/png')); // keep transparency
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function copyDemoLink(slug) {
+    const url = location.origin + '/demo/' + slug;
+    navigator.clipboard?.writeText(url).then(() => alert('Link copied:\n' + url)).catch(() => prompt('Copy this link:', url));
+  }
+
+  function toggleMpPages() {
+    const mp = document.getElementById('demoGenLayout').value === 'multipage';
+    document.getElementById('mpPagesRow').style.display = mp ? 'block' : 'none';
+  }
+
+  async function runDemoGen() {
+    const industry = document.getElementById('demoGenIndustry').value.trim();
+    const tone = document.getElementById('demoGenTone').value;
+    const businessName = document.getElementById('demoGenName').value.trim();
+    const details = document.getElementById('demoGenDetails').value.trim();
+    const variant = document.getElementById('demoGenVariant').value;
+    const heroType = document.getElementById('demoGenHero').value;
+    const prompt = document.getElementById('demoGenPrompt').value.trim();
+    const versions = parseInt(document.getElementById('demoGenVersions').value) || 1;
+    const layout = document.getElementById('demoGenLayout').value;
+    const pages = document.getElementById('demoGenPages').value.trim();
+    const status = document.getElementById('demoGenStatus');
+    const btn = document.getElementById('demoGenGo');
+    if (!industry) { alert('Enter an industry first.'); return; }
+    status.style.display = 'inline'; status.style.color = 'var(--muted)';
+    status.textContent = '⏳ Building ' + (layout === 'multipage' ? 'multi-page site' : versions > 1 ? versions + ' designs' : 'demo') + '... (can take 10–30s)';
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/demo/generate?token=' + encodeURIComponent(adminToken), {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ industry, tone, businessName, details, variant, heroType, prompt, versions, layout, pages }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) {
+        status.style.color = '#e74c3c'; status.textContent = '✗ ' + (data.error || 'Error generating');
+        btn.disabled = false; return;
+      }
+      const n = data.count || 1;
+      status.style.color = '#4ade80'; status.textContent = '✓ Created ' + n + (n > 1 ? ' design versions — open them from the list below' : ': ' + data.demo.businessName);
+      document.getElementById('demoGenIndustry').value = '';
+      await fetchDemos();
+      window.open('/demo/' + encodeURIComponent(data.demo.slug), '_blank', 'noopener');
+    } catch { status.style.color = '#e74c3c'; status.textContent = '✗ Network error'; }
+    btn.disabled = false;
+  }
+
+  // ── Upload your own demo (HTML / ZIP) ────────────────────
+  function openDemoUpload() {
+    document.getElementById('demoUpName').value = '';
+    document.getElementById('demoUpIndustry').value = '';
+    document.getElementById('demoUpFile').value = '';
+    const st = document.getElementById('demoUpStatus'); st.style.display = 'none';
+    document.getElementById('demoUploadOverlay').classList.add('open');
+  }
+  function closeDemoUpload() { document.getElementById('demoUploadOverlay').classList.remove('open'); }
+
+  // ── Generate from a sketch (vision AI) ───────────────────
+  // ── Edit a demo with AI ──────────────────────────────────
+  function openDemoEdit(id, name) {
+    document.getElementById('demoEditId').value = id;
+    document.getElementById('demoEditName').textContent = name ? '(' + name + ')' : '';
+    document.getElementById('demoEditInstr').value = '';
+    const st = document.getElementById('demoEditStatus'); st.style.display = 'none';
+    document.getElementById('demoEditOverlay').classList.add('open');
+  }
+  function closeDemoEdit() { document.getElementById('demoEditOverlay').classList.remove('open'); }
+
+  async function submitDemoEdit() {
+    const id = document.getElementById('demoEditId').value;
+    const instruction = document.getElementById('demoEditInstr').value.trim();
+    const st = document.getElementById('demoEditStatus');
+    const btn = document.getElementById('demoEditBtn');
+    if (!instruction) { alert('Tell the AI what to change.'); return; }
+    st.style.display = 'block'; st.style.color = 'var(--muted)'; st.textContent = '⏳ Applying change... (can take 10–25s)';
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/demo/' + encodeURIComponent(id) + '/edit?token=' + encodeURIComponent(adminToken), {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ instruction }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) { st.style.color = '#e74c3c'; st.textContent = '✗ ' + (data.error || 'Failed'); btn.disabled = false; return; }
+      closeDemoEdit();
+      await fetchDemos();
+      window.open('/demo/' + encodeURIComponent(data.slug) + '?v=' + Date.now(), '_blank', 'noopener');
+    } catch { st.style.color = '#e74c3c'; st.textContent = '✗ Network error'; }
+    btn.disabled = false;
+  }
+
+  function openSketch() {
+    document.getElementById('sketchFile').value = '';
+    document.getElementById('sketchIndustry').value = '';
+    document.getElementById('sketchLayout').value = '';
+    const st = document.getElementById('sketchStatus'); st.style.display = 'none';
+    document.getElementById('sketchOverlay').classList.add('open');
+  }
+  function closeSketch() { document.getElementById('sketchOverlay').classList.remove('open'); }
+
+  async function submitSketch() {
+    const file = document.getElementById('sketchFile').files[0];
+    const industry = document.getElementById('sketchIndustry').value.trim();
+    const layout = document.getElementById('sketchLayout').value;
+    const st = document.getElementById('sketchStatus');
+    const btn = document.getElementById('sketchBtn');
+    if (!file) { alert('Choose a sketch image.'); return; }
+    if (!/^image\//.test(file.type)) { alert('Please choose an image file.'); return; }
+    st.style.display = 'block'; st.style.color = 'var(--muted)'; st.textContent = '⏳ Reading the sketch & generating... (can take 20–40s)';
+    btn.disabled = true;
+    try {
+      const q = '?token=' + encodeURIComponent(adminToken) + (industry ? '&industry=' + encodeURIComponent(industry) : '') + (layout ? '&layout=' + encodeURIComponent(layout) : '');
+      const res = await fetch('/api/demo/from-sketch' + q, {
+        method: 'POST', headers: { 'Content-Type': file.type || 'application/octet-stream' }, body: await file.arrayBuffer(),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) { st.style.color = '#e74c3c'; st.textContent = '✗ ' + (data.error || 'Failed'); btn.disabled = false; return; }
+      closeSketch();
+      await fetchDemos();
+      window.open(data.demo.url, '_blank', 'noopener');
+    } catch { st.style.color = '#e74c3c'; st.textContent = '✗ Network error'; }
+    btn.disabled = false;
+  }
+
+  async function submitDemoUpload() {
+    const name = document.getElementById('demoUpName').value.trim();
+    const industry = document.getElementById('demoUpIndustry').value.trim();
+    const file = document.getElementById('demoUpFile').files[0];
+    const st = document.getElementById('demoUpStatus');
+    const btn = document.getElementById('demoUpBtn');
+    if (!name) { alert('Enter a name.'); return; }
+    if (!file) { alert('Choose an .html or .zip file.'); return; }
+    const isZip = /\.zip$/i.test(file.name) || file.type === 'application/zip' || file.type === 'application/x-zip-compressed';
+    const isHtml = /\.html?$/i.test(file.name) || file.type === 'text/html';
+    if (!isZip && !isHtml) { alert('Only .html or .zip files are supported.'); return; }
+    st.style.display = 'block'; st.style.color = 'var(--muted)'; st.textContent = '⏳ Uploading...';
+    btn.disabled = true;
+    try {
+      let res;
+      if (isZip) {
+        res = await fetch('/api/demo/upload-zip?token=' + encodeURIComponent(adminToken) + '&name=' + encodeURIComponent(name) + '&industry=' + encodeURIComponent(industry), {
+          method: 'POST', headers: { 'Content-Type': 'application/zip' }, body: await file.arrayBuffer(),
+        });
+      } else {
+        const html = await file.text();
+        res = await fetch('/api/demo/upload-html?token=' + encodeURIComponent(adminToken), {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ businessName: name, industry, html }),
+        });
+      }
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) { st.style.color = '#e74c3c'; st.textContent = '✗ ' + (data.error || 'Upload failed'); btn.disabled = false; return; }
+      closeDemoUpload();
+      await fetchDemos();
+      window.open(data.demo.url + (data.demo.url.includes('?') ? '' : '?v=' + Date.now()), '_blank', 'noopener');
+    } catch { st.style.color = '#e74c3c'; st.textContent = '✗ Network error'; }
+    btn.disabled = false;
+  }
+
+  async function deleteDemo(id, name) {
+    if (!confirm('Delete demo site "' + name + '"? The public link will stop working.')) return;
+    try {
+      await fetch('/api/demo/' + encodeURIComponent(id) + '?token=' + encodeURIComponent(adminToken), { method: 'DELETE' });
+      await fetchDemos();
+    } catch { alert('Error deleting.'); }
   }
 
   function renderProjects() {
@@ -2474,6 +3473,10 @@
   }
 
   document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+  document.getElementById('demoPhotosOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeDemoPhotos(); });
+  document.getElementById('demoUploadOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeDemoUpload(); });
+  document.getElementById('sketchOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeSketch(); });
+  document.getElementById('demoEditOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeDemoEdit(); });
   document.getElementById('crmModalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeCrmModal(); });
   document.getElementById('clientModalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeClientModal(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeCrmModal(); } });
@@ -2535,7 +3538,7 @@
             ${e.note ? `<div class="crm-note" title="${esc(e.note)}">${esc(e.note)}</div>` : ''}
           </div>
         </div>
-        <div class="td crm-val" data-label="Value">${e.valoare ? esc(e.valoare) + ' RON' : '–'}</div>
+        <div class="td crm-val" data-label="Value">${e.valoare ? esc(e.valoare) + ' GBP' : '–'}</div>
         <div class="td" data-label="Deadline">
           <span class="crm-term ${termClass(e.termen)}">${e.termen ? formatDate(e.termen) : '–'}</span>
         </div>
@@ -2820,6 +3823,17 @@
     if (!confirm(`Delete article "${title}"?`)) return;
     await fetch(`/api/blog/${id}?token=` + encodeURIComponent(adminToken), { method: 'DELETE' });
     await fetchBlog();
+  }
+
+  async function resetBlog() {
+    if (!confirm('Sigur ștergi TOATE articolele de blog? Acțiunea este definitivă.')) return;
+    if (!confirm('Confirmare finală: ștergi definitiv toate articolele?')) return;
+    try {
+      const res = await fetch('/api/blog/reset?token=' + encodeURIComponent(adminToken), { method: 'DELETE' });
+      if (!res.ok) { alert('Eroare la ștergerea articolelor.'); return; }
+      await fetchBlog();
+      alert('Toate articolele au fost șterse.');
+    } catch { alert('Eroare de rețea.'); }
   }
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -3711,7 +4725,7 @@
     const alertBanner = neachitate.length
       ? `<div style="background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.35);border-radius:8px;padding:7px 12px;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
           <span style="font-size:.85rem;">⚠️</span>
-          <span style="font-size:.78rem;color:#f87171;font-family:'Share Tech Mono',monospace;">${neachitate.length} unpaid · <strong>${totalNeachit.toFixed(2)} RON</strong></span>
+          <span style="font-size:.78rem;color:#f87171;font-family:'Share Tech Mono',monospace;">${neachitate.length} unpaid · <strong>${totalNeachit.toFixed(2)} GBP</strong></span>
          </div>`
       : '';
 
@@ -3722,13 +4736,13 @@
           ${esc(c.descriere)}${c.recurent ? ' <span style="font-size:.68rem;color:var(--muted);">↻</span>' : ''}
         </span>
         <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.85rem;color:${c.achitat ? '#4ade80' : '#f87171'};flex-shrink:0;">
-          ${parseFloat(c.suma || 0).toFixed(2)} <span style="font-size:.68rem;font-weight:400;color:var(--muted);">${esc(c.moneda || 'RON')}</span>
+          ${parseFloat(c.suma || 0).toFixed(2)} <span style="font-size:.68rem;font-weight:400;color:var(--muted);">${esc(c.moneda || 'GBP')}</span>
         </span>
         <input type="checkbox" ${c.achitat ? 'checked' : ''} style="width:14px;height:14px;accent-color:#4ade80;cursor:pointer;flex-shrink:0;" title="${c.achitat ? 'Paid — click to unmark' : 'Mark as paid'}" onchange="toggleCheltAchitat('${esc(c.id)}',this.checked)">
       </div>`).join('') +
       `<div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px;display:flex;justify-content:space-between;font-size:.78rem;">
         <span style="color:var(--muted);font-family:'Share Tech Mono',monospace;">// total this month</span>
-        <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);">${totalLuna.toFixed(2)} RON</span>
+        <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);">${totalLuna.toFixed(2)} GBP</span>
       </div>`;
   }
 
@@ -3918,6 +4932,26 @@
       await fetch(`/api/gibilan/${urlMap[type]}/${id}?token=` + encodeURIComponent(adminToken), { method: 'DELETE' });
       await loadGibilan();
     } catch { alert('Error deleting.'); }
+  }
+
+  async function resetGibilan() {
+    if (!confirm('Sigur golești toată agenda? Se șterg TOATE meetings, to-do-urile și deadlines. Acțiunea este definitivă.')) return;
+    if (!confirm('Confirmare finală: ștergi definitiv toată agenda?')) return;
+    try {
+      const res = await fetch('/api/gibilan/reset?token=' + encodeURIComponent(adminToken), { method: 'DELETE' });
+      if (!res.ok) { alert('Eroare la golirea agendei.'); return; }
+      await loadGibilan();
+      alert('Agenda a fost golită.');
+    } catch { alert('Eroare de rețea.'); }
+  }
+
+  async function resetGibilanSection(which, label) {
+    if (!confirm(`Sigur ștergi ${label}? Acțiunea este definitivă.`)) return;
+    try {
+      const res = await fetch('/api/gibilan/reset?which=' + encodeURIComponent(which) + '&token=' + encodeURIComponent(adminToken), { method: 'DELETE' });
+      if (!res.ok) { alert('Eroare la ștergere.'); return; }
+      await loadGibilan();
+    } catch { alert('Eroare de rețea.'); }
   }
 
   // Rotire mesaje speech bubble la fiecare 5 secunde
@@ -4999,7 +6033,9 @@
   function formatDate(d) { if (!d) return '–'; const [y,m,z] = d.split('-'); return `${z}.${m}.${y}`; }
 
   function logout() {
+    if (adminToken) { fetch('/api/logout?token=' + encodeURIComponent(adminToken), { method: 'POST' }).catch(() => {}); }
     adminToken = '';
+    currentUser = null;
     localStorage.removeItem('cdAdmin');
     allBookings = [];
     allProjects = [];
@@ -5061,8 +6097,8 @@
     const totalAn = allCheltuieli.filter(c => (c.data || '').startsWith(anAc)).reduce((s, c) => s + (parseFloat(c.suma) || 0), 0);
     const recurente = allCheltuieli.filter(c => c.recurent).length;
     sumarWrap.innerHTML = [
-      ['This month', totalLuna.toFixed(2) + ' RON', '#4ade80'],
-      [anAc, totalAn.toFixed(2) + ' RON', 'var(--teal)'],
+      ['This month', totalLuna.toFixed(2) + ' GBP', '#4ade80'],
+      [anAc, totalAn.toFixed(2) + ' GBP', 'var(--teal)'],
       ['Recurring', recurente + ' expenses', '#fbbf24'],
       ['Total recorded', allCheltuieli.length + ' entries', 'var(--soft)'],
     ].map(([label, val, color]) => `
@@ -5073,7 +6109,7 @@
 
     // Info filtru
     document.getElementById('cheltFiltruInfo').textContent = lista.length
-      ? `// ${lista.length} records · total: ${lista.reduce((s, c) => s + (parseFloat(c.suma) || 0), 0).toFixed(2)} RON`
+      ? `// ${lista.length} records · total: ${lista.reduce((s, c) => s + (parseFloat(c.suma) || 0), 0).toFixed(2)} GBP`
       : '';
 
     if (!lista.length) {
@@ -5096,7 +6132,7 @@
         <tr style="border-bottom:1px solid var(--border);transition:background .15s;" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">
           <td style="padding:10px 12px;font-size:.88rem;color:var(--text);">${esc(c.descriere || '')}${c.note ? `<div style="font-size:.72rem;color:var(--muted);margin-top:2px;">${esc(c.note)}</div>` : ''}</td>
           <td style="padding:10px 12px;font-size:.8rem;color:var(--soft);">${CHELT_CAT_LABEL[c.categorie] || esc(c.categorie || '')}</td>
-          <td style="padding:10px 12px;text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);">${parseFloat(c.suma || 0).toFixed(2)} <span style="font-size:.72rem;font-weight:400;color:var(--muted);">${esc(c.moneda || 'RON')}</span></td>
+          <td style="padding:10px 12px;text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);">${parseFloat(c.suma || 0).toFixed(2)} <span style="font-size:.72rem;font-weight:400;color:var(--muted);">${esc(c.moneda || 'GBP')}</span></td>
           <td style="padding:10px 12px;font-family:'Share Tech Mono',monospace;font-size:.78rem;color:var(--muted);">${formatDate(c.data || '')}</td>
           <td style="padding:10px 12px;font-size:.78rem;color:var(--soft);">${esc(c.metodaPlatii || '')}</td>
           <td style="padding:10px 12px;text-align:center;">${c.recurent ? '<span style="color:#4ade80;font-size:.8rem;">↻ YES</span>' : '<span style="color:var(--muted);font-size:.78rem;">—</span>'}</td>
@@ -5118,7 +6154,7 @@
     document.getElementById('cheltDescriere').value = c ? c.descriere : '';
     document.getElementById('cheltCategorie').value = c ? c.categorie : 'hosting';
     document.getElementById('cheltSuma').value = c ? c.suma : '';
-    document.getElementById('cheltMoneda').value = c ? c.moneda : 'RON';
+    document.getElementById('cheltMoneda').value = c ? c.moneda : 'GBP';
     document.getElementById('cheltData').value = c ? c.data : new Date().toISOString().slice(0, 10);
     document.getElementById('cheltMetoda').value = c ? c.metodaPlatii : 'card';
     document.getElementById('cheltRecurent').checked = c ? !!c.recurent : false;
@@ -5245,7 +6281,7 @@
               ${s.descriere ? `<div style="font-size:.78rem;color:var(--soft);margin-top:2px;">${esc(s.descriere)}</div>` : ''}
             </div>
             <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.92rem;color:var(--teal);white-space:nowrap;text-align:right;">
-              ${parseFloat(s.pret || 0).toLocaleString('en-GB')} ${esc(s.moneda || 'EUR')}
+              ${parseFloat(s.pret || 0).toLocaleString('en-GB')} ${esc(s.moneda || 'GBP')}
               <div style="font-size:.68rem;font-weight:400;color:var(--muted);">/ ${esc(s.unitate || 'project')}</div>
             </div>
           </label>`).join('')}
@@ -5262,7 +6298,7 @@
       if (!svc) return;
       const pret = parseFloat(svc.pret || 0);
       total += pret;
-      items.push({ name: svc.nume, pret, moneda: svc.moneda || 'EUR', unitate: svc.unitate || 'proiect' });
+      items.push({ name: svc.nume, pret, moneda: svc.moneda || 'GBP', unitate: svc.unitate || 'proiect' });
     });
     document.getElementById('oferta-sumar-items').innerHTML = items.map(i =>
       `<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);">
@@ -5361,7 +6397,7 @@
               ${o.client?.email ? `<div style="font-size:.72rem;color:var(--muted);">${esc(o.client.email)}</div>` : ''}
             </td>
             <td style="padding:10px 12px;font-family:'Share Tech Mono',monospace;font-size:.78rem;color:var(--muted);">${o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-GB') : '–'}</td>
-            <td style="padding:10px 12px;text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);">${total.toLocaleString('en-GB')} <span style="font-size:.72rem;color:var(--muted);">${esc(o.moneda || 'EUR')}</span></td>
+            <td style="padding:10px 12px;text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);">${total.toLocaleString('en-GB')} <span style="font-size:.72rem;color:var(--muted);">${esc(o.moneda || 'GBP')}</span></td>
             <td style="padding:10px 12px;white-space:nowrap;">
               <button class="btn-edit" onclick="window.open('/oferta-preview/${esc(o.id)}?token=${encodeURIComponent(adminToken)}','_blank')" title="Preview / Print PDF" style="font-size:.8rem;">&#x1F5A8;</button>
             </td>
@@ -5392,7 +6428,7 @@
             ${s.descriere ? `<div style="font-size:.72rem;color:var(--muted);">${esc(s.descriere)}</div>` : ''}
           </td>
           <td style="padding:10px 12px;font-size:.8rem;color:var(--soft);">${SVC_CAT_LABEL[s.categorie] || esc(s.categorie || '')}</td>
-          <td style="padding:10px 12px;text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);">${parseFloat(s.pret || 0).toLocaleString('en-GB')} <span style="font-size:.72rem;font-weight:400;color:var(--muted);">${esc(s.moneda || 'EUR')}</span></td>
+          <td style="padding:10px 12px;text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);">${parseFloat(s.pret || 0).toLocaleString('en-GB')} <span style="font-size:.72rem;font-weight:400;color:var(--muted);">${esc(s.moneda || 'GBP')}</span></td>
           <td style="padding:10px 12px;font-size:.78rem;color:var(--muted);">/ ${esc(s.unitate || 'project')}</td>
           <td style="padding:10px 12px;white-space:nowrap;">
             <button class="btn-edit" onclick="openSvcModal('${esc(s.id)}')">&#x270E;</button>
@@ -5409,7 +6445,7 @@
     document.getElementById('svcNume').value = s ? s.nume : '';
     document.getElementById('svcDescriere').value = s ? (s.descriere || '') : '';
     document.getElementById('svcPret').value = s ? s.pret : '';
-    document.getElementById('svcMoneda').value = s ? (s.moneda || 'EUR') : 'EUR';
+    document.getElementById('svcMoneda').value = s ? (s.moneda || 'GBP') : 'GBP';
     document.getElementById('svcUnitate').value = s ? (s.unitate || 'proiect') : 'proiect';
     document.getElementById('svcCategorie').value = s ? (s.categorie || 'web-design') : 'web-design';
     document.getElementById('svcModalOverlay').classList.add('open');
@@ -5492,7 +6528,7 @@
     document.getElementById('cnt-client-email').value = o.client?.email || '';
     const total = (o.servicii||[]).reduce((s,sv) => s + parseFloat(sv.pret||0), 0);
     document.getElementById('cnt-total').value = total;
-    document.getElementById('cnt-moneda').value = o.moneda || 'EUR';
+    document.getElementById('cnt-moneda').value = o.moneda || 'GBP';
     document.getElementById('cnt-obiect').value = (o.servicii||[]).map(s => s.nume).join(', ');
     document.getElementById('cnt-servicii-text').value = (o.servicii||[]).map((s,i) =>
       `${i+1}. ${s.nume}${s.descriere ? ' — ' + s.descriere : ''} — ${parseFloat(s.pret||0).toLocaleString('en-GB')} ${s.moneda||o.moneda}`
@@ -5577,7 +6613,7 @@
             ${c.client?.email ? `<div style="font-size:.72rem;color:var(--muted);">${esc(c.client.email)}</div>` : ''}
           </td>
           <td style="padding:10px 12px;font-family:'Share Tech Mono',monospace;font-size:.78rem;color:var(--muted);">${c.dataSemnare ? formatDate(c.dataSemnare) : (c.createdAt ? new Date(c.createdAt).toLocaleDateString('en-GB') : '–')}</td>
-          <td style="padding:10px 12px;text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);">${parseFloat(c.total||0).toLocaleString('en-GB')} <span style="font-size:.72rem;color:var(--muted);">${esc(c.moneda||'EUR')}</span></td>
+          <td style="padding:10px 12px;text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);">${parseFloat(c.total||0).toLocaleString('en-GB')} <span style="font-size:.72rem;color:var(--muted);">${esc(c.moneda||'GBP')}</span></td>
           <td style="padding:10px 12px;white-space:nowrap;">
             <button class="btn-edit" onclick="window.open('/contract-preview/${esc(c.id)}?token=${encodeURIComponent(adminToken)}','_blank')" title="Preview / Print PDF" style="font-size:.85rem;">&#x1F5A8;</button>
           </td>

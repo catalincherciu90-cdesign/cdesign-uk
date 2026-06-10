@@ -81,7 +81,7 @@
         {"@type": "Offer","itemOffered": {"@type": "Service","name": "Website Redesign","description": "We modernise your existing site with a contemporary design and improved performance."}},
         {"@type": "Offer","itemOffered": {"@type": "Service","name": "Graphic Design & Logo","description": "Professional visual identity: logo, business card, print materials."}},
         {"@type": "Offer","itemOffered": {"@type": "Service","name": "Website Maintenance","description": "Regular updates, security and technical support for your website."}},
-        {"@type": "Offer","itemOffered": {"@type": "Service","name": "Startup Package","description": "Complete launch package: website + visual identity + active online presence. From 300€."}}
+        {"@type": "Offer","itemOffered": {"@type": "Service","name": "Startup Package","description": "Complete launch package: website + visual identity + active online presence. From £300."}}
       ]
     }
   }
@@ -108,9 +108,9 @@
       {"@type": "Question","name": "How much does a presentation website cost?","acceptedAnswer": {"@type": "Answer","text": "The price varies depending on complexity. Book a free consultation session and you will receive a fixed quote with no hidden costs."}},
       {"@type": "Question","name": "How long does it take to build a website?","acceptedAnswer": {"@type": "Answer","text": "We deliver complete websites within a maximum of 14 days from order confirmation, guaranteed contractually."}},
       {"@type": "Question","name": "How do I book a consultation?","acceptedAnswer": {"@type": "Answer","text": "Fill in the form on our page, choose your preferred date and time, and we will contact you within 2 hours to confirm."}},
-      {"@type": "Question","name": "Does the package include a domain and hosting?","acceptedAnswer": {"@type": "Answer","text": "Yes, a .ro domain and hosting are included in the presentation website package."}},
+      {"@type": "Question","name": "Does the package include a domain and hosting?","acceptedAnswer": {"@type": "Answer","text": "Yes, a .co.uk domain and hosting are included in the presentation website package."}},
       {"@type": "Question","name": "Will the website work on mobile?","acceptedAnswer": {"@type": "Answer","text": "All our websites are mobile-first — they look perfect on phones, tablets and desktops."}},
-      {"@type": "Question","name": "What does the Startup Package include?","acceptedAnswer": {"@type": "Answer","text": "The Startup Package includes a presentation website, professional logo, .ro domain, hosting and support for setting up your online presence. From 300€."}},
+      {"@type": "Question","name": "What does the Startup Package include?","acceptedAnswer": {"@type": "Answer","text": "The Startup Package includes a presentation website, professional logo, .co.uk domain, hosting and support for setting up your online presence. From £300."}},
       {"@type": "Question","name": "Do you work with clients across the UK?","acceptedAnswer": {"@type": "Answer","text": "Yes, we work online with clients all over the UK — Leeds, Sheffield, Nottingham, Derby, Blackburn, Preston and anywhere else."}}
     ]
   }
@@ -270,16 +270,33 @@
     .process-step:hover .p-num{background:var(--teal-dim);box-shadow:0 0 20px rgba(var(--teal-glow-rgb),.3)}
     .process-step h3{font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700;color:var(--heading);margin-bottom:8px;}
     .process-step p{font-size:.82rem;color:var(--muted);line-height:1.6}
-    .portfolio-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
-    .port-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .25s,box-shadow .25s,transform .25s;}
-    .port-card:hover{border-color:var(--teal-border);box-shadow:0 0 32px rgba(var(--teal-glow-rgb),.08);transform:translateY(-3px);}
-    .port-thumb{height:160px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:2.8rem;position:relative;overflow:hidden;}
+    .portfolio-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+    .port-card{position:relative;background:var(--bg);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color .3s,box-shadow .3s,transform .3s;display:flex;flex-direction:column;}
+    .port-card:hover{border-color:var(--teal-border);box-shadow:0 22px 50px -26px rgba(0,0,0,.32);transform:translateY(-5px);}
+    .port-thumb{height:190px;background:var(--bg3);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+    .port-thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .55s cubic-bezier(.2,.7,.2,1);}
+    .port-card:hover .port-thumb img{transform:scale(1.07);}
+    .port-thumb.is-emoji{background:linear-gradient(150deg,var(--teal-dim),rgba(var(--teal-glow-rgb),.12));}
+    .port-thumb::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.16));opacity:0;transition:opacity .3s;}
+    .port-card:hover .port-thumb::after{opacity:1;}
     .port-grid-overlay{position:absolute;inset:0;background-image:linear-gradient(rgba(var(--teal-glow-rgb),.06) 1px,transparent 1px),linear-gradient(90deg,rgba(var(--teal-glow-rgb),.06) 1px,transparent 1px);background-size:32px 32px;}
-    .port-emoji{position:relative;z-index:1}
-    .port-info{padding:18px 20px}
-    .port-tag{font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--teal);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;}
-    .port-info h3{font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700;color:var(--heading);margin-bottom:5px;}
-    .port-info p{font-size:.82rem;color:var(--muted);line-height:1.55}
+    .port-emoji{position:relative;z-index:1;font-size:2.7rem;width:90px;height:90px;display:grid;place-items:center;background:rgba(255,255,255,.72);border:1px solid var(--border);border-radius:22px;box-shadow:0 10px 28px -12px rgba(0,0,0,.3);backdrop-filter:blur(5px);transition:transform .4s cubic-bezier(.2,.7,.2,1);}
+    .port-card:hover .port-emoji{transform:translateY(-3px) rotate(-3deg);}
+    .port-pill{position:absolute;top:14px;left:14px;z-index:3;font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--heading);background:rgba(255,255,255,.88);border:1px solid var(--border);padding:5px 11px;border-radius:999px;backdrop-filter:blur(6px);}
+    .port-live{position:absolute;top:14px;right:14px;z-index:3;font-family:'Share Tech Mono',monospace;font-size:.58rem;letter-spacing:.08em;color:#fff;background:rgba(34,176,125,.95);padding:5px 10px;border-radius:999px;display:flex;align-items:center;gap:5px;}
+    .port-live::before{content:'';width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 0 0 rgba(255,255,255,.7);animation:portPulse 1.8s infinite;}
+    @keyframes portPulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.6)}70%{box-shadow:0 0 0 6px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+    .port-info{padding:22px 22px 24px;display:flex;flex-direction:column;flex:1;}
+    .port-info h3{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;color:var(--heading);margin-bottom:7px;letter-spacing:-.01em;}
+    .port-info>p{font-size:.9rem;color:var(--soft);line-height:1.62;}
+    .port-case{margin-top:16px;padding-top:16px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px;}
+    .pc-row{display:flex;gap:9px;font-size:.8rem;color:var(--muted);line-height:1.5;}
+    .pc-row .pc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px;}
+    .pc-row b{color:var(--heading);font-weight:600;}
+    .pc-dot.c1{background:#f59e0b;}.pc-dot.c2{background:var(--teal);}.pc-dot.c3{background:#22b07d;}
+    .port-cta{margin-top:auto;padding-top:18px;display:inline-flex;align-items:center;gap:7px;font-family:'Share Tech Mono',monospace;font-size:.74rem;letter-spacing:.04em;color:var(--teal-dk);font-weight:700;text-decoration:none;}
+    .port-cta .arr{transition:transform .25s;}
+    .port-card:hover .port-cta .arr{transform:translate(3px,-3px);}
     .testi-bg{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
     .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
     .testi-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:28px;position:relative;}
@@ -440,10 +457,10 @@
     .svc-card:hover{border-top-color:var(--teal);}
 
     /* 7. Portfolio cards — bigger text, more padding */
-    .port-info{padding:22px 24px;}
-    .port-info h3{font-size:1.05rem;margin-bottom:7px;}
-    .port-info p{font-size:.92rem;line-height:1.72;color:var(--soft);}
-    .port-thumb{height:176px;font-size:3.2rem;}
+    .port-info{padding:24px 24px 26px;}
+    .port-info h3{font-size:1.12rem;margin-bottom:7px;}
+    .port-info>p{font-size:.92rem;line-height:1.72;color:var(--soft);}
+    .port-thumb{height:200px;}
 
     /* 8. Process steps — bigger circles + bigger text */
     .p-num{width:60px;height:60px;font-size:1.1rem;}
@@ -777,7 +794,7 @@
         <h3 class="svc-title">Presentation Website</h3>
         <ul class="svc-features">
           <li>Delivered in a maximum of 14 days, guaranteed</li>
-          <li>.ro domain and hosting included, no extras</li>
+          <li>.co.uk domain and hosting included, no extras</li>
           <li>Looks perfect on phone, tablet and PC</li>
           <li>Optimised to appear on Google in your area</li>
         </ul>
@@ -842,7 +859,7 @@
   <div class="container">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap;">
       <div>
-        <div style="font-family:'DM Sans',sans-serif;font-size:.72rem;color:var(--teal);letter-spacing:.1em;margin-bottom:8px;text-transform:uppercase;font-weight:600;">STARTUP PACKAGE · From 300€</div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:.72rem;color:var(--teal);letter-spacing:.1em;margin-bottom:8px;text-transform:uppercase;font-weight:600;">STARTUP PACKAGE · From £300</div>
         <div style="font-family:'Space Grotesk',sans-serif;font-size:1.25rem;font-weight:700;color:var(--heading);letter-spacing:-.025em;margin-bottom:6px;">Starting from scratch? We have everything ready for you, in one single package.</div>
         <div style="font-family:'DM Sans',sans-serif;font-size:.95rem;color:var(--soft);line-height:1.7;">Professional website + logo + domain &amp; hosting + social media — fully ready to go, with no technical complexity on your end.</div>
       </div>
@@ -925,6 +942,15 @@
     <h2 class="sec-title reveal" id="portofoliu-heading">Businesses like yours, real results</h2>
     <p class="sec-sub reveal" id="portofoliu-sub-el">Here are some of the projects we've delivered — small family businesses, freelancers, restaurants, construction firms. Real people, websites that work.</p>
     <div class="portfolio-grid" id="portfolioGrid" style="min-height:280px"></div>
+
+    <div id="demoShowcase" style="margin-top:64px;display:none;">
+      <div style="text-align:center;max-width:580px;margin:0 auto 40px;">
+        <div class="sec-label reveal">LIVE DEMOS</div>
+        <h3 class="reveal" style="font-family:'Space Grotesk',sans-serif;font-size:clamp(1.5rem,2.6vw,2rem);font-weight:700;color:var(--heading);letter-spacing:-.02em;margin-bottom:12px;">See a live demo for your industry</h3>
+        <p class="reveal" style="font-size:1rem;color:var(--soft);line-height:1.7;">Click any demo to open a full sample website — exactly the kind of site we can build for your business.</p>
+      </div>
+      <div class="portfolio-grid" id="demoGrid"></div>
+    </div>
   </div>
 </section>
 
@@ -1108,27 +1134,54 @@ reveals.forEach(el=>revObs.observe(el));
     const res = await fetch('/api/projects');
     const projects = await res.json();
     grid.innerHTML = projects.map((p, i) => `
-      <div class="port-card reveal ${delays[i % 3]}">
-        <div class="port-thumb" aria-hidden="true">
-          ${p.image ? `<img src="${p.image}" style="width:100%;height:100%;object-fit:cover;display:block;">` : `<div class="port-grid-overlay"></div><span class="port-emoji">${esc(p.emoji) || '🌐'}</span>`}
+      <article class="port-card reveal ${delays[i % 3]}">
+        <div class="port-thumb ${p.image ? '' : 'is-emoji'}" aria-hidden="true">
+          ${p.image ? `<img src="${p.image}" alt="">` : `<div class="port-grid-overlay"></div><span class="port-emoji">${esc(p.emoji) || '🌐'}</span>`}
+          ${p.tag ? `<span class="port-pill">${esc(p.tag)}</span>` : ''}
         </div>
         <div class="port-info">
-          <div class="port-tag">${esc(p.tag)}</div>
           <h3>${esc(p.title)}</h3>
           <p>${esc(p.description)}</p>
           ${p.problema || p.solutie || p.rezultat ? `
-          <div class="port-case" style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px;display:flex;flex-direction:column;gap:8px;">
-            ${p.problema ? `<div style="font-size:.78rem;color:var(--muted);"><span style="color:#f59e0b;font-weight:600;">Challenge:</span> ${esc(p.problema)}</div>` : ''}
-            ${p.solutie  ? `<div style="font-size:.78rem;color:var(--muted);"><span style="color:var(--teal);font-weight:600;">Solution:</span> ${esc(p.solutie)}</div>` : ''}
-            ${p.rezultat ? `<div style="font-size:.78rem;color:var(--muted);"><span style="color:#4ade80;font-weight:600;">Result:</span> ${esc(p.rezultat)}</div>` : ''}
+          <div class="port-case">
+            ${p.problema ? `<div class="pc-row"><span class="pc-dot c1"></span><span><b>Challenge:</b> ${esc(p.problema)}</span></div>` : ''}
+            ${p.solutie  ? `<div class="pc-row"><span class="pc-dot c2"></span><span><b>Solution:</b> ${esc(p.solutie)}</span></div>` : ''}
+            ${p.rezultat ? `<div class="pc-row"><span class="pc-dot c3"></span><span><b>Result:</b> ${esc(p.rezultat)}</span></div>` : ''}
           </div>` : ''}
-          ${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:12px;font-size:.78rem;color:var(--teal);font-family:'Share Tech Mono',monospace;">→ View live site ↗</a>` : ''}
+          ${p.url ? `<a class="port-cta" href="${esc(p.url)}" target="_blank" rel="noopener noreferrer">View live site <span class="arr">↗</span></a>` : ''}
         </div>
-      </div>`).join('');
+      </article>`).join('');
     grid.querySelectorAll('.reveal').forEach(el => revObs.observe(el));
   } catch {
     grid.innerHTML = '<p style="color:var(--muted);font-size:.9rem;padding:24px 0">Projects could not be loaded.</p>';
   }
+})();
+
+(async function loadDemos() {
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const delays = ['', 'reveal-delay-1', 'reveal-delay-2'];
+  try {
+    const res = await fetch('/api/demos');
+    const demos = await res.json();
+    if (!Array.isArray(demos) || !demos.length) return;
+    const showcase = document.getElementById('demoShowcase');
+    const grid = document.getElementById('demoGrid');
+    grid.innerHTML = demos.map((d, i) => `
+      <a class="port-card reveal ${delays[i % 3]}" href="/demo/${encodeURIComponent(d.slug)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;">
+        <div class="port-thumb is-emoji" aria-hidden="true">
+          <div class="port-grid-overlay"></div><span class="port-emoji">${esc(d.emoji) || '🌐'}</span>
+          <span class="port-pill">${esc(d.industry || 'Demo')}</span>
+          <span class="port-live">LIVE</span>
+        </div>
+        <div class="port-info">
+          <h3>${esc(d.businessName || 'Demo site')}</h3>
+          <p>${esc(d.tagline || '')}</p>
+          <span class="port-cta">Open live demo <span class="arr">↗</span></span>
+        </div>
+      </a>`).join('');
+    showcase.style.display = 'block';
+    grid.querySelectorAll('.reveal').forEach(el => revObs.observe(el));
+  } catch { /* demos are optional — ignore */ }
 })();
 
 (function(){
@@ -1271,7 +1324,7 @@ document.getElementById('bookingForm').addEventListener('submit', async function
     if (res.ok) {
       if (typeof fbq === 'function') fbq('track', 'Lead');
       if (typeof gtag !== 'undefined') {
-        gtag('event', 'generate_lead', { value: 300, currency: 'EUR', event_category: 'contact' });
+        gtag('event', 'generate_lead', { value: 300, currency: 'GBP', event_category: 'contact' });
       }
       btn.textContent = '✓ Thank you! We will contact you within 2 hours to confirm your booking.';
       btn.style.background = '#28c840';
