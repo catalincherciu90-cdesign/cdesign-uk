@@ -603,6 +603,12 @@
               <button class="gib-reset-sec" onclick="resetGibilanSection('todos','toate to-do-urile')" title="Șterge toate to-do-urile">🗑 clear</button>
             </div>
             <div id="gib-todos-list"><div class="gib-empty">Loading...</div></div>
+            <div id="gib-todos-done-toggle" style="margin-top:10px;display:none;">
+              <button onclick="toggleDoneTodos()" id="gib-done-btn" style="background:none;border:none;color:var(--muted);font-size:.78rem;cursor:pointer;padding:4px 0;display:flex;align-items:center;gap:6px;">
+                <span id="gib-done-arrow">&#x25B8;</span> <span id="gib-done-label">Show completed</span>
+              </button>
+              <div id="gib-todos-done-list" style="display:none;margin-top:8px;"></div>
+            </div>
           </div>
 
           <!-- Deadlines -->
@@ -4573,6 +4579,7 @@
       renderGibilanDate();
       renderGibilanMeetings();
       renderGibilanTodos();
+      renderGibilanTodosDone();
       renderGibilanDeadlines();
       renderGibilanBookings();
       renderGibilanCheltuieli();
@@ -4648,6 +4655,41 @@
         <button class="gib-del" onclick="deleteGibilanItem('todo','${esc(t.id)}')" title="Delete">&#x1F5D1;</button>
       </div>`;
     }).join('');
+  }
+
+  function renderGibilanTodosDone() {
+    const toggleWrap = document.getElementById('gib-todos-done-toggle');
+    const wrap = document.getElementById('gib-todos-done-list');
+    if (!toggleWrap || !wrap) return;
+    const list = gibData.todosDone || [];
+    const label = document.getElementById('gib-done-label');
+    if (!list.length) { toggleWrap.style.display = 'none'; return; }
+    toggleWrap.style.display = 'block';
+    if (label) label.textContent = (wrap.style.display === 'none' ? 'Show' : 'Hide') + ' completed (' + list.length + ')';
+    wrap.innerHTML = list.map(t => {
+      const client = clientsData.find(c => c.id === t.clientId);
+      return `<div class="gib-item done${t.priority === 'high' ? ' gib-priority-high' : ''}">
+        <input type="checkbox" class="gib-todo-cb" checked onchange="toggleTodo('${esc(t.id)}')" title="Reopen">
+        <span class="gib-title" style="text-decoration:line-through;opacity:.7;">${esc(t.title)}
+          ${client ? `<span class="gib-client-badge" onclick="switchTab('clients',document.querySelector('[onclick*=clients]'));showClientDetail('${esc(client.id)}')">${esc(client.name)}</span>` : ''}
+        </span>
+        ${t.dueDate ? `<span style="font-size:.72rem;color:var(--muted);flex-shrink:0;">${formatDate(t.dueDate)}</span>` : ''}
+        <button onclick="toggleTodo('${esc(t.id)}')" title="Reopen" style="background:none;border:1px solid var(--border);border-radius:6px;color:var(--teal);font-size:.72rem;cursor:pointer;padding:3px 8px;flex-shrink:0;">&#x21A9; Reopen</button>
+        <button class="gib-del" onclick="deleteGibilanItem('todo','${esc(t.id)}')" title="Delete permanently">&#x1F5D1;</button>
+      </div>`;
+    }).join('');
+  }
+
+  function toggleDoneTodos() {
+    const wrap = document.getElementById('gib-todos-done-list');
+    const arrow = document.getElementById('gib-done-arrow');
+    const label = document.getElementById('gib-done-label');
+    if (!wrap) return;
+    const showing = wrap.style.display !== 'none';
+    wrap.style.display = showing ? 'none' : 'block';
+    if (arrow) arrow.innerHTML = showing ? '&#x25B8;' : '&#x25BE;';
+    const n = (gibData.todosDone || []).length;
+    if (label) label.textContent = (showing ? 'Show' : 'Hide') + ' completed (' + n + ')';
   }
 
   function renderGibilanDeadlines() {
