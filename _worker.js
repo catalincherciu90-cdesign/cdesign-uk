@@ -599,7 +599,9 @@ const DEFAULT_PROJECTS = [
 ];
 
 function isAdmin(url, env) {
-  return url.searchParams.get('token') === (env.ADMIN_TOKEN || ADMIN_TOKEN);
+  const validToken = env.ADMIN_TOKEN || ADMIN_TOKEN;
+  if (!validToken) return false; // refuse access when no admin token is configured
+  return url.searchParams.get('token') === validToken;
 }
 
 function buildMaintenancePage(m) {
@@ -810,6 +812,8 @@ export default {
         const { username, password } = await request.json();
         const validUser  = env.ADMIN_USER  || ADMIN_USER;
         const validToken = env.ADMIN_TOKEN || ADMIN_TOKEN;
+        if (!validUser || !validToken)
+          return json({ error: 'Admin not configured' }, 503, request);
         if (username === validUser && password === validToken)
           return json({ success: true }, 200, request);
         return json({ error: 'Invalid credentials' }, 401, request);

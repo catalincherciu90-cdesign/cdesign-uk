@@ -1,4 +1,4 @@
-name = "cdesign"
+name = "cdesign-uk"
 main = "_worker.js"
 compatibility_date = "2026-05-11"
 compatibility_flags = ["nodejs_compat"]
@@ -7,6 +7,9 @@ compatibility_flags = ["nodejs_compat"]
 directory = "."
 binding = "ASSETS"
 
+# ⚠️ UK site must use its OWN KV namespace (separate database from the RO site).
+# Create one:  wrangler kv namespace create PROGRAMARI
+# then paste the returned id below (replacing the RO namespace id).
 [[kv_namespaces]]
 binding = "PROGRAMARI"
 id = "6c999cb522f04569824a7a97ce497acd"
