@@ -551,12 +551,12 @@
 
 
   /* ===== globe hero (scoped, gh- prefix) ===== */
-  .gh-stage{position:relative; height:600vh; background:#03060a;
+  .gh-stage{position:relative; flex:1 1 auto; min-height:0; background:#03060a;
     --teal:#00c8b4; --teal-lt:#5ff0e0; --soft:#8fb3ad;
     --frame-bg:rgba(8,14,24,.97); --frame-border:rgba(0,200,180,.45);
     --orbit-radius:360px; --globe-size:clamp(300px,40vmin,420px);}
-  .gh-hero{position:sticky; top:0; height:100vh; overflow:hidden; box-sizing:border-box;
-    padding-top:66px; display:flex; align-items:center; justify-content:center;}
+  .gh-hero{position:relative; height:100%; overflow:hidden;
+    display:flex; align-items:center; justify-content:center;}
   .gh-stars{position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;
     background:radial-gradient(ellipse 90% 60% at 50% 0%,#0a1726 0%,#03060a 60%);}
   .gh-stars::before,.gh-stars::after{content:''; position:absolute; inset:-50%; background-repeat:repeat;
@@ -638,7 +638,10 @@
     .gh-rail{right:8px; gap:8px}
   }
 
-  /* demo mode: hide the rest of the home page below the globe (keep header + footer) */
+  /* demo mode: everything on one screen, no page scroll */
+  html{height:100%;}
+  body{height:100vh; overflow:hidden; display:flex; flex-direction:column;}
+  main{flex:1 1 auto; min-height:0;}
   main > :not(.gh-stage){display:none !important;}
 
 </style>
@@ -689,7 +692,7 @@
       <div class="gh-orbit" id="ghOrbit"></div>
     </div>
     <div class="gh-rail" id="ghRail"></div>
-    <div class="gh-hint" id="ghHint">Scroll &amp; tap a card<span>&#8595;</span></div>
+    <div class="gh-hint" id="ghHint">Tap a card to explore</div>
   </div>
 </section>
 
@@ -1767,6 +1770,7 @@ window.addEventListener('load', function() {
   var frames=[].slice.call(orbit.children), dots=[].slice.call(rail.children);
 
   /* ---- big card (modal) ---- */
+  var modalOpen=false;
   var modal=document.createElement('div'); modal.className='gh-modal';
   modal.innerHTML='<div class="gh-modal-card"><button class="gh-modal-close" aria-label="Close">✕</button><div class="gh-modal-inner"></div></div>';
   document.body.appendChild(modal);
@@ -1777,27 +1781,29 @@ window.addEventListener('load', function() {
       +'<h3>'+s.title+'</h3><div class="gh-lead">'+s.lead+'</div>'
       +'<ul class="gh-modal-list">'+s.bullets.map(function(b){return '<li>'+b+'</li>';}).join('')+'</ul>'
       +'<a class="gh-modal-cta" href="'+s.href+'">Explore →</a>';
-    modal.classList.add('gh-show'); document.body.style.overflow='hidden';
+    modal.classList.add('gh-show'); modalOpen=true;
   }
-  function closeModal(){ modal.classList.remove('gh-show'); document.body.style.overflow=''; }
+  function closeModal(){ modal.classList.remove('gh-show'); modalOpen=false; }
   modal.addEventListener('click',function(e){
     if(e.target===modal || e.target.classList.contains('gh-modal-close')) closeModal();
     if(e.target.classList.contains('gh-modal-cta')) closeModal();
   });
   addEventListener('keydown',function(e){ if(e.key==='Escape') closeModal(); });
 
-  /* ---- orbit animation ---- */
+  /* ---- orbit animation (auto-rotate, fits one screen, no scroll) ---- */
   var R=360,SPREAD=1.4,DROP=10, stage=document.getElementById('ghStage');
   function recalc(){ R=parseInt(getComputedStyle(stage).getPropertyValue('--orbit-radius'))||360;
     var mob=innerWidth<=760; SPREAD=mob?1.0:1.4; DROP=mob?6:10; }
   recalc(); addEventListener('resize',recalc);
-  var target=0,cur=0;
-  function readScroll(){ var rect=stage.getBoundingClientRect(); var total=stage.offsetHeight-innerHeight;
-    target=Math.min(1,Math.max(0,(-rect.top)/total)); }
-  addEventListener('scroll',readScroll,{passive:true}); readScroll();
-  var hint=document.getElementById('ghHint'); var TURNS=1.0,PERSP=820;
+  var PERSP=820, autoRot=0, hovering=false;
+  // pause the spin while hovering a card (easier to click) or with the big card open
+  frames.forEach(function(f){
+    f.addEventListener('pointerenter',function(){hovering=true;});
+    f.addEventListener('pointerleave',function(){hovering=false;});
+  });
   function tick(){
-    cur+=(target-cur)*0.09; var p=cur; var baseRot=-p*360*TURNS;
+    if(!hovering && !modalOpen) autoRot += 0.14;   // gentle continuous rotation
+    var baseRot=-autoRot;
     var focusIdx=0,bestZ=-1e9;
     frames.forEach(function(f,i){
       var a=(baseRot+i*STEP)*Math.PI/180; var x=Math.sin(a)*R, z=Math.cos(a)*R;
@@ -1813,13 +1819,10 @@ window.addEventListener('load', function() {
       if(z>bestZ){bestZ=z;focusIdx=i;}
     });
     dots.forEach(function(d,i){ d.classList.toggle('gh-on',i===focusIdx); });
-    if(hint) hint.style.opacity=p>0.04?0:1;
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
-  rail.addEventListener('click',function(e){ var i=e.target.dataset.i; if(i==null)return;
-    var total=stage.offsetHeight-innerHeight; var p=((i*STEP)/360)/TURNS;
-    window.scrollTo({top:stage.offsetTop+p*total,behavior:'smooth'}); });
+  rail.addEventListener('click',function(e){ var i=e.target.dataset.i; if(i==null)return; openModal(+i); });
 })();
 </script>
 
