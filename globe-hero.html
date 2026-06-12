@@ -636,11 +636,15 @@
     .gh-frame{width:min(70vw,260px); padding:18px}
     .gh-frame h3{font-size:1.15rem}
     .gh-rail{right:8px; gap:8px}
+    /* compact footer on phones so the globe gets the screen */
+    footer{padding:10px 0 12px !important; max-height:none;}
+    footer .footer-grid{display:none !important;}
+    footer .footer-bottom{border-top:none; padding-top:0; justify-content:center; text-align:center; font-size:.7rem; gap:6px;}
   }
 
   /* demo mode: everything on one screen, no page scroll */
   html{height:100%;}
-  body{height:100vh; overflow:hidden; display:flex; flex-direction:column;}
+  body{height:100vh; height:100dvh; overflow:hidden; display:flex; flex-direction:column;}
   main{flex:1 1 auto; min-height:0;}
   main > :not(.gh-stage){display:none !important;}
 
