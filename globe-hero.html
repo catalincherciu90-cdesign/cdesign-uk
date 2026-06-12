@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>C Design — Glob orbital (prototip)</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@700;800&family=Share+Tech+Mono&display=swap');
   :root{
     --teal:#00c8b4; --teal-lt:#5ff0e0; --teal-dk:#00a898;
     --bg:#03060a; --bg2:#070d16;
@@ -38,14 +39,12 @@
 
   /* ---------- scroll stage ---------- */
   .stage{position:relative; height:600vh; z-index:1;}
-  .hero{position:sticky; top:0; height:100vh; overflow:hidden;
+  .hero{position:sticky; top:0; height:100vh; overflow:hidden; box-sizing:border-box;
+        padding-top:var(--hdr,64px); padding-bottom:var(--ftr,0px);
         display:flex; align-items:center; justify-content:center;}
 
-  /* brand mark + hint */
-  .brand{position:absolute; top:26px; left:0; right:0; text-align:center; z-index:30;
-         font-weight:800; letter-spacing:.18em; font-size:.78rem; color:var(--soft);}
-  .brand b{color:var(--teal)}
-  .hint{position:absolute; bottom:26px; left:0; right:0; text-align:center; z-index:30;
+  /* scroll hint */
+  .hint{position:absolute; bottom:calc(var(--ftr,0px) + 16px); left:0; right:0; text-align:center; z-index:30;
         color:var(--soft); font-size:.74rem; letter-spacing:.14em; text-transform:uppercase;
         transition:opacity .4s;}
   .hint span{display:block; margin-top:8px; font-size:1.1rem; animation:bob 1.8s ease-in-out infinite;}
@@ -125,15 +124,101 @@
     .frame{width:280px;}
     .rail{right:10px}
   }
+
+  /* ============ imported UK site header + footer (light theme scoped here) ============ */
+  nav, .mobile-menu, footer{
+    --teal:#c9a96e; --teal-dk:#a8843d; --teal-lt:#dfc080;
+    --teal-dim:rgba(201,169,110,.10); --teal-border:rgba(201,169,110,.35);
+    --bg2:#f7f7f7; --bg3:#eeeeee; --bg4:#e5e5e5;
+    --text:#111111; --soft:#444444; --muted:#777777; --heading:#111111;
+    --border:rgba(0,0,0,.10); --border-soft:rgba(0,0,0,.16);
+    --nav-text:#111111; --nav-phone:#111111; --nav-burger:#111111;
+    --nav-bg:rgba(255,255,255,.92); --nav-bg-solid:rgba(255,255,255,.97);
+    --teal-glow-rgb:0,168,168;
+    font-family:'DM Sans',sans-serif;
+  }
+  .site-container{max-width:1180px;margin:0 auto;padding:0 24px;}
+
+  /* header — FIXED top */
+  nav{position:fixed; top:0; left:0; right:0; z-index:1000;
+      background:var(--nav-bg); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--border);}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px;gap:18px;}
+  nav .logo img{height:38px;width:auto;display:block;}
+  .nav-links{display:flex;align-items:center;gap:26px;list-style:none;margin:0;padding:0;}
+  .nav-links a{font-size:.875rem;color:var(--nav-text);font-weight:500;transition:color .2s;}
+  .nav-links a:hover{color:var(--teal)}
+  .nav-phone{display:inline-flex;align-items:center;gap:5px;font-family:'Share Tech Mono',monospace;
+             font-size:.9rem;font-weight:600;color:var(--nav-phone);}
+  .nav-phone:hover{color:var(--teal)}
+  .btn-nav{background:#111;color:#fff;font-weight:600;font-size:.875rem;padding:9px 20px;border-radius:8px;
+           border:none;cursor:pointer;transition:transform .15s,background .2s;}
+  .btn-nav:hover{background:#000;transform:translateY(-1px);}
+  .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:6px;}
+  .hamburger span{display:block;width:22px;height:2px;background:var(--nav-burger);border-radius:2px;}
+  .mobile-menu{display:none;position:fixed;inset:64px 0 auto 0;background:var(--nav-bg-solid);z-index:999;
+               padding:24px;flex-direction:column;gap:6px;border-bottom:1px solid var(--border);
+               backdrop-filter:blur(20px);}
+  .mobile-menu.open{display:flex}
+  .mobile-menu a{font-size:1rem;font-weight:500;color:var(--text);padding:12px 0;border-bottom:1px solid var(--border);}
+  .mobile-menu a:hover{color:var(--teal)}
+  .mobile-menu .btn-nav{margin-top:10px;text-align:center;}
+  @media(max-width:860px){ nav .nav-links,.nav-phone{display:none} .hamburger{display:flex} }
+
+  /* footer — FIXED bottom */
+  footer{position:fixed; bottom:0; left:0; right:0; z-index:1000;
+         background:var(--bg2); border-top:1px solid var(--border); padding:24px 0 16px;
+         max-height:46vh; overflow:auto;}
+  footer .footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:22px;margin-bottom:18px;}
+  .footer-logo img{height:32px;width:auto;}
+  .footer-about{font-size:.8rem;color:var(--muted);line-height:1.6;margin:10px 0 0;}
+  .footer-col h4{font-family:'Space Grotesk',sans-serif;font-size:.8rem;font-weight:700;color:var(--text);
+                 margin:0 0 12px;letter-spacing:.04em;text-transform:uppercase;}
+  .footer-col ul{list-style:none;display:flex;flex-direction:column;gap:7px;margin:0;padding:0;}
+  .footer-col a{font-size:.84rem;color:var(--muted);transition:color .2s}
+  .footer-col a:hover{color:var(--teal)}
+  .footer-bottom{border-top:1px solid var(--border);padding-top:14px;display:flex;justify-content:space-between;
+                 align-items:center;font-size:.78rem;color:var(--muted);flex-wrap:wrap;gap:10px;}
+  @media(max-width:860px){
+    footer .footer-grid{grid-template-columns:1fr 1fr;}
+    footer{max-height:54vh;}
+  }
 </style>
 </head>
 <body>
+
+<!-- ===== imported UK header (fixed) ===== -->
+<nav aria-label="Main navigation">
+  <div class="site-container">
+    <div class="nav-inner">
+      <a href="/" class="logo" aria-label="C Design – Home page"><img src="/logo-c-design.webp" alt="C Design" width="168" height="42"></a>
+      <ul class="nav-links" role="list">
+        <li><a href="#servicii">Services</a></li>
+        <li><a href="#portofoliu">Portfolio</a></li>
+        <li><a href="#proces">How We Work</a></li>
+        <li><a href="#contact">Book Now</a></li>
+        <li><a href="/blog">Blog</a></li>
+      </ul>
+      <a href="tel:+447312799449" class="nav-phone" aria-label="Call: +44 7312 799449">+44 7312 799449</a>
+      <a href="#contact" class="btn-nav">Book now →</a>
+      <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu" role="navigation" aria-label="Mobile menu">
+  <a href="#servicii">Services</a>
+  <a href="#portofoliu">Portfolio</a>
+  <a href="#proces">How We Work</a>
+  <a href="#contact">Book Now</a>
+  <a href="/blog">Blog</a>
+  <a href="tel:+447312799449" class="nav-phone">+44 7312 799449</a>
+  <a href="#contact" class="btn-nav">Book now →</a>
+</div>
 
 <div class="stars"></div>
 
 <div class="stage" id="stage">
   <section class="hero">
-    <div class="brand"><b>C</b> DESIGN · UNIVERSUL TĂU DIGITAL</div>
 
     <div class="scene" id="scene">
       <div class="atmo"></div>
@@ -151,6 +236,27 @@
     <div class="hint" id="hint">Derulează pentru a explora<span>↓</span></div>
   </section>
 </div>
+
+<!-- ===== imported UK footer (fixed) ===== -->
+<footer>
+  <div class="site-container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo"><img src="/logo-c-design.webp" alt="C Design" width="144" height="36"></div>
+        <p class="footer-about">Professional web design for small businesses across the UK. We build websites that bring in real clients.</p>
+      </div>
+      <div class="footer-col"><h4>Services</h4><ul><li><a href="#servicii">Presentation website</a></li><li><a href="/pachet-startup">Startup Package</a></li><li><a href="#servicii">Website redesign</a></li><li><a href="#servicii">Graphic design</a></li><li><a href="/abonament-lunar">Monthly subscription</a></li></ul></div>
+      <div class="footer-col"><h4>Areas</h4><ul><li><a href="/web-design-leeds">Web Design Leeds</a></li><li><a href="/web-design-sheffield">Web Design Sheffield</a></li><li><a href="/web-design-nottingham">Web Design Nottingham</a></li><li><a href="/web-design-derby">Web Design Derby</a></li><li><a href="/web-design-blackburn">Web Design Blackburn</a></li><li><a href="/web-design-preston">Web Design Preston</a></li></ul></div>
+      <div class="footer-col"><h4>Company</h4><ul><li><a href="#portofoliu">Portfolio</a></li><li><a href="#testimoniale">Reviews</a></li><li><a href="#proces">How we work</a></li><li><a href="/blog">Blog</a></li></ul></div>
+      <div class="footer-col"><h4>Contact</h4><ul><li><a href="tel:+447312799449">+44 7312 799449</a></li><li><a href="mailto:office@c-design.ro">office@c-design.ro</a></li><li><a href="https://wa.me/447312799449" rel="noopener noreferrer">WhatsApp</a></li><li><a href="#contact">Book for free</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 C Design · All rights reserved</span>
+      <span><a href="/politica-confidentialitate">Privacy Policy</a></span>
+      <span>Designed with passion for your business.</span>
+    </div>
+  </div>
+</footer>
 
 <script>
   // ---- sections shown as orbiting frames ----
@@ -224,7 +330,7 @@
       const focus = Math.pow(depth, 4);      // only the near-front frame pulls to centre
 
       const sx = x * pf * (1 - focus) * 1.4; // spread side cards out; focused one pulls to centre
-      const sy = (0.5 - depth) * 26 + focus * 150; // drop the focused card clearly below the globe
+      const sy = (0.5 - depth) * 26 + focus * 120; // drop the focused card clearly below the globe
       let   s  = (0.42 + depth*0.34) * pf;   // small on the ring → grows toward the camera
       s = Math.min(1, s);                    // never exceed native size → stays crisp
 
@@ -255,6 +361,32 @@
     const p = (needed/360)/TURNS;
     scrollTo({ top: stage.offsetTop + p*total, behavior:'smooth' });
   });
+
+  // ---- mobile menu ----
+  const ham = document.getElementById('hamburger');
+  const mob = document.getElementById('mobileMenu');
+  if(ham && mob){
+    ham.addEventListener('click', ()=>{
+      const open = mob.classList.toggle('open');
+      ham.setAttribute('aria-expanded', open);
+    });
+    mob.querySelectorAll('a').forEach(a=> a.addEventListener('click', ()=>{
+      mob.classList.remove('open'); ham.setAttribute('aria-expanded', false);
+    }));
+  }
+
+  // ---- keep the globe scene centred between the fixed header & footer ----
+  function fitChrome(){
+    const nav = document.querySelector('nav');
+    const ftr = document.querySelector('footer');
+    const h = nav ? nav.offsetHeight : 64;
+    const f = ftr ? ftr.offsetHeight : 0;
+    document.documentElement.style.setProperty('--hdr', h + 'px');
+    document.documentElement.style.setProperty('--ftr', f + 'px');
+  }
+  fitChrome();
+  addEventListener('resize', fitChrome);
+  addEventListener('load', fitChrome);
 </script>
 </body>
 </html>
