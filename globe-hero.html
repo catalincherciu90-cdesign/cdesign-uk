@@ -130,8 +130,6 @@
     .frame .lead{font-size:.88rem}
     .rail{right:8px; gap:8px}
     .hint{font-size:.68rem}
-    /* footer flows normally at the end on phones (not fixed — it would eat the screen) */
-    footer{position:static; max-height:none;}
     .hero{padding-bottom:24px;}
     .nav-inner{height:56px;}
     nav .logo img{height:32px;}
@@ -194,7 +192,11 @@
                  align-items:center;font-size:.78rem;color:var(--muted);flex-wrap:wrap;gap:10px;}
   @media(max-width:860px){
     footer .footer-grid{grid-template-columns:1fr 1fr;}
-    footer{max-height:54vh;}
+  }
+  /* phones: footer is NOT fixed — it flows at the end so it never blocks the page.
+     (declared AFTER the base footer rule so it actually wins) */
+  @media(max-width:760px){
+    footer{position:static; bottom:auto; max-height:none; overflow:visible; z-index:auto;}
   }
 </style>
 </head>
