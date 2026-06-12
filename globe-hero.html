@@ -8,7 +8,7 @@
   :root{
     --teal:#00c8b4; --teal-lt:#5ff0e0; --teal-dk:#00a898;
     --bg:#03060a; --bg2:#070d16;
-    --frame-bg:rgba(10,18,28,.72); --frame-border:rgba(0,200,180,.45);
+    --frame-bg:rgba(9,16,26,.94); --frame-border:rgba(0,200,180,.45);
     --text:#e8f3f1; --soft:#8fb3ad;
     --orbit-radius:320px;
   }
@@ -102,21 +102,22 @@
   /* ---------- orbit + frames ---------- */
   .orbit{position:absolute; left:50%; top:50%; width:1px; height:1px;
          transform-style:preserve-3d; z-index:10; will-change:transform;}
+  /* native size is LARGE; we only ever scale DOWN to the ring (≤1×) so text stays crisp */
   .frame{
-    position:absolute; left:50%; top:50%; width:260px; min-height:150px;
-    margin:-75px 0 0 -130px; padding:18px 18px 16px;
+    position:absolute; left:50%; top:50%; width:320px; min-height:190px;
+    margin:-95px 0 0 -160px; padding:24px 24px 22px;
     background:var(--frame-bg); border:1px solid var(--frame-border);
-    border-radius:16px; backdrop-filter:blur(7px); -webkit-backdrop-filter:blur(7px);
+    border-radius:18px;
     box-shadow:0 14px 40px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.04);
-    transform-style:preserve-3d; will-change:transform,opacity;
+    transform-style:preserve-3d;
     transition:border-color .3s, box-shadow .3s;
   }
-  .frame .ico{font-size:1.5rem; line-height:1}
-  .frame h3{font-size:1.05rem; margin:8px 0 4px; color:#fff; letter-spacing:.01em}
-  .frame .lead{font-size:.82rem; color:var(--soft); line-height:1.5}
+  .frame .ico{font-size:1.8rem; line-height:1}
+  .frame h3{font-size:1.25rem; margin:10px 0 5px; color:#fff; letter-spacing:.01em}
+  .frame .lead{font-size:.95rem; color:var(--soft); line-height:1.5}
   .frame ul{list-style:none; margin:12px 0 0; max-height:0; overflow:hidden; opacity:0;
             transition:max-height .45s ease, opacity .35s ease;}
-  .frame ul li{font-size:.8rem; color:#cfe9e4; padding:5px 0 5px 18px; position:relative;}
+  .frame ul li{font-size:.9rem; color:#cfe9e4; padding:6px 0 6px 20px; position:relative;}
   .frame ul li::before{content:'▸'; position:absolute; left:0; color:var(--teal)}
   .frame .badge{position:absolute; top:12px; right:14px; font-size:.62rem; letter-spacing:.12em;
     color:var(--teal); border:1px solid var(--frame-border); border-radius:20px; padding:3px 9px;
@@ -133,8 +134,8 @@
 
   @media(max-width:760px){
     :root{--orbit-radius:215px}
-    .globe,.atmo{width:200px;height:200px}.atmo{width:250px;height:250px}
-    .frame{width:210px; margin:-70px 0 0 -105px}
+    .globe{width:210px;height:210px}.atmo{width:260px;height:260px}
+    .frame{width:260px; margin:-90px 0 0 -130px}
     .rail{right:10px}
   }
 </style>
@@ -226,15 +227,13 @@
     cur += (target - cur) * 0.08;   // easing
     const p = cur;
 
-    // overall orbit rotation driven by scroll
+    // overall orbit rotation driven by scroll (NO scene scaling — keeps everything crisp)
     const baseRot = p * 360 * TURNS;
     orbit.style.transform = `rotateX(14deg) rotateY(${baseRot}deg)`;
 
-    // gentle scene zoom-in as you scroll
-    const sceneScale = 1 + p*0.35;
-    scene.style.transform = `scale(${sceneScale})`;
-    // globe grows and drifts back a touch
-    globeW.style.transform = `translate(-50%,-50%) translateZ(${ -p*120 }px) scale(${1 + p*0.25})`;
+    // globe grows toward native size (capped at 1× so it never upscales / pixelates)
+    const globeScale = Math.min(1, 0.82 + p*0.18);
+    globeW.style.transform = `translate(-50%,-50%) translateZ(${ -p*60 }px) scale(${globeScale})`;
 
     let focusIdx = 0, bestFront = -2;
     frames.forEach((f,i)=>{
@@ -245,8 +244,9 @@
 
       // place on ring, then billboard back to face the camera
       const billboard = -(ang);
-      // when a frame is at the front, scrolling zooms INTO it
-      const zoom = 0.62 + fN*0.65 + Math.pow(fN,6)*p*2.4;
+      // scale DOWN for the ring; the front frame zooms toward 1× (native) as you scroll.
+      // capped at 1 so a frame is never upscaled beyond its real resolution → no pixelation.
+      const zoom = Math.min(1, 0.55 + fN*0.30 + Math.pow(fN,6)*p*1.4);
       f.style.transform =
         `rotateY(${ang}deg) translateZ(${R}px) rotateY(${billboard}deg) scale(${zoom})`;
       f.style.opacity = (0.25 + fN*0.75).toFixed(3);
