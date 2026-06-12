@@ -116,6 +116,14 @@
     max-height:0; opacity:0; overflow:hidden; transition:max-height .4s ease, opacity .35s ease, background .2s;}
   .frame.focused .frame-cta{max-height:46px; opacity:1;}
   .frame-cta:hover{background:rgba(0,200,180,.10); border-color:var(--teal);}
+  /* zoom-in effect: content pops in when a card reaches the front */
+  .frame-inner{transform-origin:center center;}
+  .frame.focused .frame-inner{animation:cardZoom .55s cubic-bezier(.22,1,.36,1) both;}
+  @keyframes cardZoom{
+    0%{transform:scale(.78); opacity:.35;}
+    60%{transform:scale(1.04); opacity:1;}
+    100%{transform:scale(1); opacity:1;}
+  }
 
   /* progress rail */
   .rail{position:absolute; right:22px; top:50%; transform:translateY(-50%); z-index:30;
@@ -321,12 +329,12 @@
     const f = document.createElement('div');
     f.className = 'frame';
     f.dataset.i = i;
-    f.innerHTML = `<span class="badge">${s.tag}</span>
+    f.innerHTML = `<div class="frame-inner"><span class="badge">${s.tag}</span>
       <div class="ico">${s.ico}</div>
       <h3>${s.title}</h3>
       <div class="lead">${s.lead}</div>
       <ul>${s.bullets.map(b=>`<li>${b}</li>`).join('')}</ul>
-      <a class="frame-cta" href="${s.href}">Explore →</a>`;
+      <a class="frame-cta" href="${s.href}">Explore →</a></div>`;
     orbit.appendChild(f);
     const dot = document.createElement('i'); dot.dataset.i = i;
     rail.appendChild(dot);
