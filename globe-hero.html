@@ -110,6 +110,11 @@
     text-transform:uppercase; background:rgba(0,200,180,.07)}
   .frame.focused{border-color:var(--teal); box-shadow:0 22px 60px rgba(0,0,0,.6), 0 0 40px rgba(0,200,180,.25)}
   .frame.focused ul{max-height:200px; opacity:1}
+  .frame-cta{display:inline-block; margin-top:14px; font-size:.85rem; font-weight:600; color:var(--teal);
+    text-decoration:none; border:1px solid var(--frame-border); border-radius:9px; padding:8px 16px;
+    max-height:0; opacity:0; overflow:hidden; transition:max-height .4s ease, opacity .35s ease, background .2s;}
+  .frame.focused .frame-cta{max-height:46px; opacity:1;}
+  .frame-cta:hover{background:rgba(0,200,180,.10); border-color:var(--teal);}
 
   /* progress rail */
   .rail{position:absolute; right:22px; top:50%; transform:translateY(-50%); z-index:30;
@@ -259,20 +264,26 @@
 </footer>
 
 <script>
-  // ---- sections shown as orbiting frames ----
+  // ---- sections shown as orbiting frames (real content from the UK home page) ----
   const SECTIONS = [
-    { ico:'🎨', tag:'01', title:'Servicii',   lead:'Site-uri moderne, rapide și optimizate.',
-      bullets:['Site de prezentare','Magazin online','Redesign & mentenanță'] },
-    { ico:'🖼️', tag:'02', title:'Portofoliu', lead:'Proiecte reale, rezultate măsurabile.',
-      bullets:['+120 proiecte livrate','Design la comandă','Studii de caz'] },
-    { ico:'⚙️', tag:'03', title:'Proces',     lead:'De la idee la lansare, fără bătăi de cap.',
-      bullets:['Brief & strategie','Design & dezvoltare','Lansare & suport'] },
-    { ico:'🚀', tag:'04', title:'Despre noi',  lead:'O echipă mică, dedicată, lângă tine.',
-      bullets:['Comunicare directă','Preț fix, fără surprize','Suport rapid'] },
-    { ico:'💎', tag:'05', title:'Prețuri',    lead:'Pachete clare pentru orice buget.',
-      bullets:['Start de la 199£','Plată în rate','Fără costuri ascunse'] },
-    { ico:'✉️', tag:'06', title:'Contact',    lead:'Hai să discutăm despre proiectul tău.',
-      bullets:['Consultanță gratuită','Răspuns în 24h','+44 7312 799449'] },
+    { ico:'🎨', tag:'01', title:'Services', href:'#servicii',
+      lead:'Wherever you are, we have the right solution for every stage of your business.',
+      bullets:['Presentation websites','Online Startup Package','Redesign & maintenance'] },
+    { ico:'📈', tag:'02', title:'Portfolio', href:'#portofoliu',
+      lead:'Businesses like yours, real results — projects that actually work.',
+      bullets:['120+ projects, 10+ years','Shops, restaurants, trades','Real people, real results'] },
+    { ico:'⚙️', tag:'03', title:'How We Work', href:'#proces',
+      lead:'Simple from start to finish — no jargon, no surprises.',
+      bullets:['Free 30-min chat','Clear quote, fixed price','We launch & stay with you'] },
+    { ico:'🚀', tag:'04', title:'Why C Design', href:'#despre',
+      lead:'We build websites that bring clients, not awards.',
+      bullets:['Plain language, no jargon','Fixed price, no surprises','Fast, ongoing support'] },
+    { ico:'⭐', tag:'05', title:'Reviews', href:'#testimoniale',
+      lead:'They chose us — and they\'ve never looked back.',
+      bullets:['Rated by real clients','Long-term partnerships','Results that speak'] },
+    { ico:'✉️', tag:'06', title:'Contact', href:'#contact',
+      lead:'Tell us about your business — 30 minutes, no obligation.',
+      bullets:['+44 7312 799449','office@c-design.ro','Mon–Fri, 09:00–18:00'] },
   ];
 
   const orbit = document.getElementById('orbit');
@@ -288,7 +299,8 @@
       <div class="ico">${s.ico}</div>
       <h3>${s.title}</h3>
       <div class="lead">${s.lead}</div>
-      <ul>${s.bullets.map(b=>`<li>${b}</li>`).join('')}</ul>`;
+      <ul>${s.bullets.map(b=>`<li>${b}</li>`).join('')}</ul>
+      <a class="frame-cta" href="${s.href}">Explore →</a>`;
     orbit.appendChild(f);
     const dot = document.createElement('i'); dot.dataset.i = i;
     rail.appendChild(dot);
