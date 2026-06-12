@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C Design — Glob orbital (prototip)</title>
+<style>
+  :root{
+    --teal:#00c8b4; --teal-lt:#5ff0e0; --teal-dk:#00a898;
+    --bg:#03060a; --bg2:#070d16;
+    --frame-bg:rgba(10,18,28,.72); --frame-border:rgba(0,200,180,.45);
+    --text:#e8f3f1; --soft:#8fb3ad;
+    --orbit-radius:320px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:auto}
+  body{
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    background:var(--bg); color:var(--text); overflow-x:hidden;
+  }
+
+  /* ---------- starfield ---------- */
+  .stars{position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; background:
+     radial-gradient(ellipse 90% 60% at 50% 0%, #0a1726 0%, var(--bg) 60%);}
+  .stars::before,.stars::after{
+    content:''; position:absolute; inset:-50%; background-repeat:repeat;
+    background-image:
+      radial-gradient(1.4px 1.4px at 20px 30px, #fff, transparent),
+      radial-gradient(1.2px 1.2px at 120px 80px, #cfeee9, transparent),
+      radial-gradient(1px 1px at 200px 160px, #fff, transparent),
+      radial-gradient(1.6px 1.6px at 300px 60px, #bfe9e2, transparent),
+      radial-gradient(1px 1px at 380px 220px, #fff, transparent);
+    background-size:420px 420px; opacity:.55;
+    animation:drift 90s linear infinite;
+  }
+  .stars::after{background-size:300px 300px; opacity:.3; animation-duration:140s; animation-direction:reverse;}
+  @keyframes drift{from{transform:translateY(0)}to{transform:translateY(420px)}}
+
+  /* ---------- scroll stage ---------- */
+  .stage{position:relative; height:600vh; z-index:1;}
+  .hero{position:sticky; top:0; height:100vh; overflow:hidden;
+        display:flex; align-items:center; justify-content:center;}
+
+  /* brand mark + hint */
+  .brand{position:absolute; top:26px; left:0; right:0; text-align:center; z-index:30;
+         font-weight:800; letter-spacing:.18em; font-size:.78rem; color:var(--soft);}
+  .brand b{color:var(--teal)}
+  .hint{position:absolute; bottom:26px; left:0; right:0; text-align:center; z-index:30;
+        color:var(--soft); font-size:.74rem; letter-spacing:.14em; text-transform:uppercase;
+        transition:opacity .4s;}
+  .hint span{display:block; margin-top:8px; font-size:1.1rem; animation:bob 1.8s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(6px);opacity:1}}
+
+  /* ---------- 3D scene ---------- */
+  .scene{position:relative; width:1px; height:1px;
+         perspective:1300px; transform-style:preserve-3d;
+         will-change:transform;}
+
+  /* ---------- globe ---------- */
+  .globe-wrap{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+              transform-style:preserve-3d; z-index:5;}
+  .globe{
+    width:300px; height:300px; border-radius:50%; position:relative;
+    background:
+      radial-gradient(circle at 32% 28%, #2b6fb0 0%, #14497e 38%, #0a2f57 64%, #061d39 100%);
+    box-shadow:
+      inset -28px -22px 60px rgba(0,0,0,.75),
+      inset 22px 18px 50px rgba(120,200,255,.18),
+      0 0 60px rgba(0,160,180,.35);
+    overflow:hidden;
+  }
+  /* stylised continents that scroll = rotation */
+  .globe .land{position:absolute; inset:0; border-radius:50%;
+    background-repeat:repeat-x; background-size:200% 100%;
+    background-image:
+      radial-gradient(40% 30% at 12% 40%, #1f8a5a 0%, #15724a 40%, transparent 62%),
+      radial-gradient(35% 26% at 30% 64%, #1f8a5a 0%, transparent 60%),
+      radial-gradient(30% 34% at 52% 32%, #25955f 0%, transparent 60%),
+      radial-gradient(26% 22% at 70% 58%, #1c8052 0%, transparent 60%),
+      radial-gradient(34% 30% at 88% 42%, #228a5b 0%, transparent 62%);
+    filter:saturate(1.05);
+    animation:spin-map 26s linear infinite;
+    opacity:.92;
+  }
+  @keyframes spin-map{from{background-position:0 0}to{background-position:-200% 0}}
+  /* grid meridians */
+  .globe .grid{position:absolute; inset:0; border-radius:50%; mix-blend-mode:screen; opacity:.28;
+    background:
+      repeating-linear-gradient(90deg, transparent 0 26px, rgba(120,230,255,.5) 26px 27px),
+      repeating-linear-gradient(0deg, transparent 0 26px, rgba(120,230,255,.35) 26px 27px);
+    -webkit-mask:radial-gradient(circle at 50% 50%, #000 60%, transparent 72%);
+            mask:radial-gradient(circle at 50% 50%, #000 60%, transparent 72%);}
+  /* specular + terminator */
+  .globe .shine{position:absolute; inset:0; border-radius:50%;
+    background:radial-gradient(circle at 30% 26%, rgba(255,255,255,.5) 0%, transparent 26%);}
+  /* atmosphere glow */
+  .atmo{position:absolute; left:50%; top:50%; width:360px; height:360px;
+        transform:translate(-50%,-50%); border-radius:50%; pointer-events:none;
+        background:radial-gradient(circle, transparent 56%, rgba(0,200,200,.30) 66%, transparent 78%);
+        filter:blur(4px);}
+
+  /* ---------- orbit + frames ---------- */
+  .orbit{position:absolute; left:50%; top:50%; width:1px; height:1px;
+         transform-style:preserve-3d; z-index:10; will-change:transform;}
+  .frame{
+    position:absolute; left:50%; top:50%; width:260px; min-height:150px;
+    margin:-75px 0 0 -130px; padding:18px 18px 16px;
+    background:var(--frame-bg); border:1px solid var(--frame-border);
+    border-radius:16px; backdrop-filter:blur(7px); -webkit-backdrop-filter:blur(7px);
+    box-shadow:0 14px 40px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.04);
+    transform-style:preserve-3d; will-change:transform,opacity;
+    transition:border-color .3s, box-shadow .3s;
+  }
+  .frame .ico{font-size:1.5rem; line-height:1}
+  .frame h3{font-size:1.05rem; margin:8px 0 4px; color:#fff; letter-spacing:.01em}
+  .frame .lead{font-size:.82rem; color:var(--soft); line-height:1.5}
+  .frame ul{list-style:none; margin:12px 0 0; max-height:0; overflow:hidden; opacity:0;
+            transition:max-height .45s ease, opacity .35s ease;}
+  .frame ul li{font-size:.8rem; color:#cfe9e4; padding:5px 0 5px 18px; position:relative;}
+  .frame ul li::before{content:'▸'; position:absolute; left:0; color:var(--teal)}
+  .frame .badge{position:absolute; top:12px; right:14px; font-size:.62rem; letter-spacing:.12em;
+    color:var(--teal); border:1px solid var(--frame-border); border-radius:20px; padding:3px 9px;
+    text-transform:uppercase; background:rgba(0,200,180,.07)}
+  .frame.focused{border-color:var(--teal); box-shadow:0 22px 60px rgba(0,0,0,.6), 0 0 40px rgba(0,200,180,.25)}
+  .frame.focused ul{max-height:200px; opacity:1}
+
+  /* progress rail */
+  .rail{position:absolute; right:22px; top:50%; transform:translateY(-50%); z-index:30;
+        display:flex; flex-direction:column; gap:10px;}
+  .rail i{width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.18);
+          transition:all .3s; cursor:pointer;}
+  .rail i.on{background:var(--teal); box-shadow:0 0 10px var(--teal); transform:scale(1.35)}
+
+  @media(max-width:760px){
+    :root{--orbit-radius:215px}
+    .globe,.atmo{width:200px;height:200px}.atmo{width:250px;height:250px}
+    .frame{width:210px; margin:-70px 0 0 -105px}
+    .rail{right:10px}
+  }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<div class="stage" id="stage">
+  <section class="hero">
+    <div class="brand"><b>C</b> DESIGN · UNIVERSUL TĂU DIGITAL</div>
+
+    <div class="scene" id="scene">
+      <div class="atmo"></div>
+      <div class="globe-wrap" id="globeWrap">
+        <div class="globe">
+          <div class="land"></div>
+          <div class="grid"></div>
+          <div class="shine"></div>
+        </div>
+      </div>
+      <div class="orbit" id="orbit"><!-- frames injected by JS --></div>
+    </div>
+
+    <div class="rail" id="rail"></div>
+    <div class="hint" id="hint">Derulează pentru a explora<span>↓</span></div>
+  </section>
+</div>
+
+<script>
+  // ---- sections shown as orbiting frames ----
+  const SECTIONS = [
+    { ico:'🎨', tag:'01', title:'Servicii',   lead:'Site-uri moderne, rapide și optimizate.',
+      bullets:['Site de prezentare','Magazin online','Redesign & mentenanță'] },
+    { ico:'🖼️', tag:'02', title:'Portofoliu', lead:'Proiecte reale, rezultate măsurabile.',
+      bullets:['+120 proiecte livrate','Design la comandă','Studii de caz'] },
+    { ico:'⚙️', tag:'03', title:'Proces',     lead:'De la idee la lansare, fără bătăi de cap.',
+      bullets:['Brief & strategie','Design & dezvoltare','Lansare & suport'] },
+    { ico:'🚀', tag:'04', title:'Despre noi',  lead:'O echipă mică, dedicată, lângă tine.',
+      bullets:['Comunicare directă','Preț fix, fără surprize','Suport rapid'] },
+    { ico:'💎', tag:'05', title:'Prețuri',    lead:'Pachete clare pentru orice buget.',
+      bullets:['Start de la 199£','Plată în rate','Fără costuri ascunse'] },
+    { ico:'✉️', tag:'06', title:'Contact',    lead:'Hai să discutăm despre proiectul tău.',
+      bullets:['Consultanță gratuită','Răspuns în 24h','+44 7312 799449'] },
+  ];
+
+  const orbit = document.getElementById('orbit');
+  const rail  = document.getElementById('rail');
+  const N = SECTIONS.length;
+  const STEP = 360 / N;
+
+  SECTIONS.forEach((s,i)=>{
+    const f = document.createElement('div');
+    f.className = 'frame';
+    f.dataset.i = i;
+    f.innerHTML = `<span class="badge">${s.tag}</span>
+      <div class="ico">${s.ico}</div>
+      <h3>${s.title}</h3>
+      <div class="lead">${s.lead}</div>
+      <ul>${s.bullets.map(b=>`<li>${b}</li>`).join('')}</ul>`;
+    orbit.appendChild(f);
+    const dot = document.createElement('i'); dot.dataset.i = i;
+    rail.appendChild(dot);
+  });
+  const frames = [...orbit.children];
+  const dots   = [...rail.children];
+
+  let R = 0;
+  function recalc(){ R = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--orbit-radius')); }
+  recalc(); addEventListener('resize', recalc);
+
+  // ---- scroll → progress (smoothed) ----
+  const stage = document.getElementById('stage');
+  let target = 0, cur = 0;
+  function readScroll(){
+    const rect = stage.getBoundingClientRect();
+    const total = stage.offsetHeight - innerHeight;
+    target = Math.min(1, Math.max(0, (-rect.top) / total));
+  }
+  addEventListener('scroll', readScroll, {passive:true});
+  readScroll();
+
+  const scene    = document.getElementById('scene');
+  const globeW   = document.getElementById('globeWrap');
+  const hint     = document.getElementById('hint');
+  const TURNS    = 1.15;            // how many full orbit turns across the page
+
+  function frame(){
+    cur += (target - cur) * 0.08;   // easing
+    const p = cur;
+
+    // overall orbit rotation driven by scroll
+    const baseRot = p * 360 * TURNS;
+    orbit.style.transform = `rotateX(14deg) rotateY(${baseRot}deg)`;
+
+    // gentle scene zoom-in as you scroll
+    const sceneScale = 1 + p*0.35;
+    scene.style.transform = `scale(${sceneScale})`;
+    // globe grows and drifts back a touch
+    globeW.style.transform = `translate(-50%,-50%) translateZ(${ -p*120 }px) scale(${1 + p*0.25})`;
+
+    let focusIdx = 0, bestFront = -2;
+    frames.forEach((f,i)=>{
+      const ang = baseRot + i*STEP;                 // current angle of this frame
+      const rad = ang * Math.PI/180;
+      const front = Math.cos(rad);                  // 1 = nearest to camera
+      const fN = (front+1)/2;                       // 0..1
+
+      // place on ring, then billboard back to face the camera
+      const billboard = -(ang);
+      // when a frame is at the front, scrolling zooms INTO it
+      const zoom = 0.62 + fN*0.65 + Math.pow(fN,6)*p*2.4;
+      f.style.transform =
+        `rotateY(${ang}deg) translateZ(${R}px) rotateY(${billboard}deg) scale(${zoom})`;
+      f.style.opacity = (0.25 + fN*0.75).toFixed(3);
+      f.style.zIndex = Math.round(fN*100);
+      f.classList.toggle('focused', fN > 0.9);
+
+      if(front > bestFront){ bestFront = front; focusIdx = i; }
+    });
+
+    dots.forEach((d,i)=> d.classList.toggle('on', i===focusIdx));
+    hint.style.opacity = p > 0.04 ? 0 : 1;
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // click a rail dot → scroll to that frame's position
+  rail.addEventListener('click', e=>{
+    const i = e.target.dataset.i; if(i==null) return;
+    const total = stage.offsetHeight - innerHeight;
+    // angle where frame i is at front: baseRot + i*STEP = 360k  → baseRot = -i*STEP (mod 360)
+    let needed = (-i*STEP) % 360; if(needed<0) needed+=360;
+    const p = (needed/360)/TURNS;
+    scrollTo({ top: stage.offsetTop + p*total, behavior:'smooth' });
+  });
+</script>
+</body>
+</html>
