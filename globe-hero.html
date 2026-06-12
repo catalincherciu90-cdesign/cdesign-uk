@@ -52,47 +52,35 @@
   @keyframes bob{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(6px);opacity:1}}
 
   /* ---------- 3D scene ---------- */
-  .scene{position:relative; width:1px; height:1px;
-         perspective:1300px; transform-style:preserve-3d;
-         will-change:transform;}
+  .scene{position:relative; width:1px; height:1px;}
 
   /* ---------- globe ---------- */
   .globe-wrap{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-              transform-style:preserve-3d; z-index:5;}
+              z-index:50;}
   .globe{
-    width:300px; height:300px; border-radius:50%; position:relative;
-    background:
-      radial-gradient(circle at 32% 28%, #2b6fb0 0%, #14497e 38%, #0a2f57 64%, #061d39 100%);
+    width:300px; height:300px; border-radius:50%; position:relative; overflow:hidden;
+    background:#06203b; /* ocean fallback if textures are slow to load */
     box-shadow:
-      inset -28px -22px 60px rgba(0,0,0,.75),
-      inset 22px 18px 50px rgba(120,200,255,.18),
-      0 0 60px rgba(0,160,180,.35);
-    overflow:hidden;
+      inset -26px -20px 70px rgba(0,0,0,.85),
+      inset 18px 14px 50px rgba(120,200,255,.15),
+      0 0 70px rgba(0,150,200,.40);
   }
-  /* stylised continents that scroll = rotation */
-  .globe .land{position:absolute; inset:0; border-radius:50%;
-    background-repeat:repeat-x; background-size:200% 100%;
-    background-image:
-      radial-gradient(40% 30% at 12% 40%, #1f8a5a 0%, #15724a 40%, transparent 62%),
-      radial-gradient(35% 26% at 30% 64%, #1f8a5a 0%, transparent 60%),
-      radial-gradient(30% 34% at 52% 32%, #25955f 0%, transparent 60%),
-      radial-gradient(26% 22% at 70% 58%, #1c8052 0%, transparent 60%),
-      radial-gradient(34% 30% at 88% 42%, #228a5b 0%, transparent 62%);
-    filter:saturate(1.05);
-    animation:spin-map 26s linear infinite;
-    opacity:.92;
-  }
-  @keyframes spin-map{from{background-position:0 0}to{background-position:-200% 0}}
-  /* grid meridians */
-  .globe .grid{position:absolute; inset:0; border-radius:50%; mix-blend-mode:screen; opacity:.28;
+  /* real Earth texture wrapped on the sphere; background-position pan = rotation */
+  .globe .earth, .globe .clouds{position:absolute; inset:0;
+    background-repeat:repeat-x; background-position:0 center; background-size:200% 100%;}
+  .globe .earth{
+    background-image:url('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg');
+    animation:spin-earth 48s linear infinite;}
+  .globe .clouds{
+    background-image:url('https://unpkg.com/three-globe/example/img/earth-clouds.png');
+    opacity:.5; mix-blend-mode:screen; animation:spin-earth 36s linear infinite;}
+  @keyframes spin-earth{from{background-position:0 center}to{background-position:-200% center}}
+  /* spherical shading: day highlight + night terminator for a real 3D look */
+  .globe .sphere{position:absolute; inset:0; border-radius:50%; pointer-events:none;
     background:
-      repeating-linear-gradient(90deg, transparent 0 26px, rgba(120,230,255,.5) 26px 27px),
-      repeating-linear-gradient(0deg, transparent 0 26px, rgba(120,230,255,.35) 26px 27px);
-    -webkit-mask:radial-gradient(circle at 50% 50%, #000 60%, transparent 72%);
-            mask:radial-gradient(circle at 50% 50%, #000 60%, transparent 72%);}
-  /* specular + terminator */
-  .globe .shine{position:absolute; inset:0; border-radius:50%;
-    background:radial-gradient(circle at 30% 26%, rgba(255,255,255,.5) 0%, transparent 26%);}
+      radial-gradient(circle at 30% 26%, rgba(255,255,255,.30) 0%, transparent 26%),
+      radial-gradient(circle at 72% 78%, rgba(0,0,10,.62) 0%, transparent 58%);
+    box-shadow:inset -22px -16px 60px rgba(0,0,0,.65);}
   /* atmosphere glow */
   .atmo{position:absolute; left:50%; top:50%; width:360px; height:360px;
         transform:translate(-50%,-50%); border-radius:50%; pointer-events:none;
@@ -100,16 +88,15 @@
         filter:blur(4px);}
 
   /* ---------- orbit + frames ---------- */
-  .orbit{position:absolute; left:50%; top:50%; width:1px; height:1px;
-         transform-style:preserve-3d; z-index:10; will-change:transform;}
-  /* native size is LARGE; we only ever scale DOWN to the ring (≤1×) so text stays crisp */
+  .orbit{position:absolute; left:50%; top:50%; width:1px; height:1px; z-index:10;}
+  /* native size is LARGE; JS only ever scales DOWN to the ring (≤1×) so text stays crisp.
+     Position is set entirely by JS (manual perspective projection). */
   .frame{
-    position:absolute; left:50%; top:50%; width:320px; min-height:190px;
-    margin:-95px 0 0 -160px; padding:24px 24px 22px;
+    position:absolute; left:50%; top:50%; width:340px; min-height:200px;
+    padding:26px 26px 24px; transform:translate(-50%,-50%);
     background:var(--frame-bg); border:1px solid var(--frame-border);
     border-radius:18px;
-    box-shadow:0 14px 40px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.04);
-    transform-style:preserve-3d;
+    box-shadow:0 16px 46px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.04);
     transition:border-color .3s, box-shadow .3s;
   }
   .frame .ico{font-size:1.8rem; line-height:1}
@@ -152,9 +139,9 @@
       <div class="atmo"></div>
       <div class="globe-wrap" id="globeWrap">
         <div class="globe">
-          <div class="land"></div>
-          <div class="grid"></div>
-          <div class="shine"></div>
+          <div class="earth"></div>
+          <div class="clouds"></div>
+          <div class="sphere"></div>
         </div>
       </div>
       <div class="orbit" id="orbit"><!-- frames injected by JS --></div>
@@ -218,42 +205,36 @@
   addEventListener('scroll', readScroll, {passive:true});
   readScroll();
 
-  const scene    = document.getElementById('scene');
-  const globeW   = document.getElementById('globeWrap');
   const hint     = document.getElementById('hint');
-  const TURNS    = 1.15;            // how many full orbit turns across the page
+  const TURNS    = 1.0;             // each frame comes to the front exactly once across the page
+  const PERSP    = 820;            // virtual camera distance (px) for the manual projection
 
   function frame(){
-    cur += (target - cur) * 0.08;   // easing
+    cur += (target - cur) * 0.09;   // easing
     const p = cur;
-
-    // overall orbit rotation driven by scroll (NO scene scaling — keeps everything crisp)
     const baseRot = p * 360 * TURNS;
-    orbit.style.transform = `rotateX(14deg) rotateY(${baseRot}deg)`;
 
-    // globe grows toward native size (capped at 1× so it never upscales / pixelates)
-    const globeScale = Math.min(1, 0.82 + p*0.18);
-    globeW.style.transform = `translate(-50%,-50%) translateZ(${ -p*60 }px) scale(${globeScale})`;
-
-    let focusIdx = 0, bestFront = -2;
+    let focusIdx = 0, bestZ = -1e9;
     frames.forEach((f,i)=>{
-      const ang = baseRot + i*STEP;                 // current angle of this frame
-      const rad = ang * Math.PI/180;
-      const front = Math.cos(rad);                  // 1 = nearest to camera
-      const fN = (front+1)/2;                       // 0..1
+      const a = (baseRot + i*STEP) * Math.PI/180;
+      const x = Math.sin(a) * R;     // left/right on the ring
+      const z = Math.cos(a) * R;     // +R = nearest to camera (front), -R = behind globe
+      const depth = (z + R) / (2*R); // 0 (back) … 1 (front)
+      const pf    = PERSP / (PERSP - z);     // perspective: front frames project bigger
+      const focus = Math.pow(depth, 4);      // only the near-front frame pulls to centre
 
-      // place on ring, then billboard back to face the camera
-      const billboard = -(ang);
-      // scale DOWN for the ring; the front frame zooms toward 1× (native) as you scroll.
-      // capped at 1 so a frame is never upscaled beyond its real resolution → no pixelation.
-      const zoom = Math.min(1, 0.55 + fN*0.30 + Math.pow(fN,6)*p*1.4);
-      f.style.transform =
-        `rotateY(${ang}deg) translateZ(${R}px) rotateY(${billboard}deg) scale(${zoom})`;
-      f.style.opacity = (0.25 + fN*0.75).toFixed(3);
-      f.style.zIndex = Math.round(fN*100);
-      f.classList.toggle('focused', fN > 0.9);
+      const sx = x * pf * (1 - focus);       // slide toward centre as it reaches the front
+      const sy = (0.5 - depth) * 26 + focus * 84; // arc + drop the focused card below the globe
+      let   s  = (0.46 + depth*0.30) * pf;   // small on the ring → grows toward the camera
+      s = Math.min(1, s);                    // never exceed native size → stays crisp
 
-      if(front > bestFront){ bestFront = front; focusIdx = i; }
+      f.style.transform = `translate(-50%,-50%) translate(${sx.toFixed(1)}px, ${sy.toFixed(1)}px) scale(${s.toFixed(3)})`;
+      f.style.opacity   = (0.10 + depth*0.90).toFixed(3);
+      f.style.filter    = depth < 0.78 ? `blur(${((0.78-depth)*4).toFixed(1)}px)` : 'none';
+      f.style.zIndex    = Math.round(depth*100);   // front frames sit above the globe (z-index 50)
+      f.classList.toggle('focused', depth > 0.93);
+
+      if(z > bestZ){ bestZ = z; focusIdx = i; }
     });
 
     dots.forEach((d,i)=> d.classList.toggle('on', i===focusIdx));
