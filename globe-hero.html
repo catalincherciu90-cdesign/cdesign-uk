@@ -124,10 +124,18 @@
   .rail i.on{background:var(--teal); box-shadow:0 0 10px var(--teal); transform:scale(1.35)}
 
   @media(max-width:760px){
-    :root{--orbit-radius:250px}
-    .globe{width:200px;height:200px}.atmo{width:250px;height:250px}
-    .frame{width:280px;}
-    .rail{right:10px}
+    :root{--orbit-radius:128px}
+    .globe{width:158px;height:158px}.atmo{width:200px;height:200px}
+    .frame{width:min(86vw,330px); min-height:auto; padding:20px;}
+    .frame .lead{font-size:.88rem}
+    .rail{right:8px; gap:8px}
+    .hint{font-size:.68rem}
+    /* footer flows normally at the end on phones (not fixed — it would eat the screen) */
+    footer{position:static; max-height:none;}
+    .hero{padding-bottom:24px;}
+    .nav-inner{height:56px;}
+    nav .logo img{height:32px;}
+    .btn-nav{padding:8px 14px; font-size:.8rem;}
   }
 
   /* ============ imported UK site header + footer (light theme scoped here) ============ */
@@ -161,7 +169,7 @@
   .btn-nav:hover{background:#000;transform:translateY(-1px);}
   .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:6px;}
   .hamburger span{display:block;width:22px;height:2px;background:var(--nav-burger);border-radius:2px;}
-  .mobile-menu{display:none;position:fixed;inset:64px 0 auto 0;background:var(--nav-bg-solid);z-index:999;
+  .mobile-menu{display:none;position:fixed;top:var(--hdr,64px);left:0;right:0;bottom:auto;background:var(--nav-bg-solid);z-index:999;
                padding:24px;flex-direction:column;gap:6px;border-bottom:1px solid var(--border);
                backdrop-filter:blur(20px);}
   .mobile-menu.open{display:flex}
@@ -238,7 +246,7 @@
     </div>
 
     <div class="rail" id="rail"></div>
-    <div class="hint" id="hint">Derulează pentru a explora<span>↓</span></div>
+    <div class="hint" id="hint">Scroll to explore<span>↓</span></div>
   </section>
 </div>
 
@@ -308,8 +316,13 @@
   const frames = [...orbit.children];
   const dots   = [...rail.children];
 
-  let R = 0;
-  function recalc(){ R = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--orbit-radius')); }
+  let R = 0, SPREAD = 1.4, DROP = 120;
+  function recalc(){
+    R = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--orbit-radius'));
+    const mob = innerWidth <= 760;
+    SPREAD = mob ? 1.0 : 1.4;   // keep side cards on-screen on phones
+    DROP   = mob ? 64  : 120;   // less vertical room on phones
+  }
   recalc(); addEventListener('resize', recalc);
 
   // ---- scroll → progress (smoothed) ----
@@ -341,8 +354,8 @@
       const pf    = PERSP / (PERSP - z);     // perspective: front frames project bigger
       const focus = Math.pow(depth, 4);      // only the near-front frame pulls to centre
 
-      const sx = x * pf * (1 - focus) * 1.4; // spread side cards out; focused one pulls to centre
-      const sy = (0.5 - depth) * 26 + focus * 120; // drop the focused card clearly below the globe
+      const sx = x * pf * (1 - focus) * SPREAD; // spread side cards out; focused one pulls to centre
+      const sy = (0.5 - depth) * 26 + focus * DROP; // drop the focused card clearly below the globe
       let   s  = (0.42 + depth*0.34) * pf;   // small on the ring → grows toward the camera
       s = Math.min(1, s);                    // never exceed native size → stays crisp
 
@@ -391,7 +404,9 @@
     const nav = document.querySelector('nav');
     const ftr = document.querySelector('footer');
     const h = nav ? nav.offsetHeight : 64;
-    const f = ftr ? ftr.offsetHeight : 0;
+    // on phones the footer flows at the end (not fixed), so it must not pad the hero
+    const mob = innerWidth <= 760;
+    const f = (ftr && !mob) ? ftr.offsetHeight : 0;
     document.documentElement.style.setProperty('--hdr', h + 'px');
     document.documentElement.style.setProperty('--ftr', f + 'px');
   }
