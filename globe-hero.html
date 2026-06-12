@@ -186,10 +186,16 @@
     display:flex; align-items:center; justify-content:center; font-size:1rem; line-height:1;
     box-shadow:0 -4px 14px rgba(0,0,0,.12); z-index:1001;}
   .footer-toggle:hover{color:var(--teal);}
+  /* close (X) button inside the footer */
+  .footer-close{position:absolute; top:10px; right:14px; width:30px; height:30px; border-radius:8px;
+    border:1px solid var(--border); background:transparent; color:var(--muted); cursor:pointer;
+    display:flex; align-items:center; justify-content:center; font-size:.85rem; line-height:1; z-index:1002;}
+  .footer-close:hover{color:var(--teal); border-color:var(--teal-border);}
   .footer-body{transition:max-height .42s ease, opacity .3s ease;}
   footer.collapsed{max-height:none; overflow:visible; padding:0; background:transparent; border-top:none;}
   footer.collapsed .footer-body{max-height:0; opacity:0; overflow:hidden;}
   footer.collapsed .footer-toggle{background:var(--bg2); top:-32px; box-shadow:0 -4px 18px rgba(0,0,0,.18);}
+  footer.collapsed .footer-close{display:none;}
   footer .footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:22px;margin-bottom:18px;}
   .footer-logo img{height:32px;width:auto;}
   .footer-about{font-size:.8rem;color:var(--muted);line-height:1.6;margin:10px 0 0;}
@@ -260,6 +266,7 @@
 <!-- ===== imported UK footer (fixed) ===== -->
 <footer id="siteFooter">
   <button class="footer-toggle" id="footerToggle" aria-label="Hide footer" aria-expanded="true">▾</button>
+  <button class="footer-close" id="footerClose" aria-label="Close footer">✕</button>
   <div class="footer-body">
   <div class="site-container">
     <div class="footer-grid">
@@ -440,6 +447,8 @@
   if(footerToggle){
     footerToggle.addEventListener('click', ()=> setFooter(!siteFooter.classList.contains('collapsed')));
   }
+  const footerClose = document.getElementById('footerClose');
+  if(footerClose){ footerClose.addEventListener('click', ()=> setFooter(true)); }
   // start collapsed on phones so the globe is fully visible
   if(innerWidth <= 760) setFooter(true);
 </script>
