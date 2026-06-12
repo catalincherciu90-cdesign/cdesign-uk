@@ -92,29 +92,30 @@
   /* native size is LARGE; JS only ever scales DOWN to the ring (≤1×) so text stays crisp.
      Position is set entirely by JS (manual perspective projection). */
   .frame{
-    position:absolute; left:50%; top:50%; width:340px; min-height:200px;
-    padding:26px 26px 24px; transform:translate(-50%,-50%);
+    position:absolute; left:50%; top:50%; width:min(90vw, 1280px); min-height:auto;
+    padding:clamp(24px,3vw,46px); transform:translate(-50%,-50%); text-align:center;
     background:var(--frame-bg); border:1px solid var(--frame-border);
-    border-radius:18px;
+    border-radius:22px;
     box-shadow:0 16px 46px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.04);
     transition:border-color .3s, box-shadow .3s;
   }
-  .frame .ico{font-size:1.8rem; line-height:1}
-  .frame h3{font-size:1.25rem; margin:10px 0 5px; color:#fff; letter-spacing:.01em}
-  .frame .lead{font-size:.95rem; color:var(--soft); line-height:1.5}
-  .frame ul{list-style:none; margin:12px 0 0; max-height:0; overflow:hidden; opacity:0;
-            transition:max-height .45s ease, opacity .35s ease;}
-  .frame ul li{font-size:.9rem; color:#cfe9e4; padding:6px 0 6px 20px; position:relative;}
-  .frame ul li::before{content:'▸'; position:absolute; left:0; color:var(--teal)}
-  .frame .badge{position:absolute; top:12px; right:14px; font-size:.62rem; letter-spacing:.12em;
-    color:var(--teal); border:1px solid var(--frame-border); border-radius:20px; padding:3px 9px;
+  .frame .ico{font-size:2.8rem; line-height:1}
+  .frame h3{font-size:2rem; margin:14px 0 8px; color:#fff; letter-spacing:.01em}
+  .frame .lead{font-size:1.12rem; color:var(--soft); line-height:1.55; max-width:620px; margin:0 auto}
+  .frame ul{list-style:none; margin:0; max-height:0; overflow:hidden; opacity:0;
+            display:flex; flex-wrap:wrap; gap:10px; justify-content:center;
+            transition:max-height .45s ease, opacity .35s ease, margin .4s ease;}
+  .frame ul li{font-size:1rem; color:#cfe9e4; padding:8px 16px;
+    background:rgba(0,200,180,.07); border:1px solid var(--frame-border); border-radius:30px;}
+  .frame .badge{position:absolute; top:16px; right:18px; font-size:.72rem; letter-spacing:.12em;
+    color:var(--teal); border:1px solid var(--frame-border); border-radius:20px; padding:4px 11px;
     text-transform:uppercase; background:rgba(0,200,180,.07)}
-  .frame.focused{border-color:var(--teal); box-shadow:0 22px 60px rgba(0,0,0,.6), 0 0 40px rgba(0,200,180,.25)}
-  .frame.focused ul{max-height:200px; opacity:1}
-  .frame-cta{display:inline-block; margin-top:14px; font-size:.85rem; font-weight:600; color:var(--teal);
-    text-decoration:none; border:1px solid var(--frame-border); border-radius:9px; padding:8px 16px;
+  .frame.focused{border-color:var(--teal); box-shadow:0 22px 70px rgba(0,0,0,.6), 0 0 60px rgba(0,200,180,.28)}
+  .frame.focused ul{max-height:200px; opacity:1; margin:20px 0 4px}
+  .frame-cta{display:inline-block; margin-top:20px; font-size:1rem; font-weight:600; color:var(--teal);
+    text-decoration:none; border:1px solid var(--frame-border); border-radius:10px; padding:11px 26px;
     max-height:0; opacity:0; overflow:hidden; transition:max-height .4s ease, opacity .35s ease, background .2s;}
-  .frame.focused .frame-cta{max-height:46px; opacity:1;}
+  .frame.focused .frame-cta{max-height:56px; opacity:1;}
   .frame-cta:hover{background:rgba(0,200,180,.10); border-color:var(--teal);}
   /* zoom-in effect: content pops in when a card reaches the front */
   .frame-inner{transform-origin:center center;}
@@ -134,8 +135,11 @@
 
   @media(max-width:760px){
     :root{--orbit-radius:160px; --globe-size:clamp(210px, 56vmin, 300px);}
-    .frame{width:min(86vw,330px); min-height:auto; padding:20px;}
-    .frame .lead{font-size:.88rem}
+    .frame{width:92vw; padding:22px 18px;}
+    .frame .ico{font-size:2.2rem}
+    .frame h3{font-size:1.5rem}
+    .frame .lead{font-size:.98rem}
+    .frame ul li{font-size:.9rem; padding:7px 13px}
     .rail{right:8px; gap:8px}
     .hint{font-size:.68rem}
     .nav-inner{height:56px;}
@@ -347,7 +351,7 @@
     R = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--orbit-radius'));
     const mob = innerWidth <= 760;
     SPREAD = mob ? 1.0 : 1.4;   // keep side cards on-screen on phones
-    DROP   = mob ? 64  : 120;   // less vertical room on phones
+    DROP   = mob ? 8   : 16;    // big focused card stays near centre
   }
   recalc(); addEventListener('resize', recalc);
 
@@ -381,9 +385,10 @@
       const focus = Math.pow(depth, 4);      // only the near-front frame pulls to centre
 
       const sx = x * pf * (1 - focus) * SPREAD; // spread side cards out; focused one pulls to centre
-      const sy = (0.5 - depth) * 26 + focus * DROP; // drop the focused card clearly below the globe
-      let   s  = (0.42 + depth*0.34) * pf;   // small on the ring → grows toward the camera
-      s = Math.min(1, s);                    // never exceed native size → stays crisp
+      const sy = (0.5 - depth) * 26 + focus * DROP; // small arc; focused card stays ~centred
+      // strong zoom-in: only the front card grows to full size (≈90% of screen at scale 1).
+      // native frame is large, so scale never exceeds 1 → no pixelation.
+      const s = 0.26 + 0.74 * Math.pow(depth, 5);
 
       f.style.transform = `translate(-50%,-50%) translate(${sx.toFixed(1)}px, ${sy.toFixed(1)}px) scale(${s.toFixed(3)})`;
       // back half fades right out so only the front card (and its neighbours) read clearly
