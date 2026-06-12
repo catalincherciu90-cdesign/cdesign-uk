@@ -130,7 +130,6 @@
     .frame .lead{font-size:.88rem}
     .rail{right:8px; gap:8px}
     .hint{font-size:.68rem}
-    .hero{padding-bottom:24px;}
     .nav-inner{height:56px;}
     nav .logo img{height:32px;}
     .btn-nav{padding:8px 14px; font-size:.8rem;}
@@ -176,10 +175,21 @@
   .mobile-menu .btn-nav{margin-top:10px;text-align:center;}
   @media(max-width:860px){ nav .nav-links,.nav-phone{display:none} .hamburger{display:flex} }
 
-  /* footer — FIXED bottom */
+  /* footer — FIXED bottom, collapsible */
   footer{position:fixed; bottom:0; left:0; right:0; z-index:1000;
          background:var(--bg2); border-top:1px solid var(--border); padding:24px 0 16px;
          max-height:46vh; overflow:auto;}
+  /* the show/hide tab sits on top edge of the footer */
+  .footer-toggle{position:absolute; top:-30px; left:50%; transform:translateX(-50%);
+    width:54px; height:30px; border:1px solid var(--border); border-bottom:none;
+    background:var(--bg2); color:var(--text); border-radius:10px 10px 0 0; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; font-size:1rem; line-height:1;
+    box-shadow:0 -4px 14px rgba(0,0,0,.12); z-index:1001;}
+  .footer-toggle:hover{color:var(--teal);}
+  .footer-body{transition:max-height .42s ease, opacity .3s ease;}
+  footer.collapsed{max-height:none; overflow:visible; padding:0; background:transparent; border-top:none;}
+  footer.collapsed .footer-body{max-height:0; opacity:0; overflow:hidden;}
+  footer.collapsed .footer-toggle{background:var(--bg2); top:-32px; box-shadow:0 -4px 18px rgba(0,0,0,.18);}
   footer .footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:22px;margin-bottom:18px;}
   .footer-logo img{height:32px;width:auto;}
   .footer-about{font-size:.8rem;color:var(--muted);line-height:1.6;margin:10px 0 0;}
@@ -192,11 +202,6 @@
                  align-items:center;font-size:.78rem;color:var(--muted);flex-wrap:wrap;gap:10px;}
   @media(max-width:860px){
     footer .footer-grid{grid-template-columns:1fr 1fr;}
-  }
-  /* phones: footer is NOT fixed — it flows at the end so it never blocks the page.
-     (declared AFTER the base footer rule so it actually wins) */
-  @media(max-width:760px){
-    footer{position:static; bottom:auto; max-height:none; overflow:visible; z-index:auto;}
   }
 </style>
 </head>
@@ -253,7 +258,9 @@
 </div>
 
 <!-- ===== imported UK footer (fixed) ===== -->
-<footer>
+<footer id="siteFooter">
+  <button class="footer-toggle" id="footerToggle" aria-label="Hide footer" aria-expanded="true">▾</button>
+  <div class="footer-body">
   <div class="site-container">
     <div class="footer-grid">
       <div>
@@ -270,6 +277,7 @@
       <span><a href="/politica-confidentialitate">Privacy Policy</a></span>
       <span>Designed with passion for your business.</span>
     </div>
+  </div>
   </div>
 </footer>
 
@@ -406,15 +414,34 @@
     const nav = document.querySelector('nav');
     const ftr = document.querySelector('footer');
     const h = nav ? nav.offsetHeight : 64;
-    // on phones the footer flows at the end (not fixed), so it must not pad the hero
-    const mob = innerWidth <= 760;
-    const f = (ftr && !mob) ? ftr.offsetHeight : 0;
+    // collapsed footer has ~0 height, so the globe automatically uses the whole screen
+    const f = ftr ? ftr.offsetHeight : 0;
     document.documentElement.style.setProperty('--hdr', h + 'px');
     document.documentElement.style.setProperty('--ftr', f + 'px');
   }
   fitChrome();
   addEventListener('resize', fitChrome);
   addEventListener('load', fitChrome);
+
+  // ---- footer show / hide ----
+  const siteFooter = document.getElementById('siteFooter');
+  const footerToggle = document.getElementById('footerToggle');
+  function setFooter(collapsed){
+    if(!siteFooter) return;
+    siteFooter.classList.toggle('collapsed', collapsed);
+    if(footerToggle){
+      footerToggle.textContent = collapsed ? '▴' : '▾';
+      footerToggle.setAttribute('aria-label', collapsed ? 'Show footer' : 'Hide footer');
+      footerToggle.setAttribute('aria-expanded', String(!collapsed));
+    }
+    fitChrome();
+    setTimeout(fitChrome, 460);   // recentre the globe once the slide animation finishes
+  }
+  if(footerToggle){
+    footerToggle.addEventListener('click', ()=> setFooter(!siteFooter.classList.contains('collapsed')));
+  }
+  // start collapsed on phones so the globe is fully visible
+  if(innerWidth <= 760) setFooter(true);
 </script>
 </body>
 </html>
