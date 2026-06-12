@@ -1,4 +1,4 @@
-name = "cdesign"
+name = "cdesign-uk"
 main = "_worker.js"
 compatibility_date = "2026-05-11"
 compatibility_flags = ["nodejs_compat"]
@@ -7,9 +7,13 @@ compatibility_flags = ["nodejs_compat"]
 directory = "."
 binding = "ASSETS"
 
+# UK site uses its OWN KV namespace — fully separate database from the RO site.
+# 1) Create it:  wrangler kv namespace create PROGRAMARI
+# 2) Paste the returned id below, replacing the placeholder.
+# (The placeholder is intentional so a deploy can't accidentally land on the RO database.)
 [[kv_namespaces]]
 binding = "PROGRAMARI"
-id = "6c999cb522f04569824a7a97ce497acd"
+id = "aba4ead89d234af1a1dda8dcd8676308"
 
 [ai]
 binding = "AI"
