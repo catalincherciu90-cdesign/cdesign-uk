@@ -550,11 +550,11 @@
 }
 
 
-  /* ===== globe hero (scoped, gh- prefix to avoid clashing with the page) ===== */
+  /* ===== globe hero (scoped, gh- prefix) ===== */
   .gh-stage{position:relative; height:600vh; background:#03060a;
     --teal:#00c8b4; --teal-lt:#5ff0e0; --soft:#8fb3ad;
     --frame-bg:rgba(8,14,24,.97); --frame-border:rgba(0,200,180,.45);
-    --orbit-radius:400px; --globe-size:clamp(300px,40vmin,420px);}
+    --orbit-radius:360px; --globe-size:clamp(300px,40vmin,420px);}
   .gh-hero{position:sticky; top:0; height:100vh; overflow:hidden; box-sizing:border-box;
     padding-top:66px; display:flex; align-items:center; justify-content:center;}
   .gh-stars{position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;
@@ -583,38 +583,58 @@
     transform:translate(-50%,-50%); border-radius:50%; pointer-events:none;
     background:radial-gradient(circle,transparent 56%,rgba(0,200,200,.3) 66%,transparent 78%); filter:blur(4px);}
   .gh-orbit{position:absolute; left:50%; top:50%; width:1px; height:1px;}
-  .gh-frame{position:absolute; left:50%; top:50%; width:min(90vw,1280px); padding:clamp(24px,3vw,46px);
-    transform:translate(-50%,-50%); text-align:center; background:var(--frame-bg); border:1px solid var(--frame-border);
-    border-radius:22px; box-shadow:0 16px 46px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.04);
+  /* small orbiting card (teaser) — click to open the big one */
+  .gh-frame{position:absolute; left:50%; top:50%; width:min(80vw,340px); padding:22px 22px 20px;
+    transform:translate(-50%,-50%); text-align:center; cursor:pointer;
+    background:var(--frame-bg); border:1px solid var(--frame-border); border-radius:18px;
+    box-shadow:0 14px 40px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.04);
     transition:border-color .3s,box-shadow .3s;}
-  .gh-frame .gh-ico{font-size:2.8rem; line-height:1}
-  .gh-frame h3{font-size:2rem; margin:14px 0 8px; color:#fff; letter-spacing:.01em; font-family:'Space Grotesk',sans-serif;}
-  .gh-frame .gh-lead{font-size:1.12rem; color:var(--soft); line-height:1.55; max-width:620px; margin:0 auto}
-  .gh-frame ul{list-style:none; margin:0; padding:0; max-height:0; overflow:hidden; opacity:0; display:flex; flex-wrap:wrap; gap:10px; justify-content:center;
-    transition:max-height .45s ease,opacity .35s ease,margin .4s ease;}
-  .gh-frame ul li{font-size:1rem; color:#cfe9e4; padding:8px 16px; background:rgba(0,200,180,.07); border:1px solid var(--frame-border); border-radius:30px;}
-  .gh-frame .gh-badge{position:absolute; top:16px; right:18px; font-size:.72rem; letter-spacing:.12em; color:var(--teal);
-    border:1px solid var(--frame-border); border-radius:20px; padding:4px 11px; text-transform:uppercase; background:rgba(0,200,180,.07)}
-  .gh-frame.gh-focused{border-color:var(--teal); box-shadow:0 22px 70px rgba(0,0,0,.6),0 0 60px rgba(0,200,180,.28)}
-  .gh-frame.gh-focused ul{max-height:200px; opacity:1; margin:20px 0 4px}
-  .gh-frame-cta{display:inline-block; margin-top:20px; font-size:1rem; font-weight:600; color:var(--teal); text-decoration:none;
-    border:1px solid var(--frame-border); border-radius:10px; padding:11px 26px; max-height:0; opacity:0; overflow:hidden;
-    transition:max-height .4s ease,opacity .35s ease,background .2s;}
-  .gh-frame.gh-focused .gh-frame-cta{max-height:56px; opacity:1;}
-  .gh-frame-cta:hover{background:rgba(0,200,180,.1); border-color:var(--teal);}
+  .gh-frame .gh-ico{font-size:2rem; line-height:1}
+  .gh-frame h3{font-size:1.3rem; margin:10px 0 6px; color:#fff; letter-spacing:.01em; font-family:'Space Grotesk',sans-serif;}
+  .gh-frame .gh-lead{font-size:.92rem; color:var(--soft); line-height:1.5}
+  .gh-frame .gh-open{display:inline-block; margin-top:14px; font-size:.78rem; font-weight:600; color:var(--teal);
+    border:1px solid var(--frame-border); border-radius:30px; padding:6px 15px; background:rgba(0,200,180,.07);}
+  .gh-frame .gh-badge{position:absolute; top:13px; right:15px; font-size:.64rem; letter-spacing:.12em; color:var(--teal);
+    border:1px solid var(--frame-border); border-radius:20px; padding:3px 9px; text-transform:uppercase; background:rgba(0,200,180,.07)}
+  .gh-frame.gh-focused{border-color:var(--teal); box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 36px rgba(0,200,180,.22)}
+  .gh-frame.gh-focused .gh-open{background:var(--teal); color:#04201d;}
   .gh-frame-inner{transform-origin:center center;}
   .gh-frame.gh-focused .gh-frame-inner{animation:gh-cardZoom .55s cubic-bezier(.22,1,.36,1) both;}
-  @keyframes gh-cardZoom{0%{transform:scale(.78);opacity:.35}60%{transform:scale(1.04);opacity:1}100%{transform:scale(1);opacity:1}}
+  @keyframes gh-cardZoom{0%{transform:scale(.82);opacity:.45}60%{transform:scale(1.03);opacity:1}100%{transform:scale(1);opacity:1}}
   .gh-rail{position:absolute; right:22px; top:50%; transform:translateY(-50%); z-index:30; display:flex; flex-direction:column; gap:10px;}
   .gh-rail i{width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.18); transition:all .3s; cursor:pointer; display:block;}
   .gh-rail i.gh-on{background:var(--teal); box-shadow:0 0 10px var(--teal); transform:scale(1.35)}
+
+  /* ===== big card opened on click (modal) ===== */
+  .gh-modal{position:fixed; inset:0; z-index:3000; display:none; align-items:center; justify-content:center;
+    padding:24px; background:rgba(3,6,10,.82); backdrop-filter:blur(7px); -webkit-backdrop-filter:blur(7px);
+    --teal:#00c8b4; --soft:#8fb3ad; --frame-border:rgba(0,200,180,.45);}
+  .gh-modal.gh-show{display:flex; animation:gh-fade .25s ease;}
+  @keyframes gh-fade{from{opacity:0}to{opacity:1}}
+  .gh-modal-card{position:relative; width:min(92vw,720px); max-height:88vh; overflow:auto; text-align:center;
+    background:#0a1320; border:1px solid var(--frame-border); border-radius:24px; color:#e8f3f1;
+    padding:clamp(30px,5vw,56px); box-shadow:0 30px 90px rgba(0,0,0,.6),0 0 70px rgba(0,200,180,.22);
+    animation:gh-modalIn .4s cubic-bezier(.22,1,.36,1);}
+  @keyframes gh-modalIn{from{transform:scale(.82);opacity:0}to{transform:scale(1);opacity:1}}
+  .gh-modal-card .gh-badge2{display:inline-block; font-size:.72rem; letter-spacing:.14em; color:var(--teal);
+    border:1px solid var(--frame-border); border-radius:20px; padding:4px 12px; text-transform:uppercase; background:rgba(0,200,180,.07)}
+  .gh-modal-card .gh-ico{font-size:3.4rem; margin-top:14px}
+  .gh-modal-card h3{font-size:clamp(1.8rem,4vw,2.6rem); margin:12px 0 10px; color:#fff; font-family:'Space Grotesk',sans-serif;}
+  .gh-modal-card .gh-lead{font-size:1.12rem; color:var(--soft); line-height:1.6; max-width:560px; margin:0 auto}
+  .gh-modal-list{list-style:none; padding:0; margin:24px 0 0; display:flex; flex-wrap:wrap; gap:10px; justify-content:center;}
+  .gh-modal-list li{font-size:1rem; color:#cfe9e4; padding:9px 18px; background:rgba(0,200,180,.07);
+    border:1px solid var(--frame-border); border-radius:30px;}
+  .gh-modal-cta{display:inline-block; margin-top:28px; color:var(--teal); text-decoration:none; font-weight:600; font-size:1rem;
+    border:1px solid var(--frame-border); border-radius:11px; padding:13px 30px; transition:background .2s;}
+  .gh-modal-cta:hover{background:rgba(0,200,180,.12);}
+  .gh-modal-close{position:absolute; top:16px; right:16px; width:38px; height:38px; border:none; border-radius:10px;
+    background:#111; color:#fff; font-weight:700; font-size:1.05rem; cursor:pointer; transition:background .2s,transform .15s;}
+  .gh-modal-close:hover{background:var(--teal); color:#04201d; transform:scale(1.08);}
+
   @media(max-width:760px){
-    .gh-stage{--orbit-radius:160px; --globe-size:clamp(210px,56vmin,300px);}
-    .gh-frame{width:92vw; padding:22px 18px;}
-    .gh-frame .gh-ico{font-size:2.2rem}
-    .gh-frame h3{font-size:1.5rem}
-    .gh-frame .gh-lead{font-size:.98rem}
-    .gh-frame ul li{font-size:.9rem; padding:7px 13px}
+    .gh-stage{--orbit-radius:150px; --globe-size:clamp(210px,56vmin,300px);}
+    .gh-frame{width:min(70vw,260px); padding:18px}
+    .gh-frame h3{font-size:1.15rem}
     .gh-rail{right:8px; gap:8px}
   }
 
@@ -666,7 +686,7 @@
       <div class="gh-orbit" id="ghOrbit"></div>
     </div>
     <div class="gh-rail" id="ghRail"></div>
-    <div class="gh-hint" id="ghHint">Scroll to explore<span>&#8595;</span></div>
+    <div class="gh-hint" id="ghHint">Scroll &amp; tap a card<span>&#8595;</span></div>
   </div>
 </section>
 
@@ -1736,15 +1756,37 @@ window.addEventListener('load', function() {
     f.innerHTML='<div class="gh-frame-inner"><span class="gh-badge">'+s.tag+'</span>'
       +'<div class="gh-ico">'+s.ico+'</div><h3>'+s.title+'</h3>'
       +'<div class="gh-lead">'+s.lead+'</div>'
-      +'<ul>'+s.bullets.map(function(b){return '<li>'+b+'</li>';}).join('')+'</ul>'
-      +'<a class="gh-frame-cta" href="'+s.href+'">Explore →</a></div>';
+      +'<span class="gh-open">Open →</span></div>';
+    f.addEventListener('click',function(){ openModal(i); });
     orbit.appendChild(f);
     var d=document.createElement('i'); d.dataset.i=i; rail.appendChild(d);
   });
   var frames=[].slice.call(orbit.children), dots=[].slice.call(rail.children);
-  var R=400,SPREAD=1.4,DROP=16, stage=document.getElementById('ghStage');
-  function recalc(){ R=parseInt(getComputedStyle(stage).getPropertyValue('--orbit-radius'))||400;
-    var mob=innerWidth<=760; SPREAD=mob?1.0:1.4; DROP=mob?8:16; }
+
+  /* ---- big card (modal) ---- */
+  var modal=document.createElement('div'); modal.className='gh-modal';
+  modal.innerHTML='<div class="gh-modal-card"><button class="gh-modal-close" aria-label="Close">✕</button><div class="gh-modal-inner"></div></div>';
+  document.body.appendChild(modal);
+  var mInner=modal.querySelector('.gh-modal-inner');
+  function openModal(i){
+    var s=SECTIONS[i];
+    mInner.innerHTML='<span class="gh-badge2">'+s.tag+'</span><div class="gh-ico">'+s.ico+'</div>'
+      +'<h3>'+s.title+'</h3><div class="gh-lead">'+s.lead+'</div>'
+      +'<ul class="gh-modal-list">'+s.bullets.map(function(b){return '<li>'+b+'</li>';}).join('')+'</ul>'
+      +'<a class="gh-modal-cta" href="'+s.href+'">Explore →</a>';
+    modal.classList.add('gh-show'); document.body.style.overflow='hidden';
+  }
+  function closeModal(){ modal.classList.remove('gh-show'); document.body.style.overflow=''; }
+  modal.addEventListener('click',function(e){
+    if(e.target===modal || e.target.classList.contains('gh-modal-close')) closeModal();
+    if(e.target.classList.contains('gh-modal-cta')) closeModal();
+  });
+  addEventListener('keydown',function(e){ if(e.key==='Escape') closeModal(); });
+
+  /* ---- orbit animation ---- */
+  var R=360,SPREAD=1.4,DROP=10, stage=document.getElementById('ghStage');
+  function recalc(){ R=parseInt(getComputedStyle(stage).getPropertyValue('--orbit-radius'))||360;
+    var mob=innerWidth<=760; SPREAD=mob?1.0:1.4; DROP=mob?6:10; }
   recalc(); addEventListener('resize',recalc);
   var target=0,cur=0;
   function readScroll(){ var rect=stage.getBoundingClientRect(); var total=stage.offsetHeight-innerHeight;
@@ -1758,13 +1800,13 @@ window.addEventListener('load', function() {
       var a=(baseRot+i*STEP)*Math.PI/180; var x=Math.sin(a)*R, z=Math.cos(a)*R;
       var depth=(z+R)/(2*R); var pf=PERSP/(PERSP-z); var focus=Math.pow(depth,4);
       var sx=x*pf*(1-focus)*SPREAD; var sy=(0.5-depth)*26+focus*DROP;
-      var s=0.26+0.74*Math.pow(depth,5);
+      var s=0.5+0.5*Math.pow(depth,3);   // small on the ring, front card ≈ full (≈340px)
       f.style.transform='translate(-50%,-50%) translate('+sx.toFixed(1)+'px,'+sy.toFixed(1)+'px) scale('+s.toFixed(3)+')';
-      f.style.opacity=Math.pow(depth,2.2).toFixed(3);
-      f.style.filter=depth<0.7?'blur('+((0.7-depth)*5).toFixed(1)+'px)':'none';
-      f.style.pointerEvents=depth>0.6?'auto':'none';
+      f.style.opacity=Math.pow(depth,1.9).toFixed(3);
+      f.style.filter=depth<0.7?'blur('+((0.7-depth)*4).toFixed(1)+'px)':'none';
+      f.style.pointerEvents=depth>0.32?'auto':'none';
       f.style.zIndex=Math.round(depth*100);
-      f.classList.toggle('gh-focused',depth>0.93);
+      f.classList.toggle('gh-focused',depth>0.9);
       if(z>bestZ){bestZ=z;focusIdx=i;}
     });
     dots.forEach(function(d,i){ d.classList.toggle('gh-on',i===focusIdx); });
