@@ -330,7 +330,7 @@
   function frame(){
     cur += (target - cur) * 0.09;   // easing
     const p = cur;
-    const baseRot = p * 360 * TURNS;
+    const baseRot = -p * 360 * TURNS;  // scroll down → cards advance 01,02,03… in reading order
 
     let focusIdx = 0, bestZ = -1e9;
     frames.forEach((f,i)=>{
@@ -368,9 +368,8 @@
   rail.addEventListener('click', e=>{
     const i = e.target.dataset.i; if(i==null) return;
     const total = stage.offsetHeight - innerHeight;
-    // angle where frame i is at front: baseRot + i*STEP = 360k  → baseRot = -i*STEP (mod 360)
-    let needed = (-i*STEP) % 360; if(needed<0) needed+=360;
-    const p = (needed/360)/TURNS;
+    // front when baseRot + i*STEP ≡ 0; baseRot = -p*360*TURNS  →  p = (i*STEP)/(360*TURNS)
+    const p = ((i*STEP)/360)/TURNS;
     scrollTo({ top: stage.offsetTop + p*total, behavior:'smooth' });
   });
 
