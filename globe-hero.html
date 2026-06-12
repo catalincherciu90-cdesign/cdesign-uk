@@ -8,9 +8,9 @@
   :root{
     --teal:#00c8b4; --teal-lt:#5ff0e0; --teal-dk:#00a898;
     --bg:#03060a; --bg2:#070d16;
-    --frame-bg:rgba(9,16,26,.94); --frame-border:rgba(0,200,180,.45);
+    --frame-bg:rgba(8,14,24,.97); --frame-border:rgba(0,200,180,.45);
     --text:#e8f3f1; --soft:#8fb3ad;
-    --orbit-radius:320px;
+    --orbit-radius:380px;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:auto}
@@ -88,7 +88,7 @@
         filter:blur(4px);}
 
   /* ---------- orbit + frames ---------- */
-  .orbit{position:absolute; left:50%; top:50%; width:1px; height:1px; z-index:10;}
+  .orbit{position:absolute; left:50%; top:50%; width:1px; height:1px;}
   /* native size is LARGE; JS only ever scales DOWN to the ring (≤1×) so text stays crisp.
      Position is set entirely by JS (manual perspective projection). */
   .frame{
@@ -120,9 +120,9 @@
   .rail i.on{background:var(--teal); box-shadow:0 0 10px var(--teal); transform:scale(1.35)}
 
   @media(max-width:760px){
-    :root{--orbit-radius:215px}
-    .globe{width:210px;height:210px}.atmo{width:260px;height:260px}
-    .frame{width:260px; margin:-90px 0 0 -130px}
+    :root{--orbit-radius:250px}
+    .globe{width:200px;height:200px}.atmo{width:250px;height:250px}
+    .frame{width:280px;}
     .rail{right:10px}
   }
 </style>
@@ -223,14 +223,16 @@
       const pf    = PERSP / (PERSP - z);     // perspective: front frames project bigger
       const focus = Math.pow(depth, 4);      // only the near-front frame pulls to centre
 
-      const sx = x * pf * (1 - focus);       // slide toward centre as it reaches the front
-      const sy = (0.5 - depth) * 26 + focus * 84; // arc + drop the focused card below the globe
-      let   s  = (0.46 + depth*0.30) * pf;   // small on the ring → grows toward the camera
+      const sx = x * pf * (1 - focus) * 1.4; // spread side cards out; focused one pulls to centre
+      const sy = (0.5 - depth) * 26 + focus * 150; // drop the focused card clearly below the globe
+      let   s  = (0.42 + depth*0.34) * pf;   // small on the ring → grows toward the camera
       s = Math.min(1, s);                    // never exceed native size → stays crisp
 
       f.style.transform = `translate(-50%,-50%) translate(${sx.toFixed(1)}px, ${sy.toFixed(1)}px) scale(${s.toFixed(3)})`;
-      f.style.opacity   = (0.10 + depth*0.90).toFixed(3);
-      f.style.filter    = depth < 0.78 ? `blur(${((0.78-depth)*4).toFixed(1)}px)` : 'none';
+      // back half fades right out so only the front card (and its neighbours) read clearly
+      f.style.opacity   = Math.pow(depth, 2.2).toFixed(3);
+      f.style.filter    = depth < 0.7 ? `blur(${((0.7-depth)*5).toFixed(1)}px)` : 'none';
+      f.style.pointerEvents = depth > 0.6 ? 'auto' : 'none';
       f.style.zIndex    = Math.round(depth*100);   // front frames sit above the globe (z-index 50)
       f.classList.toggle('focused', depth > 0.93);
 
