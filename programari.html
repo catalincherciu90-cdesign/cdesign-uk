@@ -457,7 +457,7 @@
   </div>
 
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('gibilan',this)">&#x1F916; Gibilan</button>
+    <button class="tab active" onclick="switchTab('gibilan',this)">&#x1F916; Wizi</button>
     <button class="tab" onclick="switchTab('bookings',this)">&#x1F4C5; Bookings</button>
     <button class="tab" onclick="switchTab('projects',this)">&#x1F5BC; Portfolio</button>
     <button class="tab" onclick="switchTab('clients',this)">&#x1F465; Clients</button>
@@ -782,7 +782,7 @@
         <div class="crm-sidebar">
           <div class="crm-sb-top">
             <span class="crm-sb-title">&#x1F916; Agenda &amp; To-do</span>
-            <a class="crm-sb-link" onclick="switchTab('gibilan',document.querySelector('[onclick*=gibilan]'))">Gibilan &rarr;</a>
+            <a class="crm-sb-link" onclick="switchTab('gibilan',document.querySelector('[onclick*=gibilan]'))">Wizi &rarr;</a>
           </div>
 
           <!-- Meetings -->
@@ -2567,7 +2567,7 @@
   }
 
   // ── Permissions & current user ───────────────────────────
-  const SECTION_LABELS = { bookings:'Bookings', gibilan:'Agenda', clients:'Clients', crm:'CRM & Quotes', portfolio:'Portfolio', blog:'Blog', social:'Social', pages:'Pages', media:'Media', theme:'Theme', expenses:'Expenses', oferte:'Quotes', settings:'Settings' };
+  const SECTION_LABELS = { bookings:'Bookings', gibilan:'Wizi', clients:'Clients', crm:'CRM & Quotes', portfolio:'Portfolio', blog:'Blog', social:'Social', pages:'Pages', media:'Media', theme:'Theme', expenses:'Expenses', oferte:'Quotes', settings:'Settings' };
   const TAB_PERM = { bookings:'bookings', gibilan:'gibilan', clients:'clients', crm:'crm', projects:'portfolio', blog:'blog', social:'social', pagini:'pages', media:'media', tema:'theme', settings:'settings', cheltuieli:'expenses', oferte:'oferte' };
   let allSections = Object.keys(SECTION_LABELS);
 
