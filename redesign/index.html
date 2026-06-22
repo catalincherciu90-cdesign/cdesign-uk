@@ -214,8 +214,8 @@
 
     /* ===== HUD CONSOLE — homepage interactiv ===== */
     .home-banner.is-console{min-height:calc(100vh - 68px);display:flex;align-items:center;padding:24px 0;}
-    /* homepage = doar animația HUD: ascunde footer-ul (conținutul de sub) */
-    body > footer{display:none;}
+    /* homepage HUD: scoate banner-ul promoțional și strip-ul startup; footer-ul rămâne vizibil */
+    #bannerCarousel,[data-section="startup"]{display:none!important;}
     .hud-stage{position:relative;width:min(660px,90vw);aspect-ratio:1;margin:0 auto;z-index:1;}
     .hud-stage>svg.hud-grid-ring{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;}
     .hud-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:32%;aspect-ratio:1;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle,rgba(43,229,255,.10),transparent 70%);}
