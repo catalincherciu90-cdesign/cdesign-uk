@@ -169,29 +169,48 @@
     .btn-ghost{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);color:#fff;font-size:1rem;padding:14px 28px;border-radius:8px;border:1px solid rgba(255,255,255,.35);cursor:pointer;transition:border-color .2s,background .2s;text-decoration:none;font-family:'Inter',sans-serif;}
     .btn-ghost:hover{border-color:rgba(255,255,255,.7);background:rgba(255,255,255,.15)}
 
-    /* HOME BANNER — full-width hero sub meniu */
-    .home-banner{position:relative;width:100%;padding:104px 0 92px;overflow:hidden;text-align:center;border-bottom:1px solid var(--border);background:radial-gradient(80% 130% at 50% -10%,rgba(91,140,255,.16),transparent 60%),linear-gradient(180deg,#0E141C 0%,var(--bg) 72%);}
-    .home-banner::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(var(--teal-glow-rgb),.08) 1px,transparent 1px);background-size:30px 30px;pointer-events:none;z-index:0;}
-    .home-banner::after{content:'';position:absolute;bottom:-45%;left:50%;transform:translateX(-50%);width:900px;height:600px;background:radial-gradient(circle,rgba(0,229,168,.10) 0%,transparent 60%);pointer-events:none;z-index:0;}
-    .home-banner-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;}
-    .hb-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--teal);background:var(--teal-dim);border:1px solid var(--teal-border);padding:6px 16px;border-radius:30px;margin-bottom:24px;letter-spacing:.1em;text-transform:uppercase;}
-    .hb-eyebrow::before{content:'';width:6px;height:6px;background:var(--teal);border-radius:50%;animation:blink 1.2s step-end infinite;}
-    .hb-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(2.4rem,5.5vw,4.2rem);font-weight:800;line-height:1.07;letter-spacing:-.03em;color:var(--heading);margin-bottom:22px;max-width:900px;}
-    .hb-hl{background:linear-gradient(135deg,var(--teal-lt),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 18px rgba(var(--teal-glow-rgb),.4));}
-    .hb-sub{font-size:1.1rem;color:var(--soft);line-height:1.7;font-weight:300;max-width:600px;margin-bottom:36px;}
-    .hb-actions{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
-    /* Imagine încărcată din admin (BANNER IMAGE) */
+    /* HOME BANNER — full-width hero animat (HUD stil Stark) */
+    .home-banner{position:relative;width:100%;padding:84px 0;overflow:hidden;border-bottom:1px solid var(--border);background:radial-gradient(90% 120% at 78% 0%,rgba(43,229,255,.13),transparent 55%),radial-gradient(70% 120% at 0% 100%,rgba(0,229,168,.07),transparent 60%),linear-gradient(180deg,#0A1118 0%,var(--bg) 80%);}
+    .home-banner::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(43,229,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(43,229,255,.045) 1px,transparent 1px);background-size:46px 46px;pointer-events:none;z-index:0;-webkit-mask-image:radial-gradient(circle at 75% 45%,#000,transparent 78%);mask-image:radial-gradient(circle at 75% 45%,#000,transparent 78%);}
+    .home-banner::after{content:'';position:absolute;top:50%;right:8%;transform:translateY(-50%);width:560px;height:560px;background:radial-gradient(circle,rgba(43,229,255,.12) 0%,transparent 62%);pointer-events:none;z-index:0;}
+    .home-banner-inner{position:relative;z-index:1;display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;}
+    .hb-text{text-align:left;}
+    .hb-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:.75rem;color:#2BE5FF;background:rgba(43,229,255,.08);border:1px solid rgba(43,229,255,.35);padding:6px 16px;border-radius:30px;margin-bottom:24px;letter-spacing:.12em;text-transform:uppercase;}
+    .hb-eyebrow::before{content:'';width:6px;height:6px;background:#2BE5FF;border-radius:50%;box-shadow:0 0 8px #2BE5FF;animation:blink 1.2s step-end infinite;}
+    .hb-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(2.3rem,4.6vw,3.9rem);font-weight:800;line-height:1.07;letter-spacing:-.03em;color:var(--heading);margin-bottom:22px;}
+    .hb-hl{background:linear-gradient(135deg,#8af3ff,#2BE5FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 18px rgba(43,229,255,.45));}
+    .hb-sub{font-size:1.1rem;color:var(--soft);line-height:1.7;font-weight:300;max-width:520px;margin-bottom:36px;}
+    .hb-actions{display:flex;gap:14px;flex-wrap:wrap;}
+    /* HUD animat */
+    .hb-hud{position:relative;width:100%;max-width:440px;justify-self:center;aspect-ratio:1;}
+    .hb-hud svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 5px rgba(43,229,255,.4));}
+    .hud-c{stroke:#2BE5FF;fill:none;}
+    @keyframes hud-spin{to{transform:rotate(360deg)}}
+    @keyframes hud-spin-rev{to{transform:rotate(-360deg)}}
+    @keyframes hud-pulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+    @keyframes hud-dash{to{stroke-dashoffset:-1000}}
+    .hud-spin,.hud-spin-rev,.hud-spin-fast,.hud-core{transform-origin:200px 200px;transform-box:fill-box;}
+    .hb-hud .hud-spin{transform-origin:200px 200px;animation:hud-spin 26s linear infinite;}
+    .hb-hud .hud-spin-rev{transform-origin:200px 200px;animation:hud-spin-rev 19s linear infinite;}
+    .hb-hud .hud-spin-fast{transform-origin:200px 200px;animation:hud-spin 9s linear infinite;}
+    .hb-hud .hud-core{transform-origin:200px 200px;animation:hud-pulse 3.2s ease-in-out infinite;}
+    .hb-hud .hud-dash{stroke-dasharray:3 13;animation:hud-dash 40s linear infinite;}
+    /* Imagine încărcată din admin (BANNER IMAGE) — suprascrie HUD-ul */
     .hb-img{display:none;}
-    /* Mod imagine + text: imaginea acoperă fundalul, text deasupra cu scrim */
+    .home-banner.has-image .hb-hud{display:none;}
+    .home-banner.has-image .home-banner-inner{grid-template-columns:1fr;text-align:center;}
+    .home-banner.has-image .hb-text{text-align:center;}
+    .home-banner.has-image .hb-actions{justify-content:center;}
     .home-banner.has-image .hb-img{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
-    .home-banner.has-image::before{background:linear-gradient(180deg,rgba(11,15,20,.55),rgba(11,15,20,.78));background-image:none;opacity:1;}
+    .home-banner.has-image::before{background:linear-gradient(180deg,rgba(11,15,20,.55),rgba(11,15,20,.78));background-image:none;-webkit-mask-image:none;mask-image:none;opacity:1;}
     .home-banner.has-image::after{display:none;}
-    /* Mod imagine-only (text dezactivat din admin): banner = imaginea full-width la dimensiunea ei */
     .home-banner.no-text{padding:0;}
     .home-banner.no-text .hb-img{display:block;position:static;width:100%;height:auto;}
     .home-banner.no-text .home-banner-inner{display:none;}
     .home-banner.no-text::before,.home-banner.no-text::after{display:none;}
-    @media(max-width:768px){.home-banner{padding:64px 0 56px;}.hb-actions{flex-direction:column;align-items:center;width:100%;}.hb-actions .btn-primary,.hb-actions .btn-ghost{width:100%;max-width:320px;justify-content:center;}}
+    @media(max-width:860px){.home-banner-inner{grid-template-columns:1fr;text-align:center;gap:32px;}.hb-text{text-align:center;display:flex;flex-direction:column;align-items:center;}.hb-actions{justify-content:center;}.hb-hud{max-width:300px;}}
+    @media(max-width:768px){.home-banner{padding:52px 0;}.hb-actions{flex-direction:column;align-items:center;width:100%;}.hb-actions .btn-primary,.hb-actions .btn-ghost{width:100%;max-width:320px;justify-content:center;}}
+    @media(prefers-reduced-motion:reduce){.hb-hud .hud-spin,.hb-hud .hud-spin-rev,.hb-hud .hud-spin-fast,.hb-hud .hud-core,.hb-hud .hud-dash{animation:none;}}
 
     /* CAROUSEL */
     .banner-carousel{position:relative;overflow:hidden;background:var(--bg);border-bottom:1px solid var(--border);}
@@ -530,12 +549,45 @@
 <section class="home-banner" id="homeBanner" aria-labelledby="hb-title" data-section="hero">
   <img class="hb-img" id="hbImg" alt="" aria-hidden="true">
   <div class="container home-banner-inner">
-    <span class="hb-eyebrow">UK Web Design Studio</span>
-    <h1 id="hb-title" class="hb-title">Launch your business online with a <span class="hb-hl">modern website</span></h1>
-    <p class="hb-sub">Fast, professional websites that attract customers and grow your business across the UK — fixed price, delivered in 14 days.</p>
-    <div class="hb-actions">
-      <a href="#contact" class="btn-primary">Get a free quote →</a>
-      <a href="#portfolio" class="btn-ghost">View our work</a>
+    <div class="hb-text">
+      <span class="hb-eyebrow">● System Online · UK Web Design</span>
+      <h1 id="hb-title" class="hb-title">Launch your business online with a <span class="hb-hl">modern website</span></h1>
+      <p class="hb-sub">Fast, professional websites that attract customers and grow your business across the UK — fixed price, delivered in 14 days.</p>
+      <div class="hb-actions">
+        <a href="#contact" class="btn-primary">Get a free quote →</a>
+        <a href="#portfolio" class="btn-ghost">View our work</a>
+      </div>
+    </div>
+    <div class="hb-hud" aria-hidden="true">
+      <svg viewBox="0 0 400 400" role="presentation">
+        <defs>
+          <radialGradient id="hudCore" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#d7fbff"/><stop offset="40%" stop-color="#2BE5FF"/><stop offset="100%" stop-color="#0a5e6e"/>
+          </radialGradient>
+        </defs>
+        <circle class="hud-c" cx="200" cy="200" r="194" stroke-width="1" opacity=".22"/>
+        <line class="hud-c" x1="200" y1="14" x2="200" y2="386" stroke-width="1" opacity=".12"/>
+        <line class="hud-c" x1="14" y1="200" x2="386" y2="200" stroke-width="1" opacity=".12"/>
+        <g class="hud-spin">
+          <circle class="hud-c" cx="200" cy="200" r="178" stroke-width="1" opacity=".4"/>
+          <circle class="hud-c hud-dash" cx="200" cy="200" r="170" stroke-width="7" opacity=".55"/>
+        </g>
+        <g class="hud-spin-rev">
+          <circle class="hud-c" cx="200" cy="200" r="150" stroke-width="2" stroke-dasharray="170 70 95 70" opacity=".85"/>
+          <circle class="hud-c" cx="200" cy="200" r="136" stroke-width="1" stroke-dasharray="9 9" opacity=".4"/>
+        </g>
+        <g class="hud-spin-fast">
+          <circle class="hud-c" cx="200" cy="200" r="112" stroke-width="3" stroke-dasharray="120 320" opacity=".95"/>
+          <circle class="hud-c" cx="200" cy="200" r="96" stroke-width="1" stroke-dasharray="4 11" opacity=".5"/>
+        </g>
+        <g class="hud-spin-rev">
+          <circle class="hud-c" cx="200" cy="200" r="70" stroke-width="6" stroke-dasharray="55 32" opacity=".7"/>
+        </g>
+        <g class="hud-core">
+          <circle class="hud-c" cx="200" cy="200" r="52" stroke-width="2" opacity=".85"/>
+          <circle cx="200" cy="200" r="44" fill="url(#hudCore)" opacity=".92"/>
+        </g>
+      </svg>
     </div>
   </div>
 </section>
@@ -1505,7 +1557,6 @@ document.getElementById('bookingForm').addEventListener('submit', async function
         function applyBanner() {
           var mob = window.innerWidth <= 768;
           var src = (mob && d.heroImageMobile) ? d.heroImageMobile : (d.heroImage || '');
-          if(!src) src = '/hero-banner.jpg'; /* TEMP test — se scoate după validare */
           if(src) {
             hbImg.src = src;
             if(d.heroPosition) hbImg.style.objectPosition = d.heroPosition;
