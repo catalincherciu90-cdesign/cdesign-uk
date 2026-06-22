@@ -1944,15 +1944,17 @@ window.addEventListener('load', function() {
   document.querySelectorAll('.hud-node').forEach(function(n){
     n.addEventListener('click', function(){ open(n.getAttribute('data-panel')); });
   });
-  // meniul (desktop + burger mobil) deschide aceleași panouri
-  var NAV_PANEL = {'#servicii':'panel-services','#portofoliu':'panel-portfolio','#proces':'panel-process','#contact':'panel-contact'};
+  // meniul (desktop + burger mobil + footer) deschide aceleași panouri
+  var NAV_PANEL = {'#servicii':'panel-services','#portofoliu':'panel-portfolio','#testimoniale':'panel-portfolio','#proces':'panel-process','#contact':'panel-contact','#despre-noi':'panel-about'};
   var mobMenu = document.getElementById('mobileMenu');
   var hamBtn  = document.getElementById('hamburger');
-  document.querySelectorAll('nav a[href^="#"], #mobileMenu a[href^="#"]').forEach(function(a){
+  document.querySelectorAll('nav a[href^="#"], #mobileMenu a[href^="#"], footer a[href^="#"]').forEach(function(a){
     var pid = NAV_PANEL[a.getAttribute('href')];
     if(pid) a.addEventListener('click', function(e){
       e.preventDefault();
       if(mobMenu && mobMenu.classList.contains('open')){ mobMenu.classList.remove('open'); if(hamBtn) hamBtn.setAttribute('aria-expanded','false'); }
+      var ftr = document.getElementById('siteFooter');
+      if(ftr && ftr.classList.contains('open')){ ftr.classList.remove('open'); var fhB=document.getElementById('footerHandle'); if(fhB) fhB.setAttribute('aria-expanded','false'); }
       if(openPanel) close();
       open(pid);
     });
