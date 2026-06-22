@@ -1886,11 +1886,18 @@ window.addEventListener('load', function() {
   document.querySelectorAll('.hud-node').forEach(function(n){
     n.addEventListener('click', function(){ open(n.getAttribute('data-panel')); });
   });
-  // meniul deschide aceleași panouri
+  // meniul (desktop + burger mobil) deschide aceleași panouri
   var NAV_PANEL = {'#servicii':'panel-services','#portofoliu':'panel-portfolio','#proces':'panel-process','#contact':'panel-contact'};
-  document.querySelectorAll('nav a[href^="#"]').forEach(function(a){
+  var mobMenu = document.getElementById('mobileMenu');
+  var hamBtn  = document.getElementById('hamburger');
+  document.querySelectorAll('nav a[href^="#"], #mobileMenu a[href^="#"]').forEach(function(a){
     var pid = NAV_PANEL[a.getAttribute('href')];
-    if(pid) a.addEventListener('click', function(e){ e.preventDefault(); if(openPanel) close(); open(pid); });
+    if(pid) a.addEventListener('click', function(e){
+      e.preventDefault();
+      if(mobMenu && mobMenu.classList.contains('open')){ mobMenu.classList.remove('open'); if(hamBtn) hamBtn.setAttribute('aria-expanded','false'); }
+      if(openPanel) close();
+      open(pid);
+    });
   });
   // delegare: orice [data-close] (inclusiv ✕ din header) închide panoul
   document.addEventListener('click', function(e){
