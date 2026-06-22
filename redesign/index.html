@@ -282,7 +282,10 @@
     .hud-node .n-hi{stroke:#2BE5FF;opacity:0;transition:opacity .25s;}
     .hud-node .nlabel{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;pointer-events:none;z-index:2;}
     @media(prefers-reduced-motion:reduce){.hud-node::before,.hud-node::after{animation:none;}}
-    .hud-node .nicon{font-size:clamp(1.2rem,2.6vw,1.7rem);line-height:1;filter:drop-shadow(0 0 7px rgba(43,229,255,.6));}
+    /* iconițe holografice: siluetă cyan translucidă + glow + aberație + flicker */
+    .hud-node .nicon{font-size:clamp(1.2rem,2.6vw,1.7rem);line-height:1;color:transparent;opacity:.9;text-shadow:0 0 0 #b9f6ff,-1.4px 0 0 rgba(43,229,255,.5),1.4px 0 0 rgba(124,92,255,.45),0 0 12px rgba(43,229,255,.9),0 0 26px rgba(43,229,255,.55);animation:holo-flicker 5s infinite steps(1);}
+    @keyframes holo-flicker{0%,89%,100%{opacity:.9}90%{opacity:.55}91%{opacity:.9}94%{opacity:.65}95%{opacity:.92}97%{opacity:.78}}
+    @media(prefers-reduced-motion:reduce){.hud-node .nicon{animation:none;}}
     .hud-node .ntext{font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:#d6eef3;}
     .hud-node:hover,.hud-node:focus-visible{transform:translate(-50%,-50%) scale(1.07);outline:none;}
     .hud-node:hover .n-hi,.hud-node:focus-visible .n-hi{opacity:1;}
