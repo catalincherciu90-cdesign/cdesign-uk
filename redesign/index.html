@@ -180,6 +180,17 @@
     .hb-hl{background:linear-gradient(135deg,var(--teal-lt),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 18px rgba(var(--teal-glow-rgb),.4));}
     .hb-sub{font-size:1.1rem;color:var(--soft);line-height:1.7;font-weight:300;max-width:600px;margin-bottom:36px;}
     .hb-actions{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
+    /* Imagine încărcată din admin (BANNER IMAGE) */
+    .hb-img{display:none;}
+    /* Mod imagine + text: imaginea acoperă fundalul, text deasupra cu scrim */
+    .home-banner.has-image .hb-img{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
+    .home-banner.has-image::before{background:linear-gradient(180deg,rgba(11,15,20,.55),rgba(11,15,20,.78));background-image:none;opacity:1;}
+    .home-banner.has-image::after{display:none;}
+    /* Mod imagine-only (text dezactivat din admin): banner = imaginea full-width la dimensiunea ei */
+    .home-banner.no-text{padding:0;}
+    .home-banner.no-text .hb-img{display:block;position:static;width:100%;height:auto;}
+    .home-banner.no-text .home-banner-inner{display:none;}
+    .home-banner.no-text::before,.home-banner.no-text::after{display:none;}
     @media(max-width:768px){.home-banner{padding:64px 0 56px;}.hb-actions{flex-direction:column;align-items:center;width:100%;}.hb-actions .btn-primary,.hb-actions .btn-ghost{width:100%;max-width:320px;justify-content:center;}}
 
     /* CAROUSEL */
@@ -516,7 +527,8 @@
 <main style="display:flex;flex-direction:column;">
 
 <!-- HOME BANNER (full-width) -->
-<section class="home-banner" aria-labelledby="hb-title" data-section="hero">
+<section class="home-banner" id="homeBanner" aria-labelledby="hb-title" data-section="hero">
+  <img class="hb-img" id="hbImg" alt="" aria-hidden="true">
   <div class="container home-banner-inner">
     <span class="hb-eyebrow">UK Web Design Studio</span>
     <h1 id="hb-title" class="hb-title">Launch your business online with a <span class="hb-hl">modern website</span></h1>
@@ -1486,6 +1498,31 @@ document.getElementById('bookingForm').addEventListener('submit', async function
     .then(function(r){return r.ok?r.json():null;})
     .then(function(d){
       if(!d) return;
+      // Banner image (încărcat din admin → BANNER IMAGE)
+      var banner = document.getElementById('homeBanner');
+      var hbImg  = document.getElementById('hbImg');
+      if(banner && hbImg) {
+        function applyBanner() {
+          var mob = window.innerWidth <= 768;
+          var src = (mob && d.heroImageMobile) ? d.heroImageMobile : (d.heroImage || '');
+          if(src) {
+            hbImg.src = src;
+            if(d.heroPosition) hbImg.style.objectPosition = d.heroPosition;
+            banner.classList.add('has-image');
+            banner.classList.toggle('no-text', d.heroText === false);
+          } else {
+            banner.classList.remove('has-image','no-text');
+            hbImg.removeAttribute('src');
+          }
+        }
+        applyBanner();
+        var lastW = window.innerWidth;
+        window.addEventListener('resize', throttle(function(){
+          var nowW = window.innerWidth;
+          if((lastW > 768) !== (nowW > 768)) applyBanner();
+          lastW = nowW;
+        }, 200), { passive: true });
+      }
       // Headings
       var hMap = {
         'servicesTitle': 'servicii-heading',
