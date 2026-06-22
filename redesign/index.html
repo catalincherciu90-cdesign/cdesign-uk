@@ -1756,6 +1756,35 @@ window.addEventListener('load', function() {
 <!-- HUD console: open/close full-screen panels -->
 <script>
 (function(){
+  // 1. Mută secțiunile reale ale paginii în panourile HUD (fără duplicare HTML)
+  var SECTION_MAP = {
+    'panel-services':  ['.dss', '#servicii', '.ind-bg'],
+    'panel-portfolio': ['#portofoliu', '#testimoniale'],
+    'panel-process':   ['#proces'],
+    'panel-contact':   ['#despre-noi', '#contact']
+  };
+  Object.keys(SECTION_MAP).forEach(function(pid){
+    var panel = document.getElementById(pid); if(!panel) return;
+    var body  = panel.querySelector('.hud-panel-body');
+    var inner = panel.querySelector('.hud-panel-inner');
+    if(!body || !inner) return;
+    var moved = false;
+    SECTION_MAP[pid].forEach(function(sel){
+      var el = document.querySelector(sel);
+      if(el){ if(!moved){ inner.innerHTML=''; moved=true; } inner.appendChild(el); }
+    });
+    if(moved){
+      body.style.padding = '0';
+      inner.style.maxWidth = 'none';
+      inner.style.padding = '0';
+      // forțează conținutul reveal să fie vizibil (observerul nu rulează în panou)
+      panel.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('visible'); });
+    }
+  });
+  // Caruselul promoțional nu mai e necesar pe homepage-ul HUD
+  var car = document.getElementById('bannerCarousel'); if(car) car.style.display='none';
+
+  // 2. Open / close panouri full-screen
   var openPanel=null, lastFocus=null;
   function open(id){
     var p=document.getElementById(id); if(!p) return;
@@ -1777,8 +1806,16 @@ window.addEventListener('load', function() {
   document.querySelectorAll('.hud-node').forEach(function(n){
     n.addEventListener('click', function(){ open(n.getAttribute('data-panel')); });
   });
-  document.querySelectorAll('.hud-panel [data-close]').forEach(function(b){
-    b.addEventListener('click', function(){ close(); });
+  // meniul deschide aceleași panouri
+  var NAV_PANEL = {'#servicii':'panel-services','#portofoliu':'panel-portfolio','#proces':'panel-process','#contact':'panel-contact'};
+  document.querySelectorAll('nav a[href^="#"]').forEach(function(a){
+    var pid = NAV_PANEL[a.getAttribute('href')];
+    if(pid) a.addEventListener('click', function(e){ e.preventDefault(); if(openPanel) close(); open(pid); });
+  });
+  // delegare: orice [data-close] (inclusiv ✕ din header) închide panoul
+  document.addEventListener('click', function(e){
+    var t = e.target.closest ? e.target.closest('[data-close]') : null;
+    if(t){ close(); }
   });
   document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
 })();
