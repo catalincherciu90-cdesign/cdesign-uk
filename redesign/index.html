@@ -169,6 +169,19 @@
     .btn-ghost{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);color:#fff;font-size:1rem;padding:14px 28px;border-radius:8px;border:1px solid rgba(255,255,255,.35);cursor:pointer;transition:border-color .2s,background .2s;text-decoration:none;font-family:'Inter',sans-serif;}
     .btn-ghost:hover{border-color:rgba(255,255,255,.7);background:rgba(255,255,255,.15)}
 
+    /* HOME BANNER — full-width hero sub meniu */
+    .home-banner{position:relative;width:100%;padding:104px 0 92px;overflow:hidden;text-align:center;border-bottom:1px solid var(--border);background:radial-gradient(80% 130% at 50% -10%,rgba(91,140,255,.16),transparent 60%),linear-gradient(180deg,#0E141C 0%,var(--bg) 72%);}
+    .home-banner::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(var(--teal-glow-rgb),.08) 1px,transparent 1px);background-size:30px 30px;pointer-events:none;z-index:0;}
+    .home-banner::after{content:'';position:absolute;bottom:-45%;left:50%;transform:translateX(-50%);width:900px;height:600px;background:radial-gradient(circle,rgba(0,229,168,.10) 0%,transparent 60%);pointer-events:none;z-index:0;}
+    .home-banner-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;}
+    .hb-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--teal);background:var(--teal-dim);border:1px solid var(--teal-border);padding:6px 16px;border-radius:30px;margin-bottom:24px;letter-spacing:.1em;text-transform:uppercase;}
+    .hb-eyebrow::before{content:'';width:6px;height:6px;background:var(--teal);border-radius:50%;animation:blink 1.2s step-end infinite;}
+    .hb-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(2.4rem,5.5vw,4.2rem);font-weight:800;line-height:1.07;letter-spacing:-.03em;color:var(--heading);margin-bottom:22px;max-width:900px;}
+    .hb-hl{background:linear-gradient(135deg,var(--teal-lt),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 18px rgba(var(--teal-glow-rgb),.4));}
+    .hb-sub{font-size:1.1rem;color:var(--soft);line-height:1.7;font-weight:300;max-width:600px;margin-bottom:36px;}
+    .hb-actions{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
+    @media(max-width:768px){.home-banner{padding:64px 0 56px;}.hb-actions{flex-direction:column;align-items:center;width:100%;}.hb-actions .btn-primary,.hb-actions .btn-ghost{width:100%;max-width:320px;justify-content:center;}}
+
     /* CAROUSEL */
     .banner-carousel{position:relative;overflow:hidden;background:var(--bg);border-bottom:1px solid var(--border);}
     .banner-track{display:flex;transition:transform .55s cubic-bezier(.4,0,.2,1);will-change:transform;}
@@ -501,6 +514,19 @@
 </div>
 
 <main style="display:flex;flex-direction:column;">
+
+<!-- HOME BANNER (full-width) -->
+<section class="home-banner" aria-labelledby="hb-title" data-section="hero">
+  <div class="container home-banner-inner">
+    <span class="hb-eyebrow">UK Web Design Studio</span>
+    <h1 id="hb-title" class="hb-title">Launch your business online with a <span class="hb-hl">modern website</span></h1>
+    <p class="hb-sub">Fast, professional websites that attract customers and grow your business across the UK — fixed price, delivered in 14 days.</p>
+    <div class="hb-actions">
+      <a href="#contact" class="btn-primary">Get a free quote →</a>
+      <a href="#portfolio" class="btn-ghost">View our work</a>
+    </div>
+  </div>
+</section>
 
 <!-- BANNER CAROUSEL -->
 <div class="banner-carousel" id="bannerCarousel" aria-label="Promotional banners" data-section="carousel">
