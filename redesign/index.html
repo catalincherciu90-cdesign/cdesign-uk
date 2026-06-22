@@ -282,9 +282,10 @@
     .hud-node .n-hi{stroke:#2BE5FF;opacity:0;transition:opacity .25s;}
     .hud-node .nlabel{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;pointer-events:none;z-index:2;}
     @media(prefers-reduced-motion:reduce){.hud-node::before,.hud-node::after{animation:none;}}
-    /* iconițe holografice: siluetă cyan translucidă + glow + aberație + flicker */
-    .hud-node .nicon{font-size:clamp(1.2rem,2.6vw,1.7rem);line-height:1;color:transparent;opacity:.9;text-shadow:0 0 0 #b9f6ff,-1.4px 0 0 rgba(43,229,255,.5),1.4px 0 0 rgba(124,92,255,.45),0 0 12px rgba(43,229,255,.9),0 0 26px rgba(43,229,255,.55);animation:holo-flicker 5s infinite steps(1);}
-    @keyframes holo-flicker{0%,89%,100%{opacity:.9}90%{opacity:.55}91%{opacity:.9}94%{opacity:.65}95%{opacity:.92}97%{opacity:.78}}
+    /* iconițe holografice SVG: line-icon cyan + glow + flicker */
+    .hud-node .nicon{display:flex;align-items:center;justify-content:center;line-height:1;color:#bdf6ff;opacity:.92;animation:holo-flicker 5s infinite steps(1);}
+    .hud-node .nicon svg{width:clamp(24px,3.6vw,40px);height:auto;display:block;filter:drop-shadow(0 0 6px rgba(43,229,255,.95)) drop-shadow(0 0 15px rgba(43,229,255,.5));}
+    @keyframes holo-flicker{0%,89%,100%{opacity:.92}90%{opacity:.55}91%{opacity:.92}94%{opacity:.65}95%{opacity:.94}97%{opacity:.78}}
     @media(prefers-reduced-motion:reduce){.hud-node .nicon{animation:none;}}
     .hud-node .ntext{font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:#d6eef3;}
     .hud-node:hover,.hud-node:focus-visible{transform:translate(-50%,-50%) scale(1.07);outline:none;}
@@ -699,27 +700,27 @@
       </div>
       <button type="button" class="hud-node n1" data-panel="panel-services" aria-label="Open Services">
         <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="n-fill" cx="60" cy="60" r="52"/><circle class="hud-c" cx="60" cy="60" r="52" stroke-width="1.5" opacity=".45"/><circle class="hud-c hud-spin" cx="60" cy="60" r="44" stroke-width="3" stroke-dasharray="50 16 30 16" opacity=".8"/><circle class="hud-c n-hi" cx="60" cy="60" r="57" stroke-width="2"/></svg>
-        <span class="nlabel"><span class="nicon">🧩</span><span class="ntext">Services</span></span>
+        <span class="nlabel"><span class="nicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 9v12"/></svg></span><span class="ntext">Services</span></span>
       </button>
       <button type="button" class="hud-node n2" data-panel="panel-portfolio" aria-label="Open Portfolio">
         <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="n-fill" cx="60" cy="60" r="52"/><circle class="hud-c" cx="60" cy="60" r="52" stroke-width="1.5" opacity=".45"/><circle class="hud-c hud-spin" cx="60" cy="60" r="44" stroke-width="3" stroke-dasharray="50 16 30 16" opacity=".8"/><circle class="hud-c n-hi" cx="60" cy="60" r="57" stroke-width="2"/></svg>
-        <span class="nlabel"><span class="nicon">🖼️</span><span class="ntext">Portfolio</span></span>
+        <span class="nlabel"><span class="nicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15l-5-5L5 21"/></svg></span><span class="ntext">Portfolio</span></span>
       </button>
       <button type="button" class="hud-node n3" data-panel="panel-pricing" aria-label="Open Pricing">
         <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="n-fill" cx="60" cy="60" r="52"/><circle class="hud-c" cx="60" cy="60" r="52" stroke-width="1.5" opacity=".45"/><circle class="hud-c hud-spin" cx="60" cy="60" r="44" stroke-width="3" stroke-dasharray="50 16 30 16" opacity=".8"/><circle class="hud-c n-hi" cx="60" cy="60" r="57" stroke-width="2"/></svg>
-        <span class="nlabel"><span class="nicon">💷</span><span class="ntext">Pricing</span></span>
+        <span class="nlabel"><span class="nicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L2 12V2h10l8.6 8.6a2 2 0 0 1 0 2.8z"/><circle cx="7" cy="7" r="1.3"/></svg></span><span class="ntext">Pricing</span></span>
       </button>
       <button type="button" class="hud-node n4" data-panel="panel-contact" aria-label="Open Contact">
         <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="n-fill" cx="60" cy="60" r="52"/><circle class="hud-c" cx="60" cy="60" r="52" stroke-width="1.5" opacity=".45"/><circle class="hud-c hud-spin" cx="60" cy="60" r="44" stroke-width="3" stroke-dasharray="50 16 30 16" opacity=".8"/><circle class="hud-c n-hi" cx="60" cy="60" r="57" stroke-width="2"/></svg>
-        <span class="nlabel"><span class="nicon">📞</span><span class="ntext">Contact</span></span>
+        <span class="nlabel"><span class="nicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg></span><span class="ntext">Contact</span></span>
       </button>
       <button type="button" class="hud-node n5" data-panel="panel-process" aria-label="Open How We Work">
         <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="n-fill" cx="60" cy="60" r="52"/><circle class="hud-c" cx="60" cy="60" r="52" stroke-width="1.5" opacity=".45"/><circle class="hud-c hud-spin" cx="60" cy="60" r="44" stroke-width="3" stroke-dasharray="50 16 30 16" opacity=".8"/><circle class="hud-c n-hi" cx="60" cy="60" r="57" stroke-width="2"/></svg>
-        <span class="nlabel"><span class="nicon">⚙️</span><span class="ntext">Process</span></span>
+        <span class="nlabel"><span class="nicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg></span><span class="ntext">Process</span></span>
       </button>
       <button type="button" class="hud-node n6" data-panel="panel-blog" aria-label="Open Blog">
         <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="n-fill" cx="60" cy="60" r="52"/><circle class="hud-c" cx="60" cy="60" r="52" stroke-width="1.5" opacity=".45"/><circle class="hud-c hud-spin" cx="60" cy="60" r="44" stroke-width="3" stroke-dasharray="50 16 30 16" opacity=".8"/><circle class="hud-c n-hi" cx="60" cy="60" r="57" stroke-width="2"/></svg>
-        <span class="nlabel"><span class="nicon">📰</span><span class="ntext">Blog</span></span>
+        <span class="nlabel"><span class="nicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6M8 9h2"/></svg></span><span class="ntext">Blog</span></span>
       </button>
     </div>
   </div>
