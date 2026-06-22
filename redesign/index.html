@@ -224,6 +224,13 @@
     .home-banner.is-console{min-height:calc(100vh - 68px);display:flex;align-items:center;padding:24px 0;}
     /* homepage HUD: scoate banner-ul promoțional și strip-ul startup; footer-ul rămâne vizibil */
     #bannerCarousel,[data-section="startup"]{display:none!important;}
+    /* footer ca drawer glisant (apare la apăsarea mânerului) */
+    body>footer{position:fixed;left:0;right:0;bottom:0;z-index:2500;transform:translateY(100%);transition:transform .45s cubic-bezier(.4,0,.2,1);max-height:88vh;overflow-y:auto;background:linear-gradient(180deg,#070B11,#04060A);box-shadow:0 -24px 70px rgba(0,0,0,.7);border-top:1px solid rgba(43,229,255,.25);}
+    body>footer.open{transform:translateY(0);}
+    .footer-handle{position:absolute;top:-37px;left:50%;transform:translateX(-50%);display:inline-flex;align-items:center;gap:8px;background:linear-gradient(180deg,#0a141c,#070b11);border:1px solid rgba(43,229,255,.4);border-bottom:none;border-radius:12px 12px 0 0;padding:10px 24px;color:#2BE5FF;font-family:'Share Tech Mono',monospace;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;white-space:nowrap;box-shadow:0 -8px 30px rgba(43,229,255,.12);}
+    .footer-handle .fh-arrow{transition:transform .35s;}
+    body>footer.open .footer-handle .fh-arrow{transform:rotate(180deg);}
+    .footer-handle:hover{color:#8af3ff;border-color:rgba(43,229,255,.7);}
     .hud-stage{position:relative;width:min(90vw,calc(100vh - 120px));max-width:1040px;aspect-ratio:1;margin:0 auto;z-index:1;}
     .hud-stage>svg.hud-grid-ring{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;}
     .hud-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:32%;aspect-ratio:1;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle,rgba(43,229,255,.10),transparent 70%);}
@@ -1227,7 +1234,8 @@
   </a>
 </div>
 
-<footer>
+<footer id="siteFooter">
+  <button type="button" class="footer-handle" id="footerHandle" aria-expanded="false" aria-controls="siteFooter"><span class="fh-arrow">▲</span> Contact &amp; links</button>
   <div class="container">
     <div class="footer-grid">
       <div>
@@ -1829,6 +1837,19 @@ window.addEventListener('load', function() {
     if(t){ close(); }
   });
   document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
+
+  // Footer drawer glisant
+  var fh = document.getElementById('footerHandle');
+  var ft = document.getElementById('siteFooter');
+  if(fh && ft){
+    fh.addEventListener('click', function(){
+      var open = ft.classList.toggle('open');
+      fh.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('keydown', function(e){
+      if(e.key==='Escape' && ft.classList.contains('open')){ ft.classList.remove('open'); fh.setAttribute('aria-expanded','false'); }
+    });
+  }
 })();
 </script>
 </body>
