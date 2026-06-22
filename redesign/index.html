@@ -1505,6 +1505,7 @@ document.getElementById('bookingForm').addEventListener('submit', async function
         function applyBanner() {
           var mob = window.innerWidth <= 768;
           var src = (mob && d.heroImageMobile) ? d.heroImageMobile : (d.heroImage || '');
+          if(!src) src = '/hero-banner.jpg'; /* TEMP test — se scoate după validare */
           if(src) {
             hbImg.src = src;
             if(d.heroPosition) hbImg.style.objectPosition = d.heroPosition;
