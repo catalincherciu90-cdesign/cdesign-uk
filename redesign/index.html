@@ -237,6 +237,22 @@
     .hud-center .hc-core{position:absolute;inset:14%;border-radius:50%;background:radial-gradient(circle,rgba(43,229,255,.20),transparent 72%);}
     .hud-center .hc-brand{position:relative;font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:clamp(1rem,2.3vw,1.5rem);color:var(--heading);letter-spacing:-.02em;}
     .hud-center .hc-tag{position:relative;font-family:'Share Tech Mono',monospace;font-size:.58rem;letter-spacing:.2em;color:#2BE5FF;text-transform:uppercase;margin-top:5px;}
+    .hud-center .hc-telem{position:relative;font-family:'Share Tech Mono',monospace;font-size:.52rem;letter-spacing:.1em;color:#2BE5FF;opacity:.75;margin-top:8px;white-space:nowrap;}
+    /* inelele stage chiar se rotesc acum */
+    .hud-grid-ring .hud-spin{animation:hud-spin 40s linear infinite;transform-box:fill-box;transform-origin:center;}
+    /* radar care baleiază */
+    .hud-radar{position:absolute;inset:5%;border-radius:50%;z-index:0;pointer-events:none;background:conic-gradient(from 0deg,rgba(43,229,255,.22),rgba(43,229,255,.04) 16%,transparent 32%,transparent 100%);-webkit-mask:radial-gradient(circle,transparent 18%,#000 19%,#000 99%,transparent);mask:radial-gradient(circle,transparent 18%,#000 19%,#000 99%,transparent);animation:hud-spin 7s linear infinite;opacity:.6;}
+    /* inele care emit din core */
+    .hud-pulse{position:absolute;top:50%;left:50%;width:30%;aspect-ratio:1;border:1px solid rgba(43,229,255,.5);border-radius:50%;transform:translate(-50%,-50%) scale(.4);opacity:0;pointer-events:none;z-index:0;animation:hud-emit 4.2s ease-out infinite;}
+    .hud-pulse.p2{animation-delay:1.4s}.hud-pulse.p3{animation-delay:2.8s}
+    @keyframes hud-emit{0%{transform:translate(-50%,-50%) scale(.4);opacity:.7}100%{transform:translate(-50%,-50%) scale(2.5);opacity:0}}
+    /* core pulsant */
+    .hud-center .hc-core{animation:hud-core-glow 3.4s ease-in-out infinite;}
+    @keyframes hud-core-glow{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.12)}}
+    /* mâner footer pulsant ca să fie vizibil */
+    .footer-handle{animation:fh-pulse 2.6s ease-in-out infinite;}
+    @keyframes fh-pulse{0%,100%{box-shadow:0 -6px 22px rgba(43,229,255,.12)}50%{box-shadow:0 -6px 34px rgba(43,229,255,.4)}}
+    @media(prefers-reduced-motion:reduce){.hud-grid-ring .hud-spin,.hud-radar,.hud-pulse,.hud-center .hc-core,.footer-handle{animation:none;}}
     /* node buttons */
     .hud-node{position:absolute;width:26%;aspect-ratio:1;transform:translate(-50%,-50%);background:none;border:none;cursor:pointer;padding:0;color:inherit;transition:transform .25s;}
     .hud-node>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 4px rgba(43,229,255,.35));}
@@ -616,14 +632,28 @@
   <div class="hud-fx" aria-hidden="true"></div>
   <div class="container">
     <div class="hud-stage" role="navigation" aria-label="Explore sections">
+      <div class="hud-radar" aria-hidden="true"></div>
       <svg class="hud-grid-ring" viewBox="0 0 400 400" aria-hidden="true">
+        <g class="hud-c" stroke-width="1" opacity=".16">
+          <line x1="200" y1="200" x2="200" y2="30"/>
+          <line x1="200" y1="200" x2="358" y2="114"/>
+          <line x1="200" y1="200" x2="358" y2="286"/>
+          <line x1="200" y1="200" x2="200" y2="370"/>
+          <line x1="200" y1="200" x2="42" y2="286"/>
+          <line x1="200" y1="200" x2="42" y2="114"/>
+        </g>
         <circle class="hud-c" cx="200" cy="200" r="150" stroke-width="1" opacity=".14"/>
-        <circle class="hud-c hud-spin" cx="200" cy="200" r="150" stroke-width="1" stroke-dasharray="2 12" opacity=".32" style="transform-box:fill-box;transform-origin:center;"/>
+        <circle class="hud-c hud-spin" cx="200" cy="200" r="150" stroke-width="1" stroke-dasharray="2 12" opacity=".32"/>
+        <circle class="hud-c hud-spin" cx="200" cy="200" r="188" stroke-width="1" stroke-dasharray="2 24" opacity=".2" style="animation-duration:60s;"/>
       </svg>
+      <span class="hud-pulse p1" aria-hidden="true"></span>
+      <span class="hud-pulse p2" aria-hidden="true"></span>
+      <span class="hud-pulse p3" aria-hidden="true"></span>
       <div class="hud-center">
         <span class="hc-core"></span>
         <span class="hc-brand">C Design</span>
         <span class="hc-tag">UK Web Studio</span>
+        <span class="hc-telem" id="hcTelem">SYS 98% · NET OK</span>
       </div>
       <button type="button" class="hud-node n1" data-panel="panel-services" aria-label="Open Services">
         <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="n-fill" cx="60" cy="60" r="52"/><circle class="hud-c" cx="60" cy="60" r="52" stroke-width="1.5" opacity=".45"/><circle class="hud-c hud-spin" cx="60" cy="60" r="44" stroke-width="3" stroke-dasharray="50 16 30 16" opacity=".8"/><circle class="hud-c n-hi" cx="60" cy="60" r="57" stroke-width="2"/></svg>
@@ -1849,6 +1879,17 @@ window.addEventListener('load', function() {
     document.addEventListener('keydown', function(e){
       if(e.key==='Escape' && ft.classList.contains('open')){ ft.classList.remove('open'); fh.setAttribute('aria-expanded','false'); }
     });
+  }
+
+  // Telemetrie HUD animată (realism)
+  var tel = document.getElementById('hcTelem');
+  if(tel && !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)){
+    var states = ['NET OK','LINK UP','ONLINE','SECURE','SYNC'];
+    setInterval(function(){
+      var sys = 94 + Math.floor(Math.random()*6);
+      var ms  = 24 + Math.floor(Math.random()*46);
+      tel.textContent = 'SYS '+sys+'% · '+states[Math.floor(Math.random()*states.length)]+' · '+ms+'ms';
+    }, 2400);
   }
 })();
 </script>
