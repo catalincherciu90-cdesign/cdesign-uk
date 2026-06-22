@@ -2111,6 +2111,17 @@ export default {
       return Response.redirect('https://www.cdesigns.uk' + REDIRECTS_301[path], 301);
     }
 
+    // ── REDESIGN PREVIEW (prototip temă dark Midnight) ────────
+    if (path === '/redesign' || path === '/redesign/' || path === '/redesign/index.html') {
+      const assetUrl = new URL(request.url);
+      assetUrl.pathname = '/redesign/index.html';
+      const resp = await env.ASSETS.fetch(new Request(assetUrl.toString(), request));
+      const h = new Headers(resp.headers);
+      Object.entries(SEC_HEADERS).forEach(([k, v]) => h.set(k, v));
+      h.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      return new Response(resp.body, { status: resp.status, headers: h });
+    }
+
     // ── BLOG PUBLIC PAGES ─────────────────────────────────────
 
     if (path === '/blog' || path === '/blog/') {
