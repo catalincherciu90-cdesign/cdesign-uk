@@ -1302,7 +1302,6 @@
         <p class="contact-info-sub reveal">Fill in the form, choose a time that suits you and we'll call you. 30 minutes, no obligation, no pressure.</p>
         <address class="contact-items" style="font-style:normal">
           <div class="c-item reveal"><div class="c-icon" aria-hidden="true">📞</div><div><div style="font-size:.78rem;color:var(--muted);font-family:'Share Tech Mono',monospace;margin-bottom:3px">phone</div><a href="tel:+447312799449" onclick="if(typeof gtag!=='undefined')gtag('event','phone_click',{event_category:'contact'})">+44 7312 799449</a></div></div>
-          <div class="c-item reveal"><div class="c-icon" aria-hidden="true">✉️</div><div><div style="font-size:.78rem;color:var(--muted);font-family:'Share Tech Mono',monospace;margin-bottom:3px">email</div><a href="mailto:office@c-design.ro" onclick="if(typeof gtag!=='undefined')gtag('event','email_click',{event_category:'contact'})">office@c-design.ro</a></div></div>
           <div class="c-item reveal"><div class="c-icon" aria-hidden="true">💬</div><div><div style="font-size:.78rem;color:var(--muted);font-family:'Share Tech Mono',monospace;margin-bottom:3px">whatsapp</div><a href="https://wa.me/447312799449" rel="noopener noreferrer" onclick="if(typeof gtag!=='undefined')gtag('event','whatsapp_click',{event_category:'contact'})">Message us on WhatsApp</a></div></div>
 
           <div class="c-item reveal"><div class="c-icon" aria-hidden="true">⏰</div><div><div style="font-size:.78rem;color:var(--muted);font-family:'Share Tech Mono',monospace;margin-bottom:3px">hours</div><span id="workingHoursLabel">Monday–Friday, 09:00–18:00</span></div></div>
@@ -1314,7 +1313,6 @@
             <div class="f-group"><label class="f-label" for="fname">Full name *</label><input class="f-input" type="text" id="fname" name="name" placeholder="John Smith" required autocomplete="name" onfocus="if(!this.dataset.started){this.dataset.started=1;if(typeof gtag!=='undefined')gtag('event','form_start',{event_category:'contact'});}"></div>
             <div class="f-group"><label class="f-label" for="fphone">Phone *</label><input class="f-input" type="tel" id="fphone" name="phone" placeholder="07XX XXX XXX" required autocomplete="tel"></div>
           </div>
-          <div class="f-group"><label class="f-label" for="femail">Email *</label><input class="f-input" type="email" id="femail" name="email" placeholder="you@your-business.ro" required autocomplete="email"></div>
           <div class="f-row">
             <div class="f-group"><label class="f-label" for="fdate">Preferred date *</label><input class="f-input" type="date" id="fdate" name="date" required></div>
             <div class="f-group">
@@ -1352,9 +1350,9 @@
     <span class="fb-label">+44 7312 799449</span>
     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
   </a>
-  <a href="mailto:office@c-design.ro" class="fb-mail" aria-label="Email" onclick="if(typeof gtag!=='undefined')gtag('event','email_click',{event_category:'contact'})">
-    <span class="fb-label">office@c-design.ro</span>
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+  <a href="https://wa.me/447312799449" class="fb-mail" aria-label="WhatsApp" rel="noopener noreferrer" onclick="if(typeof gtag!=='undefined')gtag('event','whatsapp_click',{event_category:'contact'})">
+    <span class="fb-label">WhatsApp</span>
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.8.8.8-2.7-.2-.3A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.5 6.5 0 0 1-3.2-2.8c-.2-.4.2-.4.6-1.2.1-.1 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.5-.4h-.5a1 1 0 0 0-.7.3c-.3.3-.9.9-.9 2.1s.9 2.4 1 2.6c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.2.7 3 .6.5-.1 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1-.1-.1-.3-.2-.5-.3z"/></svg>
   </a>
 </div>
 
@@ -1370,7 +1368,7 @@
       <div class="footer-col"><h4>Services</h4><ul><li><a href="#servicii">Presentation website</a></li><li><a href="/pachet-startup">Startup Package</a></li><li><a href="#servicii">Website redesign</a></li><li><a href="#servicii">Graphic design</a></li><li><a href="/abonament-lunar">Monthly subscription</a></li></ul></div>
       <div class="footer-col"><h4>Areas</h4><ul><li><a href="/web-design-leeds">Web Design Leeds</a></li><li><a href="/web-design-sheffield">Web Design Sheffield</a></li><li><a href="/web-design-nottingham">Web Design Nottingham</a></li><li><a href="/web-design-derby">Web Design Derby</a></li><li><a href="/web-design-blackburn">Web Design Blackburn</a></li><li><a href="/web-design-preston">Web Design Preston</a></li></ul></div>
       <div class="footer-col"><h4>Company</h4><ul><li><a href="#portofoliu">Portfolio</a></li><li><a href="#testimoniale">Reviews</a></li><li><a href="#proces">How we work</a></li><li><a href="/blog">Blog</a></li></ul></div>
-      <div class="footer-col"><h4>Contact</h4><ul><li><a href="tel:+447312799449" onclick="if(typeof gtag!=='undefined')gtag('event','phone_click',{event_category:'contact'})">+44 7312 799449</a></li><li><a href="mailto:office@c-design.ro" onclick="if(typeof gtag!=='undefined')gtag('event','email_click',{event_category:'contact'})">office@c-design.ro</a></li><li><a href="https://wa.me/447312799449" rel="noopener noreferrer" onclick="if(typeof gtag!=='undefined')gtag('event','whatsapp_click',{event_category:'contact'})">WhatsApp</a></li><li><a href="#contact">Book for free</a></li></ul></div>
+      <div class="footer-col"><h4>Contact</h4><ul><li><a href="tel:+447312799449" onclick="if(typeof gtag!=='undefined')gtag('event','phone_click',{event_category:'contact'})">+44 7312 799449</a></li><li><a href="https://wa.me/447312799449" rel="noopener noreferrer" onclick="if(typeof gtag!=='undefined')gtag('event','whatsapp_click',{event_category:'contact'})">WhatsApp</a></li><li><a href="#contact">Send a message</a></li></ul></div>
     </div>
     <div class="footer-bottom">
       <span>© 2026 C Design · All rights reserved</span>
@@ -1568,10 +1566,9 @@ document.getElementById('bookingForm').addEventListener('submit', async function
   const btn = this.querySelector('.btn-submit');
   const name  = this.querySelector('#fname').value.trim();
   const phone = this.querySelector('#fphone').value.trim();
-  const email = this.querySelector('#femail').value.trim();
   const date  = this.querySelector('#fdate').value;
   const time  = this.querySelector('#ftime').value;
-  if (!name || !phone || !email || !date || !time) {
+  if (!name || !phone || !date || !time) {
     btn.textContent = 'Please fill in all fields marked with * ';
     btn.style.background = '#e05252';
     setTimeout(() => { btn.textContent = 'Book your consultation →'; btn.style.background = ''; }, 3000);
@@ -1580,11 +1577,11 @@ document.getElementById('bookingForm').addEventListener('submit', async function
   btn.textContent = 'Sending...';
   btn.disabled = true;
   try {
-    const res = await fetch('/api/booking', {
+    const res = await fetch('/api/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name, phone, email, date, time,
+        name, phone, date, time,
         service: this.querySelector('#fservice').value,
         message: this.querySelector('#fmsg').value.trim(),
       }),

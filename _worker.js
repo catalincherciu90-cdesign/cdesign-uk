@@ -589,6 +589,33 @@ async function sendBookingNotification(booking, env) {
   } catch {}
 }
 
+async function sendMessageNotification(msg, env) {
+  try {
+    const e = (s) => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const html = `<div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:24px;">
+      <div style="background:#0a1118;border-radius:14px;padding:24px;color:#e8edf2;">
+        <div style="font-size:.8rem;color:#2BE5FF;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">New message · C Design</div>
+        <div style="font-size:1.2rem;font-weight:700;margin-bottom:14px;">${e(msg.name)}</div>
+        <div style="font-size:.95rem;margin-bottom:6px;">📞 ${e(msg.phone)}</div>
+        ${msg.service ? `<div style="font-size:.95rem;margin-bottom:6px;">🧩 ${e(msg.service)}</div>` : ''}
+        ${(msg.date || msg.time) ? `<div style="font-size:.95rem;margin-bottom:6px;">📅 ${e(msg.date)} ${e(msg.time)}</div>` : ''}
+        ${msg.message ? `<div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.12);font-size:.95rem;line-height:1.5;">${e(msg.message)}</div>` : ''}
+        <div style="margin-top:16px;font-size:.78rem;color:#7a8694;">Open the admin → Messages to reply.</div>
+      </div>
+    </div>`;
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY || RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'C Design <notificari@c-design.ro>',
+        to: [env.NOTIFY_EMAIL || NOTIFY_EMAIL],
+        subject: `💬 New message — ${msg.name}`,
+        html,
+      }),
+    });
+  } catch (e) { console.error('sendMessageNotification error:', e); }
+}
+
 const DEFAULT_PROJECTS = [
   { id: 'p1', emoji: '🚗', tag: 'Auto', title: 'Vehicle Recovery Teleorman', description: 'Presentation website with coverage areas: Dâmbovița, Ilfov, Bucharest, Argeș, Giurgiu.', problema: 'The client was invisible online — all customers came exclusively through word of mouth.', solutie: 'Fast presentation website with separate pages per county, optimised for local SEO.', rezultat: 'First online order within 3 days of launch. Organic traffic +180% in 2 months.', order: 0 },
   { id: 'p2', emoji: '🏭', tag: 'Authorised Dealer', title: 'Authorised Lindab Dealer', description: 'Professional presentation with product catalogue and integrated contact details.', problema: 'Old website, not optimised for mobile — 70% of visitors left within the first 5 seconds.', solutie: 'Full redesign with digital catalogue and integrated quote-request form.', rezultat: 'Bounce rate reduced by 55%. Quote requests tripled compared to before.', order: 1 },
@@ -631,7 +658,7 @@ async function getAuth(url, env) {
 }
 
 // Sections a sub-admin can be granted access to.
-const ADMIN_SECTIONS = ['bookings', 'gibilan', 'clients', 'crm', 'portfolio', 'blog', 'social', 'pages', 'media', 'theme', 'expenses', 'oferte', 'settings'];
+const ADMIN_SECTIONS = ['bookings', 'messages', 'gibilan', 'clients', 'crm', 'portfolio', 'blog', 'social', 'pages', 'media', 'theme', 'expenses', 'oferte', 'settings'];
 
 // Authorisation: owner can do anything; sub-admins need the section in their perms.
 function can(authed, section) {
@@ -2486,6 +2513,61 @@ export default {
       const booking = JSON.parse(raw);
       booking.status = status;
       await env.PROGRAMARI.put(id, JSON.stringify(booking));
+      return json({ success: true });
+    }
+
+    // ── MESSAGES (contact form → admin) ──────────────────────
+    if (path === '/api/messages' && request.method === 'POST') {
+      const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+      const allowed = await checkRateLimit(env, 'message_' + ip, 6, 3600);
+      if (!allowed) return json({ error: 'Too many requests. Please try again later.' }, 429, request);
+      try {
+        const { name, phone, service, date, time, message } = await request.json();
+        if (!name || !phone) return json({ error: 'Required fields missing' }, 400);
+        const phoneRegex = /^[\d\s\+\-\(\)]{7,20}$/;
+        if (!phoneRegex.test(phone)) return json({ error: 'Invalid phone number' }, 400);
+        if (String(name).trim().length < 2) return json({ error: 'Invalid name' }, 400);
+        const id = `msg_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        const msg = { id, name: String(name).slice(0, 120), phone: String(phone).slice(0, 40), service: (service || '').slice(0, 120), date: (date || '').slice(0, 40), time: (time || '').slice(0, 40), message: String(message || '').slice(0, 4000), read: false, createdAt: new Date().toISOString() };
+        await env.PROGRAMARI.put(id, JSON.stringify(msg));
+        const raw = await env.PROGRAMARI.get('__messages__');
+        const idx = raw ? JSON.parse(raw) : [];
+        idx.unshift({ id });
+        await env.PROGRAMARI.put('__messages__', JSON.stringify(idx.slice(0, 500)));
+        await sendMessageNotification(msg, env);
+        return json({ success: true, id });
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+
+    if (path === '/api/messages' && request.method === 'GET') {
+      if (!can(authed, 'messages')) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const raw = await env.PROGRAMARI.get('__messages__');
+        const idx = raw ? JSON.parse(raw) : [];
+        const msgs = await Promise.all(idx.map(async ({ id }) => { const r = await env.PROGRAMARI.get(id); return r ? JSON.parse(r) : null; }));
+        return json(msgs.filter(Boolean));
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+
+    if (path.startsWith('/api/messages/') && request.method === 'PATCH') {
+      if (!can(authed, 'messages')) return json({ error: 'Unauthorised' }, 401);
+      const id = path.replace('/api/messages/', '');
+      const raw = await env.PROGRAMARI.get(id);
+      if (!raw) return json({ error: 'Not found' }, 404);
+      const body = await request.json();
+      const m = JSON.parse(raw);
+      if (typeof body.read === 'boolean') m.read = body.read;
+      await env.PROGRAMARI.put(id, JSON.stringify(m));
+      return json({ success: true });
+    }
+
+    if (path.startsWith('/api/messages/') && request.method === 'DELETE') {
+      if (!can(authed, 'messages')) return json({ error: 'Unauthorised' }, 401);
+      const id = path.replace('/api/messages/', '');
+      await env.PROGRAMARI.delete(id);
+      const raw = await env.PROGRAMARI.get('__messages__');
+      const idx = raw ? JSON.parse(raw) : [];
+      await env.PROGRAMARI.put('__messages__', JSON.stringify(idx.filter(x => x.id !== id)));
       return json({ success: true });
     }
 
