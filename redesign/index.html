@@ -225,8 +225,9 @@
     /* homepage HUD: scoate banner-ul promoțional și strip-ul startup; footer-ul rămâne vizibil */
     #bannerCarousel,[data-section="startup"]{display:none!important;}
     /* footer ca drawer glisant (apare la apăsarea mânerului) */
-    body>footer{position:fixed;left:0;right:0;bottom:0;z-index:2500;transform:translateY(100%);transition:transform .45s cubic-bezier(.4,0,.2,1);max-height:88vh;overflow-y:auto;background:linear-gradient(180deg,#070B11,#04060A);box-shadow:0 -24px 70px rgba(0,0,0,.7);border-top:1px solid rgba(43,229,255,.25);}
+    body>footer{position:fixed;left:0;right:0;bottom:0;z-index:2500;transform:translateY(100%);transition:transform .45s cubic-bezier(.4,0,.2,1);overflow:visible;background:linear-gradient(180deg,#070B11,#04060A);box-shadow:0 -24px 70px rgba(0,0,0,.7);border-top:1px solid rgba(43,229,255,.25);}
     body>footer.open{transform:translateY(0);}
+    body>footer>.container{max-height:82vh;overflow-y:auto;padding-top:20px;padding-bottom:20px;}
     .footer-handle{position:absolute;top:-37px;left:50%;transform:translateX(-50%);display:inline-flex;align-items:center;gap:8px;background:linear-gradient(180deg,#0a141c,#070b11);border:1px solid rgba(43,229,255,.4);border-bottom:none;border-radius:12px 12px 0 0;padding:10px 24px;color:#2BE5FF;font-family:'Share Tech Mono',monospace;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;white-space:nowrap;box-shadow:0 -8px 30px rgba(43,229,255,.12);}
     .footer-handle .fh-arrow{transition:transform .35s;}
     body>footer.open .footer-handle .fh-arrow{transform:rotate(180deg);}
