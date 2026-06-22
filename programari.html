@@ -1406,6 +1406,22 @@
           </div>
 
           <div id="hero-img-status" style="font-size:.75rem;color:var(--teal);margin-top:10px;min-height:16px;"></div>
+
+          <!-- BACKGROUND VIDEO (homepage HUD) -->
+          <div style="margin-top:22px;padding-top:18px;border-top:1px solid var(--border-soft);">
+            <div class="f-label" style="margin-bottom:6px;">// background_video (homepage)</div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <input class="f-input" id="bg-video-url" placeholder="Video URL (MP4/WebM) or upload" style="flex:1;margin:0;min-width:200px;">
+              <button onclick="uploadBgVideo()" style="background:var(--teal);color:#060f0f;border:none;border-radius:6px;padding:0 14px;font-size:.8rem;font-weight:700;cursor:pointer;white-space:nowrap;height:42px;">⬆ Upload</button>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+              <button onclick="saveBgVideo()" class="btn-save" style="flex:1;">💾 Save</button>
+              <button onclick="removeBgVideo()" style="background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:0 14px;font-size:.8rem;cursor:pointer;white-space:nowrap;height:36px;">✕ Remove</button>
+            </div>
+            <div style="font-size:.72rem;color:var(--muted);margin-top:6px;">Plays full-screen behind the HUD (muted, looped). Keep clips short &amp; compressed — max 25MB.</div>
+            <div id="bg-video-status" style="font-size:.75rem;color:var(--teal);margin-top:8px;min-height:16px;"></div>
+          </div>
+
               <!-- Gradient + Text toggles -->
               <!-- Înălțime + Poziție + Size imagine -->
               <div style="margin-top:14px;margin-bottom:6px;">
@@ -3982,6 +3998,7 @@
     try {
       const res = await fetch('/api/site-settings');
       const d = await res.json();
+      if (d.bgVideo) { var bv = document.getElementById('bg-video-url'); if (bv) bv.value = d.bgVideo; }
       if (d.heroImage) {
         document.getElementById('hero-img-url').value = d.heroImage;
         applyHeroPreview(d.heroImage);
@@ -4199,6 +4216,46 @@
     });
     document.getElementById('hero-img-status').textContent = '✓ Reset to default image';
     setTimeout(function(){ document.getElementById('hero-img-status').textContent = ''; }, 2500);
+  }
+
+  function uploadBgVideo() {
+    var inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = 'video/mp4,video/webm';
+    inp.onchange = function() {
+      var file = inp.files[0]; if (!file) return;
+      var statusEl = document.getElementById('bg-video-status');
+      statusEl.textContent = 'Uploading video... (may take a moment)';
+      uploadMedia(file, function(url) {
+        document.getElementById('bg-video-url').value = url;
+        statusEl.textContent = '✓ Video uploaded — click Save';
+      }, function(err) {
+        statusEl.textContent = '✕ ' + err;
+      });
+    };
+    inp.click();
+  }
+
+  async function saveBgVideo() {
+    var url = document.getElementById('bg-video-url').value.trim();
+    var statusEl = document.getElementById('bg-video-status');
+    try {
+      await fetch('/api/site-settings?token=' + encodeURIComponent(adminToken), {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bgVideo: url })
+      });
+      statusEl.textContent = url ? '✓ Saved! Background video updated.' : '✓ Saved (no video).';
+      setTimeout(function(){ statusEl.textContent = ''; }, 3000);
+    } catch { statusEl.textContent = '✕ Error saving'; }
+  }
+
+  async function removeBgVideo() {
+    document.getElementById('bg-video-url').value = '';
+    await fetch('/api/site-settings?token=' + encodeURIComponent(adminToken), {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bgVideo: '' })
+    });
+    document.getElementById('bg-video-status').textContent = '✓ Background video removed';
+    setTimeout(function(){ document.getElementById('bg-video-status').textContent = ''; }, 2500);
   }
 
   async function fetchMaintenance() {

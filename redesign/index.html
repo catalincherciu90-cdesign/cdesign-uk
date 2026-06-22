@@ -173,6 +173,11 @@
     .home-banner{position:relative;width:100%;padding:84px 0;overflow:hidden;border-bottom:1px solid var(--border);background:radial-gradient(90% 120% at 78% 0%,rgba(43,229,255,.08),transparent 55%),radial-gradient(70% 120% at 0% 100%,rgba(0,229,168,.04),transparent 60%),linear-gradient(180deg,#05080C 0%,#03050A 85%);}
     .home-banner::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(43,229,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(43,229,255,.045) 1px,transparent 1px);background-size:46px 46px;pointer-events:none;z-index:0;-webkit-mask-image:radial-gradient(circle at 75% 45%,#000,transparent 78%);mask-image:radial-gradient(circle at 75% 45%,#000,transparent 78%);animation:hud-grid-drift 32s linear infinite;}
     @keyframes hud-grid-drift{to{background-position:46px 46px;}}
+    /* video de fundal (încărcat din admin) */
+    .hud-bg-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0;transition:opacity 1s;pointer-events:none;}
+    .home-banner.has-video .hud-bg-video{opacity:1;}
+    .hud-scrim{position:absolute;inset:0;z-index:0;pointer-events:none;display:none;background:linear-gradient(180deg,rgba(5,8,12,.74),rgba(5,8,12,.82));}
+    .home-banner.has-video .hud-scrim{display:block;}
     /* strat de efecte: particule + linie de scanare */
     .hud-fx{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
     .hud-fx::before{content:'';position:absolute;inset:-50%;background-image:radial-gradient(rgba(43,229,255,.55) 1px,transparent 2px),radial-gradient(rgba(43,229,255,.30) 1px,transparent 2px);background-size:96px 96px,150px 150px;background-position:0 0,48px 64px;opacity:.5;animation:hud-particles 24s linear infinite;}
@@ -661,6 +666,8 @@
 <!-- HOME BANNER (full-width) -->
 <section class="home-banner is-console" id="homeBanner" data-section="hero">
   <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">C Design — UK web design studio. Modern websites that attract customers and grow your business across the UK.</h1>
+  <video class="hud-bg-video" id="hudBgVideo" muted loop playsinline preload="none" aria-hidden="true"></video>
+  <div class="hud-scrim" aria-hidden="true"></div>
   <div class="hud-fx" aria-hidden="true"></div>
   <div class="container">
     <div class="hud-stage" role="navigation" aria-label="Explore sections">
@@ -1760,6 +1767,14 @@ document.getElementById('bookingForm').addEventListener('submit', async function
     .then(function(r){return r.ok?r.json():null;})
     .then(function(d){
       if(!d) return;
+      // Video de fundal (încărcat din admin)
+      var bgVid = document.getElementById('hudBgVideo');
+      var bgBanner = document.getElementById('homeBanner');
+      if(bgVid && bgBanner && d.bgVideo){
+        bgVid.src = d.bgVideo;
+        bgBanner.classList.add('has-video');
+        var p = bgVid.play(); if(p && p.catch) p.catch(function(){});
+      }
       // Banner image (încărcat din admin → BANNER IMAGE)
       var banner = document.getElementById('homeBanner');
       var hbImg  = document.getElementById('hbImg');

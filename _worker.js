@@ -3819,10 +3819,14 @@ Cerințe titluri:
       if (!can(authed, 'media')) return json({ error: 'Unauthorised' }, 401);
       try {
         const ct = request.headers.get('Content-Type') || '';
-        if (!ct.startsWith('image/')) return json({ error: 'Only images are accepted' }, 400);
+        const isImg = ct.startsWith('image/');
+        const isVid = ct === 'video/mp4' || ct === 'video/webm';
+        if (!isImg && !isVid) return json({ error: 'Only images or MP4/WebM video are accepted' }, 400);
         const buf = await request.arrayBuffer();
-        if (buf.byteLength > 5 * 1024 * 1024) return json({ error: 'File too large (max 5MB)' }, 400);
-        const ext = ct.includes('png') ? 'png' : ct.includes('gif') ? 'gif' : ct.includes('webp') ? 'webp' : 'jpg';
+        const max = isVid ? 25 * 1024 * 1024 : 5 * 1024 * 1024;
+        if (buf.byteLength > max) return json({ error: 'File too large (max ' + (isVid ? '25MB video' : '5MB image') + ')' }, 400);
+        const ext = isVid ? (ct.includes('webm') ? 'webm' : 'mp4')
+                          : (ct.includes('png') ? 'png' : ct.includes('gif') ? 'gif' : ct.includes('webp') ? 'webp' : 'jpg');
         const filename = 'media_' + Date.now() + '.' + ext;
         await env.PROGRAMARI.put('__media__' + filename, buf, { metadata: { ct } });
         return json({ url: '/media/' + filename, filename });
