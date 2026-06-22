@@ -212,6 +212,51 @@
     @media(max-width:768px){.home-banner{padding:52px 0;}.hb-actions{flex-direction:column;align-items:center;width:100%;}.hb-actions .btn-primary,.hb-actions .btn-ghost{width:100%;max-width:320px;justify-content:center;}}
     @media(prefers-reduced-motion:reduce){.hb-hud .hud-spin,.hb-hud .hud-spin-rev,.hb-hud .hud-spin-fast,.hb-hud .hud-core,.hb-hud .hud-dash{animation:none;}}
 
+    /* ===== HUD CONSOLE — homepage interactiv ===== */
+    .home-banner.is-console{min-height:calc(100vh - 68px);display:flex;align-items:center;padding:24px 0;}
+    .hud-stage{position:relative;width:min(660px,90vw);aspect-ratio:1;margin:0 auto;z-index:1;}
+    .hud-stage>svg.hud-grid-ring{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;}
+    .hud-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:32%;aspect-ratio:1;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle,rgba(43,229,255,.10),transparent 70%);}
+    .hud-center .hc-core{position:absolute;inset:14%;border-radius:50%;background:radial-gradient(circle,rgba(43,229,255,.20),transparent 72%);}
+    .hud-center .hc-brand{position:relative;font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:clamp(1rem,2.3vw,1.5rem);color:var(--heading);letter-spacing:-.02em;}
+    .hud-center .hc-tag{position:relative;font-family:'Share Tech Mono',monospace;font-size:.58rem;letter-spacing:.2em;color:#2BE5FF;text-transform:uppercase;margin-top:5px;}
+    /* node buttons */
+    .hud-node{position:absolute;width:26%;aspect-ratio:1;transform:translate(-50%,-50%);background:none;border:none;cursor:pointer;padding:0;color:inherit;transition:transform .25s;}
+    .hud-node>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 4px rgba(43,229,255,.35));}
+    .hud-node .n-fill{fill:rgba(43,229,255,.05);transition:fill .25s;}
+    .hud-node .hud-spin{transform-box:fill-box;transform-origin:center;animation:hud-spin 16s linear infinite;}
+    .hud-node:nth-child(even) .hud-spin{animation-name:hud-spin-rev;animation-duration:13s;}
+    @media(prefers-reduced-motion:reduce){.hud-node .hud-spin{animation:none;}}
+    .hud-node .n-hi{stroke:#2BE5FF;opacity:0;transition:opacity .25s;}
+    .hud-node .nlabel{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;pointer-events:none;}
+    .hud-node .nicon{font-size:clamp(1.2rem,2.6vw,1.7rem);line-height:1;filter:drop-shadow(0 0 7px rgba(43,229,255,.6));}
+    .hud-node .ntext{font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:#d6eef3;}
+    .hud-node:hover,.hud-node:focus-visible{transform:translate(-50%,-50%) scale(1.07);outline:none;}
+    .hud-node:hover .n-hi,.hud-node:focus-visible .n-hi{opacity:1;}
+    .hud-node:hover .n-fill,.hud-node:focus-visible .n-fill{fill:rgba(43,229,255,.12);}
+    .hud-node.n1{top:6%;left:50%}.hud-node.n2{top:28%;left:91%}.hud-node.n3{top:72%;left:91%}
+    .hud-node.n4{top:94%;left:50%}.hud-node.n5{top:72%;left:9%}.hud-node.n6{top:28%;left:9%}
+    .hud-hint{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;white-space:nowrap;}
+    /* full-screen panels */
+    .hud-panel{position:fixed;inset:0;z-index:3000;background:radial-gradient(80% 100% at 80% 0%,rgba(43,229,255,.10),transparent 55%),linear-gradient(180deg,#0A1118,#0B0F14);display:flex;flex-direction:column;opacity:0;visibility:hidden;transform:scale(.985);transition:opacity .4s,transform .4s,visibility .4s;}
+    .hud-panel.open{opacity:1;visibility:visible;transform:scale(1);}
+    .hud-panel::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(43,229,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(43,229,255,.04) 1px,transparent 1px);background-size:46px 46px;-webkit-mask-image:radial-gradient(circle at 80% 20%,#000,transparent 80%);mask-image:radial-gradient(circle at 80% 20%,#000,transparent 80%);pointer-events:none;}
+    .hud-panel-head{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px clamp(20px,4vw,48px);border-bottom:1px solid var(--border);}
+    .hud-panel-title{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:clamp(1.4rem,3vw,2.2rem);color:var(--heading);line-height:1.1;}
+    .hud-panel-title small{display:block;font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.2em;color:#2BE5FF;text-transform:uppercase;margin-bottom:6px;font-weight:400;}
+    .hud-close{flex-shrink:0;width:46px;height:46px;border-radius:50%;background:rgba(43,229,255,.08);border:1px solid rgba(43,229,255,.4);color:#2BE5FF;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s;}
+    .hud-close:hover{background:rgba(43,229,255,.18);transform:rotate(90deg);}
+    .hud-panel-body{position:relative;z-index:1;flex:1;overflow:auto;padding:clamp(28px,5vw,56px) clamp(20px,4vw,48px);}
+    .hud-panel-inner{max-width:980px;margin:0 auto;animation:hud-panel-rise .5s .1s both;}
+    @keyframes hud-panel-rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+    body.hud-locked{overflow:hidden;}
+    @media(max-width:768px){
+      .home-banner.is-console{min-height:auto;padding:48px 0 8px;}
+      .hud-stage{width:94vw;}
+      .hud-node .ntext{font-size:.52rem;}
+    }
+    @media(prefers-reduced-motion:reduce){.hud-panel,.hud-panel-inner{transition:none;animation:none;}}
+
     /* CAROUSEL */
     .banner-carousel{position:relative;overflow:hidden;background:var(--bg);border-bottom:1px solid var(--border);}
     .banner-track{display:flex;transition:transform .55s cubic-bezier(.4,0,.2,1);will-change:transform;}
@@ -546,51 +591,133 @@
 <main style="display:flex;flex-direction:column;">
 
 <!-- HOME BANNER (full-width) -->
-<section class="home-banner" id="homeBanner" aria-labelledby="hb-title" data-section="hero">
-  <img class="hb-img" id="hbImg" alt="" aria-hidden="true">
-  <div class="container home-banner-inner">
-    <div class="hb-text">
-      <span class="hb-eyebrow">● System Online · UK Web Design</span>
-      <h1 id="hb-title" class="hb-title">Launch your business online with a <span class="hb-hl">modern website</span></h1>
-      <p class="hb-sub">Fast, professional websites that attract customers and grow your business across the UK — fixed price, delivered in 14 days.</p>
-      <div class="hb-actions">
-        <a href="#contact" class="btn-primary">Get a free quote →</a>
-        <a href="#portfolio" class="btn-ghost">View our work</a>
-      </div>
-    </div>
-    <div class="hb-hud" aria-hidden="true">
-      <svg viewBox="0 0 400 400" role="presentation">
-        <defs>
-          <radialGradient id="hudCore" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#d7fbff"/><stop offset="40%" stop-color="#2BE5FF"/><stop offset="100%" stop-color="#0a5e6e"/>
-          </radialGradient>
-        </defs>
-        <circle class="hud-c" cx="200" cy="200" r="194" stroke-width="1" opacity=".22"/>
-        <line class="hud-c" x1="200" y1="14" x2="200" y2="386" stroke-width="1" opacity=".12"/>
-        <line class="hud-c" x1="14" y1="200" x2="386" y2="200" stroke-width="1" opacity=".12"/>
-        <g class="hud-spin">
-          <circle class="hud-c" cx="200" cy="200" r="178" stroke-width="1" opacity=".4"/>
-          <circle class="hud-c hud-dash" cx="200" cy="200" r="170" stroke-width="7" opacity=".55"/>
-        </g>
-        <g class="hud-spin-rev">
-          <circle class="hud-c" cx="200" cy="200" r="150" stroke-width="2" stroke-dasharray="170 70 95 70" opacity=".85"/>
-          <circle class="hud-c" cx="200" cy="200" r="136" stroke-width="1" stroke-dasharray="9 9" opacity=".4"/>
-        </g>
-        <g class="hud-spin-fast">
-          <circle class="hud-c" cx="200" cy="200" r="112" stroke-width="3" stroke-dasharray="120 320" opacity=".95"/>
-          <circle class="hud-c" cx="200" cy="200" r="96" stroke-width="1" stroke-dasharray="4 11" opacity=".5"/>
-        </g>
-        <g class="hud-spin-rev">
-          <circle class="hud-c" cx="200" cy="200" r="70" stroke-width="6" stroke-dasharray="55 32" opacity=".7"/>
-        </g>
-        <g class="hud-core">
-          <circle class="hud-c" cx="200" cy="200" r="52" stroke-width="2" opacity=".85"/>
-          <circle cx="200" cy="200" r="44" fill="url(#hudCore)" opacity=".92"/>
-        </g>
+<section class="home-banner is-console" id="homeBanner" data-section="hero">
+  <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">C Design — UK web design studio. Modern websites that attract customers and grow your business across the UK.</h1>
+  <div class="container">
+    <div class="hud-stage" role="navigation" aria-label="Explore sections">
+      <svg class="hud-grid-ring" viewBox="0 0 400 400" aria-hidden="true">
+        <circle class="hud-c" cx="200" cy="200" r="150" stroke-width="1" opacity=".14"/>
+        <circle class="hud-c hud-spin" cx="200" cy="200" r="150" stroke-width="1" stroke-dasharray="2 12" opacity=".32" style="transform-box:fill-box;transform-origin:center;"/>
       </svg>
+      <div class="hud-center">
+        <span class="hc-core"></span>
+        <span class="hc-brand">C Design</span>
+        <span class="hc-tag">UK Web Studio</span>
+      </div>
+      <button type="button" class="hud-node n1" data-panel="panel-services" aria-label="Open Services">
+        <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="n-fill" cx="60" cy="60" r="52"/><circle class="hud-c" cx="60" cy="60" r="52" stroke-width="1.5" opacity=".45"/><circle class="hud-c hud-spin" cx="60" cy="60" r="44" stroke-width="3" stroke-dasharray="50 16 30 16" opacity=".8"/><circle class="hud-c n-hi" cx="60" cy="60" r="57" stroke-width="2"/></svg>
+        <span class="nlabel"><span class="nicon">🧩</span><span class="ntext">Services</span></span>
+      </button>
+      <button type="button" class="hud-node n2" data-panel="panel-portfolio" aria-label="Open Portfolio">
+        <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="n-fill" cx="60" cy="60" r="52"/><circle class="hud-c" cx="60" cy="60" r="52" stroke-width="1.5" opacity=".45"/><circle class="hud-c hud-spin" cx="60" cy="60" r="44" stroke-width="3" stroke-dasharray="50 16 30 16" opacity=".8"/><circle class="hud-c n-hi" cx="60" cy="60" r="57" stroke-width="2"/></svg>
+        <span class="nlabel"><span class="nicon">🖼️</span><span class="ntext">Portfolio</span></span>
+      </button>
+      <button type="button" class="hud-node n3" data-panel="panel-pricing" aria-label="Open Pricing">
+        <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="n-fill" cx="60" cy="60" r="52"/><circle class="hud-c" cx="60" cy="60" r="52" stroke-width="1.5" opacity=".45"/><circle class="hud-c hud-spin" cx="60" cy="60" r="44" stroke-width="3" stroke-dasharray="50 16 30 16" opacity=".8"/><circle class="hud-c n-hi" cx="60" cy="60" r="57" stroke-width="2"/></svg>
+        <span class="nlabel"><span class="nicon">💷</span><span class="ntext">Pricing</span></span>
+      </button>
+      <button type="button" class="hud-node n4" data-panel="panel-contact" aria-label="Open Contact">
+        <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="n-fill" cx="60" cy="60" r="52"/><circle class="hud-c" cx="60" cy="60" r="52" stroke-width="1.5" opacity=".45"/><circle class="hud-c hud-spin" cx="60" cy="60" r="44" stroke-width="3" stroke-dasharray="50 16 30 16" opacity=".8"/><circle class="hud-c n-hi" cx="60" cy="60" r="57" stroke-width="2"/></svg>
+        <span class="nlabel"><span class="nicon">📞</span><span class="ntext">Contact</span></span>
+      </button>
+      <button type="button" class="hud-node n5" data-panel="panel-process" aria-label="Open How We Work">
+        <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="n-fill" cx="60" cy="60" r="52"/><circle class="hud-c" cx="60" cy="60" r="52" stroke-width="1.5" opacity=".45"/><circle class="hud-c hud-spin" cx="60" cy="60" r="44" stroke-width="3" stroke-dasharray="50 16 30 16" opacity=".8"/><circle class="hud-c n-hi" cx="60" cy="60" r="57" stroke-width="2"/></svg>
+        <span class="nlabel"><span class="nicon">⚙️</span><span class="ntext">Process</span></span>
+      </button>
+      <button type="button" class="hud-node n6" data-panel="panel-blog" aria-label="Open Blog">
+        <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="n-fill" cx="60" cy="60" r="52"/><circle class="hud-c" cx="60" cy="60" r="52" stroke-width="1.5" opacity=".45"/><circle class="hud-c hud-spin" cx="60" cy="60" r="44" stroke-width="3" stroke-dasharray="50 16 30 16" opacity=".8"/><circle class="hud-c n-hi" cx="60" cy="60" r="57" stroke-width="2"/></svg>
+        <span class="nlabel"><span class="nicon">📰</span><span class="ntext">Blog</span></span>
+      </button>
+      <span class="hud-hint">▸ Click a node to open</span>
     </div>
   </div>
 </section>
+
+<!-- ===== HUD FULL-SCREEN PANELS ===== -->
+<div class="hud-panel" id="panel-services" role="dialog" aria-modal="true" aria-labelledby="panel-services-t" hidden>
+  <div class="hud-panel-head">
+    <div class="hud-panel-title" id="panel-services-t"><small>01 · Services</small>What we build</div>
+    <button type="button" class="hud-close" data-close aria-label="Close">✕</button>
+  </div>
+  <div class="hud-panel-body"><div class="hud-panel-inner">
+    <p class="hb-sub" style="margin-bottom:32px;">Fast, professional websites tailored to your business — fixed price, delivered in 14 days.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;">
+      <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:14px;padding:24px;"><div style="font-size:1.8rem;margin-bottom:10px;">🌐</div><h3 style="font-family:'Space Grotesk',sans-serif;color:var(--heading);margin-bottom:8px;">Presentation websites</h3><p style="color:var(--soft);font-size:.95rem;line-height:1.6;">Clear, fast sites that turn visitors into customers.</p></div>
+      <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:14px;padding:24px;"><div style="font-size:1.8rem;margin-bottom:10px;">🛒</div><h3 style="font-family:'Space Grotesk',sans-serif;color:var(--heading);margin-bottom:8px;">Online shops</h3><p style="color:var(--soft);font-size:.95rem;line-height:1.6;">Sell online with a smooth, mobile-first store.</p></div>
+      <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:14px;padding:24px;"><div style="font-size:1.8rem;margin-bottom:10px;">🔍</div><h3 style="font-family:'Space Grotesk',sans-serif;color:var(--heading);margin-bottom:8px;">Local SEO</h3><p style="color:var(--soft);font-size:.95rem;line-height:1.6;">Get found when customers search what you offer.</p></div>
+      <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:14px;padding:24px;"><div style="font-size:1.8rem;margin-bottom:10px;">🛠️</div><h3 style="font-family:'Space Grotesk',sans-serif;color:var(--heading);margin-bottom:8px;">Care & maintenance</h3><p style="color:var(--soft);font-size:.95rem;line-height:1.6;">Updates, backups and support from £49/month.</p></div>
+    </div>
+    <div style="margin-top:32px;"><a href="#contact" class="btn-primary" data-close>Get a free quote →</a></div>
+  </div></div>
+</div>
+
+<div class="hud-panel" id="panel-portfolio" role="dialog" aria-modal="true" aria-labelledby="panel-portfolio-t" hidden>
+  <div class="hud-panel-head">
+    <div class="hud-panel-title" id="panel-portfolio-t"><small>02 · Portfolio</small>Our work</div>
+    <button type="button" class="hud-close" data-close aria-label="Close">✕</button>
+  </div>
+  <div class="hud-panel-body"><div class="hud-panel-inner">
+    <p class="hb-sub" style="margin-bottom:32px;">120+ projects delivered for businesses across the UK.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;">
+      <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:14px;padding:24px;"><div style="font-size:1.6rem;">🚗</div><h3 style="font-family:'Space Grotesk',sans-serif;color:var(--heading);margin:8px 0;">Vehicle Recovery</h3><p style="color:var(--soft);font-size:.9rem;line-height:1.6;">Local-SEO site — first order in 3 days, +180% traffic.</p></div>
+      <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:14px;padding:24px;"><div style="font-size:1.6rem;">🏗️</div><h3 style="font-family:'Space Grotesk',sans-serif;color:var(--heading);margin:8px 0;">Architecture firm</h3><p style="color:var(--soft);font-size:.9rem;line-height:1.6;">Portfolio site — 2 new contracts in month one. 10x ROI.</p></div>
+      <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:14px;padding:24px;"><div style="font-size:1.6rem;">🌸</div><h3 style="font-family:'Space Grotesk',sans-serif;color:var(--heading);margin:8px 0;">Florist</h3><p style="color:var(--soft);font-size:.9rem;line-height:1.6;">From 0 to 15–20 online orders/week in month one.</p></div>
+    </div>
+  </div></div>
+</div>
+
+<div class="hud-panel" id="panel-pricing" role="dialog" aria-modal="true" aria-labelledby="panel-pricing-t" hidden>
+  <div class="hud-panel-head">
+    <div class="hud-panel-title" id="panel-pricing-t"><small>03 · Pricing</small>Plans &amp; prices</div>
+    <button type="button" class="hud-close" data-close aria-label="Close">✕</button>
+  </div>
+  <div class="hud-panel-body"><div class="hud-panel-inner">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;">
+      <div style="background:var(--bg2);border:1px solid var(--teal-border);border-radius:14px;padding:28px;"><div class="hc-tag" style="color:#2BE5FF;">Startup package</div><div style="font-family:'Space Grotesk',sans-serif;font-size:2.2rem;font-weight:800;color:var(--heading);margin:8px 0;">Fixed price</div><p style="color:var(--soft);font-size:.95rem;line-height:1.7;">Website + logo + domain + hosting + 2 social accounts. Delivered in 14 days.</p></div>
+      <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:14px;padding:28px;"><div class="hc-tag" style="color:#2BE5FF;">Maintenance</div><div style="font-family:'Space Grotesk',sans-serif;font-size:2.2rem;font-weight:800;color:var(--heading);margin:8px 0;">from £49<span style="font-size:1rem;color:var(--muted);">/mo</span></div><p style="color:var(--soft);font-size:.95rem;line-height:1.7;">Updates, SEO report, priority support. No long-term contract.</p></div>
+    </div>
+    <div style="margin-top:32px;"><a href="#contact" class="btn-primary" data-close>Request a quote →</a></div>
+  </div></div>
+</div>
+
+<div class="hud-panel" id="panel-process" role="dialog" aria-modal="true" aria-labelledby="panel-process-t" hidden>
+  <div class="hud-panel-head">
+    <div class="hud-panel-title" id="panel-process-t"><small>04 · Process</small>How we work</div>
+    <button type="button" class="hud-close" data-close aria-label="Close">✕</button>
+  </div>
+  <div class="hud-panel-body"><div class="hud-panel-inner">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;">
+      <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:14px;padding:24px;"><div class="hc-tag" style="color:#2BE5FF;">Step 01</div><h3 style="font-family:'Space Grotesk',sans-serif;color:var(--heading);margin:8px 0;">💡 Idea</h3><p style="color:var(--soft);font-size:.95rem;line-height:1.6;">Share your vision and goals — we listen and plan.</p></div>
+      <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:14px;padding:24px;"><div class="hc-tag" style="color:#2BE5FF;">Step 02</div><h3 style="font-family:'Space Grotesk',sans-serif;color:var(--heading);margin:8px 0;">🛠️ Build</h3><p style="color:var(--soft);font-size:.95rem;line-height:1.6;">We design and build a modern, custom website.</p></div>
+      <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:14px;padding:24px;"><div class="hc-tag" style="color:#2BE5FF;">Step 03</div><h3 style="font-family:'Space Grotesk',sans-serif;color:var(--heading);margin:8px 0;">🚀 Grow</h3><p style="color:var(--soft);font-size:.95rem;line-height:1.6;">Go live and attract more customers across the UK.</p></div>
+    </div>
+  </div></div>
+</div>
+
+<div class="hud-panel" id="panel-contact" role="dialog" aria-modal="true" aria-labelledby="panel-contact-t" hidden>
+  <div class="hud-panel-head">
+    <div class="hud-panel-title" id="panel-contact-t"><small>05 · Contact</small>Get in touch</div>
+    <button type="button" class="hud-close" data-close aria-label="Close">✕</button>
+  </div>
+  <div class="hud-panel-body"><div class="hud-panel-inner">
+    <p class="hb-sub" style="margin-bottom:28px;">Free consultation — let's launch your business online.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;">
+      <a href="tel:+447312799449" class="btn-primary">📞 +44 7312 799449</a>
+      <a href="/programari" class="btn-ghost">Book now →</a>
+    </div>
+  </div></div>
+</div>
+
+<div class="hud-panel" id="panel-blog" role="dialog" aria-modal="true" aria-labelledby="panel-blog-t" hidden>
+  <div class="hud-panel-head">
+    <div class="hud-panel-title" id="panel-blog-t"><small>06 · Blog</small>Insights</div>
+    <button type="button" class="hud-close" data-close aria-label="Close">✕</button>
+  </div>
+  <div class="hud-panel-body"><div class="hud-panel-inner">
+    <p class="hb-sub" style="margin-bottom:28px;">Practical guides, web design tips and online-presence strategies for entrepreneurs.</p>
+    <a href="/blog" class="btn-primary">Read the blog →</a>
+  </div></div>
+</div>
 
 <!-- BANNER CAROUSEL -->
 <div class="banner-carousel" id="bannerCarousel" aria-label="Promotional banners" data-section="carousel">
@@ -1623,5 +1750,35 @@ window.addEventListener('load', function() {
 }, {once:true});
 </script>
 <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=893560673744618&ev=PageView&noscript=1"/></noscript>
+<!-- HUD console: open/close full-screen panels -->
+<script>
+(function(){
+  var openPanel=null, lastFocus=null;
+  function open(id){
+    var p=document.getElementById(id); if(!p) return;
+    lastFocus=document.activeElement;
+    p.hidden=false;
+    requestAnimationFrame(function(){ p.classList.add('open'); });
+    document.body.classList.add('hud-locked');
+    openPanel=p;
+    var c=p.querySelector('.hud-close'); if(c) c.focus();
+  }
+  function close(){
+    if(!openPanel) return;
+    var p=openPanel; openPanel=null;
+    p.classList.remove('open');
+    document.body.classList.remove('hud-locked');
+    setTimeout(function(){ if(!p.classList.contains('open')) p.hidden=true; }, 430);
+    if(lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  document.querySelectorAll('.hud-node').forEach(function(n){
+    n.addEventListener('click', function(){ open(n.getAttribute('data-panel')); });
+  });
+  document.querySelectorAll('.hud-panel [data-close]').forEach(function(b){
+    b.addEventListener('click', function(){ close(); });
+  });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
+})();
+</script>
 </body>
 </html>
