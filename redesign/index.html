@@ -169,6 +169,19 @@
     .btn-ghost{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);color:#fff;font-size:1rem;padding:14px 28px;border-radius:8px;border:1px solid rgba(255,255,255,.35);cursor:pointer;transition:border-color .2s,background .2s;text-decoration:none;font-family:'Inter',sans-serif;}
     .btn-ghost:hover{border-color:rgba(255,255,255,.7);background:rgba(255,255,255,.15)}
 
+    /* TICKER — bandă cu text care derulează sub header */
+    .ticker{position:relative;z-index:5;height:42px;display:flex;align-items:center;overflow:hidden;background:linear-gradient(90deg,rgba(43,229,255,.07),rgba(43,229,255,.02));border-bottom:1px solid rgba(43,229,255,.22);}
+    .ticker::before,.ticker::after{content:'';position:absolute;top:0;bottom:0;width:60px;z-index:2;pointer-events:none;}
+    .ticker::before{left:0;background:linear-gradient(90deg,#05080C,transparent);}
+    .ticker::after{right:0;background:linear-gradient(270deg,#05080C,transparent);}
+    .ticker-track{display:flex;white-space:nowrap;will-change:transform;animation:ticker-scroll 38s linear infinite;}
+    .ticker-set{display:inline-flex;align-items:center;}
+    .ticker-item{font-family:'Share Tech Mono',monospace;font-size:.74rem;letter-spacing:.1em;color:#bdf6ff;text-transform:uppercase;padding:0 16px;white-space:nowrap;}
+    .ticker-sep{color:#2BE5FF;opacity:.65;font-size:.7rem;}
+    @keyframes ticker-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+    .ticker:hover .ticker-track{animation-play-state:paused;}
+    @media(prefers-reduced-motion:reduce){.ticker-track{animation:none;}}
+
     /* HOME BANNER — full-width hero animat (HUD stil Stark) */
     .home-banner{position:relative;width:100%;padding:84px 0;overflow:hidden;border-bottom:1px solid var(--border);background:radial-gradient(90% 120% at 78% 0%,rgba(43,229,255,.08),transparent 55%),radial-gradient(70% 120% at 0% 100%,rgba(0,229,168,.04),transparent 60%),linear-gradient(180deg,#05080C 0%,#03050A 85%);}
     .home-banner::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(43,229,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(43,229,255,.045) 1px,transparent 1px);background-size:46px 46px;pointer-events:none;z-index:0;-webkit-mask-image:radial-gradient(circle at 75% 45%,#000,transparent 78%);mask-image:radial-gradient(circle at 75% 45%,#000,transparent 78%);animation:hud-grid-drift 32s linear infinite;}
@@ -226,7 +239,7 @@
     @media(prefers-reduced-motion:reduce){.hb-hud .hud-spin,.hb-hud .hud-spin-rev,.hb-hud .hud-spin-fast,.hb-hud .hud-core,.hb-hud .hud-dash{animation:none;}}
 
     /* ===== HUD CONSOLE — homepage interactiv ===== */
-    .home-banner.is-console{min-height:calc(100vh - 68px);display:flex;align-items:center;padding:24px 0;}
+    .home-banner.is-console{min-height:calc(100vh - 110px);display:flex;align-items:center;padding:18px 0;}
     /* homepage HUD: scoate banner-ul promoțional și strip-ul startup; footer-ul rămâne vizibil */
     #bannerCarousel,[data-section="startup"]{display:none!important;}
     /* footer ca drawer glisant (apare la apăsarea mânerului) */
@@ -313,7 +326,7 @@
     @keyframes hud-panel-rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
     body.hud-locked{overflow:hidden;}
     @media(max-width:768px){
-      .home-banner.is-console{min-height:calc(100svh - 64px);padding:24px 0;}
+      .home-banner.is-console{min-height:calc(100svh - 106px);padding:18px 0;}
       .hud-stage{width:min(94vw,calc(100svh - 110px));}
       .hud-node .ntext{font-size:.52rem;}
     }
@@ -668,6 +681,30 @@
 </div>
 
 <main style="display:flex;flex-direction:column;">
+
+<!-- TICKER -->
+<div class="ticker" aria-label="What we do">
+  <div class="ticker-track">
+    <span class="ticker-set">
+      <span class="ticker-item">Modern websites delivered in 14 days</span><span class="ticker-sep">◆</span>
+      <span class="ticker-item">Local SEO included from day one</span><span class="ticker-sep">◆</span>
+      <span class="ticker-item">Fixed price — no surprises</span><span class="ticker-sep">◆</span>
+      <span class="ticker-item">120+ projects across the UK</span><span class="ticker-sep">◆</span>
+      <span class="ticker-item">Mobile-first · fast · secure</span><span class="ticker-sep">◆</span>
+      <span class="ticker-item">Websites that bring real customers</span><span class="ticker-sep">◆</span>
+      <span class="ticker-item">Free consultation</span><span class="ticker-sep">◆</span>
+    </span>
+    <span class="ticker-set" aria-hidden="true">
+      <span class="ticker-item">Modern websites delivered in 14 days</span><span class="ticker-sep">◆</span>
+      <span class="ticker-item">Local SEO included from day one</span><span class="ticker-sep">◆</span>
+      <span class="ticker-item">Fixed price — no surprises</span><span class="ticker-sep">◆</span>
+      <span class="ticker-item">120+ projects across the UK</span><span class="ticker-sep">◆</span>
+      <span class="ticker-item">Mobile-first · fast · secure</span><span class="ticker-sep">◆</span>
+      <span class="ticker-item">Websites that bring real customers</span><span class="ticker-sep">◆</span>
+      <span class="ticker-item">Free consultation</span><span class="ticker-sep">◆</span>
+    </span>
+  </div>
+</div>
 
 <!-- HOME BANNER (full-width) -->
 <section class="home-banner is-console" id="homeBanner" data-section="hero">
