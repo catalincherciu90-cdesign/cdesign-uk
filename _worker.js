@@ -3161,11 +3161,11 @@ Article requirements:
 
         const ai = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
           messages: [{ role: 'user', content: prompt }],
-          max_tokens: 2048,
+          max_tokens: 4096,
         });
 
         const respRaw = ai && ai.response !== undefined ? ai.response : ai;
-        const text = String(respRaw ?? '').trim();
+        const text = (typeof respRaw === 'string' ? respRaw : JSON.stringify(respRaw ?? '')).trim();
         const match = text.match(/\{[\s\S]*\}/);
         if (!match) return json({ error: 'The model did not return valid JSON. Please try again.' }, 500, request);
 
