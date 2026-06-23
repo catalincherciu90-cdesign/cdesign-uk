@@ -283,7 +283,7 @@
     .hud-node{position:absolute;width:26%;aspect-ratio:1;transform:translate(-50%,-50%);background:none;border:none;cursor:pointer;padding:0;color:inherit;transition:transform .25s;}
     .hud-node>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;z-index:1;filter:drop-shadow(0 0 4px rgba(43,229,255,.35));}
     /* inel exterior NEON care se aprinde pe rând (joc de lumini) */
-    .hud-node .n-hi{stroke:#ff8a8a;stroke-width:2.2;opacity:.45;animation:neon-cycle 5.6s linear infinite;}
+    .hud-node .n-hi{stroke:#bdf6ff;stroke-width:2.2;opacity:.45;animation:neon-cycle 5.6s linear infinite;}
     @keyframes neon-cycle{0%,20%,100%{opacity:.4;filter:drop-shadow(0 0 2px rgba(255,70,70,.5));}9%{opacity:1;filter:drop-shadow(0 0 5px #ff3b3b) drop-shadow(0 0 14px #ff3b3b) drop-shadow(0 0 30px rgba(255,55,55,.75));}}
     .hud-node.n1 .n-hi{animation-delay:0s}.hud-node.n2 .n-hi{animation-delay:.8s}.hud-node.n3 .n-hi{animation-delay:1.6s}.hud-node.n4 .n-hi{animation-delay:2.4s}.hud-node.n5 .n-hi{animation-delay:3.2s}.hud-node.n6 .n-hi{animation-delay:4s}.hud-node.n7 .n-hi{animation-delay:4.8s}
     .hud-node:hover .n-hi,.hud-node:focus-visible .n-hi{animation-play-state:paused;opacity:1;filter:drop-shadow(0 0 5px #ff3b3b) drop-shadow(0 0 16px #ff3b3b) drop-shadow(0 0 36px rgba(255,55,55,.8));}
