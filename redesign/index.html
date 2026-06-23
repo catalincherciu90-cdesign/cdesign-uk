@@ -299,14 +299,14 @@
     .hud-node:nth-child(even) .hud-spin{animation-name:hud-spin-rev;animation-duration:13s;}
     @media(prefers-reduced-motion:reduce){.hud-node .hud-spin{animation:none;}}
 
-    .hud-node .nlabel{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;pointer-events:none;z-index:2;}
+    .hud-node .nlabel{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;pointer-events:none;z-index:2;background:radial-gradient(circle at 50% 50%,rgba(3,6,10,.82) 0%,rgba(3,6,10,.6) 42%,rgba(3,6,10,0) 66%);}
     @media(prefers-reduced-motion:reduce){.hud-node::before,.hud-node::after{animation:none;}}
     /* iconițe holografice SVG: line-icon cyan + glow + flicker */
     .hud-node .nicon{display:flex;align-items:center;justify-content:center;line-height:1;color:#bdf6ff;opacity:.92;animation:holo-flicker 5s infinite steps(1);}
     .hud-node .nicon svg{width:clamp(18px,5cqw,46px);height:auto;display:block;filter:drop-shadow(0 0 6px rgba(43,229,255,.95)) drop-shadow(0 0 15px rgba(43,229,255,.5));}
     @keyframes holo-flicker{0%,89%,100%{opacity:.92}90%{opacity:.55}91%{opacity:.92}94%{opacity:.65}95%{opacity:.94}97%{opacity:.78}}
     @media(prefers-reduced-motion:reduce){.hud-node .nicon{animation:none;}}
-    .hud-node .ntext{font-family:'Share Tech Mono',monospace;font-size:clamp(.5rem,1.7cqw,1.05rem);letter-spacing:.08em;text-transform:uppercase;color:#d6eef3;}
+    .hud-node .ntext{font-family:'Share Tech Mono',monospace;font-size:clamp(.5rem,1.7cqw,1.05rem);letter-spacing:.08em;text-transform:uppercase;color:#eaf6fa;font-weight:600;text-shadow:0 1px 3px #000,0 0 7px rgba(0,0,0,.85);}
     .hud-node:hover,.hud-node:focus-visible{transform:translate(-50%,-50%) scale(1.07);outline:none;}
     .hud-node:hover .n-fill,.hud-node:focus-visible .n-fill{fill:rgba(43,229,255,.12);}
     /* 7 noduri distribuite uniform pe cerc */
