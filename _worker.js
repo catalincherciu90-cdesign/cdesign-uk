@@ -3141,22 +3141,23 @@ Requirements:
         if (!subject) return json({ error: 'Subject is required' }, 400, request);
         if (!env.AI) return json({ error: 'AI binding unavailable — check wrangler.toml' }, 500, request);
 
-        const prompt = `Ești un copywriter expert în web design și marketing digital pentru afaceri mici din România. Scrie un articol de blog complet pentru agenția "C Design" pe subiectul: "${subject}".
+        const prompt = `You are an expert copywriter in web design and digital marketing for small businesses in the UK. Write a complete blog article for the agency "C Design" on the subject: "${subject}".
 
-Returnează EXCLUSIV un obiect JSON valid, fără text înainte sau după, cu această structură:
+Return EXCLUSIVELY a valid JSON object, with no text before or after, with this structure:
 {
-  "title": "titlu articol max 70 caractere",
-  "excerpt": "rezumat 2-3 propoziții pentru lista de articole",
-  "content": "conținut HTML complet cu <h2>, <p>, <ul>, <li>, <strong>",
-  "metaDescription": "meta description SEO max 160 caractere"
+  "title": "article title, max 70 characters",
+  "excerpt": "2-3 sentence summary for the article list",
+  "content": "complete HTML content using <h2>, <p>, <ul>, <li>, <strong>",
+  "metaDescription": "SEO meta description, max 160 characters"
 }
 
-Cerințe articol:
-- Limbă: română
-- Lungime: 600-900 cuvinte
-- Public țintă: antreprenori și proprietari de afaceri mici din România
-- Ton: profesional dar accesibil, fără jargon tehnic
-- Include sfaturi practice și exemple concrete`;
+Article requirements:
+- Language: English (British English spelling, e.g. optimise, colour, organise)
+- Length: 600-900 words
+- Target audience: entrepreneurs and small business owners in the UK
+- Tone: professional but approachable, no technical jargon
+- Include practical tips and concrete examples
+- Use £ for any prices and UK context`;
 
         const ai = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
           messages: [{ role: 'user', content: prompt }],
@@ -3198,36 +3199,36 @@ Cerințe articol:
         if (!env.AI) return json({ error: 'AI binding unavailable — check wrangler.toml' }, 500, request);
 
         const existingList = Array.isArray(existing) && existing.length
-          ? `\nEvită titluri similare cu cele deja publicate:\n${existing.slice(0, 10).map(t => `- ${t}`).join('\n')}`
+          ? `\nAvoid titles similar to those already published:\n${existing.slice(0, 10).map(t => `- ${t}`).join('\n')}`
           : '';
 
-        const focusCtx = focus ? `Focalizare: ${focus}` : 'Servicii generale de web design pentru afaceri mici';
-        const audienceCtx = audience ? `Public țintă: ${audience}` : 'Antreprenori și proprietari de afaceri mici din România';
+        const focusCtx = focus ? `Focus: ${focus}` : 'General web design services for small businesses';
+        const audienceCtx = audience ? `Target audience: ${audience}` : 'Entrepreneurs and small business owners in the UK';
 
-        const prompt = `Ești un expert SEO și content strategist pentru piața din România. Analizezi ce articole de blog ar trebui să scrie agenția "C Design" (web design din Ilfov/București, servicii pentru afaceri mici) pentru a-și îmbunătăți poziționarea pe Google și a atrage clienți potențiali.
+        const prompt = `You are an SEO expert and content strategist for the UK market. You analyse which blog articles the agency "C Design" (web design across the UK, services for small businesses) should write to improve its Google rankings and attract potential clients.
 
 ${focusCtx}
 ${audienceCtx}${existingList}
 
-Generează exact 8 idei de titluri de blog SEO-optimizate. Returnează EXCLUSIV un array JSON valid, fără text înainte sau după:
+Generate exactly 8 SEO-optimised blog title ideas. Return EXCLUSIVELY a valid JSON array, with no text before or after:
 
 [
   {
-    "title": "Titlul articolului (max 65 caractere, include cuvinte cheie)",
-    "keywords": ["cuvant cheie 1", "cuvant cheie 2", "cuvant cheie 3"],
+    "title": "Article title (max 65 characters, includes keywords)",
+    "keywords": ["keyword 1", "keyword 2", "keyword 3"],
     "intent": "informational|commercial|navigational",
-    "hook": "De ce funcționează acest titlu SEO (1-2 propoziții)",
-    "difficulty": "ușor|mediu|dificil",
-    "angle": "Unghiul editorial: tutorial|lista|ghid|comparatie|studiu-de-caz|sfaturi"
+    "hook": "Why this SEO title works (1-2 sentences)",
+    "difficulty": "easy|medium|hard",
+    "angle": "Editorial angle: tutorial|list|guide|comparison|case-study|tips"
   }
 ]
 
-Cerințe titluri:
-- Limbă română, naturală, fără traduceri rigide
-- Mixează intenții: 4 informational (sfaturi, ghiduri), 2 commercial (comparații, prețuri), 2 orientate spre conversie
-- Dificultate variată: 3 ușor, 3 mediu, 2 dificil
-- Relevante pentru afaceri mici din România care caută servicii web design
-- Include termeni de căutare reali pe care proprietarii de afaceri îi folosesc`;
+Title requirements:
+- Language: natural British English, no rigid translations
+- Mix intents: 4 informational (tips, guides), 2 commercial (comparisons, pricing), 2 conversion-oriented
+- Varied difficulty: 3 easy, 3 medium, 2 hard
+- Relevant for UK small businesses looking for web design services
+- Include real search terms that business owners actually use`;
 
         const ai = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
           messages: [{ role: 'user', content: prompt }],
