@@ -3164,7 +3164,8 @@ Article requirements:
           max_tokens: 2048,
         });
 
-        const text = (ai.response || '').trim();
+        const respRaw = ai && ai.response !== undefined ? ai.response : ai;
+        const text = String(respRaw ?? '').trim();
         const match = text.match(/\{[\s\S]*\}/);
         if (!match) return json({ error: 'The model did not return valid JSON. Please try again.' }, 500, request);
 
