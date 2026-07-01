@@ -124,7 +124,6 @@ article{padding:64px 0 90px}
       <ul class="nav-links" role="list">
         <li><a href="/">Home</a></li>
         <li><a href="/services">Services</a></li>
-        <li><a href="/#portfolio">Portfolio</a></li>
         <li><a href="/#about">About Us</a></li>
         <li><a href="/blog">Blog</a></li>
       </ul>
@@ -135,7 +134,7 @@ article{padding:64px 0 90px}
   </div>
 </nav>
 <div class="mobile-menu" id="mobileMenu">
-  <a href="/">Home</a><a href="/services">Services</a><a href="/#portfolio">Portfolio</a><a href="/#about">About Us</a><a href="/blog">Blog</a>
+  <a href="/">Home</a><a href="/services">Services</a><a href="/#about">About Us</a><a href="/blog">Blog</a>
   <a href="tel:+447312799449">+44 7312 799449</a><a href="/#contact" class="btn-nav">Get Quote</a>
 </div>
 <main>
@@ -177,7 +176,6 @@ article{padding:64px 0 90px}
     <div class="f-col">
       <h4>Company</h4>
       <a href="/#about">About Us</a>
-      <a href="/#portfolio">Portfolio</a>
       <a href="/pricing">Pricing</a>
       <a href="/blog">Blog</a>
     </div>
