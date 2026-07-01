@@ -224,8 +224,8 @@
       {emoji:'🧼',businessName:'My Cleaning Co.',industry:'Cleaning',tagline:'Spotless homes and offices.',url:'/demos/my-cleaning.html'}
     ];
     function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-    var ADMIN_MAP={'my-restaurant':'restaurant','my-cafe':'cafe','my-bakery':'bakery','my-shop':'shop','my-boutique':'boutique','my-barbershop':'barber','my-spa':'spa','my-dental-clinic':'dental','my-clinic':'clinic','my-gym':'gym','my-studio':'yoga','my-law-firm':'law','my-accounting':'accounting','my-estate-agency':'realestate','my-construction':'construction','my-plumbing':'plumbing','my-electrical':'electrical','my-garage':'garage','my-photography':'photography','my-cleaning':'cleaning'};
-    function adminHref(url){var m=String(url||'').match(/\/demos\/(my-[a-z-]+)\.html/);return (m&&ADMIN_MAP[m[1]])?'/demos/admin-demo.html?type='+ADMIN_MAP[m[1]]:null;}
+    var ADMIN_MAP={'my-restaurant':'restaurant','my-cafe':'cafe','my-bakery':'bakery','my-shop':'shop','my-boutique':'boutique','my-barbershop':'barber','my-spa':'spa','my-dental-clinic':'dental','my-clinic':'clinic','my-gym':'gym','my-studio':'yoga','my-law-firm':'law','my-accounting':'accounting','my-estate-agency':'realestate','my-construction':'construction','my-plumbing':'plumbing','my-electrical':'electrical','my-garage':'garage','my-photography':'photography','my-cleaning':'cleaning','bella-cucina':'restaurant','brightsmile-dental':'dental','urban-threads':'shop'};
+    function adminHref(url){var m=String(url||'').match(/\/demos\/([a-z0-9-]+)\.html/);return (m&&ADMIN_MAP[m[1]])?'/demos/admin-demo.html?type='+ADMIN_MAP[m[1]]:null;}
     function render(items){
       var grid=document.getElementById('demoGrid');
       grid.innerHTML=items.map(function(d){
