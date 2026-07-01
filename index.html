@@ -188,6 +188,26 @@
   @media(prefers-reduced-motion:reduce){.plat-track{animation:none}}
   @media(max-width:600px){.platforms{padding:58px 0}.plat img{height:34px}.plat-set{gap:44px;padding-right:44px}}
 
+  /* ---------- DEMO WEBSITES ---------- */
+  .demos{background:var(--bg-soft);padding:100px 24px}
+  .demos-head{text-align:center;max-width:700px;margin:0 auto 54px}
+  .demos-head .eyebrow{justify-content:center}
+  .demos-head h2{font-family:'Poppins',sans-serif;font-weight:300;font-size:clamp(1.9rem,3.4vw,2.9rem);color:var(--ink);letter-spacing:-.02em;line-height:1.12}
+  .demos-head h2 b{font-weight:700}
+  .demos-head p{margin-top:14px;color:var(--body);font-size:1.05rem;line-height:1.7}
+  .demo-grid{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+  .demo-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:30px 28px;display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s,border-color .2s}
+  .demo-card:hover{transform:translateY(-6px);box-shadow:0 24px 50px -24px rgba(30,50,90,.3);border-color:transparent}
+  .demo-emoji{width:60px;height:60px;border-radius:16px;background:linear-gradient(160deg,#eaf1ff,#dbe7ff);display:flex;align-items:center;justify-content:center;font-size:1.9rem;margin-bottom:20px}
+  .demo-card h3{font-family:'Poppins',sans-serif;font-weight:600;font-size:1.22rem;color:var(--ink);margin-bottom:8px}
+  .demo-tag{align-self:flex-start;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--blue);background:rgba(47,108,246,.09);padding:4px 10px;border-radius:20px;margin-bottom:14px}
+  .demo-card p{font-size:.96rem;line-height:1.6;color:var(--body);margin-bottom:20px}
+  .demo-link{margin-top:auto;display:inline-flex;align-items:center;gap:8px;font-family:'Poppins',sans-serif;font-weight:600;font-size:.96rem;color:var(--blue)}
+  .demo-link .arr{transition:transform .2s}
+  .demo-card:hover .demo-link .arr{transform:translateX(4px)}
+  @media(max-width:920px){.demo-grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:600px){.demo-grid{grid-template-columns:1fr}.demos{padding:70px 20px}}
+
   /* ---------- MOBILE ---------- */
   .mobile-menu{position:fixed;top:0;right:0;width:min(84vw,340px);height:100vh;background:#fff;box-shadow:-10px 0 40px rgba(0,0,0,.12);z-index:60;padding:88px 30px 30px;transform:translateX(100%);transition:transform .28s ease}
   .mobile-menu.open{transform:translateX(0)}
@@ -382,6 +402,16 @@
     </div>
   </section>
 
+  <!-- DEMO WEBSITES -->
+  <section class="demos" id="portfolio" style="display:none">
+    <div class="demos-head">
+      <span class="eyebrow">See our work</span>
+      <h2>Live <b>demo</b> websites</h2>
+      <p>Real examples of what we can build for your business — explore them live and picture your own.</p>
+    </div>
+    <div class="demo-grid" id="demoGrid"></div>
+  </section>
+
   <script>
     var burger = document.getElementById('burger');
     var mm = document.getElementById('mobileMenu');
@@ -392,6 +422,35 @@
     document.getElementById('mmClose').addEventListener('click', closeMenu);
     bd.addEventListener('click', closeMenu);
     mm.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', closeMenu); });
+
+    // Website-uri demo (din admin, /api/demos)
+    (function(){
+      var grid = document.getElementById('demoGrid');
+      var section = document.getElementById('portfolio');
+      if(!grid || !section) return;
+      function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+      fetch('/api/demos')
+        .then(function(r){ return r.ok ? r.json() : []; })
+        .then(function(list){
+          if(!Array.isArray(list) || !list.length) return;
+          var items = list.slice(0, 6);
+          grid.innerHTML = items.map(function(d){
+            var name = esc(d.businessName || 'Demo website');
+            var tag = d.industry ? '<span class="demo-tag">' + esc(d.industry) + '</span>' : '';
+            var tagline = d.tagline ? '<p>' + esc(d.tagline) + '</p>' : '<p></p>';
+            var href = '/demo/' + encodeURIComponent(d.slug || d.id || '');
+            return '<a class="demo-card" href="' + href + '" target="_blank" rel="noopener">'
+              + '<div class="demo-emoji">' + esc(d.emoji || '🌐') + '</div>'
+              + tag
+              + '<h3>' + name + '</h3>'
+              + tagline
+              + '<span class="demo-link">View demo <span class="arr">→</span></span>'
+              + '</a>';
+          }).join('');
+          section.style.display = 'block';
+        })
+        .catch(function(){});
+    })();
 
     // Setări din admin: video de fundal + carusel bannere About
     fetch('/api/site-settings')
