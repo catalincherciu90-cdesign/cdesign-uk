@@ -256,7 +256,7 @@
     .footer-handle .fh-arrow{transition:transform .35s;}
     body>footer.open .footer-handle .fh-arrow{transform:rotate(180deg);}
     .footer-handle:hover{color:#8af3ff;border-color:rgba(43,229,255,.7);}
-    .hud-stage{position:relative;width:min(92vw,calc(100vh - 110px),1500px);aspect-ratio:1;margin:0 auto;z-index:1;container-type:inline-size;}
+    .hud-stage{position:relative;width:min(94vw,calc((100vh - 130px) * 1.4),1160px);aspect-ratio:1.4;margin:0 auto;z-index:1;container-type:inline-size;}
     .hud-stage>svg.hud-grid-ring{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;}
     .hud-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:32%;aspect-ratio:1;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle,rgba(43,229,255,.10),transparent 70%);}
     .hud-center .hc-core{position:absolute;inset:14%;border-radius:50%;background:radial-gradient(circle,rgba(43,229,255,.20),transparent 72%);}
@@ -310,12 +310,13 @@
     .hud-node:hover,.hud-node:focus-visible{transform:translate(-50%,-50%) scale(1.07);outline:none;}
     .hud-node:hover .n-fill,.hud-node:focus-visible .n-fill{fill:rgba(43,229,255,.12);}
     /* 7 noduri distribuite uniform pe cerc */
-    .hud-node.n1{top:6%;left:50%}.hud-node.n2{top:23%;left:84%}.hud-node.n3{top:60%;left:93%}
-    .hud-node.n4{top:90%;left:69%}.hud-node.n5{top:90%;left:31%}.hud-node.n6{top:60%;left:7%}
-    .hud-node.n7{top:23%;left:16%}
-    /* cercuri inegale — aspect dinamic */
-    .hud-node.n1{width:27%}.hud-node.n2{width:29%}.hud-node.n3{width:22%}
-    .hud-node.n4{width:26%}.hud-node.n5{width:28%}.hud-node.n6{width:21%}.hud-node.n7{width:25%}
+    /* 7 noduri pe elipsă (oval) */
+    .hud-node.n1{top:14%;left:50%}.hud-node.n2{top:28%;left:81%}.hud-node.n3{top:58%;left:89%}
+    .hud-node.n4{top:82%;left:67%}.hud-node.n5{top:82%;left:33%}.hud-node.n6{top:58%;left:11%}
+    .hud-node.n7{top:28%;left:19%}
+    /* cercuri inegale — dimensionate pt oval */
+    .hud-node.n1{width:20%}.hud-node.n2{width:21%}.hud-node.n3{width:17%}
+    .hud-node.n4{width:19%}.hud-node.n5{width:21%}.hud-node.n6{width:16%}.hud-node.n7{width:19%}
     .hud-hint{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;white-space:nowrap;}
     /* full-screen panels */
     .hud-panel{position:fixed;inset:0;z-index:3000;background:radial-gradient(80% 100% at 80% 0%,rgba(43,229,255,.10),transparent 55%),linear-gradient(180deg,#0A1118,#0B0F14);display:flex;flex-direction:column;opacity:0;visibility:hidden;transform:scale(.985);transition:opacity .4s,transform .4s,visibility .4s;}
@@ -332,7 +333,7 @@
     body.hud-locked{overflow:hidden;}
     @media(max-width:768px){
       .home-banner.is-console{min-height:calc(100svh - 106px);padding:18px 0;}
-      .hud-stage{width:min(94vw,calc(100svh - 110px));}
+      .hud-stage{width:min(94vw,calc(100svh - 110px));aspect-ratio:1.05;}
     }
     @media(prefers-reduced-motion:reduce){.hud-panel,.hud-panel-inner{transition:none;animation:none;}}
 
@@ -719,14 +720,15 @@
   <div class="container">
     <div class="hud-stage" role="navigation" aria-label="Explore sections">
       <div class="hud-radar" aria-hidden="true"></div>
-      <svg class="hud-grid-ring" viewBox="0 0 400 400" aria-hidden="true">
-        <g class="hud-c" stroke-width="1" opacity=".16">
-          <line x1="200" y1="200" x2="200" y2="30"/>
-          <line x1="200" y1="200" x2="358" y2="114"/>
-          <line x1="200" y1="200" x2="358" y2="286"/>
-          <line x1="200" y1="200" x2="200" y2="370"/>
-          <line x1="200" y1="200" x2="42" y2="286"/>
-          <line x1="200" y1="200" x2="42" y2="114"/>
+      <svg class="hud-grid-ring" viewBox="0 0 400 400" preserveAspectRatio="none" aria-hidden="true">
+        <g class="hud-c" stroke-width="1" opacity=".16" vector-effect="non-scaling-stroke">
+          <line x1="200" y1="200" x2="200" y2="56"/>
+          <line x1="200" y1="200" x2="324" y2="112"/>
+          <line x1="200" y1="200" x2="356" y2="232"/>
+          <line x1="200" y1="200" x2="268" y2="328"/>
+          <line x1="200" y1="200" x2="132" y2="328"/>
+          <line x1="200" y1="200" x2="44" y2="232"/>
+          <line x1="200" y1="200" x2="76" y2="112"/>
         </g>
         <circle class="hud-c" cx="200" cy="200" r="150" stroke-width="1" opacity=".14"/>
         <circle class="hud-c hud-spin" cx="200" cy="200" r="150" stroke-width="1" stroke-dasharray="2 12" opacity=".32"/>
