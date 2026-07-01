@@ -104,8 +104,27 @@
   .about{background:#fff;padding:100px 24px;text-align:center}
   .about-inner{max-width:760px;margin:0 auto}
   .about .eyebrow{justify-content:center}
-  .about h2{margin-left:auto;margin-right:auto}
-  .about p{margin-left:auto;margin-right:auto}
+  .about h2,.about p{margin-left:auto;margin-right:auto}
+  /* când există bannere în carusel → două coloane, text la stânga */
+  .about.has-banners{text-align:left}
+  .about.has-banners .about-inner{max-width:1180px;display:grid;grid-template-columns:1.02fr .98fr;gap:60px;align-items:center}
+  .about.has-banners .eyebrow{justify-content:flex-start}
+  .about.has-banners h2,.about.has-banners p{margin-left:0;margin-right:0}
+  .about-carousel{display:none;position:relative;width:100%;aspect-ratio:16/10;border-radius:22px;overflow:hidden;background:#eef2f7;border:1px solid var(--line);box-shadow:0 26px 64px -30px rgba(30,50,90,.45)}
+  .about.has-banners .about-carousel{display:block}
+  .ac-slide{position:absolute;inset:0;opacity:0;transition:opacity .8s ease}
+  .ac-slide.on{opacity:1}
+  .ac-slide img{width:100%;height:100%;object-fit:cover}
+  .ac-dots{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:3}
+  .ac-dot{width:8px;height:8px;padding:0;border-radius:50%;background:rgba(255,255,255,.55);cursor:pointer;border:0;transition:.25s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+  .ac-dot.on{background:#fff;width:22px;border-radius:5px}
+  @media(max-width:880px){
+    .about.has-banners{text-align:center}
+    .about.has-banners .about-inner{grid-template-columns:1fr;gap:40px}
+    .about.has-banners .eyebrow{justify-content:center}
+    .about.has-banners h2,.about.has-banners p{margin-left:auto;margin-right:auto}
+    .about.has-banners .about-carousel{order:2}
+  }
   .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'Poppins',sans-serif;font-weight:600;font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:18px}
   .eyebrow::before{content:'';width:26px;height:2px;background:var(--blue);border-radius:2px}
   .about h2{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);font-size:clamp(1.9rem,3.4vw,2.9rem);line-height:1.12;letter-spacing:-.02em;margin-bottom:24px}
@@ -231,6 +250,10 @@
         <p>From your first idea to launch day we handle everything: design, build, copywriting, SEO and hosting. Most projects go live in around <b>14 days</b>.</p>
         <a href="#contact" class="btn-primary about-cta">Get a Quote <span class="arr">→</span></a>
       </div>
+      <div class="about-carousel" id="aboutCarousel" aria-label="Showcase">
+        <div class="ac-slides" id="acSlides"></div>
+        <div class="ac-dots" id="acDots"></div>
+      </div>
     </div>
   </section>
 
@@ -245,19 +268,53 @@
     bd.addEventListener('click', closeMenu);
     mm.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', closeMenu); });
 
-    // Video de fundal în hero (același din admin ca pe site-ul live)
+    // Setări din admin: video de fundal + carusel bannere About
     fetch('/api/site-settings')
       .then(function(r){ return r.ok ? r.json() : null; })
       .then(function(d){
-        if(!d || !d.bgVideo) return;
-        var v = document.getElementById('heroBgVideo');
-        var hero = document.getElementById('hero');
-        if(!v || !hero) return;
-        v.src = d.bgVideo;
-        hero.classList.add('has-video');
-        var p = v.play(); if(p && p.catch) p.catch(function(){});
+        if(!d) return;
+        // Video de fundal în hero (același din admin ca pe site-ul live)
+        if(d.bgVideo){
+          var v = document.getElementById('heroBgVideo');
+          var hero = document.getElementById('hero');
+          if(v && hero){
+            v.src = d.bgVideo;
+            hero.classList.add('has-video');
+            var p = v.play(); if(p && p.catch) p.catch(function(){});
+          }
+        }
+        // Carusel bannere About (imagini încărcate din admin)
+        setupAboutCarousel(d.aboutBanners);
       })
       .catch(function(){});
+
+    function setupAboutCarousel(banners){
+      var list = (Array.isArray(banners) ? banners : (banners ? String(banners).split('\n') : []))
+        .map(function(s){ return String(s).trim(); }).filter(Boolean);
+      var about = document.getElementById('about');
+      var slides = document.getElementById('acSlides');
+      var dots = document.getElementById('acDots');
+      if(!about || !slides || !dots || !list.length) return;
+      slides.innerHTML = list.map(function(url,i){
+        return '<div class="ac-slide' + (i===0?' on':'') + '"><img src="' + url.replace(/"/g,'&quot;') + '" alt="Showcase ' + (i+1) + '" loading="lazy"></div>';
+      }).join('');
+      dots.innerHTML = list.map(function(_,i){
+        return '<button class="ac-dot' + (i===0?' on':'') + '" data-i="' + i + '" aria-label="Slide ' + (i+1) + '"></button>';
+      }).join('');
+      about.classList.add('has-banners');
+      var slideEls = slides.querySelectorAll('.ac-slide');
+      var dotEls = dots.querySelectorAll('.ac-dot');
+      var cur = 0, timer = null;
+      function go(n){
+        slideEls[cur].classList.remove('on'); dotEls[cur].classList.remove('on');
+        cur = (n + list.length) % list.length;
+        slideEls[cur].classList.add('on'); dotEls[cur].classList.add('on');
+      }
+      function start(){ if(list.length>1 && !timer) timer = setInterval(function(){ go(cur+1); }, 4200); }
+      function stop(){ if(timer){ clearInterval(timer); timer = null; } }
+      dotEls.forEach(function(dot){ dot.addEventListener('click', function(){ go(+dot.getAttribute('data-i')); stop(); start(); }); });
+      if(!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) start();
+    }
   </script>
 </body>
 </html>
