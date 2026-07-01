@@ -134,8 +134,9 @@
   .services-head .eyebrow{justify-content:center}
   .services-head h2{font-family:'Poppins',sans-serif;font-weight:700;font-size:clamp(2rem,4vw,3.1rem);color:var(--ink);letter-spacing:-.02em;line-height:1.1}
   .help-grid{max-width:1160px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:40px 34px}
-  .help-item .help-head{display:flex;align-items:center;gap:11px;margin-bottom:13px}
-  .help-sq{width:15px;height:15px;background:var(--blue);border-radius:2px;flex:none}
+  .help-item .help-head{display:flex;align-items:center;gap:12px;margin-bottom:13px}
+  .help-ico{width:40px;height:40px;border-radius:11px;background:linear-gradient(160deg,#ddf3f3,#c9ebeb);display:flex;align-items:center;justify-content:center;flex:none}
+  .help-ico svg{width:21px;height:21px;stroke:var(--blue-dk);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
   .help-item h3{font-family:'Poppins',sans-serif;font-weight:700;font-size:1.06rem;color:var(--ink);letter-spacing:-.01em}
   .help-item p{font-size:.93rem;line-height:1.62;color:var(--body)}
   @media(max-width:960px){.help-grid{grid-template-columns:repeat(3,1fr)}}
@@ -206,7 +207,9 @@
   .contact-info h2 b{font-weight:700}
   .contact-info>p{font-size:1.04rem;line-height:1.7;color:var(--body);margin-bottom:26px}
   .info-row{display:flex;gap:14px;align-items:center;margin-top:16px}
-  .info-ic{width:46px;height:46px;border-radius:12px;background:linear-gradient(160deg,#ddf3f3,#c9ebeb);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex:none}
+  .info-ic{width:46px;height:46px;border-radius:12px;background:linear-gradient(160deg,#ddf3f3,#c9ebeb);display:flex;align-items:center;justify-content:center;flex:none}
+  .info-ic svg{width:22px;height:22px;stroke:var(--blue-dk);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .topbar-right a svg,.f-col a svg,.f-col .fi svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
   .info-row .lbl{font-family:'Inter',sans-serif;font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
   .info-row .val{font-family:'Poppins',sans-serif;font-weight:600;color:var(--ink);font-size:1.02rem}
   .info-row a.val:hover{color:var(--blue)}
@@ -280,8 +283,8 @@
         <a href="/pricing" class="view-deal">VIEW DEAL</a>
       </span>
       <div class="topbar-right">
-        <a href="#contact">💬 Support</a>
-        <a href="tel:+447312799449">📞 +44 7312 799449</a>
+        <a href="#contact"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4V5Z"/></svg> Support</a>
+        <a href="tel:+447312799449"><svg viewBox="0 0 24 24"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4.5 5.7 2 2 0 0 1 6.5 3.5Z"/></svg> +44 7312 799449</a>
       </div>
     </div>
   </div>
@@ -364,35 +367,35 @@
     </div>
     <div class="help-grid">
       <div class="help-item">
-        <div class="help-head"><span class="help-sq"></span><h3>Website Design</h3></div>
+        <div class="help-head"><span class="help-ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="1.5"/><path d="M3 8h18M9 21h6M12 17v4"/></svg></span><h3>Website Design</h3></div>
         <p>Modern, responsive websites that showcase your products and services beautifully on any device.</p>
       </div>
       <div class="help-item">
-        <div class="help-head"><span class="help-sq"></span><h3>E-commerce</h3></div>
+        <div class="help-head"><span class="help-ico"><svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg></span><h3>E-commerce</h3></div>
         <p>Online shops with secure payments and easy product management, so you can sell around the clock.</p>
       </div>
       <div class="help-item">
-        <div class="help-head"><span class="help-sq"></span><h3>Custom Web Apps</h3></div>
+        <div class="help-head"><span class="help-ico"><svg viewBox="0 0 24 24"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 6l-3 12"/></svg></span><h3>Custom Web Apps</h3></div>
         <p>Bespoke applications for your business — CRMs, custom WordPress modules and industry-specific tools.</p>
       </div>
       <div class="help-item">
-        <div class="help-head"><span class="help-sq"></span><h3>AI Integration &amp; Automation</h3></div>
+        <div class="help-head"><span class="help-ico"><svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 7V4M14 7V4M10 20v-3M14 20v-3M7 10H4M7 14H4M20 10h-3M20 14h-3"/></svg></span><h3>AI Integration &amp; Automation</h3></div>
         <p>Smart chatbots, AI assistants and workflow automation that save you time and level up your customer experience.</p>
       </div>
       <div class="help-item">
-        <div class="help-head"><span class="help-sq"></span><h3>Maintenance &amp; Hosting</h3></div>
+        <div class="help-head"><span class="help-ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="1.5"/><rect x="3" y="13" width="18" height="7" rx="1.5"/><path d="M7 7.5h.01M7 16.5h.01"/></svg></span><h3>Maintenance &amp; Hosting</h3></div>
         <p>Fast, secure hosting with ongoing updates, backups and support so your site always runs smoothly.</p>
       </div>
       <div class="help-item">
-        <div class="help-head"><span class="help-sq"></span><h3>SEO &amp; Local SEO</h3></div>
+        <div class="help-head"><span class="help-ico"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="M20 20l-5.2-5.2"/></svg></span><h3>SEO &amp; Local SEO</h3></div>
         <p>Get found on Google and rank in local UK searches to bring in more of the right customers.</p>
       </div>
       <div class="help-item">
-        <div class="help-head"><span class="help-sq"></span><h3>Social Media</h3></div>
+        <div class="help-head"><span class="help-ico"><svg viewBox="0 0 24 24"><path d="M4 10v4a1 1 0 0 0 1 1h2l7 4V5L7 9H5a1 1 0 0 0-1 1Z"/><path d="M18 8.5a4 4 0 0 1 0 7"/></svg></span><h3>Social Media</h3></div>
         <p>Management for Facebook, Instagram, LinkedIn and X that builds a real buzz around your brand.</p>
       </div>
       <div class="help-item">
-        <div class="help-head"><span class="help-sq"></span><h3>Branding &amp; Logo</h3></div>
+        <div class="help-head"><span class="help-ico"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z"/></svg></span><h3>Branding &amp; Logo</h3></div>
         <p>A distinctive visual identity — logo, colours and brand assets that make your business memorable.</p>
       </div>
     </div>
@@ -471,15 +474,15 @@
         <h2>Let's build something <b>great</b> together</h2>
         <p>Tell us a little about your project and we'll get back to you within one working day. No pressure, no jargon — just honest advice.</p>
         <div class="info-row">
-          <div class="info-ic">📞</div>
+          <div class="info-ic"><svg viewBox="0 0 24 24"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4.5 5.7 2 2 0 0 1 6.5 3.5Z"/></svg></div>
           <div><div class="lbl">Call us</div><a class="val" href="tel:+447312799449">+44 7312 799449</a></div>
         </div>
         <div class="info-row">
-          <div class="info-ic">💬</div>
+          <div class="info-ic"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4V5Z"/></svg></div>
           <div><div class="lbl">Prefer to write?</div><div class="val">Use the form — it reaches us instantly</div></div>
         </div>
         <div class="info-row">
-          <div class="info-ic">🕘</div>
+          <div class="info-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg></div>
           <div><div class="lbl">Hours</div><div class="val">Mon – Fri · 9:00 – 18:00</div></div>
         </div>
       </div>
@@ -537,9 +540,9 @@
       </div>
       <div class="f-col">
         <h4>Get in touch</h4>
-        <a href="tel:+447312799449">📞 +44 7312 799449</a>
-        <a href="#contact">💬 Send a message</a>
-        <div class="fi">🕘 Mon – Fri · 9:00 – 18:00</div>
+        <a href="tel:+447312799449"><svg viewBox="0 0 24 24"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4.5 5.7 2 2 0 0 1 6.5 3.5Z"/></svg> +44 7312 799449</a>
+        <a href="#contact"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4V5Z"/></svg> Send a message</a>
+        <div class="fi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg> Mon – Fri · 9:00 – 18:00</div>
       </div>
     </div>
     <div class="footer-bottom">
