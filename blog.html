@@ -61,6 +61,23 @@
   .blog-empty h3{font-family:'Poppins',sans-serif;color:var(--ink);margin-bottom:8px}
   .spinner{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--teal);border-radius:50%;margin:0 auto 16px;animation:spin .8s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
+  /* platforms marquee */
+  .platforms{background:#fff;padding:70px 0;border-top:1px solid var(--line);overflow:hidden}
+  .plat-title{text-align:center;font-family:'Poppins',sans-serif;font-weight:600;font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:0 24px}
+  .plat-marquee{margin-top:42px;position:relative;overflow:hidden}
+  .plat-marquee::before,.plat-marquee::after{content:'';position:absolute;top:0;bottom:0;width:90px;z-index:2;pointer-events:none}
+  .plat-marquee::before{left:0;background:linear-gradient(90deg,#fff,transparent)}
+  .plat-marquee::after{right:0;background:linear-gradient(270deg,#fff,transparent)}
+  .plat-track{display:flex;width:max-content;animation:plat-scroll 48s linear infinite}
+  .plat-track:hover{animation-play-state:paused}
+  .plat-set{display:flex;align-items:center;gap:58px;padding-right:58px}
+  .plat{display:flex;flex-direction:column;align-items:center;gap:11px;flex:none}
+  .plat img{height:40px;width:auto;filter:grayscale(1);opacity:.5;transition:filter .25s,opacity .25s,transform .25s}
+  .plat:hover img{filter:none;opacity:1;transform:translateY(-3px)}
+  .plat span{font-family:'Inter',sans-serif;font-size:.74rem;font-weight:500;color:var(--muted);text-align:center;line-height:1.2;white-space:nowrap}
+  @keyframes plat-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @media(prefers-reduced-motion:reduce){.plat-track{animation:none}}
+  @media(max-width:600px){.platforms{padding:56px 0}.plat img{height:34px}.plat-set{gap:44px;padding-right:44px}}
   /* footer */
   .site-footer{background:#0c1016;color:#9aa6b2;padding:56px 40px 34px;text-align:center}
   .site-footer img{height:36px;width:auto;filter:brightness(0) invert(1);margin:0 auto 16px;opacity:.9}
@@ -117,6 +134,44 @@
   <section class="blog-section">
     <div id="blog-container">
       <div class="blog-loading"><div class="spinner"></div><p>Loading articles...</p></div>
+    </div>
+  </section>
+
+  <section class="platforms">
+    <p class="plat-title">Platforms &amp; technologies we work with</p>
+    <div class="plat-marquee">
+      <div class="plat-track">
+        <div class="plat-set">
+          <div class="plat"><img src="https://cdn.simpleicons.org/wordpress/21759B" alt="WordPress" loading="lazy"><span>WordPress</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/woocommerce/96588A" alt="WooCommerce" loading="lazy"><span>WooCommerce</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/html5/E34F26" alt="HTML5" loading="lazy"><span>HTML5</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/prestashop/DF0067" alt="PrestaShop" loading="lazy"><span>PrestaShop</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/shopify/7AB55C" alt="Shopify" loading="lazy"><span>Shopify</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/meta/0467DF" alt="Meta Business" loading="lazy"><span>Meta Business</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/webflow/146EF5" alt="Webflow" loading="lazy"><span>Webflow</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/wix/0C6EFC" alt="Wix" loading="lazy"><span>Wix</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/squarespace/000000" alt="Squarespace" loading="lazy"><span>Squarespace</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/stripe/635BFF" alt="Stripe" loading="lazy"><span>Stripe</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/cloudflare/F38020" alt="Cloudflare" loading="lazy"><span>Cloudflare</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/googleanalytics/E37400" alt="Google Analytics" loading="lazy"><span>Google Analytics</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/mailchimp/FFE01B" alt="Mailchimp" loading="lazy"><span>Mailchimp</span></div>
+        </div>
+        <div class="plat-set" aria-hidden="true">
+          <div class="plat"><img src="https://cdn.simpleicons.org/wordpress/21759B" alt="" loading="lazy"><span>WordPress</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/woocommerce/96588A" alt="" loading="lazy"><span>WooCommerce</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/html5/E34F26" alt="" loading="lazy"><span>HTML5</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/prestashop/DF0067" alt="" loading="lazy"><span>PrestaShop</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/shopify/7AB55C" alt="" loading="lazy"><span>Shopify</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/meta/0467DF" alt="" loading="lazy"><span>Meta Business</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/webflow/146EF5" alt="" loading="lazy"><span>Webflow</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/wix/0C6EFC" alt="" loading="lazy"><span>Wix</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/squarespace/000000" alt="" loading="lazy"><span>Squarespace</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/stripe/635BFF" alt="" loading="lazy"><span>Stripe</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/cloudflare/F38020" alt="" loading="lazy"><span>Cloudflare</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/googleanalytics/E37400" alt="" loading="lazy"><span>Google Analytics</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/mailchimp/FFE01B" alt="" loading="lazy"><span>Mailchimp</span></div>
+        </div>
+      </div>
     </div>
   </section>
 
