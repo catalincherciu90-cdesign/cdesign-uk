@@ -621,6 +621,13 @@
       .then(function(r){ return r.ok ? r.json() : null; })
       .then(function(d){
         d = d || {};
+        // Culoare de accent (temă setată din admin)
+        if(d.accentColor && /^#[0-9a-fA-F]{6}$/.test(d.accentColor)){
+          var _h=d.accentColor;
+          var _adj=function(hex,f){var n=parseInt(hex.slice(1),16),r=(n>>16)&255,g=(n>>8)&255,b=n&255;var m=function(x){return Math.max(0,Math.min(255,Math.round(f<0?x*(1+f):x+(255-x)*f)));};return '#'+((1<<24)+(m(r)<<16)+(m(g)<<8)+m(b)).toString(16).slice(1);};
+          var _s=document.documentElement.style;
+          _s.setProperty('--blue',_h);_s.setProperty('--blue-dk',_adj(_h,-.18));_s.setProperty('--sky',_adj(_h,.12));
+        }
         // Video de fundal în hero (același din admin ca pe site-ul live)
         if(d.bgVideo){
           var v = document.getElementById('heroBgVideo');

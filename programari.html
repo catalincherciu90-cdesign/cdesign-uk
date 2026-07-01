@@ -1478,6 +1478,19 @@
             </div>
           </div>
 
+          <!-- ACCENT COLOUR (tema site nou) -->
+          <div style="margin-top:22px;padding-top:18px;border-top:1px solid var(--border-soft);">
+            <div class="f-label" style="margin-bottom:6px;">// accent_colour (culoarea temei site-ului)</div>
+            <div style="font-size:.72rem;color:var(--muted);margin-bottom:12px;">Culoarea de accent folosită pe tot site-ul: butoane, linkuri, cercul din hero, pătrățele etc. Implicit este teal-ul din logo.</div>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+              <input type="color" id="accent-color" value="#00AAAC" oninput="document.getElementById('accent-hex').value=this.value.toUpperCase()" style="width:52px;height:44px;border:1px solid var(--border-soft);border-radius:8px;background:none;cursor:pointer;padding:2px;">
+              <input type="text" id="accent-hex" value="#00AAAC" maxlength="7" oninput="var v=this.value.trim();if(/^#[0-9a-fA-F]{6}$/.test(v))document.getElementById('accent-color').value=v;" style="width:110px;font-family:'Share Tech Mono',monospace;font-size:.9rem;padding:10px 12px;border:1px solid var(--border-soft);border-radius:8px;background:var(--bg3);color:var(--text);">
+              <button onclick="saveAccentColor()" class="btn-save">💾 Save</button>
+              <button onclick="resetAccentColor()" style="background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:0 14px;font-size:.8rem;cursor:pointer;white-space:nowrap;height:40px;">↺ Default</button>
+            </div>
+            <div id="accent-color-status" style="font-size:.75rem;color:var(--teal);margin-top:10px;min-height:16px;"></div>
+          </div>
+
               <!-- Gradient + Text toggles -->
               <!-- Înălțime + Poziție + Size imagine -->
               <div style="margin-top:14px;margin-bottom:6px;">
@@ -4105,6 +4118,7 @@
       { var bo2 = document.getElementById('banner-offers-2'); if (bo2) bo2.value = (d.bannerOffers2 != null && d.bannerOffers2 !== '') ? (Array.isArray(d.bannerOffers2) ? d.bannerOffers2.join('\n') : d.bannerOffers2) : DEFAULT_BANNER_OFFERS_2; }
       { var tk = document.getElementById('ticker-items'); if (tk) tk.value = (d.tickerItems != null && d.tickerItems !== '') ? (Array.isArray(d.tickerItems) ? d.tickerItems.join('\n') : d.tickerItems) : DEFAULT_TICKER_ITEMS; }
       { aboutBannersData = Array.isArray(d.aboutBanners) ? d.aboutBanners.slice() : (d.aboutBanners ? String(d.aboutBanners).split('\n').map(function(s){return s.trim();}).filter(Boolean) : []); renderAboutBanners(); }
+      { var ac = (d.accentColor && /^#[0-9a-fA-F]{6}$/.test(d.accentColor)) ? d.accentColor.toUpperCase() : DEFAULT_ACCENT; var acC=document.getElementById('accent-color'), acH=document.getElementById('accent-hex'); if(acC) acC.value=ac; if(acH) acH.value=ac; }
       if (d.heroImage) {
         document.getElementById('hero-img-url').value = d.heroImage;
         applyHeroPreview(d.heroImage);
@@ -4406,6 +4420,27 @@
   async function resetTickerItems() {
     document.getElementById('ticker-items').value = DEFAULT_TICKER_ITEMS;
     await saveTickerItems();
+  }
+
+  // ---- Accent colour (tema site) ----
+  var DEFAULT_ACCENT = '#00AAAC';
+  async function saveAccentColor() {
+    var val = (document.getElementById('accent-hex').value || '').trim().toUpperCase();
+    var statusEl = document.getElementById('accent-color-status');
+    if (!/^#[0-9A-F]{6}$/.test(val)) { statusEl.textContent = '✕ Invalid colour (use #RRGGBB)'; return; }
+    try {
+      await fetch('/api/site-settings?token=' + encodeURIComponent(adminToken), {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accentColor: val })
+      });
+      statusEl.textContent = '✓ Saved! Accent colour updated across the site.';
+      setTimeout(function(){ statusEl.textContent = ''; }, 3000);
+    } catch { statusEl.textContent = '✕ Error saving'; }
+  }
+  async function resetAccentColor() {
+    document.getElementById('accent-color').value = DEFAULT_ACCENT;
+    document.getElementById('accent-hex').value = DEFAULT_ACCENT;
+    await saveAccentColor();
   }
 
   // ---- About carousel banners ----
