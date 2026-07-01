@@ -258,6 +258,9 @@
     .footer-handle:hover{color:#8af3ff;border-color:rgba(43,229,255,.7);}
     .hud-stage{position:relative;width:min(94vw,calc((100vh - 130px) * 1.4),1160px);aspect-ratio:1.4;margin:0 auto;z-index:1;container-type:inline-size;}
     .hud-stage>svg.hud-grid-ring{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;}
+    /* banner rotund cu oferte care orbitează lent */
+    .orbit-banner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:94%;aspect-ratio:1;z-index:0;pointer-events:none;overflow:visible;}
+    .orbit-text{fill:#2BE5FF;font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2.4px;opacity:.6;text-transform:uppercase;}
     .hud-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:32%;aspect-ratio:1;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle,rgba(43,229,255,.10),transparent 70%);}
     .hud-center .hc-core{position:absolute;inset:14%;border-radius:50%;background:radial-gradient(circle,rgba(43,229,255,.20),transparent 72%);}
     .hud-center .hc-brand{position:relative;font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:clamp(1rem,2.3vw,1.5rem);color:var(--heading);letter-spacing:-.02em;}
@@ -733,6 +736,13 @@
         <circle class="hud-c" cx="200" cy="200" r="150" stroke-width="1" opacity=".14"/>
         <circle class="hud-c hud-spin" cx="200" cy="200" r="150" stroke-width="1" stroke-dasharray="2 12" opacity=".32"/>
         <circle class="hud-c hud-spin" cx="200" cy="200" r="188" stroke-width="1" stroke-dasharray="2 24" opacity=".2" style="animation-duration:60s;"/>
+      </svg>
+      <svg class="orbit-banner" viewBox="0 0 300 300" aria-hidden="true">
+        <defs><path id="orbitPath" d="M150,24 a126,126 0 1,1 -0.1,0"/></defs>
+        <g>
+          <text class="orbit-text"><textPath href="#orbitPath" startOffset="0">★ WEBSITES IN 14 DAYS ★ FIXED PRICE — NO SURPRISES ★ FREE CONSULTATION ★ LOCAL SEO INCLUDED ★ MAINTENANCE FROM £49/MO ★ 120+ UK PROJECTS ★ MOBILE-FIRST &amp; FAST ★&#160;</textPath></text>
+          <animateTransform attributeName="transform" type="rotate" from="0 150 150" to="360 150 150" dur="72s" repeatCount="indefinite"/>
+        </g>
       </svg>
       <span class="hud-pulse p1" aria-hidden="true"></span>
       <span class="hud-pulse p2" aria-hidden="true"></span>
