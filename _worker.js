@@ -98,9 +98,21 @@ article{padding:64px 0 90px}
 .cta-box p{color:var(--body);margin-bottom:22px;font-size:.98rem}
 .btn{display:inline-block;background:var(--teal);color:#fff;font-family:'Poppins',sans-serif;padding:14px 30px;border-radius:999px;font-weight:600;font-size:.95rem;transition:transform .15s,background .2s,box-shadow .2s;box-shadow:0 10px 26px -10px rgba(0,170,172,.5)}
 .btn:hover{transform:translateY(-2px);background:var(--teal-dk)}
-footer{background:#0c1016;color:#9aa6b2;padding:40px 0;text-align:center;font-size:.88rem}
-footer a{color:#c3ccd6;transition:color .2s}footer a:hover{color:#fff}
-footer img{height:34px;width:auto;filter:brightness(0) invert(1);margin-bottom:14px}
+.site-footer{background:#0c1016;color:#9aa6b2;padding:70px 40px 34px}
+.footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.5fr 1fr 1fr 1.1fr;gap:44px}
+.f-brand img{height:40px;width:auto;filter:brightness(0) invert(1);margin-bottom:18px}
+.f-brand p{font-size:.94rem;line-height:1.7;max-width:300px;color:#9aa6b2}
+.f-social{display:flex;gap:11px;margin-top:22px}
+.f-social a{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;color:#c3ccd6;transition:background .2s,color .2s,transform .2s}
+.f-social a:hover{background:var(--teal);color:#fff;transform:translateY(-2px)}
+.f-social svg{width:18px;height:18px;fill:currentColor}
+.f-col h4{color:#fff;font-family:'Poppins',sans-serif;font-weight:600;font-size:1rem;margin-bottom:15px}
+.f-col a,.f-col .fi{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:.94rem;color:#9aa6b2;line-height:1.4}
+.f-col a:hover{color:#fff}
+.footer-bottom{max-width:1200px;margin:46px auto 0;padding-top:24px;border-top:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:.88rem;color:#9aa6b2}
+.footer-bottom a{color:#9aa6b2}.footer-bottom a:hover{color:#fff}
+@media(max-width:820px){.footer-inner{grid-template-columns:1fr 1fr;gap:34px}.f-brand{grid-column:1/-1}}
+@media(max-width:480px){.footer-inner{grid-template-columns:1fr}.footer-bottom{justify-content:center;text-align:center}}
 @media(max-width:760px){.wide{padding:0 22px}article{padding:44px 0 60px}nav .nav-links,.nav-phone,.btn-nav{display:none}.hamburger{display:flex}}
 </style>
 </head>
@@ -141,10 +153,43 @@ footer img{height:34px;width:auto;filter:brightness(0) invert(1);margin-bottom:1
 </div>
 </article>
 </main>
-<footer>
-  <div class="wide">
-    <a href="/"><img src="/logo-c-design.webp" alt="C Design"></a>
-    <p>© ${yr} C Design · <a href="tel:+447312799449">+44 7312 799449</a> · <a href="/#contact">Contact</a> · <a href="/blog">Blog</a> · <a href="/politica-confidentialitate">Privacy</a></p>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <img src="/logo-c-design.webp" alt="C Design">
+      <p>A UK web studio building modern, fast websites and apps that turn visitors into customers — with honest, fixed pricing.</p>
+      <div class="f-social">
+        <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M13 22v-8h2.7l.4-3H13V9.2c0-.9.3-1.5 1.6-1.5H16V5.1C15.7 5 14.7 5 13.6 5 11.2 5 9.7 6.4 9.7 9v2H7v3h2.7v8z"/></svg></a>
+        <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.3 2.2.4.5.2.9.5 1.3.9.4.4.7.8.9 1.3.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 1.8-.4 2.2-.2.5-.5.9-.9 1.3-.4.4-.8.7-1.3.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.3-2.2-.4a3.5 3.5 0 0 1-1.3-.9 3.5 3.5 0 0 1-.9-1.3c-.2-.4-.4-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.3-1.8.4-2.2.2-.5.5-.9.9-1.3.4-.4.8-.7 1.3-.9.4-.2 1-.4 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 3.2A6.6 6.6 0 1 0 12 18.6 6.6 6.6 0 0 0 12 5.4zm0 10.9a4.3 4.3 0 1 1 0-8.6 4.3 4.3 0 0 1 0 8.6zm6.8-11.2a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/></svg></a>
+        <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M6.9 8.4H3.6V21h3.3zM5.2 3.5a1.9 1.9 0 1 0 0 3.8 1.9 1.9 0 0 0 0-3.8zM21 21h-3.3v-6.2c0-1.5 0-3.4-2-3.4s-2.4 1.6-2.4 3.3V21h-3.3V8.4h3.2v1.7h.1c.4-.8 1.5-1.7 3.1-1.7 3.3 0 3.9 2.2 3.9 5z"/></svg></a>
+        <a href="#" aria-label="X"><svg viewBox="0 0 24 24"><path d="M17.5 3h3l-6.6 7.5L21.7 21h-6l-4.7-6.1L5.6 21h-3l7-8L2.6 3h6.1l4.2 5.6zM16.4 19.2h1.7L7.7 4.7H5.9z"/></svg></a>
+      </div>
+    </div>
+    <div class="f-col">
+      <h4>Services</h4>
+      <a href="/#services">Website Design</a>
+      <a href="/#services">E-commerce</a>
+      <a href="/#services">Custom Web Apps</a>
+      <a href="/#services">SEO &amp; Local SEO</a>
+      <a href="/#services">Social Media</a>
+    </div>
+    <div class="f-col">
+      <h4>Company</h4>
+      <a href="/#about">About Us</a>
+      <a href="/#portfolio">Portfolio</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog">Blog</a>
+    </div>
+    <div class="f-col">
+      <h4>Get in touch</h4>
+      <a href="tel:+447312799449">📞 +44 7312 799449</a>
+      <a href="/#contact">💬 Send a message</a>
+      <div class="fi">🕘 Mon – Fri · 9:00 – 18:00</div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© ${yr} C Design. All rights reserved.</span>
+    <span><a href="/politica-confidentialitate">Privacy Policy</a></span>
   </div>
 </footer>
 <script>
