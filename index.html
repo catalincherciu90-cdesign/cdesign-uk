@@ -182,6 +182,8 @@
   .plat img{height:40px;width:auto;filter:grayscale(1);opacity:.5;transition:filter .25s,opacity .25s,transform .25s}
   .plat:hover img{filter:none;opacity:1;transform:translateY(-3px)}
   .plat span{font-family:'Inter',sans-serif;font-size:.74rem;font-weight:500;color:var(--muted);text-align:center;line-height:1.2;white-space:nowrap}
+  .plat-word{display:flex;align-items:center;height:40px;font-family:'Poppins',sans-serif;font-weight:700;font-size:1.18rem;letter-spacing:-.01em;color:#8b94a3;transition:color .25s,transform .25s}
+  .plat:hover .plat-word{color:#F26522;transform:translateY(-3px)}
   @keyframes plat-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
   @media(prefers-reduced-motion:reduce){.plat-track{animation:none}}
   @media(max-width:600px){.platforms{padding:58px 0}.plat img{height:34px}.plat-set{gap:44px;padding-right:44px}}
@@ -360,7 +362,7 @@
           <div class="plat"><img src="https://cdn.simpleicons.org/cloudflare/F38020" alt="Cloudflare" loading="lazy"><span>Cloudflare</span></div>
           <div class="plat"><img src="https://cdn.simpleicons.org/googleanalytics/E37400" alt="Google Analytics" loading="lazy"><span>Google Analytics</span></div>
           <div class="plat"><img src="https://cdn.simpleicons.org/mailchimp/FFE01B" alt="Mailchimp" loading="lazy"><span>Mailchimp</span></div>
-          <div class="plat"><img src="https://logo.clearbit.com/newsman.com" alt="Newsman" loading="lazy" onerror="this.onerror=null;this.style.display='none';"><span>Newsman</span></div>
+          <div class="plat"><span class="plat-word">Newsman</span></div>
         </div>
         <div class="plat-set" aria-hidden="true">
           <div class="plat"><img src="https://cdn.simpleicons.org/wordpress/21759B" alt="" loading="lazy"><span>WordPress</span></div>
@@ -376,7 +378,7 @@
           <div class="plat"><img src="https://cdn.simpleicons.org/cloudflare/F38020" alt="" loading="lazy"><span>Cloudflare</span></div>
           <div class="plat"><img src="https://cdn.simpleicons.org/googleanalytics/E37400" alt="" loading="lazy"><span>Google Analytics</span></div>
           <div class="plat"><img src="https://cdn.simpleicons.org/mailchimp/FFE01B" alt="" loading="lazy"><span>Mailchimp</span></div>
-          <div class="plat"><img src="https://logo.clearbit.com/newsman.com" alt="" loading="lazy" onerror="this.onerror=null;this.style.display='none';"><span>Newsman</span></div>
+          <div class="plat"><span class="plat-word">Newsman</span></div>
         </div>
       </div>
     </div>
