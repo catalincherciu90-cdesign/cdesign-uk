@@ -108,6 +108,7 @@ article{padding:64px 0 90px}
 .f-social svg{width:18px;height:18px;fill:currentColor}
 .f-col h4{color:#fff;font-family:'Poppins',sans-serif;font-weight:600;font-size:1rem;margin-bottom:15px}
 .f-col a,.f-col .fi{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:.94rem;color:#9aa6b2;line-height:1.4}
+.f-col a svg,.f-col .fi svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .f-col a:hover{color:#fff}
 .footer-bottom{max-width:1200px;margin:46px auto 0;padding-top:24px;border-top:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:.88rem;color:#9aa6b2}
 .footer-bottom a{color:#9aa6b2}.footer-bottom a:hover{color:#fff}
@@ -181,9 +182,9 @@ article{padding:64px 0 90px}
     </div>
     <div class="f-col">
       <h4>Get in touch</h4>
-      <a href="tel:+447312799449">📞 +44 7312 799449</a>
-      <a href="/#contact">💬 Send a message</a>
-      <div class="fi">🕘 Mon – Fri · 9:00 – 18:00</div>
+      <a href="tel:+447312799449"><svg viewBox="0 0 24 24"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4.5 5.7 2 2 0 0 1 6.5 3.5Z"/></svg> +44 7312 799449</a>
+      <a href="/#contact"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4V5Z"/></svg> Send a message</a>
+      <div class="fi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg> Mon – Fri · 9:00 – 18:00</div>
     </div>
   </div>
   <div class="footer-bottom">
@@ -606,10 +607,10 @@ async function sendBookingNotification(booking, env) {
         <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
           <tr>
             <td style="padding:0 8px 0 0;">
-              <a href="tel:+447312799449" style="display:block;text-align:center;background:#080b0e;color:#00c8b4;font-weight:600;font-size:.9rem;padding:12px;border-radius:8px;text-decoration:none;">📞 +44 7312 799449</a>
+              <a href="tel:+447312799449" style="display:block;text-align:center;background:#080b0e;color:#00c8b4;font-weight:600;font-size:.9rem;padding:12px;border-radius:8px;text-decoration:none;"><svg viewBox="0 0 24 24"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4.5 5.7 2 2 0 0 1 6.5 3.5Z"/></svg> +44 7312 799449</a>
             </td>
             <td style="padding:0 0 0 8px;">
-              <a href="https://wa.me/447312799449" style="display:block;text-align:center;background:#25d366;color:#fff;font-weight:600;font-size:.9rem;padding:12px;border-radius:8px;text-decoration:none;">💬 WhatsApp</a>
+              <a href="https://wa.me/447312799449" style="display:block;text-align:center;background:#25d366;color:#fff;font-weight:600;font-size:.9rem;padding:12px;border-radius:8px;text-decoration:none;"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4V5Z"/></svg> WhatsApp</a>
             </td>
           </tr>
         </table>
@@ -643,7 +644,7 @@ async function sendMessageNotification(msg, env) {
       <div style="background:#0a1118;border-radius:14px;padding:24px;color:#e8edf2;">
         <div style="font-size:.8rem;color:#2BE5FF;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">New message · C Design</div>
         <div style="font-size:1.2rem;font-weight:700;margin-bottom:14px;">${e(msg.name)}</div>
-        <div style="font-size:.95rem;margin-bottom:6px;">📞 ${e(msg.phone)}</div>
+        <div style="font-size:.95rem;margin-bottom:6px;"><svg viewBox="0 0 24 24"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4.5 5.7 2 2 0 0 1 6.5 3.5Z"/></svg> ${e(msg.phone)}</div>
         ${msg.service ? `<div style="font-size:.95rem;margin-bottom:6px;">🧩 ${e(msg.service)}</div>` : ''}
         ${(msg.date || msg.time) ? `<div style="font-size:.95rem;margin-bottom:6px;">📅 ${e(msg.date)} ${e(msg.time)}</div>` : ''}
         ${msg.message ? `<div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.12);font-size:.95rem;line-height:1.5;">${e(msg.message)}</div>` : ''}
@@ -656,7 +657,7 @@ async function sendMessageNotification(msg, env) {
       body: JSON.stringify({
         from: 'C Design <notificari@c-design.ro>',
         to: [env.NOTIFY_EMAIL || NOTIFY_EMAIL],
-        subject: `💬 New message — ${msg.name}`,
+        subject: `<svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4V5Z"/></svg> New message — ${msg.name}`,
         html,
       }),
     });
@@ -1532,7 +1533,7 @@ function buildShopSite(d) {
 </head>
 <body>
   <div class="demo-bar">✨ Demo store — built by <a href="https://www.cdesigns.uk" target="_blank" rel="noopener">C Design</a>. Want one like this? <a href="https://www.cdesigns.uk/programari.html" target="_blank" rel="noopener">Get yours →</a></div>
-  <div class="topbar"><div class="wrap"><span>🚚 ${e(d.shipNote || 'Nationwide delivery available')}</span><span>📞 ${e(d.phone || 'Call us today')}</span></div></div>
+  <div class="topbar"><div class="wrap"><span>🚚 ${e(d.shipNote || 'Nationwide delivery available')}</span><span><svg viewBox="0 0 24 24"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4.5 5.7 2 2 0 0 1 6.5 3.5Z"/></svg> ${e(d.phone || 'Call us today')}</span></div></div>
   <header>
     <div class="wrap nav">
       <div class="logo">${im.logo ? `<img src="${String(im.logo).replace(/"/g, '&quot;')}" alt="${name}" style="height:54px;width:auto;max-width:230px;display:block;">` : `<span class="d">${emoji}</span>${name}`}</div>
