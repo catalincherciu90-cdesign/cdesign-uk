@@ -584,26 +584,26 @@
       if(!grid || !section) return;
       function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
       var FALLBACK_DEMOS = [
-        { emoji:'🍽️', businessName:'My Restaurant', industry:'Restaurant', tagline:'Menu, bookings and a taste of home.', url:'/demos/demo.html?type=restaurant' },
-        { emoji:'☕', businessName:'My Café', industry:'Café', tagline:'Speciality coffee and fresh bakes.', url:'/demos/demo.html?type=cafe' },
-        { emoji:'🥐', businessName:'My Bakery', industry:'Bakery', tagline:'Artisan breads and celebration cakes.', url:'/demos/demo.html?type=bakery' },
-        { emoji:'🛍️', businessName:'My Shop', industry:'Retail', tagline:'Online & in-store, quality products.', url:'/demos/demo.html?type=shop' },
-        { emoji:'👗', businessName:'My Boutique', industry:'Fashion', tagline:'The latest collection and personal styling.', url:'/demos/demo.html?type=boutique' },
-        { emoji:'💈', businessName:'My Barbershop', industry:'Barbershop', tagline:'Sharp cuts and easy online booking.', url:'/demos/demo.html?type=barber' },
-        { emoji:'🌸', businessName:'My Spa', industry:'Spa & Wellness', tagline:'Massage, facials and pure relaxation.', url:'/demos/demo.html?type=spa' },
-        { emoji:'🦷', businessName:'My Dental Clinic', industry:'Dental', tagline:'Gentle, modern dental care.', url:'/demos/demo.html?type=dental' },
-        { emoji:'🩺', businessName:'My Clinic', industry:'Healthcare', tagline:'Trusted care for the whole family.', url:'/demos/demo.html?type=clinic' },
-        { emoji:'💪', businessName:'My Gym', industry:'Fitness', tagline:'Equipment, classes and coaching.', url:'/demos/demo.html?type=gym' },
-        { emoji:'🧘', businessName:'My Studio', industry:'Yoga', tagline:'Classes for every level.', url:'/demos/demo.html?type=yoga' },
-        { emoji:'⚖️', businessName:'My Law Firm', industry:'Legal', tagline:'Clear, honest legal advice.', url:'/demos/demo.html?type=law' },
-        { emoji:'📊', businessName:'My Accounting', industry:'Accounting', tagline:'Bookkeeping, tax and business advice.', url:'/demos/demo.html?type=accounting' },
-        { emoji:'🏠', businessName:'My Estate Agency', industry:'Property', tagline:'Buy, sell or rent with local experts.', url:'/demos/demo.html?type=realestate' },
-        { emoji:'🏗️', businessName:'My Construction Co.', industry:'Construction', tagline:'New builds and renovations, built to last.', url:'/demos/demo.html?type=construction' },
-        { emoji:'🔧', businessName:'My Plumbing', industry:'Trades', tagline:'Fast, reliable, 24/7 plumbing.', url:'/demos/demo.html?type=plumbing' },
-        { emoji:'⚡', businessName:'My Electrical', industry:'Trades', tagline:'Certified electricians you can trust.', url:'/demos/demo.html?type=electrical' },
-        { emoji:'🚗', businessName:'My Garage', industry:'Automotive', tagline:'Servicing, MOTs and repairs.', url:'/demos/demo.html?type=garage' },
-        { emoji:'📷', businessName:'My Photography', industry:'Photography', tagline:'Weddings, portraits and events.', url:'/demos/demo.html?type=photography' },
-        { emoji:'🧼', businessName:'My Cleaning Co.', industry:'Cleaning', tagline:'Spotless homes and offices.', url:'/demos/demo.html?type=cleaning' }
+        { emoji:'🍽️', businessName:'My Restaurant', industry:'Restaurant', tagline:'Menu, bookings and a taste of home.', url:'/demos/my-restaurant.html' },
+        { emoji:'☕', businessName:'My Café', industry:'Café', tagline:'Speciality coffee and fresh bakes.', url:'/demos/my-cafe.html' },
+        { emoji:'🥐', businessName:'My Bakery', industry:'Bakery', tagline:'Artisan breads and celebration cakes.', url:'/demos/my-bakery.html' },
+        { emoji:'🛍️', businessName:'My Shop', industry:'Retail', tagline:'Online & in-store, quality products.', url:'/demos/my-shop.html' },
+        { emoji:'👗', businessName:'My Boutique', industry:'Fashion', tagline:'The latest collection and personal styling.', url:'/demos/my-boutique.html' },
+        { emoji:'💈', businessName:'My Barbershop', industry:'Barbershop', tagline:'Sharp cuts and easy online booking.', url:'/demos/my-barbershop.html' },
+        { emoji:'🌸', businessName:'My Spa', industry:'Spa & Wellness', tagline:'Massage, facials and pure relaxation.', url:'/demos/my-spa.html' },
+        { emoji:'🦷', businessName:'My Dental Clinic', industry:'Dental', tagline:'Gentle, modern dental care.', url:'/demos/my-dental-clinic.html' },
+        { emoji:'🩺', businessName:'My Clinic', industry:'Healthcare', tagline:'Trusted care for the whole family.', url:'/demos/my-clinic.html' },
+        { emoji:'💪', businessName:'My Gym', industry:'Fitness', tagline:'Equipment, classes and coaching.', url:'/demos/my-gym.html' },
+        { emoji:'🧘', businessName:'My Studio', industry:'Yoga', tagline:'Classes for every level.', url:'/demos/my-studio.html' },
+        { emoji:'⚖️', businessName:'My Law Firm', industry:'Legal', tagline:'Clear, honest legal advice.', url:'/demos/my-law-firm.html' },
+        { emoji:'📊', businessName:'My Accounting', industry:'Accounting', tagline:'Bookkeeping, tax and business advice.', url:'/demos/my-accounting.html' },
+        { emoji:'🏠', businessName:'My Estate Agency', industry:'Property', tagline:'Buy, sell or rent with local experts.', url:'/demos/my-estate-agency.html' },
+        { emoji:'🏗️', businessName:'My Construction Co.', industry:'Construction', tagline:'New builds and renovations, built to last.', url:'/demos/my-construction.html' },
+        { emoji:'🔧', businessName:'My Plumbing', industry:'Trades', tagline:'Fast, reliable, 24/7 plumbing.', url:'/demos/my-plumbing.html' },
+        { emoji:'⚡', businessName:'My Electrical', industry:'Trades', tagline:'Certified electricians you can trust.', url:'/demos/my-electrical.html' },
+        { emoji:'🚗', businessName:'My Garage', industry:'Automotive', tagline:'Servicing, MOTs and repairs.', url:'/demos/my-garage.html' },
+        { emoji:'📷', businessName:'My Photography', industry:'Photography', tagline:'Weddings, portraits and events.', url:'/demos/my-photography.html' },
+        { emoji:'🧼', businessName:'My Cleaning Co.', industry:'Cleaning', tagline:'Spotless homes and offices.', url:'/demos/my-cleaning.html' }
       ];
       function render(items){
         grid.innerHTML = items.map(function(d){
