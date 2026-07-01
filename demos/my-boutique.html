@@ -3,97 +3,243 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Boutique — Demo by C Design</title>
-<meta name="description" content="Discover the latest collection — timeless pieces and standout looks.">
+<title>My Boutique · Fashion Boutique</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root{--c:#C2185B;--cd:rgb(155,19,73);--ink:#1a1f24;--body:#5b6472;--line:#e7ebf0;--soft:#f5f7fa}
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Inter',sans-serif;color:var(--body);background:#fff;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-  a{text-decoration:none;color:inherit}img{max-width:100%;display:block}
-  h1,h2,h3{font-family:'Poppins',sans-serif}
-  .wrap{max-width:1160px;margin:0 auto;padding:0 26px}
-  .demo-tagbar{background:var(--ink);color:#fff;text-align:center;font-size:.8rem;letter-spacing:.04em;padding:8px 12px}
-  .demo-tagbar a{color:#fff;text-decoration:underline;font-weight:600}
-  header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-  nav{display:flex;align-items:center;justify-content:space-between;height:72px}
-  .logo{display:flex;align-items:center;gap:10px;font-family:'Poppins',sans-serif;font-weight:700;font-size:1.25rem;color:var(--ink)}
-  .logo .mk{width:38px;height:38px;border-radius:11px;background:var(--c);display:flex;align-items:center;justify-content:center;font-size:1.15rem}
-  .nav-links{display:flex;gap:30px;font-family:'Poppins',sans-serif;font-weight:500;font-size:.95rem;color:var(--ink)}
-  .nav-links a:hover{color:var(--c)}
-  .btn{display:inline-block;background:var(--c);color:#fff;font-family:'Poppins',sans-serif;font-weight:600;padding:12px 26px;border-radius:999px;font-size:.92rem;transition:.2s}
-  .btn:hover{background:var(--cd);transform:translateY(-2px)}
-  .hero{position:relative;color:#fff;padding:120px 26px;text-align:center;background-color:var(--cd);background-image:linear-gradient(rgba(194,24,91,.72),rgba(126,16,59,.92)),url(https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1600&q=80);background-size:cover;background-position:center}
-  .hero .wrap{max-width:800px}
-  .hero .eyebrow{display:inline-block;background:rgba(255,255,255,.16);padding:7px 16px;border-radius:999px;font-family:'Poppins',sans-serif;font-weight:600;font-size:.8rem;letter-spacing:.05em;margin-bottom:22px}
-  .hero h1{font-size:clamp(2.4rem,5.5vw,4rem);font-weight:800;line-height:1.05;letter-spacing:-.02em;margin-bottom:18px}
-  .hero p{font-size:1.2rem;opacity:.94;margin-bottom:32px;line-height:1.6}
-  .hero .btn{background:#fff;color:var(--ink)}
-  .hero .btn:hover{background:var(--ink);color:#fff}
-  section{padding:90px 0}
-  .sec-head{text-align:center;max-width:640px;margin:0 auto 56px}
-  .sec-head .eyebrow{color:var(--c);font-family:'Poppins',sans-serif;font-weight:600;font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px;display:block}
-  .sec-head h2{font-size:clamp(1.9rem,4vw,2.7rem);font-weight:700;color:var(--ink);letter-spacing:-.02em}
-  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1080px;margin:0 auto}
-  .feat{background:#fff;border:1px solid var(--line);border-radius:18px;padding:34px 28px;transition:.2s}
-  .feat:hover{transform:translateY(-6px);box-shadow:0 24px 50px -24px rgba(20,30,50,.25)}
-  .feat .ic{width:56px;height:56px;border-radius:14px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin-bottom:20px}
-  .feat h3{font-size:1.2rem;font-weight:600;color:var(--ink);margin-bottom:9px}
-  .feat p{font-size:.96rem;line-height:1.6}
-  .about{background:var(--soft)}
-  .about-in{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;max-width:1080px;margin:0 auto}
-  .about-img{aspect-ratio:4/3;border-radius:20px;background-color:var(--cd);background-image:url(https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1600&q=80);background-size:cover;background-position:center;box-shadow:0 26px 60px -30px rgba(20,30,50,.5)}
-  .about h2{font-size:clamp(1.8rem,3.6vw,2.6rem);font-weight:700;color:var(--ink);margin-bottom:18px;letter-spacing:-.02em}
-  .about p{font-size:1.05rem;line-height:1.8;margin-bottom:22px}
-  .cta{background:var(--ink);color:#fff;text-align:center}
-  .cta h2{font-size:clamp(2rem,4.5vw,3rem);color:#fff;margin-bottom:14px}
-  .cta p{opacity:.8;font-size:1.1rem;margin-bottom:28px}
-  footer{background:#0c1016;color:#9aa6b2;padding:50px 26px;text-align:center;font-size:.9rem}
-  footer .logo{justify-content:center;color:#fff;margin-bottom:14px}
-  footer a{color:#c3ccd6}footer a:hover{color:#fff}
-  @media(max-width:820px){.nav-links{display:none}.feat-grid{grid-template-columns:1fr}.about-in{grid-template-columns:1fr;gap:32px}.hero{padding:80px 22px}}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --ink: #1a1613;
+    --paper: #f7f3ee;
+    --stone: #b8ada0;
+    --accent: #a8846b;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Jost', sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.7;
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, .serif { font-family: 'Cormorant Garamond', serif; font-weight: 500; }
+  a { color: inherit; }
+  img { display: block; max-width: 100%; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+  .eyebrow {
+    font-family: 'Jost', sans-serif; font-weight: 400;
+    text-transform: uppercase; letter-spacing: .28em; font-size: .72rem;
+    color: var(--accent);
+  }
+
+  /* Header */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(247,243,238,.88);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(26,22,19,.08);
+  }
+  .nav { display: flex; align-items: center; justify-content: space-between; height: 76px; }
+  .logo { font-family: 'Cormorant Garamond', serif; font-size: 1.7rem; font-weight: 600; letter-spacing: .02em; display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .logo .em { font-size: 1.4rem; }
+  nav.links { display: flex; gap: 38px; }
+  nav.links a { text-decoration: none; text-transform: uppercase; letter-spacing: .16em; font-size: .74rem; font-weight: 400; transition: color .2s; }
+  nav.links a:hover { color: var(--accent); }
+  .btn {
+    display: inline-block; text-decoration: none;
+    text-transform: uppercase; letter-spacing: .18em; font-size: .72rem; font-weight: 400;
+    padding: 13px 26px; border: 1px solid var(--ink); color: var(--ink);
+    background: transparent; transition: all .25s;
+  }
+  .btn:hover { background: var(--ink); color: var(--paper); }
+  .menu-toggle { display: none; }
+
+  /* Hero */
+  .hero { position: relative; height: 88vh; min-height: 560px; overflow: hidden; display: flex; align-items: flex-end; }
+  .hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,.35) 100%); }
+  .hero-inner { position: relative; z-index: 2; color: #fff; padding: 0 32px 72px; max-width: 1200px; margin: 0 auto; width: 100%; }
+  .hero-inner .eyebrow { color: rgba(255,255,255,.85); }
+  .hero h1 { font-size: clamp(3rem, 8vw, 6.5rem); line-height: .98; font-weight: 400; margin: 14px 0 22px; letter-spacing: -.01em; }
+  .hero h1 em { font-style: italic; }
+  .hero p { max-width: 440px; font-size: 1.05rem; margin-bottom: 30px; color: rgba(255,255,255,.9); }
+  .btn-light { border-color: #fff; color: #fff; }
+  .btn-light:hover { background: #fff; color: var(--ink); }
+
+  /* Intro */
+  .intro { padding: 120px 0; text-align: center; }
+  .intro h2 { font-size: clamp(2rem, 4vw, 3.3rem); line-height: 1.15; max-width: 820px; margin: 20px auto 0; font-weight: 400; }
+  .intro h2 em { font-style: italic; color: var(--accent); }
+
+  /* Lookbook grid */
+  .lookbook { padding: 40px 0 120px; }
+  .lb-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 48px; flex-wrap: wrap; gap: 20px; }
+  .lb-head h2 { font-size: clamp(2rem, 5vw, 3.6rem); font-weight: 400; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .card { position: relative; overflow: hidden; background: #e5ddd3; }
+  .card img { width: 100%; height: 480px; object-fit: cover; transition: transform 1.1s cubic-bezier(.2,.8,.2,1); }
+  .card:hover img { transform: scale(1.06); }
+  .card.tall img { height: 620px; }
+  .card .meta { position: absolute; left: 22px; bottom: 20px; color: #fff; text-shadow: 0 1px 12px rgba(0,0,0,.4); }
+  .card .meta .name { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 500; }
+  .card .meta .price { font-size: .8rem; letter-spacing: .1em; opacity: .9; }
+  .card .tag { position: absolute; top: 16px; left: 16px; background: var(--paper); color: var(--ink); font-size: .62rem; letter-spacing: .18em; text-transform: uppercase; padding: 6px 12px; }
+
+  /* Editorial split */
+  .split { display: grid; grid-template-columns: 1fr 1fr; align-items: center; }
+  .split .txt { padding: 100px 8%; }
+  .split .txt h2 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 400; margin: 18px 0 22px; }
+  .split .txt p { margin-bottom: 20px; color: #5a5147; }
+  .split .pic { height: 100%; min-height: 520px; }
+  .split .pic img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* Newsletter */
+  .news { padding: 130px 0; text-align: center; background: var(--ink); color: var(--paper); }
+  .news h2 { font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 400; margin: 16px 0 12px; }
+  .news h2 em { font-style: italic; color: #d8b79b; }
+  .news p { max-width: 460px; margin: 0 auto 34px; color: rgba(247,243,238,.7); }
+  .news .eyebrow { color: #d8b79b; }
+  .signup { display: flex; max-width: 480px; margin: 0 auto; border-bottom: 1px solid rgba(247,243,238,.4); }
+  .signup input {
+    flex: 1; background: transparent; border: none; outline: none;
+    color: var(--paper); font-family: 'Jost', sans-serif; font-size: 1rem; padding: 14px 4px;
+  }
+  .signup input::placeholder { color: rgba(247,243,238,.45); }
+  .signup button {
+    background: transparent; border: none; color: var(--paper); cursor: pointer;
+    text-transform: uppercase; letter-spacing: .18em; font-size: .74rem; font-family: 'Jost', sans-serif; padding: 0 8px;
+  }
+  .signup button:hover { color: #d8b79b; }
+
+  /* Footer */
+  footer { padding: 60px 0; text-align: center; background: var(--paper); }
+  footer .logo { justify-content: center; margin-bottom: 14px; }
+  footer p { font-size: .82rem; letter-spacing: .04em; color: #7a7166; }
+  footer a { color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .grid { grid-template-columns: 1fr 1fr; }
+    .split { grid-template-columns: 1fr; }
+    .split .txt { padding: 70px 32px; }
+    .split .pic { min-height: 400px; }
+    nav.links, .nav > .btn { display: none; }
+    .menu-toggle { display: block; font-size: 1.4rem; background: none; border: none; cursor: pointer; }
+  }
+  @media (max-width: 560px) {
+    .grid { grid-template-columns: 1fr; }
+    .card img, .card.tall img { height: 420px; }
+    .wrap { padding: 0 22px; }
+    .intro { padding: 80px 0; }
+  }
 </style>
 </head>
 <body>
-  <div class="demo-tagbar">✦ This is a demo website by C Design — <a href="/#contact">Get one like this for your business</a></div>
-  <header><div class="wrap"><nav>
-    <div class="logo"><span class="mk">👗</span>My Boutique</div>
-    <div class="nav-links"><a href="#services">Services</a><a href="#about">About</a><a href="#contact">Contact</a></div>
-    <a href="#contact" class="btn">View Collection</a>
-  </nav></div></header>
+<div style="background:#141719;color:#fff;text-align:center;font-size:.8rem;padding:8px 12px;font-family:sans-serif">✦ This is a demo website by C Design — <a href="/#contact" style="color:#fff;text-decoration:underline;font-weight:600">Get one like this for your business</a></div>
 
-  <section class="hero"><div class="wrap">
-    <span class="eyebrow">Fashion Boutique</span>
-    <h1>Style that speaks for you</h1>
-    <p>Discover the latest collection — timeless pieces and standout looks.</p>
-    <a href="#contact" class="btn">View Collection</a>
-  </div></section>
+<header>
+  <div class="wrap nav">
+    <a href="#" class="logo"><span class="em">👗</span> My Boutique</a>
+    <nav class="links">
+      <a href="#collection">Collection</a>
+      <a href="#lookbook">Lookbook</a>
+      <a href="#story">Our Story</a>
+      <a href="#newsletter">Journal</a>
+    </nav>
+    <a href="#newsletter" class="btn">Shop New In</a>
+    <button class="menu-toggle" aria-label="Menu">☰</button>
+  </div>
+</header>
 
-  <section id="services"><div class="wrap">
-    <div class="sec-head"><span class="eyebrow">What we offer</span><h2>Everything you need</h2></div>
-    <div class="feat-grid">
-        <div class="feat"><div class="ic">👗</div><h3>New Arrivals</h3><p>Fresh looks added every season.</p></div>
-        <div class="feat"><div class="ic">✨</div><h3>Personal Styling</h3><p>One-to-one advice to find your perfect fit.</p></div>
-        <div class="feat"><div class="ic">🛍️</div><h3>Online & In-store</h3><p>Shop your way, wherever you are.</p></div>
+<section class="hero">
+  <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1600&q=80" alt="Fashion editorial">
+  <div class="hero-inner">
+    <span class="eyebrow">Autumn / Winter 2026</span>
+    <h1>Quiet <em>Luxury</em>,<br>Loud Presence.</h1>
+    <p>Considered pieces for the modern wardrobe — cut, draped and finished by hand in limited runs.</p>
+    <a href="#collection" class="btn btn-light">Discover the Collection</a>
+  </div>
+</section>
+
+<section class="intro">
+  <div class="wrap">
+    <span class="eyebrow">The Boutique</span>
+    <h2>A curated edit of timeless silhouettes, made to be lived in and <em>loved for years.</em></h2>
+  </div>
+</section>
+
+<section class="lookbook" id="collection">
+  <div class="wrap">
+    <div class="lb-head" id="lookbook">
+      <div>
+        <span class="eyebrow">New Collection</span>
+        <h2>The Lookbook</h2>
+      </div>
+      <a href="#newsletter" class="btn">View Full Range</a>
     </div>
-  </div></section>
+    <div class="grid">
+      <div class="card tall">
+        <span class="tag">New In</span>
+        <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=800&q=80" alt="Wool overcoat">
+        <div class="meta"><div class="name">The Camel Coat</div><div class="price">£248</div></div>
+      </div>
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1539533018447-63fcce2678e3?auto=format&fit=crop&w=800&q=80" alt="Silk dress">
+        <div class="meta"><div class="name">Silk Slip Dress</div><div class="price">£165</div></div>
+      </div>
+      <div class="card">
+        <span class="tag">Limited</span>
+        <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=800&q=80" alt="Knitwear">
+        <div class="meta"><div class="name">Merino Knit</div><div class="price">£120</div></div>
+      </div>
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=800&q=80" alt="Tailored trousers">
+        <div class="meta"><div class="name">Wide-Leg Trouser</div><div class="price">£140</div></div>
+      </div>
+      <div class="card tall">
+        <span class="tag">Editor's Pick</span>
+        <img src="https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?auto=format&fit=crop&w=800&q=80" alt="Leather bag">
+        <div class="meta"><div class="name">Structured Tote</div><div class="price">£220</div></div>
+      </div>
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=800&q=80" alt="Blouse">
+        <div class="meta"><div class="name">Poplin Shirt</div><div class="price">£95</div></div>
+      </div>
+    </div>
+  </div>
+</section>
 
-  <section class="about" id="about"><div class="wrap"><div class="about-in">
-    <div class="about-img"></div>
-    <div><h2>Fashion with feeling</h2><p>A boutique built for people who love to express themselves. We bring you carefully chosen pieces that look and feel amazing.</p><a href="#contact" class="btn">View Collection</a></div>
-  </div></div></section>
+<section class="split" id="story">
+  <div class="txt">
+    <span class="eyebrow">Our Story</span>
+    <h2>Slow fashion, made to last.</h2>
+    <p>My Boutique began as a small studio with a simple belief: that fewer, better things bring more joy than a crowded rail. Every piece is chosen for its cut, its cloth and the way it feels the tenth time you wear it.</p>
+    <p>We work with a handful of European ateliers, producing in small batches to reduce waste and keep quality uncompromising.</p>
+    <a href="#newsletter" class="btn">Book a Styling Visit</a>
+  </div>
+  <div class="pic">
+    <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=1000&q=80" alt="Boutique interior">
+  </div>
+</section>
 
-  <section class="cta" id="contact"><div class="wrap">
-    <h2>Ready to get started?</h2>
-    <p>Get in touch today — we would love to help.</p>
-    <a href="/#contact" class="btn" style="background:var(--c)">View Collection</a>
-  </div></section>
+<section class="news" id="newsletter">
+  <div class="wrap">
+    <span class="eyebrow">The Journal</span>
+    <h2>Join the <em>inner circle.</em></h2>
+    <p>Be first to preview new collections, private sale evenings and styling notes — straight to your inbox.</p>
+    <form class="signup" onsubmit="return false">
+      <input type="email" placeholder="Your email address" aria-label="Email">
+      <button type="submit">Subscribe →</button>
+    </form>
+  </div>
+</section>
 
-  <footer><div class="wrap">
-    <div class="logo"><span class="mk">👗</span>My Boutique</div>
+<footer>
+  <div class="wrap">
+    <a href="#" class="logo"><span class="em">👗</span> My Boutique</a>
     <p>© My Boutique · A demo website crafted by <a href="/">C Design</a></p>
-  </div></footer>
+  </div>
+</footer>
 </body>
 </html>

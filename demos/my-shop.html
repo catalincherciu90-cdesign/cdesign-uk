@@ -3,97 +3,280 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Shop — Demo by C Design</title>
-<meta name="description" content="Browse our range online or in-store — quality products, fair prices.">
+<title>My Shop · Everyday essentials, delivered</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{--c:#2f6cf6;--cd:rgb(38,86,197);--ink:#1a1f24;--body:#5b6472;--line:#e7ebf0;--soft:#f5f7fa}
+  :root{
+    --ink:#0f1729;
+    --slate:#475569;
+    --line:#e6e9f0;
+    --bg:#ffffff;
+    --soft:#f5f7fb;
+    --brand:#4f46e5;
+    --brand-2:#7c3aed;
+    --sale:#e11d48;
+    --green:#16a34a;
+  }
   *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Inter',sans-serif;color:var(--body);background:#fff;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-  a{text-decoration:none;color:inherit}img{max-width:100%;display:block}
-  h1,h2,h3{font-family:'Poppins',sans-serif}
-  .wrap{max-width:1160px;margin:0 auto;padding:0 26px}
-  .demo-tagbar{background:var(--ink);color:#fff;text-align:center;font-size:.8rem;letter-spacing:.04em;padding:8px 12px}
-  .demo-tagbar a{color:#fff;text-decoration:underline;font-weight:600}
-  header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-  nav{display:flex;align-items:center;justify-content:space-between;height:72px}
-  .logo{display:flex;align-items:center;gap:10px;font-family:'Poppins',sans-serif;font-weight:700;font-size:1.25rem;color:var(--ink)}
-  .logo .mk{width:38px;height:38px;border-radius:11px;background:var(--c);display:flex;align-items:center;justify-content:center;font-size:1.15rem}
-  .nav-links{display:flex;gap:30px;font-family:'Poppins',sans-serif;font-weight:500;font-size:.95rem;color:var(--ink)}
-  .nav-links a:hover{color:var(--c)}
-  .btn{display:inline-block;background:var(--c);color:#fff;font-family:'Poppins',sans-serif;font-weight:600;padding:12px 26px;border-radius:999px;font-size:.92rem;transition:.2s}
-  .btn:hover{background:var(--cd);transform:translateY(-2px)}
-  .hero{position:relative;color:#fff;padding:120px 26px;text-align:center;background-color:var(--cd);background-image:linear-gradient(rgba(47,108,246,.72),rgba(31,70,160,.92)),url(https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=80);background-size:cover;background-position:center}
-  .hero .wrap{max-width:800px}
-  .hero .eyebrow{display:inline-block;background:rgba(255,255,255,.16);padding:7px 16px;border-radius:999px;font-family:'Poppins',sans-serif;font-weight:600;font-size:.8rem;letter-spacing:.05em;margin-bottom:22px}
-  .hero h1{font-size:clamp(2.4rem,5.5vw,4rem);font-weight:800;line-height:1.05;letter-spacing:-.02em;margin-bottom:18px}
-  .hero p{font-size:1.2rem;opacity:.94;margin-bottom:32px;line-height:1.6}
-  .hero .btn{background:#fff;color:var(--ink)}
-  .hero .btn:hover{background:var(--ink);color:#fff}
-  section{padding:90px 0}
-  .sec-head{text-align:center;max-width:640px;margin:0 auto 56px}
-  .sec-head .eyebrow{color:var(--c);font-family:'Poppins',sans-serif;font-weight:600;font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px;display:block}
-  .sec-head h2{font-size:clamp(1.9rem,4vw,2.7rem);font-weight:700;color:var(--ink);letter-spacing:-.02em}
-  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1080px;margin:0 auto}
-  .feat{background:#fff;border:1px solid var(--line);border-radius:18px;padding:34px 28px;transition:.2s}
-  .feat:hover{transform:translateY(-6px);box-shadow:0 24px 50px -24px rgba(20,30,50,.25)}
-  .feat .ic{width:56px;height:56px;border-radius:14px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin-bottom:20px}
-  .feat h3{font-size:1.2rem;font-weight:600;color:var(--ink);margin-bottom:9px}
-  .feat p{font-size:.96rem;line-height:1.6}
-  .about{background:var(--soft)}
-  .about-in{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;max-width:1080px;margin:0 auto}
-  .about-img{aspect-ratio:4/3;border-radius:20px;background-color:var(--cd);background-image:url(https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=80);background-size:cover;background-position:center;box-shadow:0 26px 60px -30px rgba(20,30,50,.5)}
-  .about h2{font-size:clamp(1.8rem,3.6vw,2.6rem);font-weight:700;color:var(--ink);margin-bottom:18px;letter-spacing:-.02em}
-  .about p{font-size:1.05rem;line-height:1.8;margin-bottom:22px}
-  .cta{background:var(--ink);color:#fff;text-align:center}
-  .cta h2{font-size:clamp(2rem,4.5vw,3rem);color:#fff;margin-bottom:14px}
-  .cta p{opacity:.8;font-size:1.1rem;margin-bottom:28px}
-  footer{background:#0c1016;color:#9aa6b2;padding:50px 26px;text-align:center;font-size:.9rem}
-  footer .logo{justify-content:center;color:#fff;margin-bottom:14px}
-  footer a{color:#c3ccd6}footer a:hover{color:#fff}
-  @media(max-width:820px){.nav-links{display:none}.feat-grid{grid-template-columns:1fr}.about-in{grid-template-columns:1fr;gap:32px}.hero{padding:80px 22px}}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter',sans-serif;color:var(--ink);background:var(--bg);line-height:1.6}
+  h1,h2,h3,.logo,.price,.chip{font-family:'Space Grotesk',sans-serif}
+  a{color:inherit}
+  img{max-width:100%;display:block}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+
+  /* header */
+  header.site{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:70px;gap:20px}
+  .logo{font-size:1.35rem;font-weight:700;display:flex;align-items:center;gap:.5rem}
+  .logo .e{font-size:1.6rem}
+  nav.links{display:flex;gap:26px}
+  nav.links a{text-decoration:none;font-weight:500;color:var(--slate);font-size:.95rem;transition:color .2s}
+  nav.links a:hover{color:var(--brand)}
+  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--brand);color:#fff;text-decoration:none;font-weight:600;padding:11px 20px;border-radius:12px;font-size:.9rem;border:none;cursor:pointer;transition:background .2s, transform .2s}
+  .btn:hover{background:var(--brand-2);transform:translateY(-1px)}
+  .btn.light{background:var(--soft);color:var(--ink);border:1px solid var(--line)}
+  .btn.light:hover{background:#eceffb}
+
+  /* sale/announcement bar - sticky under header */
+  .sale-bar{position:sticky;top:70px;z-index:55;background:linear-gradient(90deg,var(--sale),#be123c);color:#fff;text-align:center;padding:10px 12px;font-size:.9rem;font-weight:600;letter-spacing:.2px}
+  .sale-bar b{background:rgba(255,255,255,.22);padding:2px 9px;border-radius:6px;margin:0 4px}
+
+  /* hero */
+  .hero{position:relative;color:#fff;overflow:hidden}
+  .hero img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .hero:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(15,23,41,.88),rgba(79,70,229,.55))}
+  .hero-inner{position:relative;z-index:2;padding:96px 0}
+  .hero h1{font-size:clamp(2.4rem,5vw,3.8rem);max-width:640px;margin-bottom:18px;line-height:1.08}
+  .hero p{font-size:1.15rem;max-width:480px;opacity:.92;margin-bottom:28px}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+  .hero .btn.light{background:#fff;color:var(--ink);border:none}
+  .hero .btn.outline{background:transparent;border:1.5px solid rgba(255,255,255,.6);color:#fff}
+
+  /* chips */
+  .chips-row{padding:34px 0 4px}
+  .chips{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+  .chip{border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:9px 18px;font-weight:600;font-size:.85rem;cursor:pointer;transition:all .2s;text-decoration:none;color:var(--slate)}
+  .chip:hover{border-color:var(--brand);color:var(--brand);background:#fff}
+  .chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+  /* section base */
+  section{padding:60px 0}
+  .sec-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:34px;gap:20px;flex-wrap:wrap}
+  .sec-head h2{font-size:clamp(1.7rem,3.4vw,2.4rem)}
+  .sec-head p{color:var(--slate);margin-top:6px}
+  .sec-head a{color:var(--brand);font-weight:600;text-decoration:none;white-space:nowrap}
+
+  /* product grid */
+  .pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+  .prod{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff;transition:box-shadow .25s, transform .25s;display:flex;flex-direction:column}
+  .prod:hover{box-shadow:0 18px 40px rgba(15,23,41,.10);transform:translateY(-4px)}
+  .prod .imgwrap{position:relative;background:var(--soft)}
+  .prod img{aspect-ratio:1/1;object-fit:cover;width:100%}
+  .tag{position:absolute;top:12px;left:12px;background:var(--sale);color:#fff;font-size:.7rem;font-weight:700;padding:4px 10px;border-radius:7px;font-family:'Space Grotesk'}
+  .tag.new{background:var(--brand)}
+  .prod-body{padding:16px;display:flex;flex-direction:column;gap:12px;flex:1}
+  .prod-body h3{font-size:1.02rem;font-family:'Inter';font-weight:600}
+  .prod-body .cat{font-size:.75rem;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+  .price{font-size:1.25rem;font-weight:700}
+  .price s{color:#94a3b8;font-size:.85rem;font-weight:500;margin-left:6px}
+  .prod-foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .add{flex:1;justify-content:center}
+
+  /* trust badges */
+  .trust{background:var(--ink);color:#fff}
+  .trust .tgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:26px}
+  .tcard{display:flex;gap:14px;align-items:flex-start}
+  .tcard .ic{font-size:1.8rem;line-height:1}
+  .tcard h4{font-family:'Space Grotesk';font-size:1.05rem;margin-bottom:3px}
+  .tcard p{color:#aab3c5;font-size:.88rem}
+
+  /* newsletter */
+  .news{background:var(--soft)}
+  .news-inner{background:linear-gradient(120deg,var(--brand),var(--brand-2));border-radius:24px;padding:50px;color:#fff;display:grid;grid-template-columns:1.2fr 1fr;gap:30px;align-items:center}
+  .news-inner h2{font-size:clamp(1.7rem,3.4vw,2.3rem);margin-bottom:8px}
+  .news-inner p{opacity:.9}
+  .news-form{display:flex;gap:10px;flex-wrap:wrap}
+  .news-form input{flex:1;min-width:200px;border:none;border-radius:12px;padding:14px 16px;font-size:1rem;font-family:'Inter'}
+  .news-form .btn{background:var(--ink)}
+  .news-form .btn:hover{background:#000}
+
+  /* footer */
+  footer{background:#0b1120;color:#cbd5e1;padding:52px 0 40px;text-align:center}
+  footer .logo{color:#fff;justify-content:center;margin-bottom:14px}
+  footer p{color:#94a3b8;font-size:.92rem}
+  footer a{color:#fff;font-weight:600}
+
+  @media(max-width:980px){.pgrid,.trust .tgrid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:820px){
+    nav.links{display:none}
+    .sale-bar{top:70px}
+    .news-inner{grid-template-columns:1fr;padding:34px 24px}
+  }
+  @media(max-width:520px){.pgrid{grid-template-columns:1fr 1fr;gap:14px}}
 </style>
 </head>
 <body>
-  <div class="demo-tagbar">✦ This is a demo website by C Design — <a href="/#contact">Get one like this for your business</a></div>
-  <header><div class="wrap"><nav>
-    <div class="logo"><span class="mk">🛍️</span>My Shop</div>
-    <div class="nav-links"><a href="#services">Services</a><a href="#about">About</a><a href="#contact">Contact</a></div>
-    <a href="#contact" class="btn">Shop Now</a>
-  </nav></div></header>
+<div style="background:#141719;color:#fff;text-align:center;font-size:.8rem;padding:8px 12px;font-family:sans-serif">✦ This is a demo website by C Design — <a href="/#contact" style="color:#fff;text-decoration:underline;font-weight:600">Get one like this for your business</a></div>
 
-  <section class="hero"><div class="wrap">
-    <span class="eyebrow">Retail Shop</span>
-    <h1>Everything you need, in one place</h1>
-    <p>Browse our range online or in-store — quality products, fair prices.</p>
-    <a href="#contact" class="btn">Shop Now</a>
-  </div></section>
+<header class="site">
+  <div class="wrap nav">
+    <a href="#top" class="logo"><span class="e">🛍️</span> My Shop</a>
+    <nav class="links">
+      <a href="#shop">Shop</a>
+      <a href="#categories">Categories</a>
+      <a href="#trust">Delivery</a>
+    </nav>
+    <a href="#shop" class="btn">Shop now</a>
+  </div>
+</header>
 
-  <section id="services"><div class="wrap">
-    <div class="sec-head"><span class="eyebrow">What we offer</span><h2>Everything you need</h2></div>
-    <div class="feat-grid">
-        <div class="feat"><div class="ic">📦</div><h3>Wide Range</h3><p>A carefully curated selection for every need.</p></div>
-        <div class="feat"><div class="ic">🚚</div><h3>Fast Delivery</h3><p>Quick, reliable shipping right to your door.</p></div>
-        <div class="feat"><div class="ic">💳</div><h3>Secure Checkout</h3><p>Shop with confidence — safe and simple payments.</p></div>
+<div class="sale-bar">🔥 SUMMER SALE — up to <b>40% OFF</b> everything · Free UK delivery over <b>£30</b> · Code <b>SUMMER40</b></div>
+
+<a id="top"></a>
+<section class="hero" style="padding:0">
+  <img class="bg" src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=80" alt="Shop interior">
+  <div class="wrap hero-inner">
+    <h1>Everyday essentials, delivered to your door.</h1>
+    <p>Thousands of quality products at prices you'll love — with fast, tracked UK delivery and easy 30-day returns.</p>
+    <div class="hero-cta">
+      <a href="#shop" class="btn light">Shop the sale</a>
+      <a href="#categories" class="btn outline">Browse categories</a>
     </div>
-  </div></section>
+  </div>
+</section>
 
-  <section class="about" id="about"><div class="wrap"><div class="about-in">
-    <div class="about-img"></div>
-    <div><h2>Quality you can trust</h2><p>We hand-pick every product so you get real value. Whether online or in-store, our friendly team is here to help you find exactly what you need.</p><a href="#contact" class="btn">Shop Now</a></div>
-  </div></div></section>
+<div class="chips-row" id="categories">
+  <div class="wrap chips">
+    <a href="#shop" class="chip active">All</a>
+    <a href="#shop" class="chip">Home &amp; Living</a>
+    <a href="#shop" class="chip">Tech</a>
+    <a href="#shop" class="chip">Fashion</a>
+    <a href="#shop" class="chip">Beauty</a>
+    <a href="#shop" class="chip">Kitchen</a>
+    <a href="#shop" class="chip">Outdoor</a>
+  </div>
+</div>
 
-  <section class="cta" id="contact"><div class="wrap">
-    <h2>Ready to get started?</h2>
-    <p>Get in touch today — we would love to help.</p>
-    <a href="/#contact" class="btn" style="background:var(--c)">Shop Now</a>
-  </div></section>
+<section id="shop" style="padding-top:34px">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <h2>Trending this week</h2>
+        <p>Our most-loved products, hand-picked for you.</p>
+      </div>
+      <a href="#shop">View all products →</a>
+    </div>
+    <div class="pgrid">
+      <div class="prod">
+        <div class="imgwrap"><span class="tag">-30%</span><img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=700&q=80" alt="Headphones"></div>
+        <div class="prod-body">
+          <span class="cat">Tech</span>
+          <h3>Wireless Headphones</h3>
+          <div class="price">£62.99 <s>£89.99</s></div>
+          <div class="prod-foot"><button class="btn add">Add to cart</button></div>
+        </div>
+      </div>
+      <div class="prod">
+        <div class="imgwrap"><span class="tag new">New</span><img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=700&q=80" alt="Watch"></div>
+        <div class="prod-body">
+          <span class="cat">Tech</span>
+          <h3>Smart Fitness Watch</h3>
+          <div class="price">£119.00</div>
+          <div class="prod-foot"><button class="btn add">Add to cart</button></div>
+        </div>
+      </div>
+      <div class="prod">
+        <div class="imgwrap"><span class="tag">-25%</span><img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=700&q=80" alt="Camera"></div>
+        <div class="prod-body">
+          <span class="cat">Tech</span>
+          <h3>Compact Camera</h3>
+          <div class="price">£179.00 <s>£239.00</s></div>
+          <div class="prod-foot"><button class="btn add">Add to cart</button></div>
+        </div>
+      </div>
+      <div class="prod">
+        <div class="imgwrap"><img src="https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=700&q=80" alt="Bag"></div>
+        <div class="prod-body">
+          <span class="cat">Fashion</span>
+          <h3>Leather Tote Bag</h3>
+          <div class="price">£54.50</div>
+          <div class="prod-foot"><button class="btn add">Add to cart</button></div>
+        </div>
+      </div>
+      <div class="prod">
+        <div class="imgwrap"><span class="tag">-40%</span><img src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=700&q=80" alt="Sunglasses"></div>
+        <div class="prod-body">
+          <span class="cat">Fashion</span>
+          <h3>Classic Sunglasses</h3>
+          <div class="price">£17.99 <s>£29.99</s></div>
+          <div class="prod-foot"><button class="btn add">Add to cart</button></div>
+        </div>
+      </div>
+      <div class="prod">
+        <div class="imgwrap"><span class="tag new">New</span><img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=700&q=80" alt="Sneakers"></div>
+        <div class="prod-body">
+          <span class="cat">Fashion</span>
+          <h3>Everyday Sneakers</h3>
+          <div class="price">£48.00</div>
+          <div class="prod-foot"><button class="btn add">Add to cart</button></div>
+        </div>
+      </div>
+      <div class="prod">
+        <div class="imgwrap"><img src="https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?auto=format&fit=crop&w=700&q=80" alt="Candle set"></div>
+        <div class="prod-body">
+          <span class="cat">Home</span>
+          <h3>Scented Candle Set</h3>
+          <div class="price">£22.00</div>
+          <div class="prod-foot"><button class="btn add">Add to cart</button></div>
+        </div>
+      </div>
+      <div class="prod">
+        <div class="imgwrap"><span class="tag">-15%</span><img src="https://images.unsplash.com/photo-1556228578-8c89e6adf883?auto=format&fit=crop&w=700&q=80" alt="Skincare"></div>
+        <div class="prod-body">
+          <span class="cat">Beauty</span>
+          <h3>Skincare Gift Box</h3>
+          <div class="price">£33.15 <s>£39.00</s></div>
+          <div class="prod-foot"><button class="btn add">Add to cart</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-  <footer><div class="wrap">
-    <div class="logo"><span class="mk">🛍️</span>My Shop</div>
+<section class="trust" id="trust">
+  <div class="wrap">
+    <div class="tgrid">
+      <div class="tcard"><span class="ic">🚚</span><div><h4>Fast UK delivery</h4><p>Free on orders over £30. Next-day available.</p></div></div>
+      <div class="tcard"><span class="ic">↩️</span><div><h4>30-day returns</h4><p>Changed your mind? Send it back, hassle-free.</p></div></div>
+      <div class="tcard"><span class="ic">🔒</span><div><h4>Secure checkout</h4><p>Encrypted payments with all major cards.</p></div></div>
+      <div class="tcard"><span class="ic">⭐</span><div><h4>Rated 4.8/5</h4><p>Trusted by over 12,000 happy shoppers.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="news">
+  <div class="wrap">
+    <div class="news-inner">
+      <div>
+        <h2>Get 10% off your first order</h2>
+        <p>Join our newsletter for exclusive deals, early sale access and new arrivals.</p>
+      </div>
+      <form class="news-form" onsubmit="return false">
+        <input type="email" placeholder="you@email.com" aria-label="Email address">
+        <button class="btn" type="submit">Subscribe</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="logo"><span class="e">🛍️</span> My Shop</div>
     <p>© My Shop · A demo website crafted by <a href="/">C Design</a></p>
-  </div></footer>
+  </div>
+</footer>
 </body>
 </html>
