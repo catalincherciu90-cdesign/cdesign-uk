@@ -1470,6 +1470,17 @@
             <div id="ticker-items-status" style="font-size:.75rem;color:var(--teal);margin-top:8px;min-height:16px;"></div>
           </div>
 
+          <!-- ABOUT CAROUSEL BANNERS -->
+          <div style="margin-top:22px;padding-top:18px;border-top:1px solid var(--border-soft);">
+            <div class="f-label" style="margin-bottom:6px;">// about_banners (carusel în secțiunea About)</div>
+            <div style="font-size:.72rem;color:var(--muted);margin-bottom:10px;">Imaginile care se rotesc în caruselul din secțiunea „About". Urcă mai multe — se derulează automat. Format recomandat: landscape (ex. 1600×1000).</div>
+            <div id="about-banners-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:12px;"></div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <button onclick="uploadAboutBanner()" style="background:var(--teal);color:#060f0f;border:none;border-radius:6px;padding:9px 16px;font-size:.82rem;font-weight:700;cursor:pointer;">⬆ Upload banner</button>
+              <span id="about-banners-status" style="font-size:.75rem;color:var(--teal);min-height:16px;"></span>
+            </div>
+          </div>
+
               <!-- Gradient + Text toggles -->
               <!-- Înălțime + Poziție + Size imagine -->
               <div style="margin-top:14px;margin-bottom:6px;">
@@ -4096,6 +4107,7 @@
       { var bo = document.getElementById('banner-offers'); if (bo) bo.value = (d.bannerOffers != null && d.bannerOffers !== '') ? (Array.isArray(d.bannerOffers) ? d.bannerOffers.join('\n') : d.bannerOffers) : DEFAULT_BANNER_OFFERS; }
       { var bo2 = document.getElementById('banner-offers-2'); if (bo2) bo2.value = (d.bannerOffers2 != null && d.bannerOffers2 !== '') ? (Array.isArray(d.bannerOffers2) ? d.bannerOffers2.join('\n') : d.bannerOffers2) : DEFAULT_BANNER_OFFERS_2; }
       { var tk = document.getElementById('ticker-items'); if (tk) tk.value = (d.tickerItems != null && d.tickerItems !== '') ? (Array.isArray(d.tickerItems) ? d.tickerItems.join('\n') : d.tickerItems) : DEFAULT_TICKER_ITEMS; }
+      { aboutBannersData = Array.isArray(d.aboutBanners) ? d.aboutBanners.slice() : (d.aboutBanners ? String(d.aboutBanners).split('\n').map(function(s){return s.trim();}).filter(Boolean) : []); renderAboutBanners(); }
       if (d.heroImage) {
         document.getElementById('hero-img-url').value = d.heroImage;
         applyHeroPreview(d.heroImage);
@@ -4397,6 +4409,55 @@
   async function resetTickerItems() {
     document.getElementById('ticker-items').value = DEFAULT_TICKER_ITEMS;
     await saveTickerItems();
+  }
+
+  // ---- About carousel banners ----
+  var aboutBannersData = [];
+  function renderAboutBanners() {
+    var wrap = document.getElementById('about-banners-list');
+    if (!wrap) return;
+    if (!aboutBannersData.length) {
+      wrap.innerHTML = '<div style="grid-column:1/-1;font-size:.78rem;color:var(--muted);">Niciun banner încărcat încă.</div>';
+      return;
+    }
+    wrap.innerHTML = aboutBannersData.map(function(url, i) {
+      return '<div style="position:relative;border-radius:8px;overflow:hidden;border:1px solid var(--border-soft);aspect-ratio:16/10;background:#0c1218;">'
+        + '<img src="' + url.replace(/"/g,'&quot;') + '" style="width:100%;height:100%;object-fit:cover;display:block;">'
+        + '<button onclick="removeAboutBanner(' + i + ')" title="Remove" style="position:absolute;top:5px;right:5px;background:rgba(200,30,30,.92);color:#fff;border:0;border-radius:5px;width:24px;height:24px;font-size:.9rem;cursor:pointer;line-height:1;">×</button>'
+        + '</div>';
+    }).join('');
+  }
+  async function saveAboutBanners() {
+    await fetch('/api/site-settings?token=' + encodeURIComponent(adminToken), {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ aboutBanners: aboutBannersData })
+    });
+  }
+  function uploadAboutBanner() {
+    var inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = 'image/*';
+    inp.onchange = function() {
+      var file = inp.files[0]; if (!file) return;
+      var statusEl = document.getElementById('about-banners-status');
+      statusEl.textContent = 'Uploading...';
+      uploadMedia(file, async function(url) {
+        aboutBannersData.push(url);
+        renderAboutBanners();
+        await saveAboutBanners();
+        statusEl.textContent = '✓ Banner added';
+        setTimeout(function(){ statusEl.textContent = ''; }, 2500);
+      }, function(err) {
+        statusEl.textContent = '✕ ' + err;
+      });
+    };
+    inp.click();
+  }
+  async function removeAboutBanner(i) {
+    aboutBannersData.splice(i, 1);
+    renderAboutBanners();
+    await saveAboutBanners();
+    var statusEl = document.getElementById('about-banners-status');
+    if (statusEl) { statusEl.textContent = '✓ Removed'; setTimeout(function(){ statusEl.textContent = ''; }, 2000); }
   }
 
   async function removeBgVideo() {

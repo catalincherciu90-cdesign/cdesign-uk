@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Urban Threads — Modern Streetwear</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#0d0d0f;--body:#5c5c66;--line:#ececef;--accent:#ff5436;--soft:#f6f6f4}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+  a{text-decoration:none;color:inherit}img{max-width:100%;display:block}
+  h1,h2,h3{font-family:'Space Grotesk',sans-serif}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 28px}
+  .demo-tagbar{background:var(--ink);color:#e7e7e7;text-align:center;font-size:.8rem;letter-spacing:.06em;padding:7px}
+  .demo-tagbar a{color:var(--accent);text-decoration:underline;font-weight:600}
+  header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  nav{display:flex;align-items:center;justify-content:space-between;height:72px}
+  .logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.35rem;letter-spacing:-.02em}
+  .logo b{color:var(--accent)}
+  .nav-links{display:flex;gap:30px;font-weight:500;font-size:.95rem}
+  .nav-links a:hover{color:var(--accent)}
+  .nav-ic{display:flex;gap:18px;font-size:1.1rem}
+  .hero{background:var(--soft)}
+  .hero-in{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;min-height:82vh}
+  .hero .eyebrow{font-family:'Space Grotesk';font-weight:600;letter-spacing:.2em;font-size:.8rem;color:var(--accent);text-transform:uppercase;margin-bottom:18px}
+  .hero h1{font-size:clamp(2.8rem,6vw,5rem);font-weight:700;line-height:.98;letter-spacing:-.03em;margin-bottom:22px}
+  .hero p{font-size:1.12rem;color:var(--body);line-height:1.7;margin-bottom:30px;max-width:420px}
+  .btn{display:inline-block;background:var(--ink);color:#fff;font-family:'Space Grotesk';font-weight:600;padding:15px 34px;border-radius:2px;font-size:.98rem;transition:.2s}
+  .btn:hover{background:var(--accent)}
+  .hero-img{height:78vh;background:url('https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1100&q=80') center/cover;border-radius:4px}
+  section{padding:90px 0}
+  .sec-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:44px;gap:20px}
+  .sec-head h2{font-size:clamp(1.9rem,3.6vw,2.8rem);font-weight:700;letter-spacing:-.02em}
+  .sec-head a{font-family:'Space Grotesk';font-weight:600;color:var(--accent)}
+  .prod-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+  .prod{cursor:pointer}
+  .prod .ph{aspect-ratio:3/4;border-radius:4px;overflow:hidden;background:#eee;margin-bottom:14px}
+  .prod .ph img{width:100%;height:100%;object-fit:cover;transition:.4s}
+  .prod:hover .ph img{transform:scale(1.06)}
+  .prod h3{font-size:1.02rem;font-weight:600;margin-bottom:4px}
+  .prod .price{color:var(--body);font-weight:500;font-size:.96rem}
+  .prod .price b{color:var(--ink)}
+  .banner{background:var(--ink);color:#fff;text-align:center;border-radius:6px;padding:80px 24px;margin:0 28px}
+  .banner h2{font-size:clamp(2rem,4.5vw,3.4rem);font-weight:700;letter-spacing:-.02em;margin-bottom:16px}
+  .banner p{color:#b9b9c0;font-size:1.1rem;margin-bottom:28px}
+  .banner .btn{background:var(--accent)}
+  .banner .btn:hover{background:#fff;color:var(--ink)}
+  footer{padding:56px 0 40px;text-align:center;color:var(--body);font-size:.9rem;border-top:1px solid var(--line);margin-top:20px}
+  .footer-logo{font-family:'Space Grotesk';font-weight:700;font-size:1.3rem;color:var(--ink);margin-bottom:14px}
+  .footer-logo b{color:var(--accent)}
+  .fnav{display:flex;gap:24px;justify-content:center;margin:18px 0}
+  @media(max-width:900px){.nav-links{display:none}.hero-in{grid-template-columns:1fr}.hero-img{height:44vh}.prod-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+  <div class="demo-tagbar">✦ This is a demo website by C Design — <a href="/#contact">Get one like this for your business</a></div>
+  <header>
+    <div class="wrap"><nav>
+      <div class="logo">URBAN<b>.</b>THREADS</div>
+      <div class="nav-links"><a href="#shop">Shop</a><a href="#shop">New In</a><a href="#shop">Men</a><a href="#shop">Women</a></div>
+      <div class="nav-ic"><span>🔍</span><span>👤</span><span>🛒</span></div>
+    </nav></div>
+  </header>
+
+  <section class="hero" style="padding:0">
+    <div class="wrap hero-in">
+      <div>
+        <div class="eyebrow">New Season · SS Collection</div>
+        <h1>Wear the streets, differently.</h1>
+        <p>Premium streetwear built to last. Bold pieces, clean fits and limited drops you won't find anywhere else.</p>
+        <a href="#shop" class="btn">Shop the Collection</a>
+      </div>
+      <div class="hero-img"></div>
+    </div>
+  </section>
+
+  <section id="shop">
+    <div class="wrap">
+      <div class="sec-head"><h2>Trending now</h2><a href="#shop">View all →</a></div>
+      <div class="prod-grid">
+        <div class="prod"><div class="ph"><img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=80" alt=""></div><h3>Oversized Tee — Sand</h3><div class="price"><b>£32</b></div></div>
+        <div class="prod"><div class="ph"><img src="https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&w=600&q=80" alt=""></div><h3>Heavy Hoodie — Ink</h3><div class="price"><b>£58</b></div></div>
+        <div class="prod"><div class="ph"><img src="https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=600&q=80" alt=""></div><h3>Relaxed Denim</h3><div class="price"><b>£64</b></div></div>
+        <div class="prod"><div class="ph"><img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=600&q=80" alt=""></div><h3>Utility Jacket</h3><div class="price"><b>£95</b></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="banner">
+      <h2>Members get 15% off</h2>
+      <p>Join the club for early access to drops and exclusive deals.</p>
+      <a href="#" class="btn">Sign Up Free</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div class="footer-logo">URBAN<b>.</b>THREADS</div>
+      <div class="fnav"><a href="#shop">Shop</a><a href="#shop">New In</a><a href="#shop">About</a><a href="#shop">Contact</a></div>
+      <p>© Urban Threads · Free UK shipping over £50 · A demo website crafted by C Design</p>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BrightSmile Dental — Modern Dental Care</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--teal:#12b5b0;--teal-dk:#0d9691;--navy:#0f2a3f;--ink:#152836;--body:#5a6b78;--soft:#f2f8f8;--line:#e4edee}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;color:var(--body);-webkit-font-smoothing:antialiased}
+  a{text-decoration:none;color:inherit}img{max-width:100%;display:block}
+  h1,h2,h3{font-family:'Poppins',sans-serif;color:var(--ink)}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 28px}
+  .demo-tagbar{background:var(--navy);color:#cdeeee;text-align:center;font-size:.8rem;letter-spacing:.06em;padding:7px}
+  .demo-tagbar a{color:#fff;text-decoration:underline;font-weight:600}
+  header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  nav{display:flex;align-items:center;justify-content:space-between;height:74px}
+  .logo{display:flex;align-items:center;gap:9px;font-family:'Poppins',sans-serif;font-weight:700;font-size:1.3rem;color:var(--navy)}
+  .logo .dot{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#6fe0dc);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem}
+  .nav-links{display:flex;gap:32px;font-family:'Poppins',sans-serif;font-weight:500;font-size:.95rem;color:var(--ink)}
+  .nav-links a:hover{color:var(--teal)}
+  .btn{display:inline-block;background:var(--teal);color:#fff;font-family:'Poppins',sans-serif;font-weight:600;padding:12px 26px;border-radius:999px;font-size:.92rem;transition:.2s;box-shadow:0 10px 24px -8px rgba(18,181,176,.6)}
+  .btn:hover{background:var(--teal-dk);transform:translateY(-2px)}
+  .hero{background:linear-gradient(160deg,var(--soft),#fff)}
+  .hero-in{display:grid;grid-template-columns:1.05fr .95fr;gap:50px;align-items:center;padding:80px 0}
+  .hero .pill{display:inline-block;background:rgba(18,181,176,.12);color:var(--teal-dk);font-family:'Poppins',sans-serif;font-weight:600;font-size:.82rem;padding:7px 15px;border-radius:999px;margin-bottom:22px}
+  .hero h1{font-size:clamp(2.4rem,5vw,3.8rem);line-height:1.08;font-weight:700;margin-bottom:20px}
+  .hero h1 span{color:var(--teal)}
+  .hero p{font-size:1.12rem;line-height:1.7;margin-bottom:30px;max-width:480px}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .ghost{font-family:'Poppins',sans-serif;font-weight:600;color:var(--ink);padding:12px 22px}
+  .ghost:hover{color:var(--teal)}
+  .hero img{border-radius:20px;box-shadow:0 30px 60px -24px rgba(15,42,63,.4)}
+  section{padding:96px 0}
+  .sec-head{text-align:center;max-width:640px;margin:0 auto 56px}
+  .sec-head .pill{display:inline-block;background:rgba(18,181,176,.12);color:var(--teal-dk);font-family:'Poppins',sans-serif;font-weight:600;font-size:.8rem;padding:6px 14px;border-radius:999px;margin-bottom:14px}
+  .sec-head h2{font-size:clamp(2rem,4vw,3rem);font-weight:700}
+  .services{background:var(--soft)}
+  .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .svc{background:#fff;border:1px solid var(--line);border-radius:18px;padding:32px 28px;transition:.2s}
+  .svc:hover{transform:translateY(-6px);box-shadow:0 24px 44px -22px rgba(15,42,63,.28)}
+  .svc .ic{width:54px;height:54px;border-radius:14px;background:linear-gradient(150deg,#d9f5f4,#c1efee);display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin-bottom:18px}
+  .svc h3{font-size:1.2rem;font-weight:600;margin-bottom:9px}
+  .svc p{font-size:.96rem;line-height:1.6}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center}
+  .stat .n{font-family:'Poppins',sans-serif;font-weight:700;font-size:2.6rem;color:var(--teal)}
+  .stat p{font-weight:500;color:var(--ink);margin-top:6px}
+  .cta{background:linear-gradient(135deg,var(--navy),#173b56);color:#fff;text-align:center;border-radius:0}
+  .cta h2{color:#fff;font-size:clamp(2rem,4vw,3rem);margin-bottom:16px}
+  .cta p{color:#bcd6e4;font-size:1.1rem;margin-bottom:28px}
+  footer{background:#0b1e2c;color:#8fa9b8;padding:54px 0 40px;text-align:center;font-size:.9rem}
+  footer .logo{justify-content:center;color:#fff;margin-bottom:14px}
+  footer .fnav{display:flex;gap:24px;justify-content:center;margin:18px 0}
+  @media(max-width:860px){.nav-links{display:none}.hero-in{grid-template-columns:1fr}.svc-grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr;gap:34px}}
+</style>
+</head>
+<body>
+  <div class="demo-tagbar">✦ This is a demo website by C Design — <a href="/#contact">Get one like this for your business</a></div>
+  <header>
+    <div class="wrap"><nav>
+      <div class="logo"><span class="dot">✚</span> BrightSmile</div>
+      <div class="nav-links"><a href="#services">Services</a><a href="#why">Why Us</a><a href="#book">Book</a></div>
+      <a href="#book" class="btn">Book Appointment</a>
+    </nav></div>
+  </header>
+
+  <section class="hero" style="padding:0">
+    <div class="wrap hero-in">
+      <div>
+        <span class="pill">✦ Trusted by 12,000+ patients</span>
+        <h1>Your brightest <span>smile</span> starts here</h1>
+        <p>Gentle, modern dental care for the whole family. Same-week appointments, transparent pricing and a team that genuinely cares.</p>
+        <div class="hero-cta">
+          <a href="#book" class="btn">Book Appointment</a>
+          <a href="#services" class="ghost">View services →</a>
+        </div>
+      </div>
+      <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1000&q=80" alt="Modern dental clinic">
+    </div>
+  </section>
+
+  <section class="services" id="services">
+    <div class="wrap">
+      <div class="sec-head"><span class="pill">Our Services</span><h2>Complete dental care</h2></div>
+      <div class="svc-grid">
+        <div class="svc"><div class="ic">🦷</div><h3>General Dentistry</h3><p>Check-ups, cleanings and fillings to keep your teeth healthy for life.</p></div>
+        <div class="svc"><div class="ic">✨</div><h3>Teeth Whitening</h3><p>Professional whitening for a noticeably brighter smile in one visit.</p></div>
+        <div class="svc"><div class="ic">😁</div><h3>Invisible Aligners</h3><p>Straighten your teeth discreetly with custom clear aligners.</p></div>
+        <div class="svc"><div class="ic">🔧</div><h3>Dental Implants</h3><p>Permanent, natural-looking replacements for missing teeth.</p></div>
+        <div class="svc"><div class="ic">👶</div><h3>Children's Dentistry</h3><p>Friendly, stress-free care that helps kids love the dentist.</p></div>
+        <div class="svc"><div class="ic">🚑</div><h3>Emergency Care</h3><p>Same-day appointments when you're in pain and need us fast.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="why">
+    <div class="wrap">
+      <div class="stats">
+        <div class="stat"><div class="n">25+</div><p>Years of experience</p></div>
+        <div class="stat"><div class="n">12k</div><p>Happy patients</p></div>
+        <div class="stat"><div class="n">4.9★</div><p>Average review</p></div>
+        <div class="stat"><div class="n">7</div><p>Days a week open</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta" id="book">
+    <div class="wrap">
+      <h2>Ready for a healthier smile?</h2>
+      <p>Book online in under a minute — new patients always welcome.</p>
+      <a href="tel:+441234567890" class="btn">Call 01234 567 890</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div class="logo"><span class="dot">✚</span> BrightSmile</div>
+      <div class="fnav"><a href="#services">Services</a><a href="#why">Why Us</a><a href="#book">Book</a></div>
+      <p>© BrightSmile Dental · 18 Queen Street, Manchester · A demo website crafted by C Design</p>
+    </div>
+  </footer>
+</body>
+</html>
