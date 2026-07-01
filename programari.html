@@ -1434,6 +1434,18 @@
             <div id="bg-video-status" style="font-size:.75rem;color:var(--teal);margin-top:8px;min-height:16px;"></div>
           </div>
 
+          <!-- BANNER OFFERS (homepage HUD center banner) -->
+          <div style="margin-top:22px;padding-top:18px;border-top:1px solid var(--border-soft);">
+            <div class="f-label" style="margin-bottom:6px;">// banner_offers (cercul central cu oferte)</div>
+            <textarea class="f-input" id="banner-offers" rows="6" placeholder="One offer per line. Use | to split into two lines (the second is highlighted).&#10;Example:&#10;Websites in | 14 days&#10;Fixed price | no surprises"></textarea>
+            <div style="font-size:.72rem;color:var(--muted);margin-top:6px;">Câte o ofertă pe linie. Folosește <b>|</b> ca să împarți în două rânduri (al doilea e evidențiat cyan). Max 10.</div>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+              <button onclick="saveBannerOffers()" class="btn-save" style="flex:1;">💾 Save offers</button>
+              <button onclick="resetBannerOffers()" style="background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:0 14px;font-size:.8rem;cursor:pointer;white-space:nowrap;height:36px;">↺ Default</button>
+            </div>
+            <div id="banner-offers-status" style="font-size:.75rem;color:var(--teal);margin-top:8px;min-height:16px;"></div>
+          </div>
+
               <!-- Gradient + Text toggles -->
               <!-- Înălțime + Poziție + Size imagine -->
               <div style="margin-top:14px;margin-bottom:6px;">
@@ -4057,6 +4069,7 @@
       const res = await fetch('/api/site-settings');
       const d = await res.json();
       if (d.bgVideo) { var bv = document.getElementById('bg-video-url'); if (bv) bv.value = d.bgVideo; }
+      { var bo = document.getElementById('banner-offers'); if (bo) bo.value = (d.bannerOffers != null && d.bannerOffers !== '') ? (Array.isArray(d.bannerOffers) ? d.bannerOffers.join('\n') : d.bannerOffers) : DEFAULT_BANNER_OFFERS; }
       if (d.heroImage) {
         document.getElementById('hero-img-url').value = d.heroImage;
         applyHeroPreview(d.heroImage);
@@ -4304,6 +4317,24 @@
       statusEl.textContent = url ? '✓ Saved! Background video updated.' : '✓ Saved (no video).';
       setTimeout(function(){ statusEl.textContent = ''; }, 3000);
     } catch { statusEl.textContent = '✕ Error saving'; }
+  }
+
+  var DEFAULT_BANNER_OFFERS = 'Websites in | 14 days\nFixed price | no surprises\nFree | consultation\nCare from | £49/mo\n120+ | UK projects';
+  async function saveBannerOffers() {
+    var val = document.getElementById('banner-offers').value;
+    var statusEl = document.getElementById('banner-offers-status');
+    try {
+      await fetch('/api/site-settings?token=' + encodeURIComponent(adminToken), {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bannerOffers: val })
+      });
+      statusEl.textContent = '✓ Saved! Banner offers updated.';
+      setTimeout(function(){ statusEl.textContent = ''; }, 3000);
+    } catch { statusEl.textContent = '✕ Error saving'; }
+  }
+  async function resetBannerOffers() {
+    document.getElementById('banner-offers').value = DEFAULT_BANNER_OFFERS;
+    await saveBannerOffers();
   }
 
   async function removeBgVideo() {
