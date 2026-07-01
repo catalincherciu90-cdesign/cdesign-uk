@@ -105,6 +105,13 @@
   .about-inner{max-width:760px;margin:0 auto}
   .about .eyebrow{justify-content:center}
   .about h2,.about p{margin-left:auto;margin-right:auto}
+  /* limită de înălțime cu scroll intern dacă textul e prea lung */
+  .about-text{max-height:440px;overflow-y:auto;padding-right:10px}
+  .about-text::-webkit-scrollbar{width:7px}
+  .about-text::-webkit-scrollbar-track{background:transparent}
+  .about-text::-webkit-scrollbar-thumb{background:#d5dbe4;border-radius:4px}
+  .about-text::-webkit-scrollbar-thumb:hover{background:#c0c8d4}
+  .about-text{scrollbar-width:thin;scrollbar-color:#d5dbe4 transparent}
   /* când există bannere în carusel → două coloane, text la stânga */
   .about.has-banners{text-align:left}
   .about.has-banners .about-inner{max-width:1180px;display:grid;grid-template-columns:1.02fr .98fr;gap:60px;align-items:center}
