@@ -122,7 +122,7 @@ article{padding:64px 0 90px}
     <div class="nav-inner">
       <a href="/" class="logo"><img src="/logo-c-design.webp" alt="C Design" style="height:42px;width:auto;display:block;"></a>
       <ul class="nav-links" role="list">
-        <li><a href="/#services">Services</a></li>
+        <li><a href="/services">Services</a></li>
         <li><a href="/#portfolio">Portfolio</a></li>
         <li><a href="/#about">About Us</a></li>
         <li><a href="/blog">Blog</a></li>
@@ -134,7 +134,7 @@ article{padding:64px 0 90px}
   </div>
 </nav>
 <div class="mobile-menu" id="mobileMenu">
-  <a href="/#services">Services</a><a href="/#portfolio">Portfolio</a><a href="/#about">About Us</a><a href="/blog">Blog</a>
+  <a href="/services">Services</a><a href="/#portfolio">Portfolio</a><a href="/#about">About Us</a><a href="/blog">Blog</a>
   <a href="tel:+447312799449">+44 7312 799449</a><a href="/#contact" class="btn-nav">Get Quote</a>
 </div>
 <main>
@@ -2272,6 +2272,14 @@ export default {
       } catch {
         return new Response('Error loading demo', { status: 500 });
       }
+    }
+
+    // ── SERVICES ──────────────────────────────────────────────
+
+    if (path === '/services' || path === '/services/') {
+      const assetUrl = new URL(request.url);
+      assetUrl.pathname = '/services.html';
+      return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
     }
 
     // ── LEGAL ─────────────────────────────────────────────────
