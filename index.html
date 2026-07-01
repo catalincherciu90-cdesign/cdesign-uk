@@ -272,7 +272,7 @@
     fetch('/api/site-settings')
       .then(function(r){ return r.ok ? r.json() : null; })
       .then(function(d){
-        if(!d) return;
+        d = d || {};
         // Video de fundal în hero (același din admin ca pe site-ul live)
         if(d.bgVideo){
           var v = document.getElementById('heroBgVideo');
@@ -286,11 +286,17 @@
         // Carusel bannere About (imagini încărcate din admin)
         setupAboutCarousel(d.aboutBanners);
       })
-      .catch(function(){});
+      .catch(function(){ setupAboutCarousel(null); });
 
+    var DEMO_ABOUT_BANNERS = [
+      'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1600&q=80'
+    ];
     function setupAboutCarousel(banners){
       var list = (Array.isArray(banners) ? banners : (banners ? String(banners).split('\n') : []))
         .map(function(s){ return String(s).trim(); }).filter(Boolean);
+      if(!list.length) list = DEMO_ABOUT_BANNERS;
       var about = document.getElementById('about');
       var slides = document.getElementById('acSlides');
       var dots = document.getElementById('acDots');
