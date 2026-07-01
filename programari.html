@@ -1446,6 +1446,18 @@
             <div id="banner-offers-status" style="font-size:.75rem;color:var(--teal);margin-top:8px;min-height:16px;"></div>
           </div>
 
+          <!-- BANNER OFFERS 2 (al doilea cerc-banner) -->
+          <div style="margin-top:22px;padding-top:18px;border-top:1px solid var(--border-soft);">
+            <div class="f-label" style="margin-bottom:6px;">// banner_offers_2 (al doilea cerc-banner)</div>
+            <textarea class="f-input" id="banner-offers-2" rows="6" placeholder="One line per item. Use | to split into two lines (second highlighted).&#10;Example:&#10;5.0★ | rated&#10;UK-based | team"></textarea>
+            <div style="font-size:.72rem;color:var(--muted);margin-top:6px;">Al doilea cerc-banner (unde era Blog). Aceleași reguli: câte o linie, <b>|</b> pentru două rânduri. Max 10.</div>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+              <button onclick="saveBannerOffers2()" class="btn-save" style="flex:1;">💾 Save</button>
+              <button onclick="resetBannerOffers2()" style="background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:0 14px;font-size:.8rem;cursor:pointer;white-space:nowrap;height:36px;">↺ Default</button>
+            </div>
+            <div id="banner-offers-2-status" style="font-size:.75rem;color:var(--teal);margin-top:8px;min-height:16px;"></div>
+          </div>
+
               <!-- Gradient + Text toggles -->
               <!-- Înălțime + Poziție + Size imagine -->
               <div style="margin-top:14px;margin-bottom:6px;">
@@ -4070,6 +4082,7 @@
       const d = await res.json();
       if (d.bgVideo) { var bv = document.getElementById('bg-video-url'); if (bv) bv.value = d.bgVideo; }
       { var bo = document.getElementById('banner-offers'); if (bo) bo.value = (d.bannerOffers != null && d.bannerOffers !== '') ? (Array.isArray(d.bannerOffers) ? d.bannerOffers.join('\n') : d.bannerOffers) : DEFAULT_BANNER_OFFERS; }
+      { var bo2 = document.getElementById('banner-offers-2'); if (bo2) bo2.value = (d.bannerOffers2 != null && d.bannerOffers2 !== '') ? (Array.isArray(d.bannerOffers2) ? d.bannerOffers2.join('\n') : d.bannerOffers2) : DEFAULT_BANNER_OFFERS_2; }
       if (d.heroImage) {
         document.getElementById('hero-img-url').value = d.heroImage;
         applyHeroPreview(d.heroImage);
@@ -4335,6 +4348,24 @@
   async function resetBannerOffers() {
     document.getElementById('banner-offers').value = DEFAULT_BANNER_OFFERS;
     await saveBannerOffers();
+  }
+
+  var DEFAULT_BANNER_OFFERS_2 = '5.0★ | rated\nUK-based | team\n10+ years | experience\nMobile-first | & secure\nReal clients | real results';
+  async function saveBannerOffers2() {
+    var val = document.getElementById('banner-offers-2').value;
+    var statusEl = document.getElementById('banner-offers-2-status');
+    try {
+      await fetch('/api/site-settings?token=' + encodeURIComponent(adminToken), {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bannerOffers2: val })
+      });
+      statusEl.textContent = '✓ Saved! Second banner updated.';
+      setTimeout(function(){ statusEl.textContent = ''; }, 3000);
+    } catch { statusEl.textContent = '✕ Error saving'; }
+  }
+  async function resetBannerOffers2() {
+    document.getElementById('banner-offers-2').value = DEFAULT_BANNER_OFFERS_2;
+    await saveBannerOffers2();
   }
 
   async function removeBgVideo() {

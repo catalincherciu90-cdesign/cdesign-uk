@@ -319,12 +319,12 @@
     .hud-node:hover .n-fill,.hud-node:focus-visible .n-fill{fill:rgba(43,229,255,.12);}
     /* 7 noduri distribuite uniform pe cerc */
     /* 7 noduri pe elipsă (oval) */
-    .hud-node.n1{top:14%;left:50%}.hud-node.n2{top:82%;left:33%}.hud-node.n3{top:58%;left:89%}
-    .hud-node.n4{top:82%;left:67%}.hud-node.n5{top:28%;left:81%}.hud-node.n6{top:58%;left:11%}
-    .hud-node.n7{top:28%;left:19%}
+    .hud-node.n1{top:14%;left:50%}.hud-node.n2{top:82%;left:33%}.hud-node.n3{top:62%;left:89%}
+    .hud-node.n4{top:82%;left:67%}.hud-node.n5{top:28%;left:81%}.hud-node.n6{top:58%;left:15%}
+    .hud-node.n7{top:21%;left:19%}
     /* cercuri inegale — dimensionate pt oval */
     .hud-node.n1{width:20%}.hud-node.n2{width:21%}.hud-node.n3{width:17%}
-    .hud-node.n4{width:19%}.hud-node.n5{width:26%}.hud-node.n6{width:16%}.hud-node.n7{width:19%}
+    .hud-node.n4{width:19%}.hud-node.n5{width:26%}.hud-node.n6{width:26%}.hud-node.n7{width:19%}
     .hud-hint{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;white-space:nowrap;}
     /* full-screen panels */
     .hud-panel{position:fixed;inset:0;z-index:3000;background:radial-gradient(80% 100% at 80% 0%,rgba(43,229,255,.10),transparent 55%),linear-gradient(180deg,#0A1118,#0B0F14);display:flex;flex-direction:column;opacity:0;visibility:hidden;transform:scale(.985);transition:opacity .4s,transform .4s,visibility .4s;}
@@ -769,7 +769,7 @@
       </button>
       <div class="hud-node n5 banner-node" aria-label="Offers and info" role="img">
         <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="n-fill" cx="60" cy="60" r="52"/><circle class="hud-c" cx="60" cy="60" r="52" stroke-width="1.5" opacity=".45"/><circle class="hud-c hud-spin" cx="60" cy="60" r="44" stroke-width="3" stroke-dasharray="50 16 30 16" opacity=".8"/><circle class="hud-c n-hi" cx="60" cy="60" r="57" stroke-width="2"/></svg>
-        <div class="bn-label"><div class="bn-cycle">
+        <div class="bn-label"><div class="bn-cycle" data-key="bannerOffers">
           <span>Websites in<br><b>14 days</b></span>
           <span><b>Fixed price</b><br>no surprises</span>
           <span><b>Free</b><br>consultation</span>
@@ -777,10 +777,16 @@
           <span><b>120+</b> UK<br>projects</span>
         </div></div>
       </div>
-      <button type="button" class="hud-node n6" data-panel="panel-blog" aria-label="Open Blog">
+      <div class="hud-node n6 banner-node" aria-label="Why choose us" role="img">
         <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="n-fill" cx="60" cy="60" r="52"/><circle class="hud-c" cx="60" cy="60" r="52" stroke-width="1.5" opacity=".45"/><circle class="hud-c hud-spin" cx="60" cy="60" r="44" stroke-width="3" stroke-dasharray="50 16 30 16" opacity=".8"/><circle class="hud-c n-hi" cx="60" cy="60" r="57" stroke-width="2"/></svg>
-        <span class="nlabel"><span class="nicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6M8 9h2"/></svg></span><span class="ntext">Blog</span></span>
-      </button>
+        <div class="bn-label"><div class="bn-cycle" data-key="bannerOffers2">
+          <span><b>5.0★</b><br>rated</span>
+          <span><b>UK-based</b><br>team</span>
+          <span><b>10+ years</b><br>experience</span>
+          <span>Mobile-first<br><b>& secure</b></span>
+          <span>Real clients<br><b>real results</b></span>
+        </div></div>
+      </div>
       <button type="button" class="hud-node n1" data-panel="panel-about" aria-label="Open About us">
         <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="n-fill" cx="60" cy="60" r="52"/><circle class="hud-c" cx="60" cy="60" r="52" stroke-width="1.5" opacity=".45"/><circle class="hud-c hud-spin" cx="60" cy="60" r="44" stroke-width="3" stroke-dasharray="50 16 30 16" opacity=".8"/><circle class="hud-c n-hi" cx="60" cy="60" r="57" stroke-width="2"/></svg>
         <span class="nlabel"><span class="nicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="ntext">About us</span></span>
@@ -1825,47 +1831,47 @@ document.getElementById('bookingForm').addEventListener('submit', async function
       });
     }).catch(function(){});
 
-  // Banner-cerc: ciclare oferte (funcționează cu orice număr)
-  var bnTimer = null;
+  // Bannere-cerc: ciclare oferte (oricâte bannere, orice număr de linii)
   function bnEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-  function setupBannerCycle(){
-    var wrap = document.querySelector('.bn-cycle');
+  function setupBannerCycle(wrap, startIdx){
     if(!wrap) return;
     var spans = wrap.querySelectorAll('span');
     if(!spans.length) return;
-    if(bnTimer){ clearInterval(bnTimer); bnTimer = null; }
-    var i = 0;
-    spans.forEach(function(s,k){ s.classList.toggle('bn-on', k === 0); });
+    if(wrap._bnTimer){ clearInterval(wrap._bnTimer); wrap._bnTimer = null; }
+    var i = (startIdx || 0) % spans.length;
+    spans.forEach(function(s,k){ s.classList.toggle('bn-on', k === i); });
     if(spans.length < 2) return;
     if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    bnTimer = setInterval(function(){
+    wrap._bnTimer = setInterval(function(){
       spans[i].classList.remove('bn-on');
       i = (i + 1) % spans.length;
       spans[i].classList.add('bn-on');
     }, 3600);
   }
-  setupBannerCycle();
+  function setupAllBanners(){ document.querySelectorAll('.bn-cycle').forEach(function(w,j){ setupBannerCycle(w, j); }); }
+  setupAllBanners();
 
   // Site settings dinamice (heading-uri secțiuni)
   fetch('/api/site-settings')
     .then(function(r){return r.ok?r.json():null;})
     .then(function(d){
       if(!d) return;
-      // Oferte banner (editabile din admin)
-      var bnWrap = document.querySelector('.bn-cycle');
-      if(bnWrap && d.bannerOffers){
-        var lines = (Array.isArray(d.bannerOffers) ? d.bannerOffers : String(d.bannerOffers).split('\n'))
+      // Oferte bannere (editabile din admin) — după data-key
+      document.querySelectorAll('.bn-cycle').forEach(function(wrap, j){
+        var key = wrap.getAttribute('data-key');
+        var val = key ? d[key] : null;
+        if(val == null || val === '') return;
+        var lines = (Array.isArray(val) ? val : String(val).split('\n'))
           .map(function(s){return String(s).trim();}).filter(Boolean).slice(0,10);
-        if(lines.length){
-          bnWrap.innerHTML = lines.map(function(line){
-            var parts = line.split('|');
-            var top = bnEsc((parts[0]||'').trim());
-            var bot = parts[1] ? bnEsc(parts[1].trim()) : '';
-            return '<span>' + (bot ? top + '<br><b>' + bot + '</b>' : top) + '</span>';
-          }).join('');
-          setupBannerCycle();
-        }
-      }
+        if(!lines.length) return;
+        wrap.innerHTML = lines.map(function(line){
+          var parts = line.split('|');
+          var top = bnEsc((parts[0]||'').trim());
+          var bot = parts[1] ? bnEsc(parts[1].trim()) : '';
+          return '<span>' + (bot ? top + '<br><b>' + bot + '</b>' : top) + '</span>';
+        }).join('');
+        setupBannerCycle(wrap, j);
+      });
       // Video de fundal (încărcat din admin)
       var bgVid = document.getElementById('hudBgVideo');
       var bgBanner = document.getElementById('homeBanner');
