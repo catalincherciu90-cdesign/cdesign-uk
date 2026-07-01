@@ -54,55 +54,66 @@ function renderArticle(post) {
 <script type="application/ld+json">${schema}<\/script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--teal:#00c8b4;--teal-dk:#00a898;--teal-lt:#33d4c3;--teal-dim:rgba(0,200,180,.08);--teal-border:rgba(0,200,180,.28);--bg:#080b0e;--bg2:#0d1117;--bg3:#111820;--text:#e8edf2;--soft:#9aa5b4;--muted:#6a7585;--border:rgba(255,255,255,.07);--border-soft:rgba(255,255,255,.11)}
-html{scroll-behavior:smooth}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden}
+:root{--teal:#00AAAC;--teal-dk:#008587;--ink:#2E3436;--body:#5b6472;--muted:#8b94a3;--line:#e6ecec;--bg:#fff;--bg-soft:#f3f8f8}
+html{scroll-behavior:smooth}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--body);line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
 .container{max-width:760px;margin:0 auto;padding:0 24px}
-.wide{max-width:1180px;margin:0 auto;padding:0 24px}
-nav{position:sticky;top:0;z-index:100;background:rgba(8,11,14,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
-.nav-inner{display:flex;align-items:center;justify-content:space-between;height:68px}
-.logo{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.35rem;color:#fff;display:flex;align-items:center;gap:6px}
-.logo-c{color:var(--teal);font-size:1.6rem;line-height:1;text-shadow:0 0 12px rgba(0,200,180,.6);animation:logo-pulse 3s ease-in-out infinite}
-@keyframes logo-pulse{0%,100%{text-shadow:0 0 12px rgba(0,200,180,.6)}50%{text-shadow:0 0 24px rgba(0,200,180,1),0 0 48px rgba(0,200,180,.4)}}
-.nav-links{display:flex;align-items:center;gap:28px;list-style:none}
-.nav-links a{font-size:.875rem;color:var(--muted);transition:color .2s}.nav-links a:hover{color:var(--teal)}
-.nav-phone{font-family:'Share Tech Mono',monospace;font-size:.875rem;color:var(--teal);border:1px solid var(--teal-border);padding:6px 14px;border-radius:6px;transition:background .2s}
-.nav-phone:hover{background:var(--teal-dim)}
-.btn-nav{background:var(--teal);color:#080b0e;font-weight:600;font-size:.875rem;padding:9px 20px;border-radius:8px;transition:background .2s,transform .15s}
-.btn-nav:hover{background:var(--teal-lt);transform:translateY(-1px)}
+.wide{max-width:1180px;margin:0 auto;padding:0 40px}
+nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:76px}
+.logo{display:flex;align-items:center;gap:6px}
+.nav-links{display:flex;align-items:center;gap:32px;list-style:none}
+.nav-links a{font-family:'Poppins',sans-serif;font-weight:500;font-size:.95rem;color:var(--ink);transition:color .2s}.nav-links a:hover{color:var(--teal)}
+.nav-phone{font-family:'Poppins',sans-serif;font-weight:500;font-size:.9rem;color:var(--ink);transition:color .2s}
+.nav-phone:hover{color:var(--teal)}
+.btn-nav{background:var(--ink);color:#fff;font-family:'Poppins',sans-serif;font-weight:600;font-size:.9rem;padding:11px 24px;border-radius:999px;transition:background .2s,transform .15s}
+.btn-nav:hover{background:#1f2426;transform:translateY(-1px)}
 .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:6px}
-.hamburger span{display:block;width:22px;height:2px;background:var(--text);border-radius:2px}
-.mobile-menu{display:none;flex-direction:column;gap:16px;background:var(--bg2);border-bottom:1px solid var(--border);padding:20px 24px}
-.mobile-menu.open{display:flex}.mobile-menu a{font-size:1rem;color:var(--soft)}.mobile-menu a:hover{color:var(--teal)}
-article{padding:72px 0 100px}
-.art-back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:.85rem;margin-bottom:40px;transition:color .2s}.art-back:hover{color:var(--teal)}
-.art-tag{display:inline-block;background:var(--teal-dim);color:var(--teal);border:1px solid var(--teal-border);padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:18px}
-.art-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.8rem,5vw,2.8rem);font-weight:800;line-height:1.2;margin-bottom:20px;color:#fff}
-.art-meta{color:var(--muted);font-size:.85rem;padding-bottom:28px;border-bottom:1px solid var(--border);margin-bottom:40px}
-.art-content{color:#c8d4e0;font-size:1.05rem;line-height:1.85}
+.hamburger span{display:block;width:24px;height:2.5px;background:var(--ink);border-radius:2px}
+.mobile-menu{display:none;flex-direction:column;gap:16px;background:#fff;border-bottom:1px solid var(--line);padding:20px 24px}
+.mobile-menu.open{display:flex}.mobile-menu a{font-family:'Poppins',sans-serif;font-size:1rem;color:var(--ink)}.mobile-menu a:hover{color:var(--teal)}
+article{padding:64px 0 90px}
+.art-back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:.9rem;font-family:'Poppins',sans-serif;font-weight:500;margin-bottom:34px;transition:color .2s}.art-back:hover{color:var(--teal)}
+.art-tag{display:inline-block;background:rgba(0,170,172,.10);color:var(--teal-dk);padding:5px 13px;border-radius:20px;font-family:'Poppins',sans-serif;font-size:.74rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:18px}
+.art-title{font-family:'Poppins',sans-serif;font-size:clamp(1.9rem,5vw,2.9rem);font-weight:700;line-height:1.12;letter-spacing:-.02em;margin-bottom:18px;color:var(--ink)}
+.art-meta{color:var(--muted);font-size:.9rem;padding-bottom:26px;border-bottom:1px solid var(--line);margin-bottom:38px}
+.art-content{color:var(--body);font-size:1.08rem;line-height:1.85}
 .art-content p{margin-bottom:1.4em}
-.art-content h2{font-family:'Space Grotesk',sans-serif;font-size:1.45rem;font-weight:700;color:#fff;margin:2em 0 .8em}
-.art-content h3{font-family:'Space Grotesk',sans-serif;font-size:1.15rem;font-weight:700;color:#fff;margin:1.6em 0 .6em}
-.art-content ul,.art-content ol{padding-left:1.5em;margin-bottom:1.4em}
+.art-content h2{font-family:'Poppins',sans-serif;font-size:1.5rem;font-weight:600;color:var(--ink);margin:1.8em 0 .7em;letter-spacing:-.01em}
+.art-content h3{font-family:'Poppins',sans-serif;font-size:1.2rem;font-weight:600;color:var(--ink);margin:1.5em 0 .5em}
+.art-content ul,.art-content ol{padding-left:1.4em;margin-bottom:1.4em}
 .art-content li{margin-bottom:.5em}
-.art-content strong{color:#fff;font-weight:600}
-.art-content a{color:var(--teal);text-decoration:underline;text-decoration-color:rgba(0,200,180,.3)}
-.art-content a:hover{text-decoration-color:var(--teal)}
-.art-content blockquote{border-left:3px solid var(--teal);padding:12px 20px;background:rgba(0,200,180,.06);border-radius:0 8px 8px 0;margin:1.5em 0;color:var(--soft);font-style:italic}
-.art-content pre{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:20px;overflow-x:auto;margin:1.5em 0}
-.art-content code{background:rgba(0,200,180,.1);color:var(--teal);padding:2px 6px;border-radius:4px;font-size:.9em}
-.art-content pre code{background:none;color:var(--soft);padding:0}
-.cta-box{margin-top:64px;padding:32px;background:linear-gradient(135deg,rgba(0,200,180,.08),rgba(0,200,180,.04));border:1px solid rgba(0,200,180,.2);border-radius:14px;text-align:center}
-.cta-box h3{font-family:'Space Grotesk',sans-serif;font-size:1.3rem;margin-bottom:10px;color:#fff}
-.cta-box p{color:var(--soft);margin-bottom:20px;font-size:.95rem}
-.btn{display:inline-block;background:var(--teal);color:#000;padding:12px 28px;border-radius:8px;font-weight:700;font-size:.9rem;transition:transform .15s,box-shadow .15s}
-.btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,200,180,.35)}
-footer{border-top:1px solid var(--border);padding:32px 0;text-align:center;color:var(--muted);font-size:.83rem}
-footer a{color:var(--muted);transition:color .2s}footer a:hover{color:var(--teal)}
-@media(max-width:640px){article{padding:40px 0 60px}.art-title{font-size:1.7rem}nav .nav-links,.nav-phone,.btn-nav{display:none}.hamburger{display:flex}}
+.art-content strong{color:var(--ink);font-weight:600}
+.art-content a{color:var(--teal-dk);text-decoration:underline;text-decoration-color:rgba(0,170,172,.4)}
+.art-content a:hover{text-decoration-color:var(--teal-dk)}
+.art-content blockquote{border-left:3px solid var(--teal);padding:12px 20px;background:rgba(0,170,172,.06);border-radius:0 8px 8px 0;margin:1.5em 0;color:var(--body);font-style:italic}
+.art-content pre{background:var(--bg-soft);border:1px solid var(--line);border-radius:10px;padding:20px;overflow-x:auto;margin:1.5em 0}
+.art-content code{background:rgba(0,170,172,.1);color:var(--teal-dk);padding:2px 6px;border-radius:4px;font-size:.9em}
+.art-content pre code{background:none;color:var(--body);padding:0}
+.cta-box{margin-top:60px;padding:36px 32px;background:linear-gradient(135deg,#ddf3f3,#eef8f8);border:1px solid rgba(0,170,172,.2);border-radius:18px;text-align:center}
+.cta-box h3{font-family:'Poppins',sans-serif;font-weight:600;font-size:1.35rem;margin-bottom:10px;color:var(--ink)}
+.cta-box p{color:var(--body);margin-bottom:22px;font-size:.98rem}
+.btn{display:inline-block;background:var(--teal);color:#fff;font-family:'Poppins',sans-serif;padding:14px 30px;border-radius:999px;font-weight:600;font-size:.95rem;transition:transform .15s,background .2s,box-shadow .2s;box-shadow:0 10px 26px -10px rgba(0,170,172,.5)}
+.btn:hover{transform:translateY(-2px);background:var(--teal-dk)}
+.site-footer{background:#0c1016;color:#9aa6b2;padding:70px 40px 34px}
+.footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.5fr 1fr 1fr 1.1fr;gap:44px}
+.f-brand img{height:40px;width:auto;filter:brightness(0) invert(1);margin-bottom:18px}
+.f-brand p{font-size:.94rem;line-height:1.7;max-width:300px;color:#9aa6b2}
+.f-social{display:flex;gap:11px;margin-top:22px}
+.f-social a{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;color:#c3ccd6;transition:background .2s,color .2s,transform .2s}
+.f-social a:hover{background:var(--teal);color:#fff;transform:translateY(-2px)}
+.f-social svg{width:18px;height:18px;fill:currentColor}
+.f-col h4{color:#fff;font-family:'Poppins',sans-serif;font-weight:600;font-size:1rem;margin-bottom:15px}
+.f-col a,.f-col .fi{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:.94rem;color:#9aa6b2;line-height:1.4}
+.f-col a:hover{color:#fff}
+.footer-bottom{max-width:1200px;margin:46px auto 0;padding-top:24px;border-top:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:.88rem;color:#9aa6b2}
+.footer-bottom a{color:#9aa6b2}.footer-bottom a:hover{color:#fff}
+@media(max-width:820px){.footer-inner{grid-template-columns:1fr 1fr;gap:34px}.f-brand{grid-column:1/-1}}
+@media(max-width:480px){.footer-inner{grid-template-columns:1fr}.footer-bottom{justify-content:center;text-align:center}}
+@media(max-width:760px){.wide{padding:0 22px}article{padding:44px 0 60px}nav .nav-links,.nav-phone,.btn-nav{display:none}.hamburger{display:flex}}
 </style>
 </head>
 <body>
@@ -111,20 +122,20 @@ footer a{color:var(--muted);transition:color .2s}footer a:hover{color:var(--teal
     <div class="nav-inner">
       <a href="/" class="logo"><img src="/logo-c-design.webp" alt="C Design" style="height:42px;width:auto;display:block;"></a>
       <ul class="nav-links" role="list">
-        <li><a href="/#servicii">Services</a></li>
-        <li><a href="/#portofoliu">Portfolio</a></li>
-        <li><a href="/#contact">Contact</a></li>
+        <li><a href="/#services">Services</a></li>
+        <li><a href="/#portfolio">Portfolio</a></li>
+        <li><a href="/#about">About Us</a></li>
         <li><a href="/blog">Blog</a></li>
       </ul>
       <a href="tel:+447312799449" class="nav-phone">+44 7312 799449</a>
-      <a href="/#contact" class="btn-nav">Book now →</a>
+      <a href="/#contact" class="btn-nav">Get Quote</a>
       <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
   </div>
 </nav>
 <div class="mobile-menu" id="mobileMenu">
-  <a href="/#servicii">Services</a><a href="/#portofoliu">Portfolio</a><a href="/#contact">Contact</a><a href="/blog">Blog</a>
-  <a href="tel:+447312799449">+44 7312 799449</a><a href="/#contact" class="btn-nav">Book now →</a>
+  <a href="/#services">Services</a><a href="/#portfolio">Portfolio</a><a href="/#about">About Us</a><a href="/blog">Blog</a>
+  <a href="tel:+447312799449">+44 7312 799449</a><a href="/#contact" class="btn-nav">Get Quote</a>
 </div>
 <main>
 <article>
@@ -142,8 +153,44 @@ footer a{color:var(--muted);transition:color .2s}footer a:hover{color:var(--teal
 </div>
 </article>
 </main>
-<footer>
-  <p>© ${yr} C Design · <a href="tel:+447312799449">+44 7312 799449</a> · <a href="mailto:office@c-design.ro">office@c-design.ro</a> · <a href="/blog">Blog</a></p>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="f-brand">
+      <img src="/logo-c-design.webp" alt="C Design">
+      <p>A UK web studio building modern, fast websites and apps that turn visitors into customers — with honest, fixed pricing.</p>
+      <div class="f-social">
+        <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M13 22v-8h2.7l.4-3H13V9.2c0-.9.3-1.5 1.6-1.5H16V5.1C15.7 5 14.7 5 13.6 5 11.2 5 9.7 6.4 9.7 9v2H7v3h2.7v8z"/></svg></a>
+        <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.3 2.2.4.5.2.9.5 1.3.9.4.4.7.8.9 1.3.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 1.8-.4 2.2-.2.5-.5.9-.9 1.3-.4.4-.8.7-1.3.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.3-2.2-.4a3.5 3.5 0 0 1-1.3-.9 3.5 3.5 0 0 1-.9-1.3c-.2-.4-.4-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.3-1.8.4-2.2.2-.5.5-.9.9-1.3.4-.4.8-.7 1.3-.9.4-.2 1-.4 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 3.2A6.6 6.6 0 1 0 12 18.6 6.6 6.6 0 0 0 12 5.4zm0 10.9a4.3 4.3 0 1 1 0-8.6 4.3 4.3 0 0 1 0 8.6zm6.8-11.2a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/></svg></a>
+        <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M6.9 8.4H3.6V21h3.3zM5.2 3.5a1.9 1.9 0 1 0 0 3.8 1.9 1.9 0 0 0 0-3.8zM21 21h-3.3v-6.2c0-1.5 0-3.4-2-3.4s-2.4 1.6-2.4 3.3V21h-3.3V8.4h3.2v1.7h.1c.4-.8 1.5-1.7 3.1-1.7 3.3 0 3.9 2.2 3.9 5z"/></svg></a>
+        <a href="#" aria-label="X"><svg viewBox="0 0 24 24"><path d="M17.5 3h3l-6.6 7.5L21.7 21h-6l-4.7-6.1L5.6 21h-3l7-8L2.6 3h6.1l4.2 5.6zM16.4 19.2h1.7L7.7 4.7H5.9z"/></svg></a>
+      </div>
+    </div>
+    <div class="f-col">
+      <h4>Services</h4>
+      <a href="/#services">Website Design</a>
+      <a href="/#services">E-commerce</a>
+      <a href="/#services">Custom Web Apps</a>
+      <a href="/#services">SEO &amp; Local SEO</a>
+      <a href="/#services">Social Media</a>
+    </div>
+    <div class="f-col">
+      <h4>Company</h4>
+      <a href="/#about">About Us</a>
+      <a href="/#portfolio">Portfolio</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog">Blog</a>
+    </div>
+    <div class="f-col">
+      <h4>Get in touch</h4>
+      <a href="tel:+447312799449">📞 +44 7312 799449</a>
+      <a href="/#contact">💬 Send a message</a>
+      <div class="fi">🕘 Mon – Fri · 9:00 – 18:00</div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© ${yr} C Design. All rights reserved.</span>
+    <span><a href="/politica-confidentialitate">Privacy Policy</a></span>
+  </div>
 </footer>
 <script>
 const ham=document.getElementById('hamburger'),mob=document.getElementById('mobileMenu');
