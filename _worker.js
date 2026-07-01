@@ -177,7 +177,7 @@ article{padding:64px 0 90px}
       <h4>Company</h4>
       <a href="/#about">About Us</a>
       <a href="/#portfolio">Portfolio</a>
-      <a href="/#pricing">Pricing</a>
+      <a href="/pricing">Pricing</a>
       <a href="/blog">Blog</a>
     </div>
     <div class="f-col">
@@ -2279,6 +2279,12 @@ export default {
     if (path === '/services' || path === '/services/') {
       const assetUrl = new URL(request.url);
       assetUrl.pathname = '/services.html';
+      return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
+    }
+
+    if (path === '/pricing' || path === '/pricing/') {
+      const assetUrl = new URL(request.url);
+      assetUrl.pathname = '/pricing.html';
       return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
     }
 
