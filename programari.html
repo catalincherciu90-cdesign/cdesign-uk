@@ -2643,6 +2643,7 @@
     document.getElementById('panel-' + tab).classList.add('active');
     if (tab === 'gibilan') loadGibilan();
     if (tab === 'messages') loadMessages();
+    if (tab === 'projects') fetchProjects();
     if (tab === 'crm') { fetchCrm(); loadGibilan(); }
     if (tab === 'clients') { fetchClients(); loadGibilan(); }
     if (tab === 'pagini') { var sel = document.getElementById('layout-page-sel'); loadLayoutPage(sel ? sel.value : 'index'); }
@@ -2966,11 +2967,12 @@
     } catch { document.getElementById('projectsGrid').innerHTML = '<div class="empty-state"><p>// Error loading data.</p></div>'; }
   }
   async function loadDemoExamples() {
+    var DEF = (typeof DEFAULT_DEMO_EXAMPLES !== 'undefined') ? DEFAULT_DEMO_EXAMPLES : [];
     try {
       var r = await fetch('/api/site-settings');
       var d = r.ok ? await r.json() : {};
-      demoExamplesData = (Array.isArray(d.demoExamples) && d.demoExamples.length) ? JSON.parse(JSON.stringify(d.demoExamples)) : JSON.parse(JSON.stringify(DEFAULT_DEMO_EXAMPLES));
-    } catch { demoExamplesData = JSON.parse(JSON.stringify(DEFAULT_DEMO_EXAMPLES)); }
+      demoExamplesData = (Array.isArray(d.demoExamples) && d.demoExamples.length) ? JSON.parse(JSON.stringify(d.demoExamples)) : JSON.parse(JSON.stringify(DEF));
+    } catch { demoExamplesData = JSON.parse(JSON.stringify(DEF)); }
     renderDemoExamples();
   }
 
