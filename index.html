@@ -429,27 +429,34 @@
       var section = document.getElementById('portfolio');
       if(!grid || !section) return;
       function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+      var FALLBACK_DEMOS = [
+        { emoji:'🍝', businessName:'Bella Cucina', industry:'Restaurant', tagline:'Authentic Italian restaurant — menu, story and table booking.', url:'/demos/bella-cucina.html' },
+        { emoji:'🦷', businessName:'BrightSmile Dental', industry:'Healthcare', tagline:'Modern dental clinic with services, stats and appointment booking.', url:'/demos/brightsmile-dental.html' },
+        { emoji:'🛍️', businessName:'Urban Threads', industry:'E-commerce', tagline:'Streetwear online shop with product grid and member offers.', url:'/demos/urban-threads.html' }
+      ];
+      function render(items){
+        grid.innerHTML = items.map(function(d){
+          var name = esc(d.businessName || 'Demo website');
+          var tag = d.industry ? '<span class="demo-tag">' + esc(d.industry) + '</span>' : '';
+          var tagline = d.tagline ? '<p>' + esc(d.tagline) + '</p>' : '<p></p>';
+          var href = d.url ? d.url : ('/demo/' + encodeURIComponent(d.slug || d.id || ''));
+          return '<a class="demo-card" href="' + esc(href) + '" target="_blank" rel="noopener">'
+            + '<div class="demo-emoji">' + esc(d.emoji || '🌐') + '</div>'
+            + tag
+            + '<h3>' + name + '</h3>'
+            + tagline
+            + '<span class="demo-link">View demo <span class="arr">→</span></span>'
+            + '</a>';
+        }).join('');
+        section.style.display = 'block';
+      }
       fetch('/api/demos')
         .then(function(r){ return r.ok ? r.json() : []; })
         .then(function(list){
-          if(!Array.isArray(list) || !list.length) return;
-          var items = list.slice(0, 6);
-          grid.innerHTML = items.map(function(d){
-            var name = esc(d.businessName || 'Demo website');
-            var tag = d.industry ? '<span class="demo-tag">' + esc(d.industry) + '</span>' : '';
-            var tagline = d.tagline ? '<p>' + esc(d.tagline) + '</p>' : '<p></p>';
-            var href = '/demo/' + encodeURIComponent(d.slug || d.id || '');
-            return '<a class="demo-card" href="' + href + '" target="_blank" rel="noopener">'
-              + '<div class="demo-emoji">' + esc(d.emoji || '🌐') + '</div>'
-              + tag
-              + '<h3>' + name + '</h3>'
-              + tagline
-              + '<span class="demo-link">View demo <span class="arr">→</span></span>'
-              + '</a>';
-          }).join('');
-          section.style.display = 'block';
+          if(Array.isArray(list) && list.length) render(list.slice(0, 6));
+          else render(FALLBACK_DEMOS);
         })
-        .catch(function(){});
+        .catch(function(){ render(FALLBACK_DEMOS); });
     })();
 
     // Setări din admin: video de fundal + carusel bannere About
