@@ -607,8 +607,15 @@
       fetch('/api/demos')
         .then(function(r){ return r.ok ? r.json() : []; })
         .then(function(list){
-          if(Array.isArray(list) && list.length) render(list.slice(0, 6));
-          else render(FALLBACK_DEMOS);
+          if(Array.isArray(list) && list.length){ render(list.slice(0, 6)); return; }
+          // fără demo-uri generate → folosește exemplele editabile din admin (settings), apoi fallback
+          fetch('/api/site-settings')
+            .then(function(r){ return r.ok ? r.json() : null; })
+            .then(function(d){
+              var ex = (d && Array.isArray(d.demoExamples) && d.demoExamples.length) ? d.demoExamples : FALLBACK_DEMOS;
+              render(ex.slice(0, 6));
+            })
+            .catch(function(){ render(FALLBACK_DEMOS); });
         })
         .catch(function(){ render(FALLBACK_DEMOS); });
     })();

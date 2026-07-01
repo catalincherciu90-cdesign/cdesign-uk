@@ -1491,6 +1491,19 @@
             <div id="accent-color-status" style="font-size:.75rem;color:var(--teal);margin-top:10px;min-height:16px;"></div>
           </div>
 
+          <!-- DEMO EXAMPLES (secțiunea Live demo websites) -->
+          <div style="margin-top:22px;padding-top:18px;border-top:1px solid var(--border-soft);">
+            <div class="f-label" style="margin-bottom:6px;">// demo_examples (exemple demo pe homepage)</div>
+            <div style="font-size:.72rem;color:var(--muted);margin-bottom:12px;">Cele 3 website-uri demo din secțiunea „Live demo websites". Editează, adaugă sau șterge. Apar cât timp nu ai demo-uri generate în Portfolio.</div>
+            <div id="demo-examples-list"></div>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap;">
+              <button onclick="addDemoExample()" style="background:var(--bg3);border:1px solid var(--border-soft);color:var(--text);border-radius:6px;padding:9px 14px;font-size:.82rem;cursor:pointer;">＋ Add example</button>
+              <button onclick="saveDemoExamples()" class="btn-save">💾 Save</button>
+              <button onclick="resetDemoExamples()" style="background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:0 14px;font-size:.8rem;cursor:pointer;height:38px;">↺ Default</button>
+              <span id="demo-examples-status" style="font-size:.75rem;color:var(--teal);min-height:16px;"></span>
+            </div>
+          </div>
+
               <!-- Gradient + Text toggles -->
               <!-- Înălțime + Poziție + Size imagine -->
               <div style="margin-top:14px;margin-bottom:6px;">
@@ -4119,6 +4132,7 @@
       { var tk = document.getElementById('ticker-items'); if (tk) tk.value = (d.tickerItems != null && d.tickerItems !== '') ? (Array.isArray(d.tickerItems) ? d.tickerItems.join('\n') : d.tickerItems) : DEFAULT_TICKER_ITEMS; }
       { aboutBannersData = Array.isArray(d.aboutBanners) ? d.aboutBanners.slice() : (d.aboutBanners ? String(d.aboutBanners).split('\n').map(function(s){return s.trim();}).filter(Boolean) : []); renderAboutBanners(); }
       { var ac = (d.accentColor && /^#[0-9a-fA-F]{6}$/.test(d.accentColor)) ? d.accentColor.toUpperCase() : DEFAULT_ACCENT; var acC=document.getElementById('accent-color'), acH=document.getElementById('accent-hex'); if(acC) acC.value=ac; if(acH) acH.value=ac; }
+      { demoExamplesData = (Array.isArray(d.demoExamples) && d.demoExamples.length) ? JSON.parse(JSON.stringify(d.demoExamples)) : JSON.parse(JSON.stringify(DEFAULT_DEMO_EXAMPLES)); renderDemoExamples(); }
       if (d.heroImage) {
         document.getElementById('hero-img-url').value = d.heroImage;
         applyHeroPreview(d.heroImage);
@@ -4441,6 +4455,58 @@
     document.getElementById('accent-color').value = DEFAULT_ACCENT;
     document.getElementById('accent-hex').value = DEFAULT_ACCENT;
     await saveAccentColor();
+  }
+
+  // ---- Demo examples (Live demo websites) ----
+  var DEFAULT_DEMO_EXAMPLES = [
+    { emoji:'🍝', businessName:'Bella Cucina', industry:'Restaurant', tagline:'Authentic Italian restaurant — menu, story and table booking.', url:'/demos/bella-cucina.html' },
+    { emoji:'🦷', businessName:'BrightSmile Dental', industry:'Healthcare', tagline:'Modern dental clinic with services, stats and appointment booking.', url:'/demos/brightsmile-dental.html' },
+    { emoji:'🛍️', businessName:'Urban Threads', industry:'E-commerce', tagline:'Streetwear online shop with product grid and member offers.', url:'/demos/urban-threads.html' }
+  ];
+  var demoExamplesData = [];
+  function deField(i, field, val, ph, style) {
+    return '<input value="' + esc(val || '') + '" placeholder="' + ph + '" oninput="demoExamplesData[' + i + '].' + field + '=this.value" style="' + style + ';font-size:.85rem;padding:8px 10px;border:1px solid var(--border-soft);border-radius:6px;background:var(--bg3);color:var(--text);">';
+  }
+  function renderDemoExamples() {
+    var wrap = document.getElementById('demo-examples-list');
+    if (!wrap) return;
+    if (!demoExamplesData.length) { wrap.innerHTML = '<div style="font-size:.78rem;color:var(--muted);margin-bottom:8px;">Niciun exemplu. Apasă „Add example".</div>'; return; }
+    wrap.innerHTML = demoExamplesData.map(function(d, i) {
+      return '<div style="border:1px solid var(--border-soft);border-radius:10px;padding:12px;margin-bottom:10px;">'
+        + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">'
+        + deField(i, 'emoji', d.emoji, 'Emoji', 'width:56px;text-align:center')
+        + deField(i, 'businessName', d.businessName, 'Name', 'flex:1;min-width:150px')
+        + deField(i, 'industry', d.industry, 'Industry', 'width:130px')
+        + '</div>'
+        + deField(i, 'tagline', d.tagline, 'Short tagline', 'width:100%;box-sizing:border-box')
+        + '<div style="display:flex;gap:8px;margin-top:8px;align-items:center;">'
+        + deField(i, 'url', d.url, 'URL (ex. /demos/… sau https://…)', 'flex:1')
+        + '<a href="' + esc(d.url) + '" target="_blank" style="background:var(--teal);color:#060f0f;border-radius:6px;padding:8px 12px;font-size:.78rem;font-weight:700;white-space:nowrap;text-decoration:none;">👁 View</a>'
+        + '<button onclick="removeDemoExample(' + i + ')" title="Remove" style="background:rgba(200,30,30,.9);color:#fff;border:0;border-radius:6px;width:32px;height:32px;font-size:.95rem;cursor:pointer;">✕</button>'
+        + '</div></div>';
+    }).join('');
+  }
+  function addDemoExample() {
+    demoExamplesData.push({ emoji:'🌐', businessName:'', industry:'', tagline:'', url:'' });
+    renderDemoExamples();
+  }
+  function removeDemoExample(i) { demoExamplesData.splice(i, 1); renderDemoExamples(); }
+  async function saveDemoExamples() {
+    var statusEl = document.getElementById('demo-examples-status');
+    var clean = demoExamplesData.filter(function(d){ return (d.businessName || '').trim() || (d.url || '').trim(); });
+    try {
+      await fetch('/api/site-settings?token=' + encodeURIComponent(adminToken), {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ demoExamples: clean })
+      });
+      statusEl.textContent = '✓ Saved! Demo examples updated.';
+      setTimeout(function(){ statusEl.textContent = ''; }, 3000);
+    } catch { statusEl.textContent = '✕ Error saving'; }
+  }
+  async function resetDemoExamples() {
+    demoExamplesData = JSON.parse(JSON.stringify(DEFAULT_DEMO_EXAMPLES));
+    renderDemoExamples();
+    await saveDemoExamples();
   }
 
   // ---- About carousel banners ----
