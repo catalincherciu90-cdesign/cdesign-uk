@@ -154,6 +154,20 @@
   }
   @media(max-width:460px){.stats-grid{grid-template-columns:1fr}}
 
+  /* ---------- SERVICES / WE CAN HELP WITH ---------- */
+  .services{background:var(--bg-soft);padding:96px 24px}
+  .services-head{text-align:center;margin-bottom:60px}
+  .services-head .eyebrow{justify-content:center}
+  .services-head h2{font-family:'Poppins',sans-serif;font-weight:700;font-size:clamp(2rem,4vw,3.1rem);color:var(--ink);letter-spacing:-.02em;line-height:1.1}
+  .help-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:34px}
+  .help-item .help-head{display:flex;align-items:center;gap:11px;margin-bottom:13px}
+  .help-sq{width:15px;height:15px;background:var(--blue);border-radius:2px;flex:none}
+  .help-item h3{font-family:'Poppins',sans-serif;font-weight:700;font-size:1.06rem;color:var(--ink);letter-spacing:-.01em}
+  .help-item p{font-size:.93rem;line-height:1.62;color:var(--body)}
+  @media(max-width:980px){.help-grid{grid-template-columns:repeat(3,1fr);gap:34px 30px}}
+  @media(max-width:640px){.help-grid{grid-template-columns:1fr 1fr}.services{padding:70px 22px}}
+  @media(max-width:420px){.help-grid{grid-template-columns:1fr}}
+
   /* ---------- MOBILE ---------- */
   .mobile-menu{position:fixed;top:0;right:0;width:min(84vw,340px);height:100vh;background:#fff;box-shadow:-10px 0 40px rgba(0,0,0,.12);z-index:60;padding:88px 30px 30px;transform:translateX(100%);transition:transform .28s ease}
   .mobile-menu.open{transform:translateX(0)}
@@ -263,6 +277,36 @@
       <div class="about-carousel" id="aboutCarousel" aria-label="Showcase">
         <div class="ac-slides" id="acSlides"></div>
         <div class="ac-dots" id="acDots"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES / WE CAN HELP WITH -->
+  <section class="services" id="services">
+    <div class="services-head">
+      <span class="eyebrow">Complete digital solutions</span>
+      <h2>We can help with...</h2>
+    </div>
+    <div class="help-grid">
+      <div class="help-item">
+        <div class="help-head"><span class="help-sq"></span><h3>Websites</h3></div>
+        <p>Developing your website into an impressive showcase for your products or services.</p>
+      </div>
+      <div class="help-item">
+        <div class="help-head"><span class="help-sq"></span><h3>SEO &amp; GEO</h3></div>
+        <p>Driving more business to your website through effective SEO for search and GEO for AI tools.</p>
+      </div>
+      <div class="help-item">
+        <div class="help-head"><span class="help-sq"></span><h3>PPC</h3></div>
+        <p>Using PPC and paid search to capture those actively looking for what you deliver.</p>
+      </div>
+      <div class="help-item">
+        <div class="help-head"><span class="help-sq"></span><h3>Social Media</h3></div>
+        <p>Providing social media management that creates a buzz around your business.</p>
+      </div>
+      <div class="help-item">
+        <div class="help-head"><span class="help-sq"></span><h3>Content Marketing</h3></div>
+        <p>Creating content which boosts your SEO, raises your profile and reinforces your expertise.</p>
       </div>
     </div>
   </section>
