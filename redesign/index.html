@@ -697,7 +697,7 @@
 
 <!-- TICKER -->
 <div class="ticker" aria-label="What we do">
-  <div class="ticker-track">
+  <div class="ticker-track" id="tickerTrack">
     <span class="ticker-set">
       <span class="ticker-item">Modern websites delivered in 14 days</span><span class="ticker-sep">◆</span>
       <span class="ticker-item">Local SEO included from day one</span><span class="ticker-sep">◆</span>
@@ -1872,6 +1872,19 @@ document.getElementById('bookingForm').addEventListener('submit', async function
         }).join('');
         setupBannerCycle(wrap, j);
       });
+      // Banda derulantă de sus (ticker) — editabilă din admin
+      var tTrack = document.getElementById('tickerTrack');
+      if(tTrack && d.tickerItems != null && d.tickerItems !== ''){
+        var tItems = (Array.isArray(d.tickerItems) ? d.tickerItems : String(d.tickerItems).split('\n'))
+          .map(function(s){return String(s).trim();}).filter(Boolean);
+        if(tItems.length){
+          var setHtml = tItems.map(function(it){
+            return '<span class="ticker-item">' + bnEsc(it) + '</span><span class="ticker-sep">◆</span>';
+          }).join('');
+          tTrack.innerHTML = '<span class="ticker-set">' + setHtml + '</span>'
+                           + '<span class="ticker-set" aria-hidden="true">' + setHtml + '</span>';
+        }
+      }
       // Video de fundal (încărcat din admin)
       var bgVid = document.getElementById('hudBgVideo');
       var bgBanner = document.getElementById('homeBanner');

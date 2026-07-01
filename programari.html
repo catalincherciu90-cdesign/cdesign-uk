@@ -1458,6 +1458,18 @@
             <div id="banner-offers-2-status" style="font-size:.75rem;color:var(--teal);margin-top:8px;min-height:16px;"></div>
           </div>
 
+          <!-- TICKER (banda derulantă de sus) -->
+          <div style="margin-top:22px;padding-top:18px;border-top:1px solid var(--border-soft);">
+            <div class="f-label" style="margin-bottom:6px;">// ticker (banda derulantă din partea de sus)</div>
+            <textarea class="f-input" id="ticker-items" rows="7" placeholder="One text per line.&#10;Example:&#10;Modern websites delivered in 14 days&#10;Fixed price — no surprises&#10;120+ projects across the UK"></textarea>
+            <div style="font-size:.72rem;color:var(--muted);margin-top:6px;">Textele care se derulează în banda de sus. Câte un text pe linie — se repetă automat.</div>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+              <button onclick="saveTickerItems()" class="btn-save" style="flex:1;">💾 Save</button>
+              <button onclick="resetTickerItems()" style="background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:0 14px;font-size:.8rem;cursor:pointer;white-space:nowrap;height:36px;">↺ Default</button>
+            </div>
+            <div id="ticker-items-status" style="font-size:.75rem;color:var(--teal);margin-top:8px;min-height:16px;"></div>
+          </div>
+
               <!-- Gradient + Text toggles -->
               <!-- Înălțime + Poziție + Size imagine -->
               <div style="margin-top:14px;margin-bottom:6px;">
@@ -4083,6 +4095,7 @@
       if (d.bgVideo) { var bv = document.getElementById('bg-video-url'); if (bv) bv.value = d.bgVideo; }
       { var bo = document.getElementById('banner-offers'); if (bo) bo.value = (d.bannerOffers != null && d.bannerOffers !== '') ? (Array.isArray(d.bannerOffers) ? d.bannerOffers.join('\n') : d.bannerOffers) : DEFAULT_BANNER_OFFERS; }
       { var bo2 = document.getElementById('banner-offers-2'); if (bo2) bo2.value = (d.bannerOffers2 != null && d.bannerOffers2 !== '') ? (Array.isArray(d.bannerOffers2) ? d.bannerOffers2.join('\n') : d.bannerOffers2) : DEFAULT_BANNER_OFFERS_2; }
+      { var tk = document.getElementById('ticker-items'); if (tk) tk.value = (d.tickerItems != null && d.tickerItems !== '') ? (Array.isArray(d.tickerItems) ? d.tickerItems.join('\n') : d.tickerItems) : DEFAULT_TICKER_ITEMS; }
       if (d.heroImage) {
         document.getElementById('hero-img-url').value = d.heroImage;
         applyHeroPreview(d.heroImage);
@@ -4366,6 +4379,24 @@
   async function resetBannerOffers2() {
     document.getElementById('banner-offers-2').value = DEFAULT_BANNER_OFFERS_2;
     await saveBannerOffers2();
+  }
+
+  var DEFAULT_TICKER_ITEMS = 'Modern websites delivered in 14 days\nLocal SEO included from day one\nFixed price — no surprises\n120+ projects across the UK\nMobile-first · fast · secure\nWebsites that bring real customers\nFree consultation';
+  async function saveTickerItems() {
+    var val = document.getElementById('ticker-items').value;
+    var statusEl = document.getElementById('ticker-items-status');
+    try {
+      await fetch('/api/site-settings?token=' + encodeURIComponent(adminToken), {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tickerItems: val })
+      });
+      statusEl.textContent = '✓ Saved! Ticker updated.';
+      setTimeout(function(){ statusEl.textContent = ''; }, 3000);
+    } catch { statusEl.textContent = '✕ Error saving'; }
+  }
+  async function resetTickerItems() {
+    document.getElementById('ticker-items').value = DEFAULT_TICKER_ITEMS;
+    await saveTickerItems();
   }
 
   async function removeBgVideo() {
