@@ -105,13 +105,14 @@
   .about-inner{max-width:760px;margin:0 auto}
   .about .eyebrow{justify-content:center}
   .about h2,.about p{margin-left:auto;margin-right:auto}
-  /* limită de înălțime cu scroll intern dacă textul e prea lung */
-  .about-text{max-height:440px;overflow-y:auto;padding-right:10px}
-  .about-text::-webkit-scrollbar{width:7px}
-  .about-text::-webkit-scrollbar-track{background:transparent}
-  .about-text::-webkit-scrollbar-thumb{background:#d5dbe4;border-radius:4px}
-  .about-text::-webkit-scrollbar-thumb:hover{background:#c0c8d4}
-  .about-text{scrollbar-width:thin;scrollbar-color:#d5dbe4 transparent}
+  /* titlul și butonul rămân fixe; doar paragrafele scrollează dacă depășesc limita */
+  .about-copy{max-height:260px;overflow-y:auto;padding-right:10px;margin-bottom:8px}
+  .about-copy p:last-child{margin-bottom:0}
+  .about-copy::-webkit-scrollbar{width:7px}
+  .about-copy::-webkit-scrollbar-track{background:transparent}
+  .about-copy::-webkit-scrollbar-thumb{background:#d5dbe4;border-radius:4px}
+  .about-copy::-webkit-scrollbar-thumb:hover{background:#c0c8d4}
+  .about-copy{scrollbar-width:thin;scrollbar-color:#d5dbe4 transparent}
   /* când există bannere în carusel → două coloane, text la stânga */
   .about.has-banners{text-align:left}
   .about.has-banners .about-inner{max-width:1180px;display:grid;grid-template-columns:1.02fr .98fr;gap:60px;align-items:center}
@@ -253,8 +254,10 @@
       <div class="about-text">
         <span class="eyebrow">About C Design</span>
         <h2>A UK web studio that turns visitors into <b class="hl">customers</b></h2>
-        <p>We're a UK-based web design studio helping small and growing businesses launch <b>modern, fast websites</b> that actually bring results. No jargon, no hidden fees — just clean design and honest, fixed pricing.</p>
-        <p>From your first idea to launch day we handle everything: design, build, copywriting, SEO and hosting. Most projects go live in around <b>14 days</b>.</p>
+        <div class="about-copy">
+          <p>We're a UK-based web design studio helping small and growing businesses launch <b>modern, fast websites</b> that actually bring results. No jargon, no hidden fees — just clean design and honest, fixed pricing.</p>
+          <p>From your first idea to launch day we handle everything: design, build, copywriting, SEO and hosting. Most projects go live in around <b>14 days</b>.</p>
+        </div>
         <a href="#contact" class="btn-primary about-cta">Get a Quote <span class="arr">→</span></a>
       </div>
       <div class="about-carousel" id="aboutCarousel" aria-label="Showcase">
