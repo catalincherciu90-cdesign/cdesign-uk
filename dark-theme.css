@@ -1,0 +1,20 @@
+/* Tema dark Midnight (accent cyan) — suprascrie /theme.css (light) pe toate paginile.
+   Se încarcă DUPĂ /theme.css, deci câștigă variabilele dark. */
+:root{
+  --teal:#2BE5FF;--teal-dk:#16b5cc;--teal-lt:#8af3ff;
+  --teal-dim:rgba(43,229,255,.10);--teal-border:rgba(43,229,255,.35);--teal-glow:#2BE5FF;--teal-glow-rgb:43,229,255;
+  --bg:#05080C;--bg2:#0b121a;--bg3:#121b25;--bg4:#1a2530;
+  --text:#E8EDF2;--soft:#AAB4C0;--muted:#7A8694;--heading:#F4F8FC;
+  --border:rgba(255,255,255,.10);--border-soft:rgba(255,255,255,.16);
+  --nav-bg:rgba(7,11,16,.85);--nav-bg-solid:rgba(7,11,16,.96);
+  --nav-text:#E8EDF2;--nav-phone:#E8EDF2;--nav-burger:#E8EDF2;
+}
+html,body{background:#05080C!important;}
+body{color:var(--text);}
+.logo{color:#E8EDF2!important;}
+.nav-links a{color:#E8EDF2!important;}
+.nav-phone{color:#E8EDF2!important;}
+.hamburger span{background:#E8EDF2!important;}
+/* CTA-uri: din alb → cyan, fără glow alb */
+.btn-nav,.btn-primary,.plan-cta-main{background:#2BE5FF!important;color:#04161b!important;animation:none!important;box-shadow:0 0 20px rgba(43,229,255,.4)!important;}
+.btn-nav:hover,.btn-primary:hover,.plan-cta-main:hover{background:#8af3ff!important;}

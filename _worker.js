@@ -589,6 +589,33 @@ async function sendBookingNotification(booking, env) {
   } catch {}
 }
 
+async function sendMessageNotification(msg, env) {
+  try {
+    const e = (s) => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const html = `<div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:24px;">
+      <div style="background:#0a1118;border-radius:14px;padding:24px;color:#e8edf2;">
+        <div style="font-size:.8rem;color:#2BE5FF;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">New message · C Design</div>
+        <div style="font-size:1.2rem;font-weight:700;margin-bottom:14px;">${e(msg.name)}</div>
+        <div style="font-size:.95rem;margin-bottom:6px;">📞 ${e(msg.phone)}</div>
+        ${msg.service ? `<div style="font-size:.95rem;margin-bottom:6px;">🧩 ${e(msg.service)}</div>` : ''}
+        ${(msg.date || msg.time) ? `<div style="font-size:.95rem;margin-bottom:6px;">📅 ${e(msg.date)} ${e(msg.time)}</div>` : ''}
+        ${msg.message ? `<div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.12);font-size:.95rem;line-height:1.5;">${e(msg.message)}</div>` : ''}
+        <div style="margin-top:16px;font-size:.78rem;color:#7a8694;">Open the admin → Messages to reply.</div>
+      </div>
+    </div>`;
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY || RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'C Design <notificari@c-design.ro>',
+        to: [env.NOTIFY_EMAIL || NOTIFY_EMAIL],
+        subject: `💬 New message — ${msg.name}`,
+        html,
+      }),
+    });
+  } catch (e) { console.error('sendMessageNotification error:', e); }
+}
+
 const DEFAULT_PROJECTS = [
   { id: 'p1', emoji: '🚗', tag: 'Auto', title: 'Vehicle Recovery Teleorman', description: 'Presentation website with coverage areas: Dâmbovița, Ilfov, Bucharest, Argeș, Giurgiu.', problema: 'The client was invisible online — all customers came exclusively through word of mouth.', solutie: 'Fast presentation website with separate pages per county, optimised for local SEO.', rezultat: 'First online order within 3 days of launch. Organic traffic +180% in 2 months.', order: 0 },
   { id: 'p2', emoji: '🏭', tag: 'Authorised Dealer', title: 'Authorised Lindab Dealer', description: 'Professional presentation with product catalogue and integrated contact details.', problema: 'Old website, not optimised for mobile — 70% of visitors left within the first 5 seconds.', solutie: 'Full redesign with digital catalogue and integrated quote-request form.', rezultat: 'Bounce rate reduced by 55%. Quote requests tripled compared to before.', order: 1 },
@@ -631,7 +658,7 @@ async function getAuth(url, env) {
 }
 
 // Sections a sub-admin can be granted access to.
-const ADMIN_SECTIONS = ['bookings', 'gibilan', 'clients', 'crm', 'portfolio', 'blog', 'social', 'pages', 'media', 'theme', 'expenses', 'oferte', 'settings'];
+const ADMIN_SECTIONS = ['bookings', 'messages', 'gibilan', 'clients', 'crm', 'portfolio', 'blog', 'social', 'pages', 'media', 'theme', 'expenses', 'oferte', 'settings'];
 
 // Authorisation: owner can do anything; sub-admins need the section in their perms.
 function can(authed, section) {
@@ -2111,6 +2138,17 @@ export default {
       return Response.redirect('https://www.cdesigns.uk' + REDIRECTS_301[path], 301);
     }
 
+    // ── REDESIGN PREVIEW (prototip temă dark Midnight) ────────
+    if (path === '/redesign' || path === '/redesign/' || path === '/redesign/index.html') {
+      const assetUrl = new URL(request.url);
+      assetUrl.pathname = '/redesign/index.html';
+      const resp = await env.ASSETS.fetch(new Request(assetUrl.toString(), request));
+      const h = new Headers(resp.headers);
+      Object.entries(SEC_HEADERS).forEach(([k, v]) => h.set(k, v));
+      h.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      return new Response(resp.body, { status: resp.status, headers: h });
+    }
+
     // ── BLOG PUBLIC PAGES ─────────────────────────────────────
 
     if (path === '/blog' || path === '/blog/') {
@@ -2475,6 +2513,61 @@ export default {
       const booking = JSON.parse(raw);
       booking.status = status;
       await env.PROGRAMARI.put(id, JSON.stringify(booking));
+      return json({ success: true });
+    }
+
+    // ── MESSAGES (contact form → admin) ──────────────────────
+    if (path === '/api/messages' && request.method === 'POST') {
+      const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+      const allowed = await checkRateLimit(env, 'message_' + ip, 6, 3600);
+      if (!allowed) return json({ error: 'Too many requests. Please try again later.' }, 429, request);
+      try {
+        const { name, phone, service, date, time, message } = await request.json();
+        if (!name || !phone) return json({ error: 'Required fields missing' }, 400);
+        const phoneRegex = /^[\d\s\+\-\(\)]{7,20}$/;
+        if (!phoneRegex.test(phone)) return json({ error: 'Invalid phone number' }, 400);
+        if (String(name).trim().length < 2) return json({ error: 'Invalid name' }, 400);
+        const id = `msg_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        const msg = { id, name: String(name).slice(0, 120), phone: String(phone).slice(0, 40), service: (service || '').slice(0, 120), date: (date || '').slice(0, 40), time: (time || '').slice(0, 40), message: String(message || '').slice(0, 4000), read: false, createdAt: new Date().toISOString() };
+        await env.PROGRAMARI.put(id, JSON.stringify(msg));
+        const raw = await env.PROGRAMARI.get('__messages__');
+        const idx = raw ? JSON.parse(raw) : [];
+        idx.unshift({ id });
+        await env.PROGRAMARI.put('__messages__', JSON.stringify(idx.slice(0, 500)));
+        await sendMessageNotification(msg, env);
+        return json({ success: true, id });
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+
+    if (path === '/api/messages' && request.method === 'GET') {
+      if (!can(authed, 'messages')) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const raw = await env.PROGRAMARI.get('__messages__');
+        const idx = raw ? JSON.parse(raw) : [];
+        const msgs = await Promise.all(idx.map(async ({ id }) => { const r = await env.PROGRAMARI.get(id); return r ? JSON.parse(r) : null; }));
+        return json(msgs.filter(Boolean));
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+
+    if (path.startsWith('/api/messages/') && request.method === 'PATCH') {
+      if (!can(authed, 'messages')) return json({ error: 'Unauthorised' }, 401);
+      const id = path.replace('/api/messages/', '');
+      const raw = await env.PROGRAMARI.get(id);
+      if (!raw) return json({ error: 'Not found' }, 404);
+      const body = await request.json();
+      const m = JSON.parse(raw);
+      if (typeof body.read === 'boolean') m.read = body.read;
+      await env.PROGRAMARI.put(id, JSON.stringify(m));
+      return json({ success: true });
+    }
+
+    if (path.startsWith('/api/messages/') && request.method === 'DELETE') {
+      if (!can(authed, 'messages')) return json({ error: 'Unauthorised' }, 401);
+      const id = path.replace('/api/messages/', '');
+      await env.PROGRAMARI.delete(id);
+      const raw = await env.PROGRAMARI.get('__messages__');
+      const idx = raw ? JSON.parse(raw) : [];
+      await env.PROGRAMARI.put('__messages__', JSON.stringify(idx.filter(x => x.id !== id)));
       return json({ success: true });
     }
 
@@ -3048,29 +3141,31 @@ Requirements:
         if (!subject) return json({ error: 'Subject is required' }, 400, request);
         if (!env.AI) return json({ error: 'AI binding unavailable — check wrangler.toml' }, 500, request);
 
-        const prompt = `Ești un copywriter expert în web design și marketing digital pentru afaceri mici din România. Scrie un articol de blog complet pentru agenția "C Design" pe subiectul: "${subject}".
+        const prompt = `You are an expert copywriter in web design and digital marketing for small businesses in the UK. Write a complete blog article for the agency "C Design" on the subject: "${subject}".
 
-Returnează EXCLUSIV un obiect JSON valid, fără text înainte sau după, cu această structură:
+Return EXCLUSIVELY a valid JSON object, with no text before or after, with this structure:
 {
-  "title": "titlu articol max 70 caractere",
-  "excerpt": "rezumat 2-3 propoziții pentru lista de articole",
-  "content": "conținut HTML complet cu <h2>, <p>, <ul>, <li>, <strong>",
-  "metaDescription": "meta description SEO max 160 caractere"
+  "title": "article title, max 70 characters",
+  "excerpt": "2-3 sentence summary for the article list",
+  "content": "complete HTML content using <h2>, <p>, <ul>, <li>, <strong>",
+  "metaDescription": "SEO meta description, max 160 characters"
 }
 
-Cerințe articol:
-- Limbă: română
-- Lungime: 600-900 cuvinte
-- Public țintă: antreprenori și proprietari de afaceri mici din România
-- Ton: profesional dar accesibil, fără jargon tehnic
-- Include sfaturi practice și exemple concrete`;
+Article requirements:
+- Language: English (British English spelling, e.g. optimise, colour, organise)
+- Length: 600-900 words
+- Target audience: entrepreneurs and small business owners in the UK
+- Tone: professional but approachable, no technical jargon
+- Include practical tips and concrete examples
+- Use £ for any prices and UK context`;
 
         const ai = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
           messages: [{ role: 'user', content: prompt }],
-          max_tokens: 2048,
+          max_tokens: 4096,
         });
 
-        const text = (ai.response || '').trim();
+        const respRaw = ai && ai.response !== undefined ? ai.response : ai;
+        const text = (typeof respRaw === 'string' ? respRaw : JSON.stringify(respRaw ?? '')).trim();
         const match = text.match(/\{[\s\S]*\}/);
         if (!match) return json({ error: 'The model did not return valid JSON. Please try again.' }, 500, request);
 
@@ -3105,36 +3200,36 @@ Cerințe articol:
         if (!env.AI) return json({ error: 'AI binding unavailable — check wrangler.toml' }, 500, request);
 
         const existingList = Array.isArray(existing) && existing.length
-          ? `\nEvită titluri similare cu cele deja publicate:\n${existing.slice(0, 10).map(t => `- ${t}`).join('\n')}`
+          ? `\nAvoid titles similar to those already published:\n${existing.slice(0, 10).map(t => `- ${t}`).join('\n')}`
           : '';
 
-        const focusCtx = focus ? `Focalizare: ${focus}` : 'Servicii generale de web design pentru afaceri mici';
-        const audienceCtx = audience ? `Public țintă: ${audience}` : 'Antreprenori și proprietari de afaceri mici din România';
+        const focusCtx = focus ? `Focus: ${focus}` : 'General web design services for small businesses';
+        const audienceCtx = audience ? `Target audience: ${audience}` : 'Entrepreneurs and small business owners in the UK';
 
-        const prompt = `Ești un expert SEO și content strategist pentru piața din România. Analizezi ce articole de blog ar trebui să scrie agenția "C Design" (web design din Ilfov/București, servicii pentru afaceri mici) pentru a-și îmbunătăți poziționarea pe Google și a atrage clienți potențiali.
+        const prompt = `You are an SEO expert and content strategist for the UK market. You analyse which blog articles the agency "C Design" (web design across the UK, services for small businesses) should write to improve its Google rankings and attract potential clients.
 
 ${focusCtx}
 ${audienceCtx}${existingList}
 
-Generează exact 8 idei de titluri de blog SEO-optimizate. Returnează EXCLUSIV un array JSON valid, fără text înainte sau după:
+Generate exactly 8 SEO-optimised blog title ideas. Return EXCLUSIVELY a valid JSON array, with no text before or after:
 
 [
   {
-    "title": "Titlul articolului (max 65 caractere, include cuvinte cheie)",
-    "keywords": ["cuvant cheie 1", "cuvant cheie 2", "cuvant cheie 3"],
+    "title": "Article title (max 65 characters, includes keywords)",
+    "keywords": ["keyword 1", "keyword 2", "keyword 3"],
     "intent": "informational|commercial|navigational",
-    "hook": "De ce funcționează acest titlu SEO (1-2 propoziții)",
-    "difficulty": "ușor|mediu|dificil",
-    "angle": "Unghiul editorial: tutorial|lista|ghid|comparatie|studiu-de-caz|sfaturi"
+    "hook": "Why this SEO title works (1-2 sentences)",
+    "difficulty": "easy|medium|hard",
+    "angle": "Editorial angle: tutorial|list|guide|comparison|case-study|tips"
   }
 ]
 
-Cerințe titluri:
-- Limbă română, naturală, fără traduceri rigide
-- Mixează intenții: 4 informational (sfaturi, ghiduri), 2 commercial (comparații, prețuri), 2 orientate spre conversie
-- Dificultate variată: 3 ușor, 3 mediu, 2 dificil
-- Relevante pentru afaceri mici din România care caută servicii web design
-- Include termeni de căutare reali pe care proprietarii de afaceri îi folosesc`;
+Title requirements:
+- Language: natural British English, no rigid translations
+- Mix intents: 4 informational (tips, guides), 2 commercial (comparisons, pricing), 2 conversion-oriented
+- Varied difficulty: 3 easy, 3 medium, 2 hard
+- Relevant for UK small businesses looking for web design services
+- Include real search terms that business owners actually use`;
 
         const ai = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
           messages: [{ role: 'user', content: prompt }],
@@ -3808,10 +3903,14 @@ Cerințe titluri:
       if (!can(authed, 'media')) return json({ error: 'Unauthorised' }, 401);
       try {
         const ct = request.headers.get('Content-Type') || '';
-        if (!ct.startsWith('image/')) return json({ error: 'Only images are accepted' }, 400);
+        const isImg = ct.startsWith('image/');
+        const isVid = ct === 'video/mp4' || ct === 'video/webm';
+        if (!isImg && !isVid) return json({ error: 'Only images or MP4/WebM video are accepted' }, 400);
         const buf = await request.arrayBuffer();
-        if (buf.byteLength > 5 * 1024 * 1024) return json({ error: 'File too large (max 5MB)' }, 400);
-        const ext = ct.includes('png') ? 'png' : ct.includes('gif') ? 'gif' : ct.includes('webp') ? 'webp' : 'jpg';
+        const max = isVid ? 25 * 1024 * 1024 : 5 * 1024 * 1024;
+        if (buf.byteLength > max) return json({ error: 'File too large (max ' + (isVid ? '25MB video' : '5MB image') + ')' }, 400);
+        const ext = isVid ? (ct.includes('webm') ? 'webm' : 'mp4')
+                          : (ct.includes('png') ? 'png' : ct.includes('gif') ? 'gif' : ct.includes('webp') ? 'webp' : 'jpg');
         const filename = 'media_' + Date.now() + '.' + ext;
         await env.PROGRAMARI.put('__media__' + filename, buf, { metadata: { ct } });
         return json({ url: '/media/' + filename, filename });
