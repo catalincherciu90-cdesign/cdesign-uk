@@ -862,6 +862,22 @@
         </div>
       </div>
 
+      <!-- DEMO EXAMPLES (secțiunea Live demo websites de pe homepage) -->
+      <div style="background:var(--bg3);border:1px solid var(--border-soft);border-radius:12px;padding:20px 22px;margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;">
+          <span style="font-family:'Share Tech Mono',monospace;font-size:.8rem;color:var(--teal);">// demo_examples</span>
+          <span style="font-size:.75rem;color:var(--muted);">— cele 3 website-uri demo din secțiunea „Live demo websites" de pe homepage</span>
+        </div>
+        <div style="font-size:.72rem;color:var(--muted);margin-bottom:14px;">Editează, adaugă sau șterge exemplele. Apar cât timp nu ai demo-uri generate mai jos.</div>
+        <div id="demo-examples-list"></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap;">
+          <button onclick="addDemoExample()" style="background:var(--bg2);border:1px solid var(--border-soft);color:var(--text);border-radius:6px;padding:9px 14px;font-size:.82rem;cursor:pointer;">＋ Add example</button>
+          <button onclick="saveDemoExamples()" class="btn-save">💾 Save</button>
+          <button onclick="resetDemoExamples()" style="background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:0 14px;font-size:.8rem;cursor:pointer;height:38px;">↺ Default</button>
+          <span id="demo-examples-status" style="font-size:.75rem;color:var(--teal);min-height:16px;"></span>
+        </div>
+      </div>
+
       <!-- AI PORTFOLIO GENERATOR PANEL -->
       <div id="projGenPanel" style="display:none;background:var(--bg3);border:1px solid var(--teal-border);border-radius:12px;padding:20px 22px;margin-bottom:24px;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
@@ -1491,18 +1507,6 @@
             <div id="accent-color-status" style="font-size:.75rem;color:var(--teal);margin-top:10px;min-height:16px;"></div>
           </div>
 
-          <!-- DEMO EXAMPLES (secțiunea Live demo websites) -->
-          <div style="margin-top:22px;padding-top:18px;border-top:1px solid var(--border-soft);">
-            <div class="f-label" style="margin-bottom:6px;">// demo_examples (exemple demo pe homepage)</div>
-            <div style="font-size:.72rem;color:var(--muted);margin-bottom:12px;">Cele 3 website-uri demo din secțiunea „Live demo websites". Editează, adaugă sau șterge. Apar cât timp nu ai demo-uri generate în Portfolio.</div>
-            <div id="demo-examples-list"></div>
-            <div style="display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap;">
-              <button onclick="addDemoExample()" style="background:var(--bg3);border:1px solid var(--border-soft);color:var(--text);border-radius:6px;padding:9px 14px;font-size:.82rem;cursor:pointer;">＋ Add example</button>
-              <button onclick="saveDemoExamples()" class="btn-save">💾 Save</button>
-              <button onclick="resetDemoExamples()" style="background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:0 14px;font-size:.8rem;cursor:pointer;height:38px;">↺ Default</button>
-              <span id="demo-examples-status" style="font-size:.75rem;color:var(--teal);min-height:16px;"></span>
-            </div>
-          </div>
 
               <!-- Gradient + Text toggles -->
               <!-- Înălțime + Poziție + Size imagine -->
@@ -2954,11 +2958,20 @@
   // -- PROIECTE --
 
   async function fetchProjects() {
+    loadDemoExamples();
     try {
       const res = await fetch('/api/projects');
       allProjects = await res.json();
       renderProjects();
     } catch { document.getElementById('projectsGrid').innerHTML = '<div class="empty-state"><p>// Error loading data.</p></div>'; }
+  }
+  async function loadDemoExamples() {
+    try {
+      var r = await fetch('/api/site-settings');
+      var d = r.ok ? await r.json() : {};
+      demoExamplesData = (Array.isArray(d.demoExamples) && d.demoExamples.length) ? JSON.parse(JSON.stringify(d.demoExamples)) : JSON.parse(JSON.stringify(DEFAULT_DEMO_EXAMPLES));
+    } catch { demoExamplesData = JSON.parse(JSON.stringify(DEFAULT_DEMO_EXAMPLES)); }
+    renderDemoExamples();
   }
 
   // ── AI portfolio generator ───────────────────────────────
@@ -4132,7 +4145,6 @@
       { var tk = document.getElementById('ticker-items'); if (tk) tk.value = (d.tickerItems != null && d.tickerItems !== '') ? (Array.isArray(d.tickerItems) ? d.tickerItems.join('\n') : d.tickerItems) : DEFAULT_TICKER_ITEMS; }
       { aboutBannersData = Array.isArray(d.aboutBanners) ? d.aboutBanners.slice() : (d.aboutBanners ? String(d.aboutBanners).split('\n').map(function(s){return s.trim();}).filter(Boolean) : []); renderAboutBanners(); }
       { var ac = (d.accentColor && /^#[0-9a-fA-F]{6}$/.test(d.accentColor)) ? d.accentColor.toUpperCase() : DEFAULT_ACCENT; var acC=document.getElementById('accent-color'), acH=document.getElementById('accent-hex'); if(acC) acC.value=ac; if(acH) acH.value=ac; }
-      { demoExamplesData = (Array.isArray(d.demoExamples) && d.demoExamples.length) ? JSON.parse(JSON.stringify(d.demoExamples)) : JSON.parse(JSON.stringify(DEFAULT_DEMO_EXAMPLES)); renderDemoExamples(); }
       if (d.heroImage) {
         document.getElementById('hero-img-url').value = d.heroImage;
         applyHeroPreview(d.heroImage);
