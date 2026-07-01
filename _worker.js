@@ -2288,6 +2288,12 @@ export default {
       return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
     }
 
+    if (path === '/demos' || path === '/demos/') {
+      const assetUrl = new URL(request.url);
+      assetUrl.pathname = '/demos.html';
+      return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
+    }
+
     // ── LEGAL ─────────────────────────────────────────────────
 
     if (path === '/politica-confidentialitate') {

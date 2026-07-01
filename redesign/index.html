@@ -445,6 +445,9 @@
       <p>Real examples of what we can build for your business — explore them live and picture your own.</p>
     </div>
     <div class="demo-grid" id="demoGrid"></div>
+    <div style="text-align:center;margin-top:46px">
+      <a href="/demos" class="btn-primary">View all demos <span class="arr">→</span></a>
+    </div>
   </section>
 
   <!-- CTA BANNER -->
@@ -624,13 +627,13 @@
       fetch('/api/demos')
         .then(function(r){ return r.ok ? r.json() : []; })
         .then(function(list){
-          if(Array.isArray(list) && list.length){ render(list.slice(0, 6)); return; }
+          if(Array.isArray(list) && list.length){ render(list.slice(0, 3)); return; }
           // fără demo-uri generate → folosește exemplele editabile din admin (settings), apoi fallback
           fetch('/api/site-settings')
             .then(function(r){ return r.ok ? r.json() : null; })
             .then(function(d){
               var ex = (d && Array.isArray(d.demoExamples) && d.demoExamples.length) ? d.demoExamples : FALLBACK_DEMOS;
-              render(ex.slice(0, 6));
+              render(ex.slice(0, 3));
             })
             .catch(function(){ render(FALLBACK_DEMOS); });
         })
