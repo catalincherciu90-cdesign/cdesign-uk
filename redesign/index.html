@@ -263,11 +263,9 @@
     .banner-node:hover{transform:translate(-50%,-50%)!important;}
     .bn-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;pointer-events:none;background:radial-gradient(circle at 50% 50%,rgba(2,5,9,.92) 0%,rgba(2,5,9,.8) 40%,rgba(2,5,9,.3) 60%,rgba(2,5,9,0) 72%);}
     .bn-cycle{position:relative;width:80%;height:80%;}
-    .bn-cycle span{position:absolute;inset:0;margin:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;line-height:1.25;font-family:'Space Grotesk',sans-serif;font-weight:700;color:#f4fbff;text-shadow:0 1px 3px #000,0 0 8px rgba(0,0,0,.9);font-size:clamp(.72rem,2.8cqw,1.5rem);opacity:0;animation:bn-cycle 20s infinite;}
+    .bn-cycle span{position:absolute;inset:0;margin:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;line-height:1.25;font-family:'Space Grotesk',sans-serif;font-weight:700;color:#f4fbff;text-shadow:0 1px 3px #000,0 0 8px rgba(0,0,0,.9);font-size:clamp(.72rem,2.8cqw,1.5rem);opacity:0;transform:scale(.94);transition:opacity .55s ease,transform .55s ease;}
+    .bn-cycle span.bn-on{opacity:1;transform:scale(1);}
     .bn-cycle span b{color:#2BE5FF;}
-    .bn-cycle span:nth-child(1){animation-delay:0s}.bn-cycle span:nth-child(2){animation-delay:4s}.bn-cycle span:nth-child(3){animation-delay:8s}.bn-cycle span:nth-child(4){animation-delay:12s}.bn-cycle span:nth-child(5){animation-delay:16s}
-    @keyframes bn-cycle{0%,20%,100%{opacity:0;transform:scale(.94)}3%,17%{opacity:1;transform:scale(1)}}
-    @media(prefers-reduced-motion:reduce){.bn-cycle span{animation:none}.bn-cycle span:nth-child(1){opacity:1}}
     .hud-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:32%;aspect-ratio:1;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle,rgba(43,229,255,.10),transparent 70%);}
     .hud-center .hc-core{position:absolute;inset:14%;border-radius:50%;background:radial-gradient(circle,rgba(43,229,255,.20),transparent 72%);}
     .hud-center .hc-brand{position:relative;font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:clamp(1rem,2.3vw,1.5rem);color:var(--heading);letter-spacing:-.02em;}
@@ -1827,11 +1825,47 @@ document.getElementById('bookingForm').addEventListener('submit', async function
       });
     }).catch(function(){});
 
+  // Banner-cerc: ciclare oferte (funcționează cu orice număr)
+  var bnTimer = null;
+  function bnEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function setupBannerCycle(){
+    var wrap = document.querySelector('.bn-cycle');
+    if(!wrap) return;
+    var spans = wrap.querySelectorAll('span');
+    if(!spans.length) return;
+    if(bnTimer){ clearInterval(bnTimer); bnTimer = null; }
+    var i = 0;
+    spans.forEach(function(s,k){ s.classList.toggle('bn-on', k === 0); });
+    if(spans.length < 2) return;
+    if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    bnTimer = setInterval(function(){
+      spans[i].classList.remove('bn-on');
+      i = (i + 1) % spans.length;
+      spans[i].classList.add('bn-on');
+    }, 3600);
+  }
+  setupBannerCycle();
+
   // Site settings dinamice (heading-uri secțiuni)
   fetch('/api/site-settings')
     .then(function(r){return r.ok?r.json():null;})
     .then(function(d){
       if(!d) return;
+      // Oferte banner (editabile din admin)
+      var bnWrap = document.querySelector('.bn-cycle');
+      if(bnWrap && d.bannerOffers){
+        var lines = (Array.isArray(d.bannerOffers) ? d.bannerOffers : String(d.bannerOffers).split('\n'))
+          .map(function(s){return String(s).trim();}).filter(Boolean).slice(0,10);
+        if(lines.length){
+          bnWrap.innerHTML = lines.map(function(line){
+            var parts = line.split('|');
+            var top = bnEsc((parts[0]||'').trim());
+            var bot = parts[1] ? bnEsc(parts[1].trim()) : '';
+            return '<span>' + (bot ? top + '<br><b>' + bot + '</b>' : top) + '</span>';
+          }).join('');
+          setupBannerCycle();
+        }
+      }
       // Video de fundal (încărcat din admin)
       var bgVid = document.getElementById('hudBgVideo');
       var bgBanner = document.getElementById('homeBanner');
