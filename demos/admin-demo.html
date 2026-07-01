@@ -15,20 +15,18 @@
   .demo-tagbar{background:#141719;color:#fff;text-align:center;font-size:.8rem;padding:8px 12px;font-family:sans-serif}
   .demo-tagbar a{color:#fff;text-decoration:underline;font-weight:600}
   .layout{display:flex;min-height:calc(100vh - 34px)}
-  /* sidebar */
   .side{width:250px;background:var(--side);color:#c7d0da;flex:none;display:flex;flex-direction:column;padding:22px 16px}
-  .side-logo{display:flex;align-items:center;gap:10px;padding:6px 10px 22px;font-family:'Poppins',sans-serif;font-weight:700;font-size:1.15rem;color:#fff}
-  .side-logo .mk{width:34px;height:34px;border-radius:9px;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:1rem}
+  .side-logo{display:flex;align-items:center;gap:10px;padding:6px 10px 22px;font-family:'Poppins',sans-serif;font-weight:700;font-size:1.12rem;color:#fff}
+  .side-logo .mk{width:34px;height:34px;border-radius:9px;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:1rem;flex:none}
   .side-sec{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:#5d6b7a;margin:16px 12px 8px}
-  .side a{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:9px;font-family:'Poppins',sans-serif;font-weight:500;font-size:.92rem;color:#aeb9c5;margin-bottom:2px;transition:.15s}
+  .side a{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:9px;font-family:'Poppins',sans-serif;font-weight:500;font-size:.92rem;color:#aeb9c5;margin-bottom:2px;transition:.15s;cursor:pointer}
   .side a .ic{width:18px;text-align:center}
   .side a:hover{background:rgba(255,255,255,.05);color:#fff}
   .side a.active{background:var(--teal);color:#062024;font-weight:600}
   .side-foot{margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px;border-top:1px solid rgba(255,255,255,.07)}
-  .side-foot .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#6fe0dc);display:flex;align-items:center;justify-content:center;color:#062024;font-weight:700;font-size:.85rem}
+  .side-foot .av{width:34px;height:34px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;color:#062024;font-weight:700;font-size:.85rem}
   .side-foot .nm{font-size:.85rem;color:#fff;font-weight:600}
   .side-foot .rl{font-size:.72rem;color:#7a8797}
-  /* main */
   .main{flex:1;min-width:0;display:flex;flex-direction:column}
   .topbar{height:66px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:5}
   .topbar h1{font-family:'Poppins',sans-serif;font-weight:600;font-size:1.25rem;color:var(--ink)}
@@ -37,7 +35,6 @@
   .btn{background:var(--teal);color:#fff;font-family:'Poppins',sans-serif;font-weight:600;font-size:.88rem;padding:10px 18px;border:0;border-radius:9px;cursor:pointer}
   .content{padding:26px 28px;overflow:auto}
   .demo-badge{display:inline-block;background:rgba(0,170,172,.12);color:var(--teal-dk);font-family:'Poppins',sans-serif;font-weight:600;font-size:.74rem;padding:5px 12px;border-radius:20px;margin-bottom:18px}
-  /* kpi */
   .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:22px}
   .kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px}
   .kpi .lbl{font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:8px}
@@ -45,117 +42,141 @@
   .kpi .val{font-family:'Poppins',sans-serif;font-weight:700;font-size:1.7rem;color:var(--ink);margin-top:12px}
   .kpi .tr{font-size:.8rem;font-weight:600;margin-top:4px}
   .up{color:var(--green)}.down{color:var(--red)}
-  /* grid */
   .row{display:grid;grid-template-columns:1.6fr 1fr;gap:18px;margin-bottom:22px}
   .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px}
   .card h3{font-family:'Poppins',sans-serif;font-weight:600;font-size:1.05rem;color:var(--ink);margin-bottom:4px}
   .card .sub{font-size:.82rem;color:var(--muted);margin-bottom:18px}
-  /* chart */
   .chart{display:flex;align-items:flex-end;gap:12px;height:180px;padding-top:10px}
   .bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px}
-  .bar{width:100%;max-width:34px;background:linear-gradient(180deg,var(--teal),#7fe0dd);border-radius:7px 7px 4px 4px;transition:.2s}
-  .bar-wrap:hover .bar{background:var(--teal-dk)}
+  .bar{width:100%;max-width:34px;background:var(--teal);border-radius:7px 7px 4px 4px;transition:.2s;opacity:.9}
+  .bar-wrap:hover .bar{opacity:1}
   .bar-lbl{font-size:.72rem;color:var(--muted)}
-  /* list */
   .msg{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
   .msg:last-child{border-bottom:0}
   .msg .av{width:36px;height:36px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:1rem;flex:none}
   .msg .nm{font-family:'Poppins',sans-serif;font-weight:600;font-size:.88rem;color:var(--ink)}
   .msg .tx{font-size:.82rem;color:var(--muted)}
   .msg .tm{margin-left:auto;font-size:.72rem;color:var(--muted);white-space:nowrap}
-  /* table */
   table{width:100%;border-collapse:collapse}
   th{text-align:left;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:0 12px 12px}
   td{padding:13px 12px;border-top:1px solid var(--line);font-size:.9rem;color:var(--ink)}
   .pill{display:inline-block;font-size:.74rem;font-weight:600;padding:4px 11px;border-radius:20px}
-  .pill.paid{background:rgba(22,163,74,.12);color:var(--green)}
-  .pill.pending{background:rgba(217,119,6,.12);color:var(--amber)}
-  .pill.new{background:rgba(0,170,172,.12);color:var(--teal-dk)}
+  .pill.ok{background:rgba(22,163,74,.12);color:var(--green)}
+  .pill.warn{background:rgba(217,119,6,.12);color:var(--amber)}
+  .pill.info{background:rgba(0,170,172,.12);color:var(--teal-dk)}
   @media(max-width:900px){.side{display:none}.kpis{grid-template-columns:1fr 1fr}.row{grid-template-columns:1fr}.search{display:none}}
   @media(max-width:520px){.kpis{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
   <div class="demo-tagbar">✦ This is a demo admin panel by C Design — <a href="/#contact">Get a website with an easy dashboard like this</a></div>
-  <div class="layout">
-    <aside class="side">
-      <div class="side-logo"><span class="mk">📊</span> My Business</div>
-      <div class="side-sec">Main</div>
-      <a class="active"><span class="ic">🏠</span> Dashboard</a>
-      <a><span class="ic">🛒</span> Orders</a>
-      <a><span class="ic">📦</span> Products</a>
-      <a><span class="ic">📅</span> Bookings</a>
-      <a><span class="ic">👥</span> Customers</a>
-      <div class="side-sec">Grow</div>
-      <a><span class="ic">💬</span> Messages</a>
-      <a><span class="ic">📈</span> Analytics</a>
-      <a><span class="ic">✍️</span> Blog</a>
-      <a><span class="ic">⚙️</span> Settings</a>
-      <div class="side-foot">
-        <div class="av">JS</div>
-        <div><div class="nm">John Smith</div><div class="rl">Owner</div></div>
-      </div>
-    </aside>
+  <div id="app"></div>
 
-    <div class="main">
-      <div class="topbar">
-        <h1>Dashboard</h1>
-        <div class="right">
-          <input class="search" placeholder="Search…" disabled>
-          <button class="btn">+ New</button>
-        </div>
-      </div>
+<script>
+  var KINDS = {
+    ecommerce:{ nav:[['🛒','Orders'],['📦','Products'],['👥','Customers'],['🏷️','Discounts']],
+      kpis:[['💷','Revenue','£12,480','▲ 18% this month','up'],['🛒','Orders','326','▲ 12% this month','up'],['👥','New customers','89','▲ 7% this month','up'],['📈','Conversion','3.4%','▼ 0.3% this month','down']],
+      chart:'Revenue — last 7 days',
+      table:{title:'Recent orders',sub:'Manage every order from one place',cols:['Order','Customer','Total','Status'],
+        rows:[['#1042','Emma Watson','£128.00',['Paid','ok']],['#1041','David Jones','£64.50',['New','info']],['#1040','Sarah Lee','£242.00',['Paid','ok']],['#1039','Tom Baker','£19.99',['Pending','warn']],['#1038','Aisha Khan','£310.00',['Paid','ok']]]} },
+    bookings:{ nav:[['📅','Reservations'],['🍽️','Tables'],['📖','Menu'],['👥','Guests']],
+      kpis:[['🍽️','Covers today','84','▲ 9% vs last week','up'],['📅','Reservations','42','▲ 15% this week','up'],['💷','Avg spend','£31','▲ 4% this month','up'],['⭐','Rating','4.8','▲ 0.1 this month','up']],
+      chart:'Covers — last 7 days',
+      table:{title:'Upcoming reservations',sub:'Tonight and tomorrow',cols:['Guest','Party','Time','Status'],
+        rows:[['Emma Watson','4','19:00',['Confirmed','ok']],['David Jones','2','19:30',['Confirmed','ok']],['Sarah Lee','6','20:00',['Pending','warn']],['Tom Baker','2','20:15',['Seated','info']],['Aisha Khan','3','20:45',['Confirmed','ok']]]} },
+    appointments:{ nav:[['📅','Appointments'],['👥','Clients'],['🗓️','Schedule'],['💷','Payments']],
+      kpis:[['📅','Appointments today','18','▲ 5% vs last week','up'],['🗓️','This week','96','▲ 11% this week','up'],['👥','New clients','24','▲ 8% this month','up'],['📈','Utilisation','82%','▲ 3% this month','up']],
+      chart:'Appointments — last 7 days',
+      table:{title:"Today's appointments",sub:'Check in your clients',cols:['Client','Service','Time','Status'],
+        rows:[['Emma Watson','Consultation','09:30',['Checked in','info']],['David Jones','Treatment','10:15',['Confirmed','ok']],['Sarah Lee','Follow-up','11:00',['Confirmed','ok']],['Tom Baker','New client','11:45',['Pending','warn']],['Aisha Khan','Treatment','13:00',['Confirmed','ok']]]} },
+    jobs:{ nav:[['🧰','Jobs'],['📄','Quotes'],['👥','Customers'],['🗓️','Schedule']],
+      kpis:[['🧰','Open jobs','12','▲ 2 this week','up'],['📄','Quotes sent','27','▲ 6 this week','up'],['💷','Revenue','£9,320','▲ 14% this month','up'],['⭐','Rating','4.9','▲ 0.1 this month','up']],
+      chart:'Jobs completed — last 7 days',
+      table:{title:'Upcoming jobs',sub:'Your schedule at a glance',cols:['Job','Customer','Date','Status'],
+        rows:[['#J-210','Emma Watson','1 Jul',['Scheduled','info']],['#J-209','David Jones','1 Jul',['Quoted','warn']],['#J-208','Sarah Lee','2 Jul',['Scheduled','info']],['#J-207','Tom Baker','30 Jun',['Done','ok']],['#J-206','Aisha Khan','30 Jun',['Done','ok']]]} },
+    professional:{ nav:[['📨','Enquiries'],['👥','Clients'],['📄','Documents'],['🧾','Invoices']],
+      kpis:[['📨','New enquiries','14','▲ 4 this week','up'],['👥','Active clients','58','▲ 6% this month','up'],['💷','Revenue','£18,200','▲ 9% this month','up'],['🧾','Invoices due','5','▼ 2 this week','down']],
+      chart:'Enquiries — last 7 days',
+      table:{title:'Recent enquiries',sub:'Follow up with new clients',cols:['Client','Matter','Date','Status'],
+        rows:[['Emma Watson','New enquiry','1 Jul',['New','info']],['David Jones','Consultation','1 Jul',['In progress','warn']],['Sarah Lee','Case review','30 Jun',['In progress','warn']],['Tom Baker','Documents','30 Jun',['Closed','ok']],['Aisha Khan','New enquiry','29 Jun',['New','info']]]} },
+    leads:{ nav:[['📨','Enquiries'],['🗂️','Listings'],['👥','Clients'],['🗓️','Calendar']],
+      kpis:[['📨','New enquiries','21','▲ 7 this week','up'],['📸','Viewings','12','▲ 3 this week','up'],['📈','Conversion','28%','▲ 2% this month','up'],['💷','Revenue','£7,450','▲ 11% this month','up']],
+      chart:'Enquiries — last 7 days',
+      table:{title:'Recent enquiries',sub:'New leads to follow up',cols:['Name','Interest','Date','Status'],
+        rows:[['Emma Watson','Enquiry','1 Jul',['New','info']],['David Jones','Viewing','1 Jul',['Booked','ok']],['Sarah Lee','Enquiry','30 Jun',['Pending','warn']],['Tom Baker','Viewing','30 Jun',['Booked','ok']],['Aisha Khan','Enquiry','29 Jun',['New','info']]]} }
+  };
+  var IND = {
+    restaurant:{n:'My Restaurant',e:'🍽️',c:'#B5342B',k:'bookings'},
+    cafe:{n:'My Café',e:'☕',c:'#6F4E37',k:'bookings'},
+    bakery:{n:'My Bakery',e:'🥐',c:'#C57A1E',k:'ecommerce'},
+    shop:{n:'My Shop',e:'🛍️',c:'#2f6cf6',k:'ecommerce'},
+    boutique:{n:'My Boutique',e:'👗',c:'#C2185B',k:'ecommerce'},
+    barber:{n:'My Barbershop',e:'💈',c:'#243046',k:'appointments'},
+    spa:{n:'My Spa',e:'🌸',c:'#2E8B8B',k:'appointments'},
+    dental:{n:'My Dental Clinic',e:'🦷',c:'#12A9A5',k:'appointments'},
+    clinic:{n:'My Clinic',e:'🩺',c:'#1E88E5',k:'appointments'},
+    gym:{n:'My Gym',e:'💪',c:'#E63946',k:'appointments'},
+    yoga:{n:'My Studio',e:'🧘',c:'#7C5CBF',k:'appointments'},
+    law:{n:'My Law Firm',e:'⚖️',c:'#1B2A44',k:'professional'},
+    accounting:{n:'My Accounting',e:'📊',c:'#1B7A5A',k:'professional'},
+    realestate:{n:'My Estate Agency',e:'🏠',c:'#0C7C59',k:'leads'},
+    construction:{n:'My Construction Co.',e:'🏗️',c:'#E67E22',k:'jobs'},
+    plumbing:{n:'My Plumbing',e:'🔧',c:'#1565C0',k:'jobs'},
+    electrical:{n:'My Electrical',e:'⚡',c:'#E9A100',k:'jobs'},
+    garage:{n:'My Garage',e:'🚗',c:'#B5342B',k:'jobs'},
+    photography:{n:'My Photography',e:'📷',c:'#2b2b2b',k:'leads'},
+    cleaning:{n:'My Cleaning Co.',e:'🧼',c:'#159AAD',k:'jobs'}
+  };
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  var type=(new URLSearchParams(location.search).get('type')||'shop').toLowerCase();
+  var d=IND[type]||{n:'My Business',e:'📊',c:'#00AAAC',k:'ecommerce'};
+  var k=KINDS[d.k];
+  document.title=d.n+' — Admin Demo by C Design';
 
-      <div class="content">
-        <span class="demo-badge">✦ Sample admin panel — this is what you'd manage your site with</span>
+  var bars=[52,68,44,80,63,95,74], days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var nav='<a class="active"><span class="ic">🏠</span> Dashboard</a>'+k.nav.map(function(m){return '<a><span class="ic">'+m[0]+'</span> '+esc(m[1])+'</a>';}).join('');
+  var navGrow='<a><span class="ic">💬</span> Messages</a><a><span class="ic">📈</span> Analytics</a><a><span class="ic">⚙️</span> Settings</a>';
+  var kpis=k.kpis.map(function(x){return '<div class="kpi"><div class="lbl"><span class="i">'+x[0]+'</span> '+esc(x[1])+'</div><div class="val">'+esc(x[2])+'</div><div class="tr '+x[4]+'">'+esc(x[3])+'</div></div>';}).join('');
+  var chart=bars.map(function(h,i){return '<div class="bar-wrap"><div class="bar" style="height:'+h+'%"></div><div class="bar-lbl">'+days[i]+'</div></div>';}).join('');
+  var thead='<tr>'+k.table.cols.map(function(c){return '<th>'+esc(c)+'</th>';}).join('')+'</tr>';
+  var tbody=k.table.rows.map(function(r){
+    return '<tr>'+r.map(function(cell){
+      if(Array.isArray(cell)) return '<td><span class="pill '+cell[1]+'">'+esc(cell[0])+'</span></td>';
+      return '<td>'+esc(cell)+'</td>';
+    }).join('')+'</tr>';
+  }).join('');
 
-        <div class="kpis">
-          <div class="kpi"><div class="lbl"><span class="i">💷</span> Revenue</div><div class="val">£12,480</div><div class="tr up">▲ 18% this month</div></div>
-          <div class="kpi"><div class="lbl"><span class="i">🛒</span> Orders</div><div class="val">326</div><div class="tr up">▲ 12% this month</div></div>
-          <div class="kpi"><div class="lbl"><span class="i">👥</span> New customers</div><div class="val">89</div><div class="tr up">▲ 7% this month</div></div>
-          <div class="kpi"><div class="lbl"><span class="i">📈</span> Conversion</div><div class="val">3.4%</div><div class="tr down">▼ 0.3% this month</div></div>
-        </div>
+  document.getElementById('app').innerHTML=
+    '<div class="layout">'
+    +'<aside class="side">'
+      +'<div class="side-logo"><span class="mk">'+d.e+'</span> '+esc(d.n)+'</div>'
+      +'<div class="side-sec">Main</div>'+nav
+      +'<div class="side-sec">Grow</div>'+navGrow
+      +'<div class="side-foot"><div class="av">JS</div><div><div class="nm">John Smith</div><div class="rl">Owner</div></div></div>'
+    +'</aside>'
+    +'<div class="main">'
+      +'<div class="topbar"><h1>Dashboard</h1><div class="right"><input class="search" placeholder="Search…" disabled><button class="btn">+ New</button></div></div>'
+      +'<div class="content">'
+        +'<span class="demo-badge">✦ Sample admin panel for '+esc(d.n)+' — this is what you would manage your site with</span>'
+        +'<div class="kpis">'+kpis+'</div>'
+        +'<div class="row">'
+          +'<div class="card"><h3>'+esc(k.chart)+'</h3><div class="sub">Live overview</div><div class="chart">'+chart+'</div></div>'
+          +'<div class="card"><h3>Recent messages</h3><div class="sub">From your website contact form</div>'
+            +'<div class="msg"><div class="av">🙂</div><div><div class="nm">Emma Watson</div><div class="tx">Hi, could I get some info…</div></div><div class="tm">2m</div></div>'
+            +'<div class="msg"><div class="av">😀</div><div><div class="nm">David Jones</div><div class="tx">Do you cover my area?</div></div><div class="tm">1h</div></div>'
+            +'<div class="msg"><div class="av">🙋</div><div><div class="nm">Sarah Lee</div><div class="tx">Thank you, brilliant service!</div></div><div class="tm">3h</div></div>'
+            +'<div class="msg"><div class="av">👨</div><div><div class="nm">Tom Baker</div><div class="tx">Can I change my details?</div></div><div class="tm">5h</div></div>'
+          +'</div>'
+        +'</div>'
+        +'<div class="card"><h3>'+esc(k.table.title)+'</h3><div class="sub">'+esc(k.table.sub)+'</div>'
+          +'<table><thead>'+thead+'</thead><tbody>'+tbody+'</tbody></table>'
+        +'</div>'
+      +'</div>'
+    +'</div>'
+    +'</div>';
 
-        <div class="row">
-          <div class="card">
-            <h3>Revenue</h3>
-            <div class="sub">Last 7 days</div>
-            <div class="chart">
-              <div class="bar-wrap"><div class="bar" style="height:52%"></div><div class="bar-lbl">Mon</div></div>
-              <div class="bar-wrap"><div class="bar" style="height:68%"></div><div class="bar-lbl">Tue</div></div>
-              <div class="bar-wrap"><div class="bar" style="height:44%"></div><div class="bar-lbl">Wed</div></div>
-              <div class="bar-wrap"><div class="bar" style="height:80%"></div><div class="bar-lbl">Thu</div></div>
-              <div class="bar-wrap"><div class="bar" style="height:63%"></div><div class="bar-lbl">Fri</div></div>
-              <div class="bar-wrap"><div class="bar" style="height:95%"></div><div class="bar-lbl">Sat</div></div>
-              <div class="bar-wrap"><div class="bar" style="height:74%"></div><div class="bar-lbl">Sun</div></div>
-            </div>
-          </div>
-          <div class="card">
-            <h3>Recent messages</h3>
-            <div class="sub">From your contact form</div>
-            <div class="msg"><div class="av">🙂</div><div><div class="nm">Emma Watson</div><div class="tx">Hi, could I get a quote for…</div></div><div class="tm">2m</div></div>
-            <div class="msg"><div class="av">😀</div><div><div class="nm">David Jones</div><div class="tx">Do you deliver to Leeds?</div></div><div class="tm">1h</div></div>
-            <div class="msg"><div class="av">🙋</div><div><div class="nm">Sarah Lee</div><div class="tx">Loved my order, thank you!</div></div><div class="tm">3h</div></div>
-            <div class="msg"><div class="av">👨</div><div><div class="nm">Tom Baker</div><div class="tx">Can I change my booking?</div></div><div class="tm">5h</div></div>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3>Recent orders</h3>
-          <div class="sub">Manage everything from one place</div>
-          <table>
-            <thead><tr><th>Order</th><th>Customer</th><th>Date</th><th>Total</th><th>Status</th></tr></thead>
-            <tbody>
-              <tr><td>#1042</td><td>Emma Watson</td><td>1 Jul 2026</td><td>£128.00</td><td><span class="pill paid">Paid</span></td></tr>
-              <tr><td>#1041</td><td>David Jones</td><td>1 Jul 2026</td><td>£64.50</td><td><span class="pill new">New</span></td></tr>
-              <tr><td>#1040</td><td>Sarah Lee</td><td>30 Jun 2026</td><td>£242.00</td><td><span class="pill paid">Paid</span></td></tr>
-              <tr><td>#1039</td><td>Tom Baker</td><td>30 Jun 2026</td><td>£19.99</td><td><span class="pill pending">Pending</span></td></tr>
-              <tr><td>#1038</td><td>Aisha Khan</td><td>29 Jun 2026</td><td>£310.00</td><td><span class="pill paid">Paid</span></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
+  document.documentElement.style.setProperty('--teal',d.c);
+  document.documentElement.style.setProperty('--side', '#141b24');
+</script>
 </body>
 </html>
