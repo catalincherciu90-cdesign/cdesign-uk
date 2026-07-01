@@ -173,10 +173,13 @@
   .demo-emoji{width:60px;height:60px;border-radius:16px;background:linear-gradient(160deg,#ddf3f3,#c9ebeb);display:flex;align-items:center;justify-content:center;font-size:1.9rem;margin-bottom:20px}
   .demo-card h3{font-family:'Poppins',sans-serif;font-weight:600;font-size:1.22rem;color:var(--ink);margin-bottom:8px}
   .demo-tag{align-self:flex-start;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--blue);background:rgba(0,170,172,.10);padding:4px 10px;border-radius:20px;margin-bottom:14px}
-  .demo-card p{font-size:.96rem;line-height:1.6;color:var(--body);margin-bottom:20px}
-  .demo-link{margin-top:auto;display:inline-flex;align-items:center;gap:8px;font-family:'Poppins',sans-serif;font-weight:600;font-size:.96rem;color:var(--blue)}
-  .demo-link .arr{transition:transform .2s}
-  .demo-card:hover .demo-link .arr{transform:translateX(4px)}
+  .demo-card p{font-size:.96rem;line-height:1.6;color:var(--body);margin-bottom:20px;flex:1}
+  .demo-actions{margin-top:auto;display:flex;gap:10px}
+  .demo-btn{flex:1;text-align:center;font-family:'Poppins',sans-serif;font-weight:600;font-size:.9rem;padding:10px 12px;border-radius:999px;transition:background .2s,border-color .2s,color .2s}
+  .demo-btn:not(.admin){background:var(--blue);color:#fff}
+  .demo-btn:not(.admin):hover{background:var(--blue-dk)}
+  .demo-btn.admin{border:1.5px solid var(--line);color:var(--ink)}
+  .demo-btn.admin:hover{border-color:var(--blue);color:var(--blue)}
   @media(max-width:920px){.demo-grid{grid-template-columns:1fr 1fr}}
   @media(max-width:600px){.demo-grid{grid-template-columns:1fr}.demos{padding:70px 20px}}
 
@@ -608,19 +611,23 @@
         { emoji:'📷', businessName:'My Photography', industry:'Photography', tagline:'Weddings, portraits and events.', url:'/demos/my-photography.html' },
         { emoji:'🧼', businessName:'My Cleaning Co.', industry:'Cleaning', tagline:'Spotless homes and offices.', url:'/demos/my-cleaning.html' }
       ];
+      var ADMIN_MAP = {'my-restaurant':'restaurant','my-cafe':'cafe','my-bakery':'bakery','my-shop':'shop','my-boutique':'boutique','my-barbershop':'barber','my-spa':'spa','my-dental-clinic':'dental','my-clinic':'clinic','my-gym':'gym','my-studio':'yoga','my-law-firm':'law','my-accounting':'accounting','my-estate-agency':'realestate','my-construction':'construction','my-plumbing':'plumbing','my-electrical':'electrical','my-garage':'garage','my-photography':'photography','my-cleaning':'cleaning'};
+      function adminHref(url){ var m = String(url||'').match(/\/demos\/(my-[a-z-]+)\.html/); return (m && ADMIN_MAP[m[1]]) ? '/demos/admin-demo.html?type=' + ADMIN_MAP[m[1]] : null; }
       function render(items){
         grid.innerHTML = items.map(function(d){
           var name = esc(d.businessName || 'Demo website');
           var tag = d.industry ? '<span class="demo-tag">' + esc(d.industry) + '</span>' : '';
           var tagline = d.tagline ? '<p>' + esc(d.tagline) + '</p>' : '<p></p>';
           var href = d.url ? d.url : ('/demo/' + encodeURIComponent(d.slug || d.id || ''));
-          return '<a class="demo-card" href="' + esc(href) + '" target="_blank" rel="noopener">'
+          var adm = adminHref(d.url);
+          var admBtn = adm ? '<a class="demo-btn admin" href="' + esc(adm) + '" target="_blank" rel="noopener">Admin</a>' : '';
+          return '<div class="demo-card">'
             + '<div class="demo-emoji">' + esc(d.emoji || '🌐') + '</div>'
             + tag
             + '<h3>' + name + '</h3>'
             + tagline
-            + '<span class="demo-link">View demo <span class="arr">→</span></span>'
-            + '</a>';
+            + '<div class="demo-actions"><a class="demo-btn" href="' + esc(href) + '" target="_blank" rel="noopener">View demo →</a>' + admBtn + '</div>'
+            + '</div>';
         }).join('');
         section.style.display = 'block';
       }
