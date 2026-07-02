@@ -99,7 +99,7 @@ article{padding:64px 0 90px}
 .btn{display:inline-block;background:var(--teal);color:#fff;font-family:'Poppins',sans-serif;padding:14px 30px;border-radius:999px;font-weight:600;font-size:.95rem;transition:transform .15s,background .2s,box-shadow .2s;box-shadow:0 10px 26px -10px rgba(0,170,172,.5)}
 .btn:hover{transform:translateY(-2px);background:var(--teal-dk)}
 .site-footer{background:#0c1016;color:#9aa6b2;padding:70px 40px 34px}
-.footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.5fr 1fr 1fr 1.1fr;gap:44px}
+.footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1.1fr;gap:44px}
 .f-brand img{height:40px;width:auto;filter:brightness(0) invert(1);margin-bottom:18px}
 .f-brand p{font-size:.94rem;line-height:1.7;max-width:300px;color:#9aa6b2}
 .f-social{display:flex;gap:11px;margin-top:22px}
@@ -179,6 +179,15 @@ article{padding:64px 0 90px}
       <a href="/#about">About Us</a>
       <a href="/pricing">Plans &amp; Pricing</a>
       <a href="/blog">Blog</a>
+    </div>
+    <div class="f-col">
+      <h4>Areas we cover</h4>
+      <a href="/web-design-leeds">Web Design Leeds</a>
+      <a href="/web-design-sheffield">Sheffield</a>
+      <a href="/web-design-nottingham">Nottingham</a>
+      <a href="/web-design-derby">Derby</a>
+      <a href="/web-design-blackburn">Blackburn</a>
+      <a href="/web-design-preston">Preston</a>
     </div>
     <div class="f-col">
       <h4>Get in touch</h4>
