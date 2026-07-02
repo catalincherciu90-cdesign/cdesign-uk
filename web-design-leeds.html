@@ -411,6 +411,7 @@
       <form class="lc-form" id="cityMsgForm" data-service="Web Design Leeds (local page)">
         <input type="text" name="name" placeholder="Your name *" required>
         <input type="tel" name="phone" placeholder="Phone number *" required>
+        <input type="text" name="area" placeholder="Your town / area" value="Leeds">
         <input type="email" name="email" placeholder="Email (optional)">
         <textarea name="message" placeholder="How can we help?"></textarea>
         <button type="submit" class="btn-primary">Send message <span>&rarr;</span></button>
@@ -483,7 +484,8 @@
         var email = (f.elements['email'].value || '').trim();
         var message = (f.elements['message'].value || '').trim();
         if(!name || !phone){ alert('Please enter your name and phone number.'); return; }
-        var body = message + (email ? ('\n\nEmail: ' + email) : '');
+        var area = (f.elements['area'] ? (f.elements['area'].value||'').trim() : '');
+        var body = message + (area ? ('\n\nArea / town: ' + area) : '') + (email ? ('\nEmail: ' + email) : '');
         btn.disabled = true; btn.textContent = 'Sending…';
         fetch('/api/messages', { method:'POST', headers:{'Content-Type':'application/json'},
           body: JSON.stringify({ name:name, phone:phone, service: f.getAttribute('data-service') || 'Web Design (local page)', message: body }) })
