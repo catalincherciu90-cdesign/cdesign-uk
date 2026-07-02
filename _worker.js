@@ -4295,13 +4295,24 @@ Title requirements:
         // Servicii noi adăugate după seed inițial — migrare automată
         const migrations = [
           { id:'svc_d17', nume:'Google Search Console Integration', descriere:'Property verification, XML sitemap, Google Analytics connection, indexing error report', pret:120, moneda:'GBP', unitate:'proiect', categorie:'seo' },
+          { id:'svc_d18', nume:'Starter Website', descriere:'Up to 5 pages, responsive design, CMS, contact form, basic SEO — live in ~14 days', pret:399, moneda:'GBP', unitate:'proiect', categorie:'web-design' },
+          { id:'svc_d19', nume:'Custom Web App / CRM', descriere:'Bespoke web application — CRM, client portal or business tool, with API integrations', pret:2500, moneda:'GBP', unitate:'proiect', categorie:'web-design' },
+          { id:'svc_d20', nume:'AI Chatbot (website)', descriere:'AI assistant trained on your business, on-site chat widget, lead capture & handover', pret:1200, moneda:'GBP', unitate:'proiect', categorie:'web-design' },
+          { id:'svc_d21', nume:'Booking / Appointment System', descriere:'Online booking & scheduling, automated reminders, calendar sync', pret:600, moneda:'GBP', unitate:'proiect', categorie:'web-design' },
         ];
+        // Re-aliniere preț la piața UK 2026 — se aplică DOAR dacă prețul e încă cel din seed-ul vechi
+        const priceUpdates = { svc_d06:[300,350], svc_d07:[400,499], svc_d08:[250,299], svc_d11:[300,349] };
         if (raw !== null) {
           const lista = JSON.parse(raw);
           const ids = new Set(lista.map(s => s.id));
           const toAdd = migrations.filter(m => !ids.has(m.id));
-          if (toAdd.length) {
-            const updated = [...lista, ...toAdd];
+          let changed = false;
+          for (const s of lista) {
+            const pu = priceUpdates[s.id];
+            if (pu && Number(s.pret) === pu[0]) { s.pret = pu[1]; changed = true; }
+          }
+          if (toAdd.length || changed) {
+            const updated = toAdd.length ? [...lista, ...toAdd] : lista;
             await env.PROGRAMARI.put('__servicii__', JSON.stringify(updated));
             return json(updated);
           }
@@ -4314,12 +4325,12 @@ Title requirements:
           { id:'svc_d03', nume:'Online Shop (eCommerce)', descriere:'WooCommerce / Shopify, product catalogue, online payments, delivery', pret:2500, moneda:'GBP', unitate:'proiect', categorie:'web-design' },
           { id:'svc_d04', nume:'Landing Page', descriere:'Conversion-optimised page, A/B testing, form integration', pret:450, moneda:'GBP', unitate:'proiect', categorie:'web-design' },
           { id:'svc_d05', nume:'Existing Website Redesign', descriere:'Full redesign retaining existing content, data migration, SEO redirects', pret:700, moneda:'GBP', unitate:'proiect', categorie:'web-design' },
-          { id:'svc_d06', nume:'Full SEO Audit', descriere:'Technical analysis, keywords, competition, report with recommendations', pret:300, moneda:'GBP', unitate:'proiect', categorie:'seo' },
-          { id:'svc_d07', nume:'Monthly SEO (Ongoing)', descriere:'Continuous optimisation, content, link building, monthly report, 15–25 keywords', pret:400, moneda:'GBP', unitate:'lună', categorie:'seo' },
-          { id:'svc_d08', nume:'Local SEO (Google Maps)', descriere:'Google Business Profile optimisation, local citations, reviews', pret:250, moneda:'GBP', unitate:'lună', categorie:'seo' },
+          { id:'svc_d06', nume:'Full SEO Audit', descriere:'Technical analysis, keywords, competition, report with recommendations', pret:350, moneda:'GBP', unitate:'proiect', categorie:'seo' },
+          { id:'svc_d07', nume:'Monthly SEO (Ongoing)', descriere:'Continuous optimisation, content, link building, monthly report, 15–25 keywords', pret:499, moneda:'GBP', unitate:'lună', categorie:'seo' },
+          { id:'svc_d08', nume:'Local SEO (Google Maps)', descriere:'Google Business Profile optimisation, local citations, reviews', pret:299, moneda:'GBP', unitate:'lună', categorie:'seo' },
           { id:'svc_d09', nume:'Google Ads Management', descriere:'Setup + campaign optimisation Search/Display/Shopping, monthly report', pret:350, moneda:'GBP', unitate:'lună', categorie:'marketing' },
           { id:'svc_d10', nume:'Meta Ads Management', descriere:'Facebook & Instagram campaigns, A/B testing, retargeting, monthly report', pret:350, moneda:'GBP', unitate:'lună', categorie:'marketing' },
-          { id:'svc_d11', nume:'Social Media Management', descriere:'12 posts/month, copywriting, branded graphics, community monitoring', pret:300, moneda:'GBP', unitate:'lună', categorie:'marketing' },
+          { id:'svc_d11', nume:'Social Media Management', descriere:'12 posts/month, copywriting, branded graphics, community monitoring', pret:349, moneda:'GBP', unitate:'lună', categorie:'marketing' },
           { id:'svc_d12', nume:'Email Marketing / Newsletter', descriere:'Template design, list segmentation, campaign delivery, open-rate report', pret:200, moneda:'GBP', unitate:'lună', categorie:'marketing' },
           { id:'svc_d13', nume:'Basic Website Maintenance', descriere:'CMS & plugin updates, monthly backup, uptime monitoring, 1h support', pret:100, moneda:'GBP', unitate:'lună', categorie:'mentenanta' },
           { id:'svc_d14', nume:'Advanced Website Maintenance', descriere:'Updates, weekly backup, security, 4h of changes/month, report', pret:200, moneda:'GBP', unitate:'lună', categorie:'mentenanta' },
