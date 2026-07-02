@@ -475,6 +475,7 @@
     <button class="tab" onclick="switchTab('clients',this)">&#x1F465; Clients</button>
     <button class="tab" onclick="switchTab('crm',this)">&#x1F4CB; CRM &amp; Quotes</button>
     <button class="tab" onclick="switchTab('blog',this)">&#x270D; Blog</button>
+    <button class="tab" onclick="switchTab('seo',this)">&#x1F50D; SEO</button>
     <button class="tab" onclick="switchTab('social',this)">&#x1F4F1; Social Media</button>
     <button class="tab" onclick="switchTab('media',this)">&#x1F5BC; Media</button>
     <button class="tab" onclick="switchTab('settings',this)">&#x2699; Settings</button>
@@ -695,6 +696,58 @@
       <div style="display:grid;grid-template-columns:340px 1fr;gap:16px;align-items:start;" id="chatLayout">
         <div id="chatList" style="display:flex;flex-direction:column;gap:8px;max-height:70vh;overflow-y:auto;"></div>
         <div id="chatDetail" style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:12px;padding:20px;min-height:200px;color:var(--muted);font-size:.9rem;">Selectează o conversație din stânga.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: SEO -->
+  <div class="tab-panel" id="panel-seo">
+    <div class="main">
+      <h2 style="margin:0 0 6px;">🔍 SEO &amp; Optimisation</h2>
+      <p style="font-size:.85rem;color:var(--muted);margin:0 0 22px;">Agent SEO (Elena) — verifică paginile site-ului și generează conținut optimizat pentru serviciile tale.</p>
+
+      <!-- SEO AUDIT -->
+      <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:12px;padding:22px;margin-bottom:22px;">
+        <h3 style="margin:0 0 4px;">Audit SEO pagină</h3>
+        <p style="font-size:.78rem;color:var(--muted);margin:0 0 14px;">Alege o pagină și rulează verificarea (title, meta, H1, alt, Open Graph, schema, conținut…).</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <select class="f-input" id="seoAuditUrl" style="margin-bottom:0;max-width:280px;">
+            <option value="/">Homepage (/)</option>
+            <option value="/services">Services (/services)</option>
+            <option value="/pricing">Pricing (/pricing)</option>
+            <option value="/blog">Blog (/blog)</option>
+            <option value="/demos">Demos (/demos)</option>
+          </select>
+          <button class="btn-save" id="seoAuditBtn" onclick="runSeoAudit()">🔍 Analizează</button>
+          <span id="seoAuditStatus" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--muted);"></span>
+        </div>
+        <div id="seoAuditResult" style="margin-top:18px;"></div>
+      </div>
+
+      <!-- SEO CONTENT GENERATOR -->
+      <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:12px;padding:22px;">
+        <h3 style="margin:0 0 4px;">Content SEO pentru un serviciu</h3>
+        <p style="font-size:.78rem;color:var(--muted);margin:0 0 14px;">Generează meta title, meta description, H1, intro, beneficii, cuvinte-cheie, FAQ (schema) și CTA.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
+          <input class="f-input" list="seoServiceList" id="seoService" placeholder="Serviciu / temă (ex: Website Design)" style="margin-bottom:0;flex:1;min-width:220px;">
+          <datalist id="seoServiceList">
+            <option value="Website Design"></option>
+            <option value="E-commerce / Online shop"></option>
+            <option value="Custom Web Apps"></option>
+            <option value="AI Integration & Automation"></option>
+            <option value="Maintenance & Hosting"></option>
+            <option value="SEO & Local SEO"></option>
+            <option value="Social Media Management"></option>
+            <option value="Branding & Logo Design"></option>
+          </datalist>
+          <input class="f-input" type="text" id="seoLocation" placeholder="Locație (opțional) ex: Leeds" style="margin-bottom:0;max-width:200px;">
+          <button class="btn-save" id="seoContentBtn" onclick="runSeoContent()">✨ Generează</button>
+        </div>
+        <span id="seoContentStatus" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--muted);"></span>
+        <div id="seoContentResult" style="margin-top:14px;display:none;">
+          <textarea class="f-input" id="seoContentText" style="min-height:320px;white-space:pre-wrap;font-size:.86rem;line-height:1.5;"></textarea>
+          <button class="btn-save" onclick="copySeoContent()" style="margin-top:8px;">📋 Copy</button>
+        </div>
       </div>
     </div>
   </div>
@@ -2582,8 +2635,8 @@
   }
 
   // ── Permissions & current user ───────────────────────────
-  const SECTION_LABELS = { bookings:'Bookings', messages:'Messages', chat:'AI Chat', gibilan:'Wizi', clients:'Clients', crm:'CRM & Quotes', portfolio:'Portfolio', blog:'Blog', social:'Social', pages:'Pages', media:'Media', theme:'Theme', expenses:'Expenses', oferte:'Quotes', settings:'Settings' };
-  const TAB_PERM = { bookings:'bookings', messages:'messages', chat:'chat', gibilan:'gibilan', clients:'clients', crm:'crm', projects:'portfolio', blog:'blog', social:'social', pagini:'pages', media:'media', tema:'theme', settings:'settings', cheltuieli:'expenses', oferte:'oferte' };
+  const SECTION_LABELS = { bookings:'Bookings', messages:'Messages', chat:'AI Chat', gibilan:'Wizi', clients:'Clients', crm:'CRM & Quotes', portfolio:'Portfolio', blog:'Blog', seo:'SEO', social:'Social', pages:'Pages', media:'Media', theme:'Theme', expenses:'Expenses', oferte:'Quotes', settings:'Settings' };
+  const TAB_PERM = { bookings:'bookings', messages:'messages', chat:'chat', gibilan:'gibilan', clients:'clients', crm:'crm', projects:'portfolio', blog:'blog', seo:'seo', social:'social', pagini:'pages', media:'media', tema:'theme', settings:'settings', cheltuieli:'expenses', oferte:'oferte' };
   let allSections = Object.keys(SECTION_LABELS);
 
   async function fetchMe() {
@@ -3022,6 +3075,69 @@
     var brief = '';
     try { brief = (document.getElementById('oferta-note').value || '').trim(); } catch(e){}
     openAiAssist('quote', brief);
+  }
+
+  // ── SEO: audit + content ─────────────────────────────────
+  async function runSeoAudit() {
+    var sel = document.getElementById('seoAuditUrl');
+    var box = document.getElementById('seoAuditResult');
+    var status = document.getElementById('seoAuditStatus');
+    var btn = document.getElementById('seoAuditBtn');
+    var full = location.origin + sel.value;
+    btn.disabled = true; status.style.color = 'var(--teal)'; status.textContent = '// analyzing ' + full + ' …';
+    box.innerHTML = '';
+    try {
+      var res = await fetch('/api/seo/audit?token=' + encodeURIComponent(adminToken) + '&url=' + encodeURIComponent(full));
+      var d = await res.json();
+      if (!res.ok) { status.style.color = '#e5484d'; status.textContent = '// ' + (d.error || 'error'); btn.disabled = false; return; }
+      status.textContent = '';
+      var color = d.score >= 80 ? '#12a150' : (d.score >= 55 ? '#b7791f' : '#e5484d');
+      var ico = { good: '<span style="color:#12a150;">●</span>', warn: '<span style="color:#b7791f;">▲</span>', bad: '<span style="color:#e5484d;">✕</span>' };
+      var rows = (d.checks || []).map(function(c){
+        return '<div style="display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border-soft);align-items:baseline;">' +
+          '<span style="flex:0 0 18px;">' + (ico[c.state] || '') + '</span>' +
+          '<span style="flex:0 0 160px;font-weight:600;color:var(--heading);font-size:.84rem;">' + mEsc(c.label) + '</span>' +
+          '<span style="flex:1;font-size:.82rem;color:var(--soft);">' + mEsc(c.detail || '') + '</span>' +
+        '</div>';
+      }).join('');
+      var advice = d.advice ? '<div style="margin-top:16px;background:var(--bg3);border:1px solid var(--border-soft);border-radius:10px;padding:14px 16px;"><div style="font-weight:700;color:var(--teal);font-size:.85rem;margin-bottom:8px;">💡 Recomandări (Elena)</div><div style="font-size:.85rem;color:var(--text);line-height:1.6;white-space:pre-wrap;">' + mEsc(d.advice) + '</div></div>' : '';
+      box.innerHTML =
+        '<div style="display:flex;align-items:center;gap:16px;margin-bottom:14px;">' +
+          '<div style="width:66px;height:66px;border-radius:50%;border:5px solid ' + color + ';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.3rem;color:' + color + ';">' + d.score + '</div>' +
+          '<div style="font-size:.82rem;color:var(--muted);">Scor SEO on-page<br><span style="color:#12a150;">' + d.summary.good + ' bune</span> · <span style="color:#b7791f;">' + d.summary.warn + ' de îmbunătățit</span> · <span style="color:#e5484d;">' + d.summary.bad + ' probleme</span></div>' +
+        '</div>' + rows + advice;
+      btn.disabled = false;
+    } catch(e) { status.style.color = '#e5484d'; status.textContent = '// network error'; btn.disabled = false; }
+  }
+
+  async function runSeoContent() {
+    var service = (document.getElementById('seoService').value || '').trim();
+    var location_ = (document.getElementById('seoLocation').value || '').trim();
+    if (!service) { alert('Scrie un serviciu sau o temă.'); return; }
+    var btn = document.getElementById('seoContentBtn');
+    var status = document.getElementById('seoContentStatus');
+    var wrap = document.getElementById('seoContentResult');
+    btn.disabled = true; btn.textContent = '⏳ Working…';
+    status.style.color = 'var(--teal)'; status.textContent = '// Elena is writing…';
+    try {
+      var res = await fetch('/api/ai-assist?token=' + encodeURIComponent(adminToken), {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ task: 'seo', input: service, platform: location_ })
+      });
+      var d = await res.json();
+      if (!res.ok || !d.text) { status.style.color = '#e5484d'; status.textContent = '// ' + (d.error || 'error'); }
+      else {
+        document.getElementById('seoContentText').value = d.text;
+        wrap.style.display = 'block';
+        status.style.color = '#12a150'; status.textContent = '// ✓ done — review & edit';
+      }
+    } catch(e) { status.style.color = '#e5484d'; status.textContent = '// network error'; }
+    btn.disabled = false; btn.textContent = '✨ Generează';
+  }
+  function copySeoContent() {
+    var t = document.getElementById('seoContentText'); t.select();
+    try { if (navigator.clipboard) navigator.clipboard.writeText(t.value); else document.execCommand('copy');
+      var s = document.getElementById('seoContentStatus'); s.style.color = '#12a150'; s.textContent = '// ✓ copied'; } catch(e){}
   }
 
   async function fetchBookings(isLogin = false) {
