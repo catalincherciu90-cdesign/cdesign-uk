@@ -156,7 +156,13 @@
         <div class="q-fields">
           <div class="field"><label for="q-name">Your name</label><input type="text" id="q-name" placeholder="John Smith" required></div>
           <div class="field"><label for="q-phone">Phone number</label><input type="tel" id="q-phone" placeholder="+44 7000 000000" required></div>
-          <div class="field full"><label for="q-company">Business name <span style="color:var(--muted);font-weight:400">(optional)</span></label><input type="text" id="q-company" placeholder="Your company"></div>
+          <div class="field full"><label for="q-email">Email</label><input type="email" id="q-email" placeholder="you@example.com" required></div>
+          <div class="field full"><label class="q-comp-toggle" style="display:flex;align-items:center;gap:9px;cursor:pointer;font-weight:400;margin-bottom:0"><input type="checkbox" id="q-isCompany" style="width:auto;padding:0;margin:0"> Invoice to a company / business?</label></div>
+          <div class="field full" id="q-companyFields" style="display:none">
+            <div class="field" style="margin-bottom:12px"><input type="text" id="q-company" placeholder="Company name"></div>
+            <div class="field" style="margin-bottom:12px"><input type="text" id="q-companyReg" placeholder="Company / VAT number (optional)"></div>
+            <div class="field"><input type="text" id="q-companyAddress" placeholder="Company address"></div>
+          </div>
           <div class="field full"><label for="q-message">Anything else? <span style="color:var(--muted);font-weight:400">(optional)</span></label><textarea id="q-message" placeholder="Tell us about your project, budget or deadline..."></textarea></div>
         </div>
         <button type="submit" class="q-submit">Request my quote <span>→</span></button>
@@ -251,23 +257,38 @@
       inp.addEventListener('change',function(){ inp.closest('.chip').classList.toggle('on', inp.checked); });
     });
 
+    // company toggle
+    var compToggle=document.getElementById('q-isCompany');
+    var compFields=document.getElementById('q-companyFields');
+    if(compToggle&&compFields){compToggle.addEventListener('change',function(){compFields.style.display=compToggle.checked?'block':'none';});}
+
     // submit
     var form=document.getElementById('quoteForm');
     form.addEventListener('submit',function(e){
       e.preventDefault();
-      var name=document.getElementById('q-name').value.trim();
-      var phone=document.getElementById('q-phone').value.trim();
-      var company=document.getElementById('q-company').value.trim();
-      var note=document.getElementById('q-message').value.trim();
-      if(name.length<2||phone.length<7){return;}
+      var val=function(id){var el=document.getElementById(id);return el?el.value.trim():'';};
+      var name=val('q-name');
+      var phone=val('q-phone');
+      var email=val('q-email');
+      var company=val('q-company');
+      var note=val('q-message');
+      if(name.length<2||phone.length<7){alert('Please enter your name and phone number.');return;}
+      if(!email){alert('Please enter your email.');return;}
       var selected=Array.prototype.slice.call(document.querySelectorAll('.chip input:checked')).map(function(c){return c.value;});
       var btn=form.querySelector('.q-submit');
       btn.disabled=true;btn.style.opacity='.6';
       var parts=[];
       parts.push('QUOTE REQUEST');
       parts.push('Services: '+(selected.length?selected.join(', '):'(not specified)'));
-      if(company) parts.push('Business: '+company);
+      parts.push('Email: '+email);
       if(note) parts.push('Note: '+note);
+      if(compToggle&&compToggle.checked){
+        parts.push('');
+        parts.push('Company details:');
+        parts.push('- Name: '+company);
+        parts.push('- Reg/VAT: '+val('q-companyReg'));
+        parts.push('- Address: '+val('q-companyAddress'));
+      } else if(company){ parts.push('Business: '+company); }
       var message=parts.join('\n');
       fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({name:name,phone:phone,service:'Quote request'+(selected.length?' ('+selected.length+' services)':''),message:message})})
