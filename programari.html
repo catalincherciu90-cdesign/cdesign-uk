@@ -1023,6 +1023,39 @@
         <button class="btn-add" onclick="socialRepurpose()" style="background:rgba(0,168,168,.12);border:1px solid var(--teal);color:var(--teal);">♻ Turn into posts</button>
       </div>
       <div class="table-wrap" style="padding:8px 0;" id="socialList"><div class="loading">Loading...</div></div>
+
+      <!-- ── SOCIAL POSTS LIBRARY / PLANNER ── -->
+      <div style="margin-top:30px;border-top:1px solid var(--border-soft);padding-top:22px;">
+        <h3 style="margin:0 0 4px;">📅 Post library &amp; planner</h3>
+        <p style="font-size:.8rem;color:var(--muted);margin:0 0 16px;">Generează postări, salvează-le, pune-le dată și status. Fluxul: generezi → programezi → marchezi „postat".</p>
+
+        <!-- generator -->
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--bg3);border:1px solid var(--border-soft);border-radius:10px;padding:12px 14px;margin-bottom:16px;">
+          <select class="f-input" id="spGenPlatform" style="margin-bottom:0;max-width:150px;">
+            <option>Facebook</option><option>Instagram</option><option>LinkedIn</option><option>X (Twitter)</option><option>TikTok</option>
+          </select>
+          <input class="f-input" id="spGenTopic" placeholder="Despre ce e postarea? (temă)" style="margin-bottom:0;flex:1;min-width:200px;">
+          <button class="btn-save" id="spGenBtn" onclick="spGenerate()">✨ Generează &amp; salvează</button>
+          <button class="btn-add" onclick="spAddBlank()" style="background:var(--bg2);border:1px solid var(--border-soft);color:var(--text);">+ Blank</button>
+          <span id="spGenStatus" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--muted);"></span>
+        </div>
+
+        <!-- filters -->
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
+          <select class="f-input" id="spFilterPlatform" onchange="renderSpList()" style="margin-bottom:0;max-width:160px;font-size:.82rem;">
+            <option value="">All platforms</option>
+            <option>Facebook</option><option>Instagram</option><option>LinkedIn</option><option>X (Twitter)</option><option>TikTok</option>
+          </select>
+          <select class="f-input" id="spFilterStatus" onchange="renderSpList()" style="margin-bottom:0;max-width:150px;font-size:.82rem;">
+            <option value="">All statuses</option>
+            <option value="idea">💡 Idea</option><option value="scheduled">🗓 Scheduled</option><option value="posted">✅ Posted</option>
+          </select>
+          <button onclick="loadSocialPosts()" style="background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:7px 14px;font-size:.8rem;cursor:pointer;">↻ Refresh</button>
+          <span id="spCount" style="font-size:.78rem;color:var(--muted);"></span>
+        </div>
+
+        <div id="spList" style="display:flex;flex-direction:column;gap:12px;"></div>
+      </div>
     </div>
   </div>
 
@@ -2631,7 +2664,7 @@
     if (tab === 'gibilan') loadGibilan();
     if (tab === 'messages') loadMessages();
     if (tab === 'chat') loadChatLogs();
-    if (tab === 'social') loadSocialBlogSelect();
+    if (tab === 'social') { loadSocialBlogSelect(); loadSocialPosts(); }
     if (tab === 'projects') fetchProjects();
     if (tab === 'crm') { fetchCrm(); loadGibilan(); }
     if (tab === 'clients') { fetchClients(); loadGibilan(); }
@@ -3127,6 +3160,99 @@
     var plain = String(p.content || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 2000);
     var input = 'Title: ' + (p.title || '') + '\nSummary: ' + (p.excerpt || '') + '\nBody: ' + plain;
     openAiAssist('social-repurpose', input);
+  }
+
+  // ── SOCIAL POSTS LIBRARY / PLANNER ────────────────────────
+  var spCache = [];
+  async function loadSocialPosts() {
+    var box = document.getElementById('spList');
+    if (!box) return;
+    box.innerHTML = '<div style="color:var(--muted);font-size:.85rem;">Loading…</div>';
+    try {
+      var res = await fetch('/api/social-posts?token=' + encodeURIComponent(adminToken));
+      var list = await res.json();
+      spCache = Array.isArray(list) ? list : [];
+      renderSpList();
+    } catch(e) { box.innerHTML = '<div style="color:#e5484d;font-size:.85rem;">Eroare la încărcare.</div>'; }
+  }
+  function spStatusColor(s){ return s==='posted' ? '#12a150' : (s==='scheduled' ? '#b7791f' : '#8b94a3'); }
+  function renderSpList() {
+    var box = document.getElementById('spList');
+    if (!box) return;
+    var fp = (document.getElementById('spFilterPlatform')||{}).value || '';
+    var fs = (document.getElementById('spFilterStatus')||{}).value || '';
+    var items = spCache.filter(function(p){ return (!fp || p.platform===fp) && (!fs || p.status===fs); });
+    var cnt = document.getElementById('spCount'); if (cnt) cnt.textContent = items.length + ' / ' + spCache.length + ' posts';
+    if (!items.length) { box.innerHTML = '<div style="color:var(--muted);font-size:.9rem;padding:16px 0;">Nicio postare salvată' + ((fp||fs)?' pe acest filtru':'') + '.</div>'; return; }
+    box.innerHTML = items.map(function(p){
+      var sc = spStatusColor(p.status);
+      return '<div class="sp-card" data-id="' + mEsc(p.id) + '" style="background:var(--bg2);border:1px solid var(--border-soft);border-left:3px solid ' + sc + ';border-radius:10px;padding:14px 16px;">' +
+        '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">' +
+          '<span style="font-family:\'Share Tech Mono\',monospace;font-size:.72rem;background:rgba(0,168,168,.12);color:var(--teal-dk);border:1px solid var(--teal-border);border-radius:5px;padding:3px 9px;">' + mEsc(p.platform) + '</span>' +
+          '<select class="sp-status f-input" style="margin-bottom:0;max-width:140px;font-size:.78rem;padding:5px 8px;">' +
+            ['idea','scheduled','posted'].map(function(s){ return '<option value="'+s+'"'+(p.status===s?' selected':'')+'>'+({idea:'💡 Idea',scheduled:'🗓 Scheduled',posted:'✅ Posted'}[s])+'</option>'; }).join('') +
+          '</select>' +
+          '<input type="date" class="sp-date f-input" value="' + mEsc(p.date||'') + '" style="margin-bottom:0;max-width:160px;font-size:.78rem;padding:5px 8px;">' +
+          '<span style="flex:1;"></span>' +
+          '<button onclick="spSave(\'' + mEsc(p.id) + '\')" class="btn-save" style="font-size:.74rem;padding:5px 12px;">💾 Save</button>' +
+          '<button onclick="spCopy(\'' + mEsc(p.id) + '\')" style="font-size:.74rem;background:none;border:1px solid var(--border-soft);color:var(--soft);border-radius:6px;padding:5px 12px;cursor:pointer;">📋 Copy</button>' +
+          '<button onclick="spDelete(\'' + mEsc(p.id) + '\')" style="font-size:.74rem;background:none;border:1px solid #e5484d;color:#e5484d;border-radius:6px;padding:5px 12px;cursor:pointer;">🗑</button>' +
+        '</div>' +
+        '<textarea class="sp-text f-input" style="width:100%;min-height:110px;font-size:.86rem;line-height:1.5;margin-bottom:0;white-space:pre-wrap;">' + mEsc(p.text||'') + '</textarea>' +
+      '</div>';
+    }).join('');
+  }
+  function spCardData(id){
+    var el = document.querySelector('.sp-card[data-id="' + (window.CSS&&CSS.escape?CSS.escape(id):id) + '"]');
+    if (!el) return null;
+    return { text: el.querySelector('.sp-text').value, status: el.querySelector('.sp-status').value, date: el.querySelector('.sp-date').value };
+  }
+  async function spSave(id){
+    var d = spCardData(id); if (!d) return;
+    try {
+      await fetch('/api/social-posts/' + encodeURIComponent(id) + '?token=' + encodeURIComponent(adminToken),
+        { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(d) });
+      var p = spCache.find(function(x){ return x.id===id; }); if (p) { p.text=d.text; p.status=d.status; p.date=d.date; }
+      renderSpList();
+    } catch(e) { alert('Save failed.'); }
+  }
+  async function spDelete(id){
+    if (!confirm('Ștergi această postare?')) return;
+    try {
+      await fetch('/api/social-posts/' + encodeURIComponent(id) + '?token=' + encodeURIComponent(adminToken), { method:'DELETE' });
+      spCache = spCache.filter(function(x){ return x.id!==id; }); renderSpList();
+    } catch(e) {}
+  }
+  function spCopy(id){
+    var d = spCardData(id); if (!d) return;
+    try { if (navigator.clipboard) navigator.clipboard.writeText(d.text); else { var t=document.querySelector('.sp-card[data-id="'+id+'"] .sp-text'); t.select(); document.execCommand('copy'); } } catch(e){}
+    var st = document.getElementById('spGenStatus'); if (st){ st.style.color='#12a150'; st.textContent='// ✓ copied'; }
+  }
+  async function spCreate(platform, text, status){
+    var res = await fetch('/api/social-posts?token=' + encodeURIComponent(adminToken),
+      { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ platform:platform, text:text, status:status||'idea' }) });
+    var p = await res.json();
+    if (p && p.id) { spCache.unshift(p); renderSpList(); }
+    return p;
+  }
+  async function spAddBlank(){
+    var plat = (document.getElementById('spGenPlatform')||{}).value || 'Facebook';
+    await spCreate(plat, '', 'idea');
+  }
+  async function spGenerate(){
+    var plat = document.getElementById('spGenPlatform').value;
+    var topic = document.getElementById('spGenTopic').value.trim();
+    if (!topic) { alert('Scrie o temă pentru postare.'); return; }
+    var btn = document.getElementById('spGenBtn'); var st = document.getElementById('spGenStatus');
+    btn.disabled = true; btn.textContent = '⏳ Working…'; st.style.color='var(--teal)'; st.textContent='// Ion is writing…';
+    try {
+      var res = await fetch('/api/ai-assist?token=' + encodeURIComponent(adminToken),
+        { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ task:'social', input: topic, platform: plat }) });
+      var d = await res.json();
+      if (!res.ok || !d.text) { st.style.color='#e5484d'; st.textContent='// ' + (d.error||'error'); }
+      else { await spCreate(plat, d.text, 'idea'); document.getElementById('spGenTopic').value=''; st.style.color='#12a150'; st.textContent='// ✓ generated & saved'; }
+    } catch(e) { st.style.color='#e5484d'; st.textContent='// network error'; }
+    btn.disabled = false; btn.textContent = '✨ Generează & salvează';
   }
   function quoteAiGenerate() {
     var brief = '';

@@ -2937,6 +2937,62 @@ export default {
       }
     }
 
+    // ── SOCIAL POSTS (library / planner) ──────────────────────
+
+    if (path === '/api/social-posts' && request.method === 'GET') {
+      if (!can(authed, 'social')) return json({ error: 'Unauthorised' }, 401);
+      try { const raw = await env.PROGRAMARI.get('__socialposts__'); return json(raw ? JSON.parse(raw) : []); }
+      catch { return json([]); }
+    }
+    if (path === '/api/social-posts' && request.method === 'POST') {
+      if (!can(authed, 'social')) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const b = await request.json().catch(() => ({}));
+        const raw = await env.PROGRAMARI.get('__socialposts__');
+        const list = raw ? JSON.parse(raw) : [];
+        const now = new Date().toISOString();
+        const post = {
+          id: 'sp_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+          platform: String(b.platform || 'Facebook').slice(0, 40),
+          text: String(b.text || '').slice(0, 4000),
+          date: String(b.date || '').slice(0, 20),
+          status: ['idea', 'scheduled', 'posted'].includes(b.status) ? b.status : 'idea',
+          createdAt: now, updatedAt: now
+        };
+        list.unshift(post);
+        await env.PROGRAMARI.put('__socialposts__', JSON.stringify(list.slice(0, 500)));
+        return json(post);
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+    if (path.startsWith('/api/social-posts/') && request.method === 'PUT') {
+      if (!can(authed, 'social')) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const id = path.replace('/api/social-posts/', '');
+        const b = await request.json().catch(() => ({}));
+        const raw = await env.PROGRAMARI.get('__socialposts__');
+        const list = raw ? JSON.parse(raw) : [];
+        const p = list.find(x => x.id === id);
+        if (!p) return json({ error: 'Not found' }, 404);
+        if (b.text !== undefined) p.text = String(b.text).slice(0, 4000);
+        if (b.platform !== undefined) p.platform = String(b.platform).slice(0, 40);
+        if (b.date !== undefined) p.date = String(b.date).slice(0, 20);
+        if (b.status !== undefined && ['idea', 'scheduled', 'posted'].includes(b.status)) p.status = b.status;
+        p.updatedAt = new Date().toISOString();
+        await env.PROGRAMARI.put('__socialposts__', JSON.stringify(list));
+        return json(p);
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+    if (path.startsWith('/api/social-posts/') && request.method === 'DELETE') {
+      if (!can(authed, 'social')) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const id = path.replace('/api/social-posts/', '');
+        const raw = await env.PROGRAMARI.get('__socialposts__');
+        const list = raw ? JSON.parse(raw) : [];
+        await env.PROGRAMARI.put('__socialposts__', JSON.stringify(list.filter(x => x.id !== id)));
+        return json({ success: true });
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+
     // ── PROJECTS ──────────────────────────────────────────────
 
     if (path === '/api/projects' && request.method === 'GET') {
