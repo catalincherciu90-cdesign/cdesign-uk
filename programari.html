@@ -9,11 +9,12 @@
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
-      --teal:#00a8a8;--teal-dim:rgba(0,168,168,.08);--teal-border:rgba(0,168,168,.28);
-      --bg:#060f0f;--bg2:#0a1818;--bg3:#0f2020;
-      --text:#e8edf2;--soft:#8bbaba;--muted:#4d6b8a;
-      --border:rgba(255,255,255,.07);--border-soft:rgba(255,255,255,.11);--heading:#f0f4f8;--nav-text:#e8edf2;
-      --green:#28c840;--yellow:#febc2e;--red:#ff5f57;
+      /* Light brand theme — matches the public site (teal #00AAAC on white) */
+      --teal:#00AAAC;--teal-dim:rgba(0,170,172,.10);--teal-border:rgba(0,170,172,.30);
+      --bg:#eef4f4;--bg2:#ffffff;--bg3:#f2f7f7;
+      --text:#2E3436;--soft:#5b6472;--muted:#8b94a3;
+      --border:#e6ecec;--border-soft:#d9e2e2;--heading:#2E3436;--nav-text:#2E3436;
+      --green:#12a150;--yellow:#c98a00;--red:#e5484d;
     }
     body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
     a{color:inherit;text-decoration:none}
@@ -273,7 +274,7 @@
     }
   
     /* ── READABILITY & GRAPHICAL IMPROVEMENTS ─────────────────── */
-    :root{--text:#f0f4f8;--soft:#9ad4d4;--muted:#4d8888;}
+    :root{--text:#2E3436;--soft:#5b6472;--muted:#8b94a3;}
     body{font-size:1.06rem;line-height:1.82;}
     .sec-title{font-size:clamp(1.9rem,3.2vw,2.6rem);line-height:1.15;margin-bottom:14px;}
     .sec-title::after{content:'';display:block;width:44px;height:3px;background:linear-gradient(90deg,var(--teal),var(--teal-lt),transparent);border-radius:2px;margin-top:14px;}
