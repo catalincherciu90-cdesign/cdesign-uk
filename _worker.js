@@ -2615,8 +2615,16 @@ export default {
           const existingRaw = await env.PROGRAMARI.get(key);
           const existing = existingRaw ? JSON.parse(existingRaw) : null;
           const now = new Date().toISOString();
+          // Assign a sequential reference number the first time we see a conversation.
+          let num = existing && existing.num;
+          if (!num) {
+            const seqRaw = await env.PROGRAMARI.get('__chatlog_seq__');
+            num = (parseInt(seqRaw || '0', 10) || 0) + 1;
+            await env.PROGRAMARI.put('__chatlog_seq__', String(num));
+          }
           const convo = {
             id: cid,
+            num: num,
             ip: (existing && existing.ip) || ip,
             ua: (request.headers.get('User-Agent') || '').slice(0, 200),
             ref: (existing && existing.ref) || (request.headers.get('Referer') || '').slice(0, 200),
@@ -2633,6 +2641,7 @@ export default {
           const firstUser = full.find(m => m.role === 'user');
           idx.unshift({
             id: cid,
+            num: num,
             ip: convo.ip,
             started: convo.started,
             updated: convo.updated,
