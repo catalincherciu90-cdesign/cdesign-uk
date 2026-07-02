@@ -132,6 +132,9 @@
   .lc-note{text-align:center;font-size:.82rem;color:var(--muted);margin-top:12px}
   .lc-success{background:rgba(0,170,172,.08);border:1px solid var(--teal);color:var(--teal-dk);border-radius:10px;padding:16px;text-align:center;font-size:.95rem;margin-top:14px}
   @media(max-width:820px){.lc-inner{grid-template-columns:1fr;gap:32px}}
+  .lc-check{display:flex;align-items:center;gap:8px;font-size:.9rem;color:var(--body);margin:-4px 0 14px;cursor:pointer}
+  .lc-check input{width:auto;margin:0}
+  .lc-company{border-top:1px dashed var(--line);padding-top:14px;margin-bottom:2px}
 </style>
 <script type="application/ld+json">
 {
@@ -324,7 +327,7 @@
     </div>
   </section>
 
-    <!-- LOCAL CONTACT -->
+  <!-- LOCAL CONTACT -->
   <section class="local-contact" id="contact">
     <div class="lc-inner">
       <div class="lc-info">
@@ -336,8 +339,14 @@
       <form class="lc-form" id="cityMsgForm" data-service="Hosting & Maintenance (services page)">
         <input type="text" name="name" placeholder="Your name *" required>
         <input type="tel" name="phone" placeholder="Phone number *" required>
-        <input type="text" name="area" placeholder="Your town / area (optional)">
-        <input type="email" name="email" placeholder="Email (optional)">
+        <input type="email" name="email" placeholder="Email *" required>
+        <input type="text" name="area" placeholder="Your town / area">
+        <label class="lc-check"><input type="checkbox" name="isCompany" id="lcCompanyToggle"> Invoice to a company / business?</label>
+        <div class="lc-company" id="lcCompanyFields" style="display:none">
+          <input type="text" name="companyName" placeholder="Company name">
+          <input type="text" name="companyReg" placeholder="Company / VAT number (optional)">
+          <input type="text" name="companyAddress" placeholder="Company address">
+        </div>
         <textarea name="message" placeholder="How can we help?"></textarea>
         <button type="submit" class="btn-primary">Send message <span>&rarr;</span></button>
         <div class="lc-note">We'll never share your details. We reply within one working day.</div>
@@ -410,31 +419,35 @@
     (function(){
       var f = document.getElementById('cityMsgForm');
       if(!f) return;
+      var toggle = document.getElementById('lcCompanyToggle');
+      var comp = document.getElementById('lcCompanyFields');
+      if(toggle && comp){ toggle.addEventListener('change', function(){ comp.style.display = toggle.checked ? 'block' : 'none'; }); }
+      var g = function(n){ return f.elements[n] ? (f.elements[n].value||'').trim() : ''; };
       f.addEventListener('submit', function(e){
         e.preventDefault();
         var btn = f.querySelector('button[type=submit]');
-        var g = function(n){ return f.elements[n] ? (f.elements[n].value||'').trim() : ''; };
-        var name = g('name'), phone = g('phone'), email = g('email'), area = g('area'), message = g('message');
-        if(!name || !phone){ alert('Please enter your name and phone number.'); return; }
-        var body = message
-          + (area ? ('\n\nArea / town: ' + area) : '')
-          + (email ? ('\nEmail: ' + email) : '');
+        var name=g('name'), phone=g('phone'), email=g('email'), area=g('area'), message=g('message');
+        if(!name || !phone || !email){ alert('Please enter your name, phone number and email.'); return; }
+        var body = message + (area ? ('\n\nArea / town: ' + area) : '') + '\nEmail: ' + email;
+        if(f.elements['isCompany'] && f.elements['isCompany'].checked){
+          body += '\n\nCompany details:' + '\n- Name: ' + g('companyName') + '\n- Reg/VAT: ' + g('companyReg') + '\n- Address: ' + g('companyAddress');
+        }
         btn.disabled = true; btn.textContent = 'Sending…';
         fetch('/api/messages', { method:'POST', headers:{'Content-Type':'application/json'},
           body: JSON.stringify({ name:name, phone:phone, service: f.getAttribute('data-service') || 'Web Design (page)', message: body }) })
           .then(function(r){ return r.json(); })
           .then(function(d){
             if(d && d.success){
-              f.querySelector('.lc-success').style.display = 'block';
-              f.querySelector('.lc-note').style.display = 'none';
-              btn.style.display = 'none';
-              ['name','phone','email','area','message'].forEach(function(n){ if(f.elements[n]) f.elements[n].value=''; });
+              f.querySelector('.lc-success').style.display='block';
+              f.querySelector('.lc-note').style.display='none';
+              btn.style.display='none';
+              ['name','phone','email','area','message','companyName','companyReg','companyAddress'].forEach(function(n){ if(f.elements[n]) f.elements[n].value=''; });
             } else {
-              btn.disabled = false; btn.textContent = 'Send message →';
+              btn.disabled=false; btn.textContent='Send message →';
               alert((d && d.error) || 'Something went wrong. Please call us on +44 7312 799449.');
             }
           })
-          .catch(function(){ btn.disabled = false; btn.textContent = 'Send message →'; alert('Network error. Please call us on +44 7312 799449.'); });
+          .catch(function(){ btn.disabled=false; btn.textContent='Send message →'; alert('Network error. Please call us on +44 7312 799449.'); });
       });
     })();
   </script>
