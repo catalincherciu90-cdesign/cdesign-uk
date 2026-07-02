@@ -6,6 +6,7 @@ Allow: /
 # System / admin pages — do not index
 Disallow: /admin
 Disallow: /admin.html
+Disallow: /programari.html
 Disallow: /*.json$
 
 # Sitemap
