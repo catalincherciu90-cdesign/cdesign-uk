@@ -707,7 +707,7 @@ async function getAuth(url, env) {
 }
 
 // Sections a sub-admin can be granted access to.
-const ADMIN_SECTIONS = ['bookings', 'messages', 'chat', 'gibilan', 'clients', 'crm', 'portfolio', 'blog', 'social', 'pages', 'media', 'theme', 'expenses', 'oferte', 'settings'];
+const ADMIN_SECTIONS = ['bookings', 'messages', 'chat', 'gibilan', 'clients', 'crm', 'portfolio', 'blog', 'seo', 'social', 'pages', 'media', 'theme', 'expenses', 'oferte', 'settings'];
 
 // Authorisation: owner can do anything; sub-admins need the section in their perms.
 function can(authed, section) {
@@ -2755,6 +2755,21 @@ export default {
           user = 'Write a social media post for ' + (platform || 'Facebook') + ' about: "' + input + '".\n'
             + 'Requirements: a strong hook, 2-4 short lines of value, one clear call to action, and 5-8 relevant hashtags at the end. Match the tone/length to the platform. Return just the post text.';
           maxTokens = 500;
+        } else if (task === 'seo') {
+          section = 'seo';
+          system = 'You are Elena, an SEO & content strategist working with Mihai (copywriter) for ' + brand + ' You produce on-page SEO content optimised for UK (and local) Google search. British English spelling.';
+          user = 'Create SEO-optimised on-page content for this service/topic: "' + input + '"'
+            + (platform ? ' — target location: "' + platform + '" (include local SEO signals).' : '.')
+            + '\nReturn in EXACTLY this labelled plain-text format (keep the labels):\n'
+            + 'META TITLE: (max 60 characters, include the main keyword)\n'
+            + 'META DESCRIPTION: (max 155 characters, compelling, include keyword + a call to action)\n'
+            + 'H1: (page heading)\n'
+            + 'INTRO: (2-3 sentence opening paragraph)\n'
+            + 'KEY BENEFITS: (4-6 short bullet points, each starting with "- ")\n'
+            + 'TARGET KEYWORDS: (comma-separated: a mix of head, long-tail and local keywords)\n'
+            + 'FAQ: (4 question/answer pairs, format "Q: ..." then "A: ..." — suitable for FAQ schema)\n'
+            + 'CTA: (one persuasive call-to-action line)';
+          maxTokens = 1100;
         } else if (task === 'quote') {
           section = 'oferte';
           system = 'You are Ioana, a pricing & sales specialist for ' + brand + ' You turn a client brief into a clear, persuasive quote/offer.';
@@ -2776,6 +2791,104 @@ export default {
         return json({ text }, 200, request);
       } catch (e) {
         return json({ error: 'Generation error' }, 500, request);
+      }
+    }
+
+    // ── SEO AUDIT (admin) ─────────────────────────────────────
+
+    if (path === '/api/seo/audit' && request.method === 'GET') {
+      if (!can(authed, 'seo')) return json({ error: 'Unauthorised' }, 401, request);
+      try {
+        let target = url.searchParams.get('url') || '';
+        if (!target) return json({ error: 'No URL provided' }, 400, request);
+        let u;
+        try { u = new URL(target); } catch { return json({ error: 'Invalid URL' }, 400, request); }
+        // SSRF guard: only allow our own site over https
+        const host = u.hostname.toLowerCase();
+        const allowed = u.protocol === 'https:' && (host === url.hostname.toLowerCase() || host === 'cdesigns.uk' || host.endsWith('.cdesigns.uk'));
+        if (!allowed) return json({ error: 'Only pages on cdesigns.uk can be audited.' }, 400, request);
+
+        const resp = await fetch(u.toString(), { headers: { 'User-Agent': 'CDesign-SEO-Audit' }, redirect: 'follow' });
+        const status = resp.status;
+        const html = await resp.text();
+
+        const pick = (re) => { const m = html.match(re); return m ? m[1].trim() : ''; };
+        const strip = (s) => s.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+
+        const title = strip(pick(/<title[^>]*>([\s\S]*?)<\/title>/i));
+        const metaDesc = pick(/<meta[^>]+name=["']description["'][^>]*content=["']([^"']*)["']/i)
+          || pick(/<meta[^>]+content=["']([^"']*)["'][^>]*name=["']description["']/i);
+        const canonical = pick(/<link[^>]+rel=["']canonical["'][^>]*href=["']([^"']*)["']/i);
+        const lang = pick(/<html[^>]*\blang=["']([^"']*)["']/i);
+        const viewport = /name=["']viewport["']/i.test(html);
+        const robots = pick(/<meta[^>]+name=["']robots["'][^>]*content=["']([^"']*)["']/i);
+        const ogTitle = /property=["']og:title["']/i.test(html);
+        const ogDesc = /property=["']og:description["']/i.test(html);
+        const ogImage = /property=["']og:image["']/i.test(html);
+        const hasSchema = /application\/ld\+json/i.test(html);
+        const h1s = (html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi) || []).map(x => strip(x));
+        const h2count = (html.match(/<h2\b/gi) || []).length;
+        const imgs = (html.match(/<img\b[^>]*>/gi) || []);
+        const imgsNoAlt = imgs.filter(t => !/\balt\s*=/i.test(t)).length;
+        const bodyText = strip((html.match(/<body[\s\S]*<\/body>/i) || [html])[0]);
+        const wordCount = bodyText ? bodyText.split(/\s+/).length : 0;
+        const links = (html.match(/<a\b[^>]*href=/gi) || []).length;
+
+        const checks = [];
+        const add = (label, state, detail) => checks.push({ label, state, detail });
+        // Title
+        if (!title) add('Title tag', 'bad', 'Missing <title>');
+        else if (title.length < 30) add('Title tag', 'warn', 'Too short (' + title.length + ' chars) — aim for 50-60. "' + title + '"');
+        else if (title.length > 65) add('Title tag', 'warn', 'Too long (' + title.length + ' chars) — may be truncated. "' + title + '"');
+        else add('Title tag', 'good', title.length + ' chars — "' + title + '"');
+        // Meta description
+        if (!metaDesc) add('Meta description', 'bad', 'Missing meta description');
+        else if (metaDesc.length < 70) add('Meta description', 'warn', 'Short (' + metaDesc.length + ' chars) — aim for 120-155');
+        else if (metaDesc.length > 160) add('Meta description', 'warn', 'Long (' + metaDesc.length + ' chars) — may be truncated');
+        else add('Meta description', 'good', metaDesc.length + ' chars');
+        // H1
+        if (h1s.length === 0) add('H1 heading', 'bad', 'No H1 found');
+        else if (h1s.length > 1) add('H1 heading', 'warn', h1s.length + ' H1s found — usually one is best');
+        else add('H1 heading', 'good', '1 H1 — "' + h1s[0].slice(0, 80) + '"');
+        add('H2 subheadings', h2count > 0 ? 'good' : 'warn', h2count + ' found');
+        // Images alt
+        if (imgs.length === 0) add('Image alt text', 'good', 'No images');
+        else if (imgsNoAlt > 0) add('Image alt text', 'warn', imgsNoAlt + ' of ' + imgs.length + ' images missing alt');
+        else add('Image alt text', 'good', 'All ' + imgs.length + ' images have alt');
+        // Content
+        if (wordCount < 250) add('Content length', 'warn', '~' + wordCount + ' words — thin content, aim for 300+');
+        else add('Content length', 'good', '~' + wordCount + ' words');
+        // Technical
+        add('Canonical URL', canonical ? 'good' : 'warn', canonical || 'Missing rel=canonical');
+        add('Language attribute', lang ? 'good' : 'warn', lang || 'Missing <html lang>');
+        add('Mobile viewport', viewport ? 'good' : 'bad', viewport ? 'Present' : 'Missing viewport meta');
+        add('Open Graph tags', (ogTitle && ogDesc && ogImage) ? 'good' : 'warn', 'title:' + (ogTitle ? '✓' : '✗') + ' desc:' + (ogDesc ? '✓' : '✗') + ' image:' + (ogImage ? '✓' : '✗'));
+        add('Structured data', hasSchema ? 'good' : 'warn', hasSchema ? 'JSON-LD present' : 'No JSON-LD schema found');
+        add('Indexability', /noindex/i.test(robots) ? 'bad' : 'good', robots ? robots : 'Indexable (no robots restriction)');
+        add('Internal/outbound links', links > 0 ? 'good' : 'warn', links + ' links');
+        add('HTTP status', status === 200 ? 'good' : 'warn', String(status));
+
+        const goodN = checks.filter(c => c.state === 'good').length;
+        const warnN = checks.filter(c => c.state === 'warn').length;
+        const badN = checks.filter(c => c.state === 'bad').length;
+        const score = Math.round((goodN + warnN * 0.5) / checks.length * 100);
+
+        // AI recommendations (Elena) from the extracted signals
+        let advice = '';
+        try {
+          const signals = 'URL: ' + u.toString() + '\nTitle: ' + title + '\nMeta description: ' + metaDesc
+            + '\nH1: ' + (h1s[0] || '(none)') + '\nH2 count: ' + h2count + '\nWords: ' + wordCount
+            + '\nImages missing alt: ' + imgsNoAlt + '/' + imgs.length + '\nCanonical: ' + (canonical || 'none')
+            + '\nStructured data: ' + (hasSchema ? 'yes' : 'no') + '\nOpen Graph complete: ' + (ogTitle && ogDesc && ogImage ? 'yes' : 'no');
+          advice = await aiComplete(env, [
+            { role: 'system', content: 'You are Elena, an SEO specialist for a UK web design agency. Give concise, prioritised, actionable on-page SEO recommendations. British English.' },
+            { role: 'user', content: 'Here are on-page SEO signals for a page. Give the top 5 prioritised recommendations to improve its Google ranking, each one short and specific:\n\n' + signals }
+          ], 500);
+        } catch (e) {}
+
+        return json({ url: u.toString(), score, summary: { good: goodN, warn: warnN, bad: badN }, checks, advice }, 200, request);
+      } catch (e) {
+        return json({ error: 'Audit failed: ' + (e.message || 'unknown') }, 500, request);
       }
     }
 
