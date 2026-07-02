@@ -2766,6 +2766,20 @@ export default {
           user = 'Write a social media post for ' + (platform || 'Facebook') + ' about: "' + input + '".\n'
             + 'Requirements: a strong hook, 2-4 short lines of value, one clear call to action, and 5-8 relevant hashtags at the end. Match the tone/length to the platform. Return just the post text.';
           maxTokens = 500;
+        } else if (task === 'social-plan') {
+          section = 'social';
+          system = 'You are Ion, a social media manager for ' + brand + ' You plan on-brand, varied content calendars for UK small businesses.';
+          user = 'Create a social media content plan of 8 posts for ' + (platform || 'Facebook & Instagram')
+            + (input ? ' focused on: "' + input + '"' : ' for C Design')
+            + '.\nMake the posts varied across these types: educational tip, client result/case, behind-the-scenes, service spotlight, engagement question, promotional offer, testimonial idea, industry insight.\n'
+            + 'For EACH post use exactly this format:\n"Post N — [content type]"\nCaption: (ready-to-publish, with a hook)\nHashtags: (5-8 relevant hashtags)\nVisual: (one-line image/visual idea)\n\nKeep it British English and on-brand.';
+          maxTokens = 1500;
+        } else if (task === 'social-repurpose') {
+          section = 'social';
+          system = 'You are Ion, a social media manager for ' + brand + ' You turn blog articles into engaging social posts.';
+          user = 'Repurpose this blog article into 3 social media posts — one each for Facebook, Instagram and LinkedIn. '
+            + 'For each: a platform label, a caption with a strong hook (matched to the platform), 5-8 hashtags, and a call to action pointing readers to the full article on our blog.\n\nArticle:\n' + input;
+          maxTokens = 900;
         } else if (task === 'seo') {
           section = 'seo';
           system = 'You are Elena, an SEO & content strategist working with Mihai (copywriter) for ' + brand + ' You produce on-page SEO content optimised for UK (and local) Google search. British English spelling.';
