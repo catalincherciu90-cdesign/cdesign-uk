@@ -2333,6 +2333,17 @@ export default {
       return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
     }
 
+    // Local SEO city landing pages: /web-design-<city>
+    if (path.startsWith('/web-design-')) {
+      const CITY_PAGES = ['web-design-leeds', 'web-design-sheffield', 'web-design-nottingham', 'web-design-derby', 'web-design-blackburn', 'web-design-preston'];
+      const slug = path.slice(1).replace(/\/$/, '');
+      if (CITY_PAGES.includes(slug)) {
+        const assetUrl = new URL(request.url);
+        assetUrl.pathname = '/' + slug + '.html';
+        return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
+      }
+    }
+
     // ── LEGAL ─────────────────────────────────────────────────
 
     if (path === '/politica-confidentialitate') {
