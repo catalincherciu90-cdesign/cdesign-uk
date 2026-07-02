@@ -4149,9 +4149,31 @@
     document.getElementById('blogModalOverlay').scrollTop = 0;
   }
 
+  function normaliseTopic(s) {
+    return String(s || '').toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  function topicOverlap(a, b) {
+    // Jaccard word overlap on words longer than 3 chars
+    var wa = normaliseTopic(a).split(' ').filter(function(w){ return w.length > 3; });
+    var wb = normaliseTopic(b).split(' ').filter(function(w){ return w.length > 3; });
+    if (!wa.length || !wb.length) return 0;
+    var setB = {}; wb.forEach(function(w){ setB[w] = 1; });
+    var inter = 0, seen = {};
+    wa.forEach(function(w){ if (setB[w] && !seen[w]) { inter++; seen[w] = 1; } });
+    var uni = {}; wa.concat(wb).forEach(function(w){ uni[w] = 1; });
+    return inter / Object.keys(uni).length;
+  }
   async function generateBlogWithAI() {
     const subject = document.getElementById('blogAiSubject').value.trim();
     if (!subject) { alert('Please enter a subject for the article.'); return; }
+    // Warn if a similar article already exists
+    const existingTitles = (allBlog || []).map(function(p){ return p.title; }).filter(Boolean);
+    var similar = existingTitles.filter(function(t){ return topicOverlap(subject, t) >= 0.5; });
+    if (similar.length) {
+      if (!confirm('You may already have an article on this topic:\n\n• ' + similar.slice(0,5).join('\n• ') + '\n\nGenerate a new one anyway? (The AI will be asked to take a different angle.)')) {
+        return;
+      }
+    }
     const btn = document.getElementById('blogAiBtn');
     const status = document.getElementById('blogAiStatus');
     btn.disabled = true; btn.textContent = '⏳ Generating...';
@@ -4161,7 +4183,7 @@
       const res = await fetch('/api/blog/generate?token=' + encodeURIComponent(adminToken), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subject })
+        body: JSON.stringify({ subject, existing: existingTitles })
       });
       const data = await res.json();
       if (!res.ok || !data.article) {
