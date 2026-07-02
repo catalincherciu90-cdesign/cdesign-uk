@@ -110,6 +110,24 @@
   .faq-item h3{font-family:'Poppins',sans-serif;font-weight:600;font-size:1.05rem;color:var(--ink);margin-bottom:10px}
   .faq-item p{font-size:.95rem;line-height:1.65;color:var(--body)}
   @media(max-width:640px){.why-list{grid-template-columns:1fr}.breadcrumb{padding:18px 22px 0}}
+
+  /* ---------- PLATFORMS (marquee) ---------- */
+  .platforms{background:#fff;padding:76px 0;border-top:1px solid var(--line);overflow:hidden}
+  .plat-title{text-align:center;font-family:'Poppins',sans-serif;font-weight:600;font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:0 24px}
+  .plat-marquee{margin-top:42px;position:relative;overflow:hidden}
+  .plat-marquee::before,.plat-marquee::after{content:'';position:absolute;top:0;bottom:0;width:90px;z-index:2;pointer-events:none}
+  .plat-marquee::before{left:0;background:linear-gradient(90deg,#fff,transparent)}
+  .plat-marquee::after{right:0;background:linear-gradient(270deg,#fff,transparent)}
+  .plat-track{display:flex;width:max-content;animation:plat-scroll 48s linear infinite}
+  .plat-track:hover{animation-play-state:paused}
+  .plat-set{display:flex;align-items:center;gap:58px;padding-right:58px}
+  .plat{display:flex;flex-direction:column;align-items:center;gap:11px;flex:none}
+  .plat img{height:40px;width:auto;filter:grayscale(1);opacity:.5;transition:filter .25s,opacity .25s,transform .25s}
+  .plat:hover img{filter:none;opacity:1;transform:translateY(-3px)}
+  .plat span{font-family:'Inter',sans-serif;font-size:.74rem;font-weight:500;color:var(--muted);text-align:center;line-height:1.2;white-space:nowrap}
+  @keyframes plat-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @media(prefers-reduced-motion:reduce){.plat-track{animation:none}}
+  @media(max-width:600px){.platforms{padding:58px 0}.plat img{height:34px}.plat-set{gap:44px;padding-right:44px}}
 </style>
 <script type="application/ld+json">
 {
@@ -329,6 +347,45 @@
   </section>
 
   <!-- CTA -->
+  <!-- PLATFORMS WE WORK WITH -->
+  <section class="platforms" id="platforms">
+    <p class="plat-title">Platforms &amp; technologies we work with</p>
+    <div class="plat-marquee">
+      <div class="plat-track">
+        <div class="plat-set">
+          <div class="plat"><img src="https://cdn.simpleicons.org/wordpress/21759B" alt="WordPress" width="40" height="40" loading="lazy" decoding="async"><span>WordPress</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/woocommerce/96588A" alt="WooCommerce" width="40" height="40" loading="lazy" decoding="async"><span>WooCommerce</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/html5/E34F26" alt="HTML5" width="40" height="40" loading="lazy" decoding="async"><span>HTML5</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/prestashop/DF0067" alt="PrestaShop" width="40" height="40" loading="lazy" decoding="async"><span>PrestaShop</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/shopify/7AB55C" alt="Shopify" width="40" height="40" loading="lazy" decoding="async"><span>Shopify</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/meta/0467DF" alt="Meta Business" width="40" height="40" loading="lazy" decoding="async"><span>Meta Business</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/webflow/146EF5" alt="Webflow" width="40" height="40" loading="lazy" decoding="async"><span>Webflow</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/wix/0C6EFC" alt="Wix" width="40" height="40" loading="lazy" decoding="async"><span>Wix</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/squarespace/000000" alt="Squarespace" width="40" height="40" loading="lazy" decoding="async"><span>Squarespace</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/stripe/635BFF" alt="Stripe" width="40" height="40" loading="lazy" decoding="async"><span>Stripe</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/cloudflare/F38020" alt="Cloudflare" width="40" height="40" loading="lazy" decoding="async"><span>Cloudflare</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/googleanalytics/E37400" alt="Google Analytics" width="40" height="40" loading="lazy" decoding="async"><span>Google Analytics</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/mailchimp/FFE01B" alt="Mailchimp" width="40" height="40" loading="lazy" decoding="async"><span>Mailchimp</span></div>
+        </div>
+        <div class="plat-set" aria-hidden="true">
+          <div class="plat"><img src="https://cdn.simpleicons.org/wordpress/21759B" alt="" width="40" height="40" loading="lazy" decoding="async"><span>WordPress</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/woocommerce/96588A" alt="" width="40" height="40" loading="lazy" decoding="async"><span>WooCommerce</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/html5/E34F26" alt="" width="40" height="40" loading="lazy" decoding="async"><span>HTML5</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/prestashop/DF0067" alt="" width="40" height="40" loading="lazy" decoding="async"><span>PrestaShop</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/shopify/7AB55C" alt="" width="40" height="40" loading="lazy" decoding="async"><span>Shopify</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/meta/0467DF" alt="" width="40" height="40" loading="lazy" decoding="async"><span>Meta Business</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/webflow/146EF5" alt="" width="40" height="40" loading="lazy" decoding="async"><span>Webflow</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/wix/0C6EFC" alt="" width="40" height="40" loading="lazy" decoding="async"><span>Wix</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/squarespace/000000" alt="" width="40" height="40" loading="lazy" decoding="async"><span>Squarespace</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/stripe/635BFF" alt="" width="40" height="40" loading="lazy" decoding="async"><span>Stripe</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/cloudflare/F38020" alt="" width="40" height="40" loading="lazy" decoding="async"><span>Cloudflare</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/googleanalytics/E37400" alt="" width="40" height="40" loading="lazy" decoding="async"><span>Google Analytics</span></div>
+          <div class="plat"><img src="https://cdn.simpleicons.org/mailchimp/FFE01B" alt="" width="40" height="40" loading="lazy" decoding="async"><span>Mailchimp</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="cta-band">
     <h2>Ready to grow your Blackburn business online?</h2>
     <p>Tell us what you need and we'll send a clear, fixed quote — no pressure. Or view our transparent <a href="/pricing" style="color:#fff;text-decoration:underline">pricing</a>.</p>
