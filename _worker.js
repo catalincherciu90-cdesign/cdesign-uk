@@ -3469,11 +3469,15 @@ Requirements:
     if (path === '/api/blog/generate' && request.method === 'POST') {
       if (!can(authed, 'blog')) return json({ error: 'Unauthorised' }, 401, request);
       try {
-        const { subject } = await request.json();
+        const { subject, existing } = await request.json();
         if (!subject) return json({ error: 'Subject is required' }, 400, request);
         if (!env.AI) return json({ error: 'AI binding unavailable — check wrangler.toml' }, 500, request);
 
-        const prompt = `You are an expert copywriter in web design and digital marketing for small businesses in the UK. Write a complete blog article for the agency "C Design" on the subject: "${subject}".
+        const existingBlock = Array.isArray(existing) && existing.length
+          ? `\n\nIMPORTANT — the blog ALREADY has these published articles. Do NOT duplicate or closely overlap any of them. Cover a genuinely different angle, a more specific sub-topic, or a fresh perspective, and make the title clearly distinct from these:\n${existing.slice(0, 40).map(t => `- ${t}`).join('\n')}`
+          : '';
+
+        const prompt = `You are an expert copywriter in web design and digital marketing for small businesses in the UK. Write a complete blog article for the agency "C Design" on the subject: "${subject}".${existingBlock}
 
 Return EXCLUSIVELY a valid JSON object, with no text before or after, with this structure:
 {
