@@ -707,7 +707,7 @@ async function getAuth(url, env) {
 }
 
 // Sections a sub-admin can be granted access to.
-const ADMIN_SECTIONS = ['bookings', 'messages', 'gibilan', 'clients', 'crm', 'portfolio', 'blog', 'social', 'pages', 'media', 'theme', 'expenses', 'oferte', 'settings'];
+const ADMIN_SECTIONS = ['bookings', 'messages', 'chat', 'gibilan', 'clients', 'crm', 'portfolio', 'blog', 'social', 'pages', 'media', 'theme', 'expenses', 'oferte', 'settings'];
 
 // Authorisation: owner can do anything; sub-admins need the section in their perms.
 function can(authed, section) {
@@ -2600,10 +2600,99 @@ export default {
         }
 
         if (!reply) reply = "Sorry, I couldn't process that just now. Please try again, or reach us via the contact form or on +44 7312 799449.";
+
+        // Persist the conversation so it can be reviewed from the admin panel.
+        try {
+          let cid = String(body.cid || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40);
+          if (!cid) cid = 'c_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+          // Full transcript = everything the client sent + this reply, capped.
+          const full = (Array.isArray(body.messages) ? body.messages : [])
+            .filter(m => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
+            .map(m => ({ role: m.role, content: m.content.slice(0, 2000) }))
+            .slice(-60);
+          full.push({ role: 'assistant', content: reply.slice(0, 2000) });
+          const key = 'chatlog_' + cid;
+          const existingRaw = await env.PROGRAMARI.get(key);
+          const existing = existingRaw ? JSON.parse(existingRaw) : null;
+          const now = new Date().toISOString();
+          const convo = {
+            id: cid,
+            ip: (existing && existing.ip) || ip,
+            ua: (request.headers.get('User-Agent') || '').slice(0, 200),
+            ref: (existing && existing.ref) || (request.headers.get('Referer') || '').slice(0, 200),
+            started: (existing && existing.started) || now,
+            updated: now,
+            messages: full,
+            count: full.length
+          };
+          await env.PROGRAMARI.put(key, JSON.stringify(convo));
+          // Maintain a lightweight index (newest first, capped).
+          const idxRaw = await env.PROGRAMARI.get('__chatlogs__');
+          let idx = idxRaw ? JSON.parse(idxRaw) : [];
+          idx = idx.filter(x => x.id !== cid);
+          const firstUser = full.find(m => m.role === 'user');
+          idx.unshift({
+            id: cid,
+            ip: convo.ip,
+            started: convo.started,
+            updated: convo.updated,
+            count: convo.count,
+            preview: (firstUser ? firstUser.content : '').slice(0, 120)
+          });
+          await env.PROGRAMARI.put('__chatlogs__', JSON.stringify(idx.slice(0, 400)));
+        } catch (e) { /* logging must never break the chat reply */ }
+
         return json({ reply }, 200, request);
       } catch {
         return json({ reply: 'Something went wrong. Please use the contact form and we\'ll get right back to you.' }, 200, request);
       }
+    }
+
+    // ── CHAT LOGS (admin) ─────────────────────────────────────
+
+    // List all conversations (index only — lightweight)
+    if (path === '/api/chat-logs' && request.method === 'GET') {
+      if (!can(authed, 'chat')) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const raw = await env.PROGRAMARI.get('__chatlogs__');
+        return json(raw ? JSON.parse(raw) : []);
+      } catch { return json([]); }
+    }
+
+    // Full transcript of one conversation
+    if (path.startsWith('/api/chat-logs/') && request.method === 'GET') {
+      if (!can(authed, 'chat')) return json({ error: 'Unauthorised' }, 401);
+      const id = path.replace('/api/chat-logs/', '').replace(/[^a-zA-Z0-9_-]/g, '');
+      try {
+        const raw = await env.PROGRAMARI.get('chatlog_' + id);
+        if (!raw) return json({ error: 'Not found' }, 404);
+        return json(JSON.parse(raw));
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+
+    // Delete one conversation
+    if (path.startsWith('/api/chat-logs/') && request.method === 'DELETE') {
+      if (!can(authed, 'chat')) return json({ error: 'Unauthorised' }, 401);
+      const id = path.replace('/api/chat-logs/', '').replace(/[^a-zA-Z0-9_-]/g, '');
+      try {
+        await env.PROGRAMARI.delete('chatlog_' + id);
+        const raw = await env.PROGRAMARI.get('__chatlogs__');
+        const idx = raw ? JSON.parse(raw) : [];
+        await env.PROGRAMARI.put('__chatlogs__', JSON.stringify(idx.filter(x => x.id !== id)));
+        return json({ success: true });
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+
+    // Clear all conversations
+    if (path === '/api/chat-logs' && request.method === 'DELETE') {
+      if (!can(authed, 'chat')) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const raw = await env.PROGRAMARI.get('__chatlogs__');
+        const idx = raw ? JSON.parse(raw) : [];
+        await Promise.all(idx.map(x => env.PROGRAMARI.delete('chatlog_' + x.id)));
+        await env.PROGRAMARI.put('__chatlogs__', JSON.stringify([]));
+        return json({ success: true });
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     // ── PROJECTS ──────────────────────────────────────────────

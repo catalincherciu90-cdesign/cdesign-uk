@@ -460,6 +460,7 @@
     <button class="tab active" onclick="switchTab('gibilan',this)">&#x1F916; Wizi</button>
     <button class="tab" onclick="switchTab('bookings',this)">&#x1F4C5; Bookings</button>
     <button class="tab" onclick="switchTab('messages',this)">&#x1F4AC; Mesaje</button>
+    <button class="tab" onclick="switchTab('chat',this)">&#x1F916; AI Chat</button>
     <button class="tab" onclick="switchTab('projects',this)">&#x1F5BC; Portfolio</button>
     <button class="tab" onclick="switchTab('clients',this)">&#x1F465; Clients</button>
     <button class="tab" onclick="switchTab('crm',this)">&#x1F4CB; CRM &amp; Quotes</button>
@@ -670,6 +671,23 @@
         <button onclick="loadMessages()" style="background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:7px 14px;font-size:.8rem;cursor:pointer;">↻ Refresh</button>
       </div>
       <div id="messagesList" style="display:flex;flex-direction:column;gap:12px;"></div>
+    </div>
+  </div>
+
+  <!-- TAB: AI CHAT -->
+  <div class="tab-panel" id="panel-chat">
+    <div class="main">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px;">
+        <h2 style="margin:0;">🤖 Conversații AI</h2>
+        <div style="display:flex;gap:8px;">
+          <button onclick="loadChatLogs()" style="background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:7px 14px;font-size:.8rem;cursor:pointer;">↻ Refresh</button>
+          <button onclick="clearChatLogs()" style="background:none;border:1px solid #e74c3c;color:#e74c3c;border-radius:6px;padding:7px 14px;font-size:.8rem;cursor:pointer;">🗑 Șterge tot</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:340px 1fr;gap:16px;align-items:start;" id="chatLayout">
+        <div id="chatList" style="display:flex;flex-direction:column;gap:8px;max-height:70vh;overflow-y:auto;"></div>
+        <div id="chatDetail" style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:12px;padding:20px;min-height:200px;color:var(--muted);font-size:.9rem;">Selectează o conversație din stânga.</div>
+      </div>
     </div>
   </div>
 
@@ -2646,6 +2664,7 @@
     document.getElementById('panel-' + tab).classList.add('active');
     if (tab === 'gibilan') loadGibilan();
     if (tab === 'messages') loadMessages();
+    if (tab === 'chat') loadChatLogs();
     if (tab === 'projects') fetchProjects();
     if (tab === 'crm') { fetchCrm(); loadGibilan(); }
     if (tab === 'clients') { fetchClients(); loadGibilan(); }
@@ -2658,8 +2677,8 @@
   }
 
   // ── Permissions & current user ───────────────────────────
-  const SECTION_LABELS = { bookings:'Bookings', messages:'Messages', gibilan:'Wizi', clients:'Clients', crm:'CRM & Quotes', portfolio:'Portfolio', blog:'Blog', social:'Social', pages:'Pages', media:'Media', theme:'Theme', expenses:'Expenses', oferte:'Quotes', settings:'Settings' };
-  const TAB_PERM = { bookings:'bookings', messages:'messages', gibilan:'gibilan', clients:'clients', crm:'crm', projects:'portfolio', blog:'blog', social:'social', pagini:'pages', media:'media', tema:'theme', settings:'settings', cheltuieli:'expenses', oferte:'oferte' };
+  const SECTION_LABELS = { bookings:'Bookings', messages:'Messages', chat:'AI Chat', gibilan:'Wizi', clients:'Clients', crm:'CRM & Quotes', portfolio:'Portfolio', blog:'Blog', social:'Social', pages:'Pages', media:'Media', theme:'Theme', expenses:'Expenses', oferte:'Quotes', settings:'Settings' };
+  const TAB_PERM = { bookings:'bookings', messages:'messages', chat:'chat', gibilan:'gibilan', clients:'clients', crm:'crm', projects:'portfolio', blog:'blog', social:'social', pagini:'pages', media:'media', tema:'theme', settings:'settings', cheltuieli:'expenses', oferte:'oferte' };
   let allSections = Object.keys(SECTION_LABELS);
 
   async function fetchMe() {
@@ -2894,6 +2913,84 @@
     if (!confirm('Delete this message?')) return;
     try { await fetch('/api/messages/' + encodeURIComponent(id) + '?token=' + encodeURIComponent(adminToken), { method:'DELETE' }); } catch(e){}
     loadMessages();
+  }
+
+  // ── AI CHAT LOGS ─────────────────────────────────────────
+  let chatLogsCache = [];
+  async function loadChatLogs() {
+    var list = document.getElementById('chatList');
+    if (!list) return;
+    list.innerHTML = '<div style="color:var(--muted);font-size:.85rem;">Loading…</div>';
+    try {
+      var res = await fetch('/api/chat-logs?token=' + encodeURIComponent(adminToken));
+      var convos = await res.json();
+      chatLogsCache = Array.isArray(convos) ? convos : [];
+      if (!chatLogsCache.length) {
+        list.innerHTML = '<div style="color:var(--muted);font-size:.9rem;padding:20px 0;">Nicio conversație încă.</div>';
+        document.getElementById('chatDetail').innerHTML = 'Selectează o conversație din stânga.';
+        return;
+      }
+      list.innerHTML = chatLogsCache.map(function(c){
+        var when = '';
+        try { when = new Date(c.updated).toLocaleString('en-GB'); } catch(e){}
+        return '<div onclick="viewChat(\'' + mEsc(c.id) + '\')" data-id="' + mEsc(c.id) + '" style="cursor:pointer;background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:12px 14px;transition:border-color .15s;" onmouseover="this.style.borderColor=\'var(--teal)\'" onmouseout="this.style.borderColor=\'var(--border-soft)\'">' +
+          '<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline;">' +
+            '<strong style="font-size:.85rem;color:var(--heading);">💬 ' + mEsc(c.count || 0) + ' mesaje</strong>' +
+            '<span style="font-size:.68rem;color:var(--muted);">' + mEsc(when) + '</span>' +
+          '</div>' +
+          '<div style="font-size:.82rem;color:var(--soft);margin-top:5px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + mEsc(c.preview || '—') + '</div>' +
+          '<div style="font-size:.66rem;color:var(--muted);margin-top:4px;">IP ' + mEsc(c.ip || '—') + '</div>' +
+        '</div>';
+      }).join('');
+    } catch(e) {
+      list.innerHTML = '<div style="color:#e74c3c;font-size:.85rem;">Eroare la încărcare.</div>';
+    }
+  }
+
+  async function viewChat(id) {
+    var box = document.getElementById('chatDetail');
+    box.innerHTML = '<div style="color:var(--muted);">Loading…</div>';
+    // highlight selection
+    document.querySelectorAll('#chatList [data-id]').forEach(function(el){
+      el.style.borderColor = el.getAttribute('data-id') === id ? 'var(--teal)' : 'var(--border-soft)';
+    });
+    try {
+      var res = await fetch('/api/chat-logs/' + encodeURIComponent(id) + '?token=' + encodeURIComponent(adminToken));
+      if (!res.ok) { box.innerHTML = '<div style="color:#e74c3c;">Nu s-a găsit.</div>'; return; }
+      var c = await res.json();
+      var started = '', updated = '';
+      try { started = new Date(c.started).toLocaleString('en-GB'); } catch(e){}
+      try { updated = new Date(c.updated).toLocaleString('en-GB'); } catch(e){}
+      var head = '<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--border-soft);padding-bottom:12px;margin-bottom:14px;">' +
+        '<div><strong style="color:var(--heading);">Conversație</strong>' +
+        '<div style="font-size:.72rem;color:var(--muted);margin-top:3px;">Început: ' + mEsc(started) + ' · Ultim: ' + mEsc(updated) + '<br>IP ' + mEsc(c.ip || '—') + (c.ref ? ' · de pe ' + mEsc(c.ref) : '') + '</div></div>' +
+        '<button onclick="deleteChatLog(\'' + mEsc(c.id) + '\')" style="font-size:.74rem;background:none;border:1px solid #e74c3c;color:#e74c3c;border-radius:6px;padding:5px 12px;cursor:pointer;">Șterge</button>' +
+      '</div>';
+      var msgs = (c.messages || []).map(function(m){
+        var isUser = m.role === 'user';
+        return '<div style="display:flex;justify-content:' + (isUser ? 'flex-end' : 'flex-start') + ';margin-bottom:8px;">' +
+          '<div style="max-width:78%;padding:9px 13px;border-radius:12px;font-size:.86rem;line-height:1.5;white-space:pre-wrap;' +
+            (isUser ? 'background:var(--teal);color:#04262a;border-bottom-right-radius:4px;' : 'background:var(--bg);border:1px solid var(--border-soft);color:var(--text);border-bottom-left-radius:4px;') + '">' +
+            '<div style="font-size:.62rem;opacity:.7;margin-bottom:2px;">' + (isUser ? 'Vizitator' : 'AI') + '</div>' +
+            mEsc(m.content) + '</div></div>';
+      }).join('');
+      box.innerHTML = head + '<div style="max-height:60vh;overflow-y:auto;">' + msgs + '</div>';
+    } catch(e) {
+      box.innerHTML = '<div style="color:#e74c3c;">Eroare la încărcare.</div>';
+    }
+  }
+
+  async function deleteChatLog(id) {
+    if (!confirm('Ștergi această conversație?')) return;
+    try { await fetch('/api/chat-logs/' + encodeURIComponent(id) + '?token=' + encodeURIComponent(adminToken), { method:'DELETE' }); } catch(e){}
+    document.getElementById('chatDetail').innerHTML = 'Selectează o conversație din stânga.';
+    loadChatLogs();
+  }
+
+  async function clearChatLogs() {
+    if (!confirm('Ștergi TOATE conversațiile AI? Acțiunea nu poate fi anulată.')) return;
+    try { await fetch('/api/chat-logs?token=' + encodeURIComponent(adminToken), { method:'DELETE' }); } catch(e){}
+    loadChatLogs();
   }
 
   async function fetchBookings(isLogin = false) {

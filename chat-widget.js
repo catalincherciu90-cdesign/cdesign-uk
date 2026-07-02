@@ -23,6 +23,18 @@
   var history = [];
   var busy = false;
 
+  // Stable conversation id so all messages group into one thread in admin.
+  var cid = '';
+  try {
+    cid = localStorage.getItem('cd_chat_cid') || '';
+    if (!cid) {
+      cid = 'c_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+      localStorage.setItem('cd_chat_cid', cid);
+    }
+  } catch (e) {
+    cid = 'c_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
   var css = [
     '.cdchat-btn{position:fixed;right:20px;bottom:20px;z-index:99998;width:60px;height:60px;border-radius:50%;',
     'background:' + ACCENT + ';color:#fff;border:none;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.22);',
@@ -166,7 +178,7 @@
     fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: history })
+      body: JSON.stringify({ messages: history, cid: cid })
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {
