@@ -469,7 +469,7 @@
 
   <div class="tabs">
     <button class="tab active" onclick="switchTab('gibilan',this)">&#x1F916; Wizi</button>
-    <button class="tab" onclick="switchTab('messages',this)">&#x1F4AC; Mesaje</button>
+    <button class="tab" onclick="switchTab('messages',this)">&#x1F4AC; Mesaje<span id="msgTabBadge" class="tab-badge" style="display:none;"></span></button>
     <button class="tab" onclick="switchTab('chat',this)">&#x1F916; AI Chat<span id="chatTabBadge" class="tab-badge" style="display:none;"></span></button>
     <button class="tab" onclick="switchTab('projects',this)">&#x1F5BC; Portfolio</button>
     <button class="tab" onclick="switchTab('clients',this)">&#x1F465; Clients</button>
@@ -2584,6 +2584,7 @@
     if (can('theme')) fetchTheme();
     if (can('expenses')) fetchCheltuieli();
     if (can('chat')) refreshChatBadge();
+    if (can('messages')) refreshMsgBadge();
   }
 
   // Auto-login din localStorage dacă există token salvat
@@ -2845,6 +2846,7 @@
       var res = await fetch('/api/messages?token=' + encodeURIComponent(adminToken));
       var msgs = await res.json();
       window.__msgsCache = Array.isArray(msgs) ? msgs : [];
+      updateMsgBadge(window.__msgsCache);
       if (!Array.isArray(msgs) || !msgs.length) {
         list.innerHTML = '<div style="color:var(--muted);font-size:.9rem;padding:20px 0;">No messages yet.</div>';
         return;
@@ -2922,6 +2924,23 @@
       var convos = await res.json();
       chatLogsCache = Array.isArray(convos) ? convos : [];
       updateChatBadge();
+    } catch(e) {}
+  }
+  // ── Messages badge (unread count) ─────────────────────────
+  function updateMsgBadge(msgs) {
+    var badge = document.getElementById('msgTabBadge');
+    if (!badge) return;
+    var n = (Array.isArray(msgs) ? msgs : []).filter(function(m){ return m && !m.read; }).length;
+    if (n > 0) { badge.textContent = n > 99 ? '99+' : n; badge.style.display = 'inline-block'; }
+    else { badge.style.display = 'none'; }
+  }
+  async function refreshMsgBadge() {
+    if (!can('messages')) return;
+    try {
+      var res = await fetch('/api/messages?token=' + encodeURIComponent(adminToken));
+      var msgs = await res.json();
+      window.__msgsCache = Array.isArray(msgs) ? msgs : [];
+      updateMsgBadge(window.__msgsCache);
     } catch(e) {}
   }
   function renderChatList() {
