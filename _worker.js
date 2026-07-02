@@ -135,7 +135,7 @@ article{padding:64px 0 90px}
   </div>
 </nav>
 <div class="mobile-menu" id="mobileMenu">
-  <a href="/">Home</a><a href="/services">Services</a><a href="/#about">About Us</a><a href="/blog">Blog</a>
+  <a href="/">Home</a><a href="/services">Services</a><a href="/pricing">Plans &amp; Pricing</a><a href="/#about">About Us</a><a href="/blog">Blog</a>
   <a href="tel:+447312799449">+44 7312 799449</a><a href="/pricing" class="btn-nav">Get Started</a>
 </div>
 <main>
