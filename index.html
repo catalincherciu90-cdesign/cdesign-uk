@@ -273,6 +273,22 @@
     .btn-primary,.btn-ghost{width:100%;justify-content:center}
   }
 .help-cta{display:inline-block;margin-top:12px;font-family:'Poppins',sans-serif;font-weight:600;font-size:.86rem;color:var(--blue);transition:color .15s}.help-cta:hover{color:var(--blue-dk)}
+  .home-blog{background:#fff;padding:100px 24px}
+  .home-blog .demos-head{text-align:center;max-width:700px;margin:0 auto 54px}
+  .home-blog .demos-head .eyebrow{justify-content:center}
+  .home-blog .demos-head h2{font-family:'Poppins',sans-serif;font-weight:300;font-size:clamp(1.9rem,3.4vw,2.9rem);color:var(--ink);letter-spacing:-.02em;line-height:1.12}
+  .home-blog .demos-head h2 b{font-weight:700}
+  .home-blog .demos-head p{margin-top:14px;color:var(--body);font-size:1.05rem;line-height:1.7}
+  .blog-grid{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+  .blog-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:30px 28px;display:flex;flex-direction:column;color:inherit;transition:transform .2s,box-shadow .2s,border-color .2s}
+  .blog-card:hover{transform:translateY(-6px);box-shadow:0 24px 50px -24px rgba(30,50,90,.3);border-color:transparent}
+  .blog-card .b-date{font-family:'Poppins',sans-serif;font-size:.76rem;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:12px}
+  .blog-card h3{font-family:'Poppins',sans-serif;font-weight:600;font-size:1.18rem;color:var(--ink);margin-bottom:10px;line-height:1.32}
+  .blog-card p{font-size:.95rem;line-height:1.6;color:var(--body);flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .blog-card .b-more{margin-top:16px;font-family:'Poppins',sans-serif;font-weight:600;font-size:.9rem;color:var(--blue)}
+  .blog-card:hover .b-more{color:var(--blue-dk)}
+  @media(max-width:920px){.blog-grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:640px){.blog-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -455,6 +471,19 @@
     <div class="demo-grid" id="demoGrid"></div>
     <div style="text-align:center;margin-top:46px">
       <a href="/demos" class="btn-primary">View all demos <span class="arr">→</span></a>
+    </div>
+  </section>
+
+  <!-- LATEST BLOG -->
+  <section class="home-blog" id="homeBlog" style="display:none">
+    <div class="demos-head">
+      <span class="eyebrow">From the blog</span>
+      <h2>Latest <b>articles</b> &amp; insights</h2>
+      <p>Practical tips on web design, SEO and growing your business online.</p>
+    </div>
+    <div class="blog-grid" id="homeBlogGrid"></div>
+    <div style="text-align:center;margin-top:46px">
+      <a href="/blog" class="btn-primary">View all articles <span class="arr">→</span></a>
     </div>
   </section>
 
@@ -712,6 +741,31 @@
       dotEls.forEach(function(dot){ dot.addEventListener('click', function(){ go(+dot.getAttribute('data-i')); stop(); start(); }); });
       if(!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) start();
     }
+  </script>
+<script>
+    // Latest 3 published blog articles (auto-updates as you publish more)
+    (function(){
+      var grid = document.getElementById('homeBlogGrid');
+      var section = document.getElementById('homeBlog');
+      if(!grid || !section) return;
+      function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+      function fmt(d){ try{ return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }catch(e){ return ''; } }
+      fetch('/api/blog')
+        .then(function(r){ return r.ok ? r.json() : []; })
+        .then(function(posts){
+          if(!Array.isArray(posts) || !posts.length) return;
+          grid.innerHTML = posts.slice(0,3).map(function(p){
+            return '<a class="blog-card" href="/blog/' + encodeURIComponent(p.slug) + '">'
+              + '<div class="b-date">' + esc(fmt(p.createdAt)) + '</div>'
+              + '<h3>' + esc(p.title) + '</h3>'
+              + '<p>' + esc(p.excerpt || '') + '</p>'
+              + '<span class="b-more">Read article →</span>'
+              + '</a>';
+          }).join('');
+          section.style.display = 'block';
+        })
+        .catch(function(){});
+    })();
   </script>
 <script src="/chat-widget.js" defer></script>
 </body>
