@@ -54,6 +54,7 @@
     .tab{font-family:'Share Tech Mono',monospace;font-size:.8rem;padding:12px 16px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:all .2s;background:none;border-left:none;border-right:none;border-top:none;white-space:nowrap;flex-shrink:0;}
     .tab:hover{color:var(--soft);}
     .tab.active{color:var(--teal);border-bottom-color:var(--teal);}
+    .tab-badge{display:inline-block;margin-left:6px;min-width:17px;height:17px;line-height:17px;padding:0 5px;border-radius:9px;background:#e74c3c;color:#fff;font-family:'Share Tech Mono',monospace;font-size:.62rem;font-weight:700;text-align:center;vertical-align:middle;}
     .tab-panel{display:none;}.tab-panel.active{display:block;}
 
     .main{max-width:1200px;margin:0 auto;padding:32px 24px;}
@@ -460,7 +461,7 @@
     <button class="tab active" onclick="switchTab('gibilan',this)">&#x1F916; Wizi</button>
     <button class="tab" onclick="switchTab('bookings',this)">&#x1F4C5; Bookings</button>
     <button class="tab" onclick="switchTab('messages',this)">&#x1F4AC; Mesaje</button>
-    <button class="tab" onclick="switchTab('chat',this)">&#x1F916; AI Chat</button>
+    <button class="tab" onclick="switchTab('chat',this)">&#x1F916; AI Chat<span id="chatTabBadge" class="tab-badge" style="display:none;"></span></button>
     <button class="tab" onclick="switchTab('projects',this)">&#x1F5BC; Portfolio</button>
     <button class="tab" onclick="switchTab('clients',this)">&#x1F465; Clients</button>
     <button class="tab" onclick="switchTab('crm',this)">&#x1F4CB; CRM &amp; Quotes</button>
@@ -2619,6 +2620,7 @@
     if (can('clients')) fetchClients();
     if (can('theme')) fetchTheme();
     if (can('expenses')) fetchCheltuieli();
+    if (can('chat')) refreshChatBadge();
   }
 
   // Auto-login din localStorage dacă există token salvat
@@ -2921,6 +2923,51 @@
     if (!n && n !== 0) return '#—';
     return '#' + String(n).padStart(4, '0');
   }
+  // Track which conversations (and at which update state) have been seen — per browser.
+  function chatSeenMap() {
+    try { return JSON.parse(localStorage.getItem('cd_chat_seen') || '{}') || {}; } catch(e) { return {}; }
+  }
+  function chatSaveSeen(map) {
+    try { localStorage.setItem('cd_chat_seen', JSON.stringify(map)); } catch(e) {}
+  }
+  function chatIsNew(c, seen) { return !c || seen[c.id] !== c.updated; }
+  function updateChatBadge() {
+    var badge = document.getElementById('chatTabBadge');
+    if (!badge) return;
+    var seen = chatSeenMap();
+    var n = chatLogsCache.filter(function(c){ return chatIsNew(c, seen); }).length;
+    if (n > 0) { badge.textContent = n > 99 ? '99+' : n; badge.style.display = 'inline-block'; }
+    else { badge.style.display = 'none'; }
+  }
+  // Fetch the index quietly (used at login to show the badge before opening the tab).
+  async function refreshChatBadge() {
+    if (!can('chat')) return;
+    try {
+      var res = await fetch('/api/chat-logs?token=' + encodeURIComponent(adminToken));
+      var convos = await res.json();
+      chatLogsCache = Array.isArray(convos) ? convos : [];
+      updateChatBadge();
+    } catch(e) {}
+  }
+  function renderChatList() {
+    var list = document.getElementById('chatList');
+    if (!list) return;
+    var seen = chatSeenMap();
+    list.innerHTML = chatLogsCache.map(function(c){
+      var when = '';
+      try { when = new Date(c.updated).toLocaleString('en-GB'); } catch(e){}
+      var isNew = chatIsNew(c, seen);
+      return '<div onclick="viewChat(\'' + mEsc(c.id) + '\')" data-id="' + mEsc(c.id) + '" style="cursor:pointer;background:var(--bg2);border:1px solid ' + (isNew ? 'var(--teal)' : 'var(--border-soft)') + ';border-radius:10px;padding:12px 14px;transition:border-color .15s;" onmouseover="this.style.borderColor=\'var(--teal)\'" onmouseout="this.style.borderColor=\'' + (isNew ? 'var(--teal)' : 'var(--border-soft)') + '\'">' +
+        '<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline;">' +
+          '<strong style="font-size:.85rem;color:var(--heading);">' + chatRef(c.num) + (isNew ? ' <span style="color:var(--teal);font-size:.7rem;">● NEW</span>' : '') + ' <span style="font-weight:400;color:var(--soft);">· 💬 ' + mEsc(c.count || 0) + '</span></strong>' +
+          '<span style="font-size:.68rem;color:var(--muted);">' + mEsc(when) + '</span>' +
+        '</div>' +
+        '<div style="font-size:.82rem;color:var(--soft);margin-top:5px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + mEsc(c.preview || '—') + '</div>' +
+        '<div style="font-size:.66rem;color:var(--muted);margin-top:4px;">IP ' + mEsc(c.ip || '—') + '</div>' +
+      '</div>';
+    }).join('');
+    updateChatBadge();
+  }
   async function loadChatLogs() {
     var list = document.getElementById('chatList');
     if (!list) return;
@@ -2932,20 +2979,10 @@
       if (!chatLogsCache.length) {
         list.innerHTML = '<div style="color:var(--muted);font-size:.9rem;padding:20px 0;">Nicio conversație încă.</div>';
         document.getElementById('chatDetail').innerHTML = 'Selectează o conversație din stânga.';
+        updateChatBadge();
         return;
       }
-      list.innerHTML = chatLogsCache.map(function(c){
-        var when = '';
-        try { when = new Date(c.updated).toLocaleString('en-GB'); } catch(e){}
-        return '<div onclick="viewChat(\'' + mEsc(c.id) + '\')" data-id="' + mEsc(c.id) + '" style="cursor:pointer;background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:12px 14px;transition:border-color .15s;" onmouseover="this.style.borderColor=\'var(--teal)\'" onmouseout="this.style.borderColor=\'var(--border-soft)\'">' +
-          '<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline;">' +
-            '<strong style="font-size:.85rem;color:var(--heading);">' + chatRef(c.num) + ' <span style="font-weight:400;color:var(--soft);">· 💬 ' + mEsc(c.count || 0) + '</span></strong>' +
-            '<span style="font-size:.68rem;color:var(--muted);">' + mEsc(when) + '</span>' +
-          '</div>' +
-          '<div style="font-size:.82rem;color:var(--soft);margin-top:5px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + mEsc(c.preview || '—') + '</div>' +
-          '<div style="font-size:.66rem;color:var(--muted);margin-top:4px;">IP ' + mEsc(c.ip || '—') + '</div>' +
-        '</div>';
-      }).join('');
+      renderChatList();
     } catch(e) {
       list.innerHTML = '<div style="color:#e74c3c;font-size:.85rem;">Eroare la încărcare.</div>';
     }
@@ -2979,6 +3016,11 @@
             mEsc(m.content) + '</div></div>';
       }).join('');
       box.innerHTML = head + '<div style="max-height:60vh;overflow-y:auto;">' + msgs + '</div>';
+      // Mark this conversation as seen at its current update state, then refresh the list.
+      var seen = chatSeenMap();
+      seen[c.id] = c.updated;
+      chatSaveSeen(seen);
+      renderChatList();
     } catch(e) {
       box.innerHTML = '<div style="color:#e74c3c;">Eroare la încărcare.</div>';
     }
