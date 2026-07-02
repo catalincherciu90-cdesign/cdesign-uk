@@ -717,6 +717,32 @@ function can(authed, section) {
   return perms.includes(section);
 }
 
+// Shared text completion helper: Groq primary, Cloudflare Workers AI fallback.
+async function aiComplete(env, messages, maxTokens) {
+  let reply = '';
+  if (env.GROQ_API_KEY) {
+    try {
+      const gr = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + env.GROQ_API_KEY },
+        body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages, max_tokens: maxTokens || 700, temperature: 0.6 })
+      });
+      if (gr.ok) {
+        const d = await gr.json();
+        reply = (d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) ? String(d.choices[0].message.content).trim() : '';
+      }
+    } catch (e) { /* fall through */ }
+  }
+  if (!reply && env.AI) {
+    try {
+      const ai = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', { messages, max_tokens: maxTokens || 700 });
+      const r = ai && ai.response !== undefined ? ai.response : ai;
+      reply = (typeof r === 'string' ? r : JSON.stringify(r == null ? '' : r)).trim();
+    } catch (e) { /* fall through */ }
+  }
+  return reply;
+}
+
 function buildMaintenancePage(m) {
   const title   = m.title   || 'Site under construction';
   const message = m.message || 'We\'ll be back soon with something new!';
@@ -2702,6 +2728,55 @@ export default {
         await env.PROGRAMARI.put('__chatlogs__', JSON.stringify([]));
         return json({ success: true });
       } catch { return json({ error: 'Server error' }, 500); }
+    }
+
+    // ── AI ASSISTANTS (admin helpers) ─────────────────────────
+
+    if (path === '/api/ai-assist' && request.method === 'POST') {
+      if (!authed) return json({ error: 'Unauthorised' }, 401, request);
+      try {
+        const body = await request.json().catch(() => ({}));
+        const task = String(body.task || '');
+        const input = String(body.input || '').slice(0, 4000);
+        const platform = String(body.platform || '').slice(0, 40);
+        if (!input.trim()) return json({ error: 'Please provide some input.' }, 400, request);
+
+        const brand = 'C Design is a UK web design studio: modern fast websites & web apps, e-commerce (WooCommerce, Shopify, PrestaShop), custom web apps, AI integration, SEO, social media and branding. Honest fixed pricing, most projects live in ~14 days. Phone +44 7312 799449. British English spelling. Use £ for money.';
+        let section = '', system = '', user = '', maxTokens = 700;
+
+        if (task === 'reply') {
+          section = 'messages';
+          system = 'You are Mihai, a senior copywriter and client-facing communicator for ' + brand + ' Write warm, clear, professional replies to prospective customers. No fluff, no over-promising, no exact final prices (offer a call or a quote instead). Sign off as "The C Design team".';
+          user = 'A visitor sent us this enquiry. Draft a ready-to-send reply (British English):\n\n"' + input + '"';
+          maxTokens = 500;
+        } else if (task === 'social') {
+          section = 'social';
+          system = 'You are Ion, a social media manager for ' + brand + ' You write scroll-stopping, on-brand posts for UK small businesses.';
+          user = 'Write a social media post for ' + (platform || 'Facebook') + ' about: "' + input + '".\n'
+            + 'Requirements: a strong hook, 2-4 short lines of value, one clear call to action, and 5-8 relevant hashtags at the end. Match the tone/length to the platform. Return just the post text.';
+          maxTokens = 500;
+        } else if (task === 'quote') {
+          section = 'oferte';
+          system = 'You are Ioana, a pricing & sales specialist for ' + brand + ' You turn a client brief into a clear, persuasive quote/offer.';
+          user = 'Draft a professional quote/offer for this client request: "' + input + '".\n'
+            + 'Include: a short intro line, a recommended package with bullet points of what is included, an estimated timeline, and a price range in £ (ranges only, not a fixed final price), then a next-step call to action (a call or confirming the quote). Keep it concise and client-ready.';
+          maxTokens = 700;
+        } else {
+          return json({ error: 'Unknown task' }, 400, request);
+        }
+
+        if (!can(authed, section)) return json({ error: 'Unauthorised' }, 401, request);
+
+        const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+        const allowed = await checkRateLimit(env, 'aiassist_' + ip, 40, 3600);
+        if (!allowed) return json({ error: 'Too many AI requests — please try again a little later.' }, 429, request);
+
+        const text = await aiComplete(env, [{ role: 'system', content: system }, { role: 'user', content: user }], maxTokens);
+        if (!text) return json({ error: 'The AI could not generate a response right now. Please try again.' }, 500, request);
+        return json({ text }, 200, request);
+      } catch (e) {
+        return json({ error: 'Generation error' }, 500, request);
+      }
     }
 
     // ── PROJECTS ──────────────────────────────────────────────

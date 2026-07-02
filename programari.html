@@ -1100,7 +1100,10 @@
     <div class="main">
       <div class="proj-toolbar">
         <h3>// social_media — active accounts</h3>
-        <button class="btn-add" onclick="saveSocial()">&#x2713; Save</button>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-add" onclick="socialAiGenerate()" style="background:rgba(0,168,168,.12);border:1px solid var(--teal);color:var(--teal);">✨ AI post</button>
+          <button class="btn-add" onclick="saveSocial()">&#x2713; Save</button>
+        </div>
       </div>
       <div class="table-wrap" style="padding:8px 0;" id="socialList"><div class="loading">Loading...</div></div>
     </div>
@@ -2089,7 +2092,9 @@
               </div>
 
               <div class="f-group">
-                <label class="f-label">// notes / conditions</label>
+                <label class="f-label" style="display:flex;justify-content:space-between;align-items:center;gap:8px;">// notes / conditions
+                  <button type="button" onclick="quoteAiGenerate()" style="font-size:.7rem;background:rgba(0,168,168,.12);border:1px solid var(--teal);color:var(--teal);border-radius:6px;padding:4px 10px;cursor:pointer;">✨ AI draft</button>
+                </label>
                 <textarea class="f-input" id="oferta-note" placeholder="e.g. Prices exclude VAT. 50% deposit required." style="min-height:70px;font-size:.85rem;"></textarea>
               </div>
 
@@ -2461,6 +2466,41 @@
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeBlogModal()">Cancel</button>
       <button class="btn-save" id="blogSaveBtn" onclick="saveBlog()">Save &#x2192;</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AI ASSIST (shared: reply / social / quote) -->
+<div class="modal-overlay" id="aiAssistOverlay">
+  <div class="modal" style="max-width:640px;">
+    <h3 id="aiAssistTitle">✨ AI Assistant</h3>
+    <p id="aiAssistSub" style="font-size:.8rem;color:var(--muted);margin:6px 0 14px;"></p>
+    <div id="aiAssistPlatformRow" style="display:none;margin-bottom:12px;">
+      <label style="font-size:.75rem;color:var(--soft);display:block;margin-bottom:5px;">Platform</label>
+      <select class="f-select" id="aiAssistPlatform">
+        <option value="Facebook">Facebook</option>
+        <option value="Instagram">Instagram</option>
+        <option value="LinkedIn">LinkedIn</option>
+        <option value="X (Twitter)">X (Twitter)</option>
+        <option value="TikTok">TikTok</option>
+      </select>
+    </div>
+    <label style="font-size:.75rem;color:var(--soft);display:block;margin-bottom:5px;" id="aiAssistInputLabel">Input</label>
+    <textarea class="f-input" id="aiAssistInput" style="min-height:90px;"></textarea>
+    <div style="display:flex;gap:8px;margin:10px 0 4px;">
+      <button class="btn-save" id="aiAssistGenBtn" onclick="runAiAssist()">✨ Generate</button>
+      <span id="aiAssistStatus" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;align-self:center;"></span>
+    </div>
+    <div id="aiAssistResultWrap" style="display:none;margin-top:12px;">
+      <label style="font-size:.75rem;color:var(--soft);display:block;margin-bottom:5px;">Result</label>
+      <textarea class="f-input" id="aiAssistResult" style="min-height:180px;white-space:pre-wrap;"></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="btn-save" onclick="copyAiAssist()" style="background:var(--teal);">📋 Copy</button>
+        <button class="btn-cancel" onclick="runAiAssist()">↻ Regenerate</button>
+      </div>
+    </div>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn-cancel" onclick="closeAiAssist()">Close</button>
     </div>
   </div>
 </div>
@@ -2886,6 +2926,7 @@
     try {
       var res = await fetch('/api/messages?token=' + encodeURIComponent(adminToken));
       var msgs = await res.json();
+      window.__msgsCache = Array.isArray(msgs) ? msgs : [];
       if (!Array.isArray(msgs) || !msgs.length) {
         list.innerHTML = '<div style="color:var(--muted);font-size:.9rem;padding:20px 0;">No messages yet.</div>';
         return;
@@ -2903,6 +2944,7 @@
             ((m.date||m.time) ? ' &nbsp;·&nbsp; 📅 ' + mEsc(m.date) + ' ' + mEsc(m.time) : '') + '</div>' +
           (m.message ? '<div style="font-size:.9rem;color:var(--text);margin-top:10px;line-height:1.55;white-space:pre-wrap;">' + mEsc(m.message) + '</div>' : '') +
           '<div style="display:flex;gap:8px;margin-top:12px;">' +
+            '<button onclick="draftReplyFor(\'' + mEsc(m.id) + '\')" style="font-size:.76rem;background:rgba(0,168,168,.12);border:1px solid var(--teal);color:var(--teal);border-radius:6px;padding:5px 12px;cursor:pointer;">✨ Draft reply</button>' +
             '<a href="https://wa.me/' + mEsc(String(m.phone).replace(/[^0-9]/g,'')) + '" target="_blank" rel="noopener" style="font-size:.76rem;background:rgba(43,229,255,.1);border:1px solid var(--teal-border);color:var(--teal);border-radius:6px;padding:5px 12px;text-decoration:none;">WhatsApp</a>' +
             '<button onclick="toggleMessageRead(\'' + mEsc(m.id) + '\',' + (m.read ? 'false' : 'true') + ')" style="font-size:.76rem;background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:5px 12px;cursor:pointer;">' + (m.read ? 'Mark unread' : 'Mark read') + '</button>' +
             '<button onclick="deleteMessage(\'' + mEsc(m.id) + '\')" style="font-size:.76rem;background:none;border:1px solid #e74c3c;color:#e74c3c;border-radius:6px;padding:5px 12px;cursor:pointer;">Delete</button>' +
@@ -2921,6 +2963,15 @@
     if (!confirm('Delete this message?')) return;
     try { await fetch('/api/messages/' + encodeURIComponent(id) + '?token=' + encodeURIComponent(adminToken), { method:'DELETE' }); } catch(e){}
     loadMessages();
+  }
+  function draftReplyFor(id) {
+    var m = (window.__msgsCache || []).find(function(x){ return x.id === id; });
+    if (!m) return;
+    var ctx = 'Name: ' + (m.name || '') + '\n'
+      + (m.service ? 'Interested in: ' + m.service + '\n' : '')
+      + ((m.date || m.time) ? 'Preferred date/time: ' + (m.date || '') + ' ' + (m.time || '') + '\n' : '')
+      + (m.message ? 'Message: ' + m.message : 'Message: (no message text — they left contact details for a call-back)');
+    openAiAssist('reply', ctx);
   }
 
   // ── AI CHAT LOGS ─────────────────────────────────────────
@@ -3043,6 +3094,77 @@
     if (!confirm('Ștergi TOATE conversațiile AI? Acțiunea nu poate fi anulată.')) return;
     try { await fetch('/api/chat-logs?token=' + encodeURIComponent(adminToken), { method:'DELETE' }); } catch(e){}
     loadChatLogs();
+  }
+
+  // ── SHARED AI ASSISTANTS (reply / social / quote) ─────────
+  let aiAssistTask = '';
+  const AI_ASSIST_META = {
+    reply:  { title: '💬 Draft reply (Mihai)',  sub: 'Suggests a professional reply to a customer enquiry. Review before sending.', label: 'Customer message', platform: false },
+    social: { title: '📱 Social post (Ion)',     sub: 'Generates an on-brand post with hashtags for the chosen platform.',        label: 'What is the post about?', platform: true },
+    quote:  { title: '📋 Draft offer (Ioana)',   sub: 'Turns a client brief into a client-ready quote with a package and price range.', label: 'Client request / brief', platform: false }
+  };
+  function openAiAssist(task, prefill) {
+    aiAssistTask = task;
+    var m = AI_ASSIST_META[task] || {};
+    document.getElementById('aiAssistTitle').textContent = m.title || '✨ AI Assistant';
+    document.getElementById('aiAssistSub').textContent = m.sub || '';
+    document.getElementById('aiAssistInputLabel').textContent = m.label || 'Input';
+    document.getElementById('aiAssistPlatformRow').style.display = m.platform ? 'block' : 'none';
+    document.getElementById('aiAssistInput').value = prefill || '';
+    document.getElementById('aiAssistResult').value = '';
+    document.getElementById('aiAssistResultWrap').style.display = 'none';
+    document.getElementById('aiAssistStatus').textContent = '';
+    document.getElementById('aiAssistGenBtn').disabled = false;
+    document.getElementById('aiAssistGenBtn').textContent = '✨ Generate';
+    document.getElementById('aiAssistOverlay').classList.add('open');
+    if (!prefill) document.getElementById('aiAssistInput').focus();
+  }
+  function closeAiAssist() { document.getElementById('aiAssistOverlay').classList.remove('open'); }
+  async function runAiAssist() {
+    var input = document.getElementById('aiAssistInput').value.trim();
+    if (!input) { alert('Please enter some input first.'); return; }
+    var btn = document.getElementById('aiAssistGenBtn');
+    var status = document.getElementById('aiAssistStatus');
+    btn.disabled = true; btn.textContent = '⏳ Working…';
+    status.style.color = 'var(--teal)'; status.textContent = '// generating…';
+    var payload = { task: aiAssistTask, input: input };
+    if (AI_ASSIST_META[aiAssistTask] && AI_ASSIST_META[aiAssistTask].platform) {
+      payload.platform = document.getElementById('aiAssistPlatform').value;
+    }
+    try {
+      var res = await fetch('/api/ai-assist?token=' + encodeURIComponent(adminToken), {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+      });
+      var data = await res.json();
+      if (!res.ok || !data.text) {
+        status.style.color = '#f87171'; status.textContent = '// ' + (data.error || 'error');
+      } else {
+        document.getElementById('aiAssistResult').value = data.text;
+        document.getElementById('aiAssistResultWrap').style.display = 'block';
+        status.style.color = '#4ade80'; status.textContent = '// ✓ done — review & edit';
+      }
+    } catch (e) {
+      status.style.color = '#f87171'; status.textContent = '// network error';
+    }
+    btn.disabled = false; btn.textContent = '✨ Regenerate';
+  }
+  function copyAiAssist() {
+    var t = document.getElementById('aiAssistResult');
+    t.select();
+    try {
+      if (navigator.clipboard) navigator.clipboard.writeText(t.value);
+      else document.execCommand('copy');
+      var s = document.getElementById('aiAssistStatus');
+      s.style.color = '#4ade80'; s.textContent = '// ✓ copied';
+    } catch (e) {}
+  }
+  function socialAiGenerate() {
+    openAiAssist('social', '');
+  }
+  function quoteAiGenerate() {
+    var brief = '';
+    try { brief = (document.getElementById('oferta-note').value || '').trim(); } catch(e){}
+    openAiAssist('quote', brief);
   }
 
   async function fetchBookings(isLogin = false) {
