@@ -197,6 +197,7 @@ const ham=document.getElementById('hamburger'),mob=document.getElementById('mobi
 ham.addEventListener('click',()=>{const o=mob.classList.toggle('open');ham.setAttribute('aria-expanded',o)});
 (function(){try{fetch('/api/site-settings').then(function(r){return r.ok?r.json():null;}).then(function(d){if(!d||!d.accentColor||!/^#[0-9a-fA-F]{6}$/.test(d.accentColor))return;var h=d.accentColor;function adj(hex,f){var n=parseInt(hex.slice(1),16),r=(n>>16)&255,g=(n>>8)&255,b=n&255;function m(x){return Math.max(0,Math.min(255,Math.round(f<0?x*(1+f):x+(255-x)*f)));}return '#'+((1<<24)+(m(r)<<16)+(m(g)<<8)+m(b)).toString(16).slice(1);}var s=document.documentElement.style;s.setProperty('--teal',h);s.setProperty('--teal-dk',adj(h,-0.18));}).catch(function(){});}catch(e){}})();
 <\/script>
+<script src="/chat-widget.js" defer><\/script>
 </body>
 </html>`;
 }
@@ -706,7 +707,7 @@ async function getAuth(url, env) {
 }
 
 // Sections a sub-admin can be granted access to.
-const ADMIN_SECTIONS = ['bookings', 'messages', 'gibilan', 'clients', 'crm', 'portfolio', 'blog', 'social', 'pages', 'media', 'theme', 'expenses', 'oferte', 'settings'];
+const ADMIN_SECTIONS = ['bookings', 'messages', 'chat', 'gibilan', 'clients', 'crm', 'portfolio', 'blog', 'social', 'pages', 'media', 'theme', 'expenses', 'oferte', 'settings'];
 
 // Authorisation: owner can do anything; sub-admins need the section in their perms.
 function can(authed, section) {
@@ -2545,6 +2546,153 @@ export default {
       const idx = raw ? JSON.parse(raw) : [];
       await env.PROGRAMARI.put('__messages__', JSON.stringify(idx.filter(x => x.id !== id)));
       return json({ success: true });
+    }
+
+    // ── AI CHAT (Groq primary + Cloudflare AI fallback) ───────
+
+    if (path === '/api/chat' && request.method === 'POST') {
+      const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+      const allowed = await checkRateLimit(env, 'chat_' + ip, 20, 3600);
+      if (!allowed) return json({ reply: "You've sent a lot of messages — please try again a little later, or use the contact form to reach us directly." }, 200, request);
+      try {
+        const body = await request.json().catch(() => ({}));
+        let history = Array.isArray(body.messages) ? body.messages : [];
+        // sanitise: keep only role/content, last 8 turns, cap length
+        history = history
+          .filter(m => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
+          .slice(-8)
+          .map(m => ({ role: m.role, content: m.content.slice(0, 1000) }));
+        if (!history.length || history[history.length - 1].role !== 'user') {
+          return json({ reply: 'Hi! How can I help you today?' }, 200, request);
+        }
+        const system = "You are the friendly assistant for C Design, a UK web design studio. You help website visitors. " +
+          "About C Design: we build modern, fast websites and web apps for small and growing UK businesses, with honest, fixed pricing and most projects live in about 14 days. " +
+          "Services: Website Design, E-commerce (WooCommerce, Shopify, PrestaShop), Custom Web Apps (CRM, WordPress plugins), AI Integration & Automation, Maintenance & Hosting, SEO & Local SEO, Social Media, Branding & Logo. " +
+          "Guidelines: Be concise, warm and helpful (2-4 sentences). Only discuss C Design, web design and the visitor's project. " +
+          "Never invent exact prices or timelines — for a precise quote, direct them to the quote form at /pricing. " +
+          "Encourage them to request a free quote (/pricing) or contact us (phone +44 7312 799449 or the contact form). " +
+          "If asked something off-topic, gently steer back to how C Design can help their business online.";
+        const messages = [{ role: 'system', content: system }].concat(history);
+        let reply = '';
+
+        // 1) Try Groq if a key is configured
+        if (env.GROQ_API_KEY) {
+          try {
+            const gr = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + env.GROQ_API_KEY },
+              body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages, max_tokens: 400, temperature: 0.5 })
+            });
+            if (gr.ok) {
+              const data = await gr.json();
+              reply = (data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) ? String(data.choices[0].message.content).trim() : '';
+            }
+          } catch (e) { /* fall through to Cloudflare AI */ }
+        }
+
+        // 2) Fallback to Cloudflare Workers AI
+        if (!reply && env.AI) {
+          try {
+            const ai = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', { messages, max_tokens: 400 });
+            const respRaw = ai && ai.response !== undefined ? ai.response : ai;
+            reply = (typeof respRaw === 'string' ? respRaw : JSON.stringify(respRaw ?? '')).trim();
+          } catch (e) { /* fall through */ }
+        }
+
+        if (!reply) reply = "Sorry, I couldn't process that just now. Please try again, or reach us via the contact form or on +44 7312 799449.";
+
+        // Persist the conversation so it can be reviewed from the admin panel.
+        try {
+          let cid = String(body.cid || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40);
+          if (!cid) cid = 'c_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+          // Full transcript = everything the client sent + this reply, capped.
+          const full = (Array.isArray(body.messages) ? body.messages : [])
+            .filter(m => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
+            .map(m => ({ role: m.role, content: m.content.slice(0, 2000) }))
+            .slice(-60);
+          full.push({ role: 'assistant', content: reply.slice(0, 2000) });
+          const key = 'chatlog_' + cid;
+          const existingRaw = await env.PROGRAMARI.get(key);
+          const existing = existingRaw ? JSON.parse(existingRaw) : null;
+          const now = new Date().toISOString();
+          const convo = {
+            id: cid,
+            ip: (existing && existing.ip) || ip,
+            ua: (request.headers.get('User-Agent') || '').slice(0, 200),
+            ref: (existing && existing.ref) || (request.headers.get('Referer') || '').slice(0, 200),
+            started: (existing && existing.started) || now,
+            updated: now,
+            messages: full,
+            count: full.length
+          };
+          await env.PROGRAMARI.put(key, JSON.stringify(convo));
+          // Maintain a lightweight index (newest first, capped).
+          const idxRaw = await env.PROGRAMARI.get('__chatlogs__');
+          let idx = idxRaw ? JSON.parse(idxRaw) : [];
+          idx = idx.filter(x => x.id !== cid);
+          const firstUser = full.find(m => m.role === 'user');
+          idx.unshift({
+            id: cid,
+            ip: convo.ip,
+            started: convo.started,
+            updated: convo.updated,
+            count: convo.count,
+            preview: (firstUser ? firstUser.content : '').slice(0, 120)
+          });
+          await env.PROGRAMARI.put('__chatlogs__', JSON.stringify(idx.slice(0, 400)));
+        } catch (e) { /* logging must never break the chat reply */ }
+
+        return json({ reply }, 200, request);
+      } catch {
+        return json({ reply: 'Something went wrong. Please use the contact form and we\'ll get right back to you.' }, 200, request);
+      }
+    }
+
+    // ── CHAT LOGS (admin) ─────────────────────────────────────
+
+    // List all conversations (index only — lightweight)
+    if (path === '/api/chat-logs' && request.method === 'GET') {
+      if (!can(authed, 'chat')) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const raw = await env.PROGRAMARI.get('__chatlogs__');
+        return json(raw ? JSON.parse(raw) : []);
+      } catch { return json([]); }
+    }
+
+    // Full transcript of one conversation
+    if (path.startsWith('/api/chat-logs/') && request.method === 'GET') {
+      if (!can(authed, 'chat')) return json({ error: 'Unauthorised' }, 401);
+      const id = path.replace('/api/chat-logs/', '').replace(/[^a-zA-Z0-9_-]/g, '');
+      try {
+        const raw = await env.PROGRAMARI.get('chatlog_' + id);
+        if (!raw) return json({ error: 'Not found' }, 404);
+        return json(JSON.parse(raw));
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+
+    // Delete one conversation
+    if (path.startsWith('/api/chat-logs/') && request.method === 'DELETE') {
+      if (!can(authed, 'chat')) return json({ error: 'Unauthorised' }, 401);
+      const id = path.replace('/api/chat-logs/', '').replace(/[^a-zA-Z0-9_-]/g, '');
+      try {
+        await env.PROGRAMARI.delete('chatlog_' + id);
+        const raw = await env.PROGRAMARI.get('__chatlogs__');
+        const idx = raw ? JSON.parse(raw) : [];
+        await env.PROGRAMARI.put('__chatlogs__', JSON.stringify(idx.filter(x => x.id !== id)));
+        return json({ success: true });
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+
+    // Clear all conversations
+    if (path === '/api/chat-logs' && request.method === 'DELETE') {
+      if (!can(authed, 'chat')) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const raw = await env.PROGRAMARI.get('__chatlogs__');
+        const idx = raw ? JSON.parse(raw) : [];
+        await Promise.all(idx.map(x => env.PROGRAMARI.delete('chatlog_' + x.id)));
+        await env.PROGRAMARI.put('__chatlogs__', JSON.stringify([]));
+        return json({ success: true });
+      } catch { return json({ error: 'Server error' }, 500); }
     }
 
     // ── PROJECTS ──────────────────────────────────────────────
