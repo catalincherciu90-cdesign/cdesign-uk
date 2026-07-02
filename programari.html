@@ -2917,6 +2917,10 @@
 
   // ── AI CHAT LOGS ─────────────────────────────────────────
   let chatLogsCache = [];
+  function chatRef(n) {
+    if (!n && n !== 0) return '#—';
+    return '#' + String(n).padStart(4, '0');
+  }
   async function loadChatLogs() {
     var list = document.getElementById('chatList');
     if (!list) return;
@@ -2935,7 +2939,7 @@
         try { when = new Date(c.updated).toLocaleString('en-GB'); } catch(e){}
         return '<div onclick="viewChat(\'' + mEsc(c.id) + '\')" data-id="' + mEsc(c.id) + '" style="cursor:pointer;background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:12px 14px;transition:border-color .15s;" onmouseover="this.style.borderColor=\'var(--teal)\'" onmouseout="this.style.borderColor=\'var(--border-soft)\'">' +
           '<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline;">' +
-            '<strong style="font-size:.85rem;color:var(--heading);">💬 ' + mEsc(c.count || 0) + ' mesaje</strong>' +
+            '<strong style="font-size:.85rem;color:var(--heading);">' + chatRef(c.num) + ' <span style="font-weight:400;color:var(--soft);">· 💬 ' + mEsc(c.count || 0) + '</span></strong>' +
             '<span style="font-size:.68rem;color:var(--muted);">' + mEsc(when) + '</span>' +
           '</div>' +
           '<div style="font-size:.82rem;color:var(--soft);margin-top:5px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + mEsc(c.preview || '—') + '</div>' +
@@ -2962,7 +2966,7 @@
       try { started = new Date(c.started).toLocaleString('en-GB'); } catch(e){}
       try { updated = new Date(c.updated).toLocaleString('en-GB'); } catch(e){}
       var head = '<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--border-soft);padding-bottom:12px;margin-bottom:14px;">' +
-        '<div><strong style="color:var(--heading);">Conversație</strong>' +
+        '<div><strong style="color:var(--heading);">Conversație ' + chatRef(c.num) + '</strong>' +
         '<div style="font-size:.72rem;color:var(--muted);margin-top:3px;">Început: ' + mEsc(started) + ' · Ultim: ' + mEsc(updated) + '<br>IP ' + mEsc(c.ip || '—') + (c.ref ? ' · de pe ' + mEsc(c.ref) : '') + '</div></div>' +
         '<button onclick="deleteChatLog(\'' + mEsc(c.id) + '\')" style="font-size:.74rem;background:none;border:1px solid #e74c3c;color:#e74c3c;border-radius:6px;padding:5px 12px;cursor:pointer;">Șterge</button>' +
       '</div>';
