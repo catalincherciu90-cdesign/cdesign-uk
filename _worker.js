@@ -2310,6 +2310,17 @@ export default {
       return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
     }
 
+    // Dedicated SEO service landing pages: /services/<slug>
+    if (path.startsWith('/services/')) {
+      const SERVICE_PAGES = ['website-design', 'ecommerce', 'web-apps', 'ai-integration', 'seo', 'social-media', 'hosting-maintenance', 'branding'];
+      const slug = path.replace('/services/', '').replace(/\/$/, '');
+      if (SERVICE_PAGES.includes(slug)) {
+        const assetUrl = new URL(request.url);
+        assetUrl.pathname = '/services/' + slug + '.html';
+        return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
+      }
+    }
+
     if (path === '/pricing' || path === '/pricing/') {
       const assetUrl = new URL(request.url);
       assetUrl.pathname = '/pricing.html';
