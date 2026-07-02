@@ -1010,10 +1010,17 @@
     <div class="main">
       <div class="proj-toolbar">
         <h3>// social_media — active accounts</h3>
-        <div style="display:flex;gap:8px;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <button class="btn-add" onclick="socialAiGenerate()" style="background:rgba(0,168,168,.12);border:1px solid var(--teal);color:var(--teal);">✨ AI post</button>
+          <button class="btn-add" onclick="socialPlanGenerate()" style="background:rgba(0,168,168,.12);border:1px solid var(--teal);color:var(--teal);">🗓 Content plan</button>
           <button class="btn-add" onclick="saveSocial()">&#x2713; Save</button>
         </div>
+      </div>
+      <!-- Repurpose a blog article into social posts -->
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 16px;padding:12px 14px;background:var(--bg3);border:1px solid var(--border-soft);border-radius:10px;">
+        <span style="font-family:'Share Tech Mono',monospace;font-size:.78rem;color:var(--soft);">// repurpose a blog article →</span>
+        <select class="f-input" id="socialBlogSel" style="margin-bottom:0;max-width:340px;flex:1;min-width:200px;"><option value="">Loading articles…</option></select>
+        <button class="btn-add" onclick="socialRepurpose()" style="background:rgba(0,168,168,.12);border:1px solid var(--teal);color:var(--teal);">♻ Turn into posts</button>
       </div>
       <div class="table-wrap" style="padding:8px 0;" id="socialList"><div class="loading">Loading...</div></div>
     </div>
@@ -2623,6 +2630,7 @@
     if (tab === 'gibilan') loadGibilan();
     if (tab === 'messages') loadMessages();
     if (tab === 'chat') loadChatLogs();
+    if (tab === 'social') loadSocialBlogSelect();
     if (tab === 'projects') fetchProjects();
     if (tab === 'crm') { fetchCrm(); loadGibilan(); }
     if (tab === 'clients') { fetchClients(); loadGibilan(); }
@@ -3011,6 +3019,8 @@
   const AI_ASSIST_META = {
     reply:  { title: '💬 Draft reply (Mihai)',  sub: 'Suggests a professional reply to a customer enquiry. Review before sending.', label: 'Customer message', platform: false },
     social: { title: '📱 Social post (Ion)',     sub: 'Generates an on-brand post with hashtags for the chosen platform.',        label: 'What is the post about?', platform: true },
+    'social-plan': { title: '🗓 Content plan (Ion)', sub: 'A month of 8 varied posts with captions, hashtags and visual ideas.', label: 'Business focus / theme (optional)', platform: true },
+    'social-repurpose': { title: '♻ Blog → social posts (Ion)', sub: 'Turns a blog article into posts for Facebook, Instagram & LinkedIn.', label: 'Article (auto-filled)', platform: false },
     quote:  { title: '📋 Draft offer (Ioana)',   sub: 'Turns a client brief into a client-ready quote with a package and price range.', label: 'Client request / brief', platform: false }
   };
   function openAiAssist(task, prefill) {
@@ -3070,6 +3080,34 @@
   }
   function socialAiGenerate() {
     openAiAssist('social', '');
+  }
+  function socialPlanGenerate() {
+    openAiAssist('social-plan', '');
+  }
+  // Populate the blog select in the Social tab with published articles
+  async function loadSocialBlogSelect() {
+    var sel = document.getElementById('socialBlogSel');
+    if (!sel) return;
+    try {
+      var res = await fetch('/api/blog?token=' + encodeURIComponent(adminToken));
+      var posts = await res.json();
+      var pub = (Array.isArray(posts) ? posts : []).filter(function(p){ return p.published; });
+      window.__socialBlogCache = pub;
+      if (!pub.length) { sel.innerHTML = '<option value="">No published articles yet</option>'; return; }
+      sel.innerHTML = '<option value="">— choose an article —</option>' + pub.map(function(p){
+        return '<option value="' + mEsc(p.id) + '">' + mEsc(p.title) + '</option>';
+      }).join('');
+    } catch(e) { sel.innerHTML = '<option value="">Error loading</option>'; }
+  }
+  function socialRepurpose() {
+    var sel = document.getElementById('socialBlogSel');
+    var id = sel ? sel.value : '';
+    if (!id) { alert('Choose a published article first.'); return; }
+    var p = (window.__socialBlogCache || []).find(function(x){ return x.id === id; });
+    if (!p) { alert('Article not found.'); return; }
+    var plain = String(p.content || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 2000);
+    var input = 'Title: ' + (p.title || '') + '\nSummary: ' + (p.excerpt || '') + '\nBody: ' + plain;
+    openAiAssist('social-repurpose', input);
   }
   function quoteAiGenerate() {
     var brief = '';
