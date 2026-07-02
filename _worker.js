@@ -177,7 +177,7 @@ article{padding:64px 0 90px}
     <div class="f-col">
       <h4>Company</h4>
       <a href="/#about">About Us</a>
-      <a href="/pricing">Pricing</a>
+      <a href="/pricing">Plans &amp; Pricing</a>
       <a href="/blog">Blog</a>
     </div>
     <div class="f-col">
