@@ -182,7 +182,7 @@ article{padding:64px 0 90px}
     </div>
     <div class="f-col">
       <h4>Areas we cover</h4>
-      <a href="/web-design-leeds">Web Design Leeds</a>
+      <a href="/web-design-leeds">Leeds</a>
       <a href="/web-design-sheffield">Sheffield</a>
       <a href="/web-design-nottingham">Nottingham</a>
       <a href="/web-design-derby">Derby</a>
