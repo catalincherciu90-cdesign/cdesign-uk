@@ -46,6 +46,12 @@
   .d-hero p{font-size:1.1rem;color:var(--body);max-width:600px;margin:0 auto;line-height:1.6}
   /* grid */
   .d-section{padding:56px 24px 100px}
+  .demo-filter{max-width:1180px;margin:0 auto 30px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+  .d-filter{font-family:'Poppins',sans-serif;font-weight:500;font-size:.88rem;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:9px 18px;cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:7px}
+  .d-filter span{font-size:.72rem;color:var(--muted);background:var(--bg-soft);border-radius:999px;padding:1px 7px}
+  .d-filter:hover{border-color:var(--teal)}
+  .d-filter.on{background:var(--teal);border-color:var(--teal);color:#fff}
+  .d-filter.on span{background:rgba(255,255,255,.25);color:#fff}
   .demo-grid{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
   .demo-card{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:20px;padding:30px 28px;transition:transform .2s,box-shadow .2s,border-color .2s}
   .demo-card:hover{transform:translateY(-6px);box-shadow:0 24px 50px -24px rgba(30,50,90,.3);border-color:transparent}
@@ -136,6 +142,7 @@
   </section>
 
   <section class="d-section">
+    <div class="demo-filter" id="demoFilter"></div>
     <div class="demo-grid" id="demoGrid"><div class="d-loading">Loading demos…</div></div>
   </section>
 
@@ -264,8 +271,28 @@
       };
       function demoIcon(d){ var m = String((d&&d.url)||'').match(/\/demos\/([a-z0-9-]+)\.html/); var t = (m && ADMIN_MAP[m[1]]) ? ADMIN_MAP[m[1]] : ''; return DEMO_ICONS[t] || DEMO_ICONS._generic; }
 
-    function render(items){
+    // industry → category
+    var CATS=[
+      {key:'',label:'All'},{key:'food',label:'Food & Drink'},{key:'retail',label:'Shops & Fashion'},
+      {key:'wellness',label:'Health & Wellness'},{key:'fitness',label:'Fitness'},
+      {key:'professional',label:'Professional'},{key:'trades',label:'Trades & Auto'},{key:'other',label:'Other'}
+    ];
+    var TYPE_CAT={restaurant:'food',cafe:'food',bakery:'food',shop:'retail',boutique:'retail',barber:'wellness',spa:'wellness',dental:'wellness',clinic:'wellness',gym:'fitness',yoga:'fitness',law:'professional',accounting:'professional',realestate:'professional',construction:'trades',plumbing:'trades',electrical:'trades',garage:'trades',photography:'other',cleaning:'other'};
+    function demoCat(d){ var m=String((d&&d.url)||'').match(/\/demos\/([a-z0-9-]+)\.html/); var t=(m&&ADMIN_MAP[m[1]])?ADMIN_MAP[m[1]]:''; return TYPE_CAT[t]||'other'; }
+    var allDemos=[], currentCat='';
+    function setDemoCat(k){ currentCat=k; renderChips(); renderGrid(); }
+    function renderChips(){
+      var bar=document.getElementById('demoFilter'); if(!bar) return;
+      bar.innerHTML=CATS.map(function(c){
+        var n=c.key?allDemos.filter(function(d){return demoCat(d)===c.key;}).length:allDemos.length;
+        if(c.key&&n===0) return '';
+        return '<button class="d-filter'+(c.key===currentCat?' on':'')+'" onclick="setDemoCat(\''+c.key+'\')">'+c.label+' <span>'+n+'</span></button>';
+      }).join('');
+    }
+    function renderGrid(){
       var grid=document.getElementById('demoGrid');
+      var items=currentCat?allDemos.filter(function(d){return demoCat(d)===currentCat;}):allDemos;
+      if(!items.length){ grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--body);padding:30px 0;">No demos in this category.</div>'; return; }
       grid.innerHTML=items.map(function(d){
         var tag=d.industry?'<span class="demo-tag">'+esc(d.industry)+'</span>':'';
         var tagline=d.tagline?'<p>'+esc(d.tagline)+'</p>':'<p></p>';
@@ -278,6 +305,7 @@
           +'<div class="demo-actions"><a class="demo-btn" href="'+esc(href)+'" target="_blank" rel="noopener">View demo →</a>'+admBtn+'</div></div>';
       }).join('');
     }
+    function render(items){ allDemos=Array.isArray(items)?items:[]; currentCat=''; renderChips(); renderGrid(); }
     fetch('/api/demos').then(function(r){return r.ok?r.json():[];}).then(function(list){
       if(Array.isArray(list)&&list.length){ render(list); return; }
       fetch('/api/site-settings').then(function(r){return r.ok?r.json():null;}).then(function(d){
