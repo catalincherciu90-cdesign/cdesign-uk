@@ -50,6 +50,7 @@
   .demo-card{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:20px;padding:30px 28px;transition:transform .2s,box-shadow .2s,border-color .2s}
   .demo-card:hover{transform:translateY(-6px);box-shadow:0 24px 50px -24px rgba(30,50,90,.3);border-color:transparent}
   .demo-emoji{width:60px;height:60px;border-radius:16px;background:linear-gradient(160deg,#ddf3f3,#c9ebeb);display:flex;align-items:center;justify-content:center;font-size:1.9rem;margin-bottom:20px}
+.demo-emoji svg{width:28px;height:28px;stroke:#008587;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
   .demo-card h3{font-family:'Poppins',sans-serif;font-weight:600;font-size:1.22rem;color:var(--ink);margin-bottom:8px}
   .demo-tag{align-self:flex-start;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--teal-dk);background:rgba(0,170,172,.10);padding:4px 10px;border-radius:20px;margin-bottom:14px}
   .demo-card p{font-size:.96rem;line-height:1.6;color:var(--body);margin-bottom:20px;flex:1}
@@ -238,6 +239,31 @@
     function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
     var ADMIN_MAP={'my-restaurant':'restaurant','my-cafe':'cafe','my-bakery':'bakery','my-shop':'shop','my-boutique':'boutique','my-barbershop':'barber','my-spa':'spa','my-dental-clinic':'dental','my-clinic':'clinic','my-gym':'gym','my-studio':'yoga','my-law-firm':'law','my-accounting':'accounting','my-estate-agency':'realestate','my-construction':'construction','my-plumbing':'plumbing','my-electrical':'electrical','my-garage':'garage','my-photography':'photography','my-cleaning':'cleaning','bella-cucina':'restaurant','brightsmile-dental':'dental','urban-threads':'shop'};
     function adminHref(url){var m=String(url||'').match(/\/demos\/([a-z0-9-]+)\.html/);return (m&&ADMIN_MAP[m[1]])?'/demos/admin-demo.html?type='+ADMIN_MAP[m[1]]:null;}
+      var DEMO_ICONS = {
+        restaurant: '<svg viewBox="0 0 24 24"><path d="M6 3v7a2 2 0 0 0 4 0V3M8 10v11M17 3c-1.5 0-2.5 1.5-2.5 4.5S15.5 12 17 12v9"/></svg>',
+        cafe: '<svg viewBox="0 0 24 24"><path d="M5 8h11v5a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V8Z"/><path d="M16 9h2a2 2 0 0 1 0 4h-2M8 3v2M11 3v2"/></svg>',
+        bakery: '<svg viewBox="0 0 24 24"><path d="M4 12a4 4 0 0 1 4-4h8a4 4 0 0 1 0 8H8a4 4 0 0 1-4-4Z"/><path d="M9 8v8M13 8v8"/></svg>',
+        shop: '<svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>',
+        boutique: '<svg viewBox="0 0 24 24"><path d="M12 5.5a1.8 1.8 0 1 1 1.2 1.7L12 8.5l9 6.5H3l9-6.5"/></svg>',
+        barber: '<svg viewBox="0 0 24 24"><circle cx="6" cy="7" r="2.3"/><circle cx="6" cy="17" r="2.3"/><path d="M8 8.5 20 17M8 15.5 20 7"/></svg>',
+        spa: '<svg viewBox="0 0 24 24"><path d="M12 13.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12 7.5V4M12 20v-3.5M9.9 10.1 7.4 7.6M16.6 16.4l-2.5-2.5M14.1 10.1l2.5-2.5M7.4 16.4l2.5-2.5"/></svg>',
+        dental: '<svg viewBox="0 0 24 24"><path d="M12 4.2c-1.8-1.4-4.6-1.4-6 .2S4.4 8.5 5.2 12s1.3 7 2.4 7 .9-3 2.1-3 1.2 3 2.3 3 1.4-3.5 2.2-7 .3-6-1.1-7.6-4.1-1.2-5.4.4Z"/></svg>',
+        clinic: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/></svg>',
+        gym: '<svg viewBox="0 0 24 24"><path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10"/></svg>',
+        yoga: '<svg viewBox="0 0 24 24"><circle cx="12" cy="5.5" r="2"/><path d="M12 8.5v4M5.5 18c1.6-3 3.9-5 6.5-5s4.9 2 6.5 5M5.5 18h13"/></svg>',
+        law: '<svg viewBox="0 0 24 24"><path d="M12 4v16M7 20h10M5 7h14M6 7 3 13h6L6 7Zm12 0-3 6h6l-3-6Z"/></svg>',
+        accounting: '<svg viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 7h6M9 11h.01M12 11h.01M15 11h.01M9 15h.01M12 15h.01M15 14.5v3.5"/></svg>',
+        realestate: '<svg viewBox="0 0 24 24"><path d="M4 11 12 4l8 7M6 10v9h12v-9"/></svg>',
+        construction: '<svg viewBox="0 0 24 24"><path d="M4 17a8 8 0 0 1 16 0M3 17h18M10 9V6a2 2 0 0 1 4 0v3"/></svg>',
+        plumbing: '<svg viewBox="0 0 24 24"><path d="M15 3.5a4 4 0 0 0-1.2 7.6L5.6 19.4 4.6 18.4l8.3-8.2A4 4 0 1 0 15 3.5Z"/></svg>',
+        electrical: '<svg viewBox="0 0 24 24"><path d="M13 3 5 13h6l-1 8 8-11h-6l1-7Z"/></svg>',
+        garage: '<svg viewBox="0 0 24 24"><path d="M5 16v-4l2-5h10l2 5v4M5 12h14"/><circle cx="8" cy="16.5" r="1.4"/><circle cx="16" cy="16.5" r="1.4"/></svg>',
+        photography: '<svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.3"/><path d="M8.5 7 10 4h4l1.5 3"/></svg>',
+        cleaning: '<svg viewBox="0 0 24 24"><path d="M9 9h5v11H8V10a2 2 0 0 1 1-1Zm0 0V5h3M12 5l3.5-1M12 8l3.5-1M5.5 6h1M4 8.5h1M5.5 11h1"/></svg>',
+        '_generic': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.7 3 2.7 15 0 18M12 3c-2.7 3-2.7 15 0 18"/></svg>',
+      };
+      function demoIcon(d){ var m = String((d&&d.url)||'').match(/\/demos\/([a-z0-9-]+)\.html/); var t = (m && ADMIN_MAP[m[1]]) ? ADMIN_MAP[m[1]] : ''; return DEMO_ICONS[t] || DEMO_ICONS._generic; }
+
     function render(items){
       var grid=document.getElementById('demoGrid');
       grid.innerHTML=items.map(function(d){
@@ -247,7 +273,7 @@
         var adm=adminHref(d.url);
         var admBtn=adm?'<a class="demo-btn admin" href="'+esc(adm)+'" target="_blank" rel="noopener">Admin</a>':'';
         return '<div class="demo-card">'
-          +'<div class="demo-emoji">'+esc(d.emoji||'🌐')+'</div>'+tag
+          +'<div class="demo-emoji">'+demoIcon(d)+'</div>'+tag
           +'<h3>'+esc(d.businessName||'Demo website')+'</h3>'+tagline
           +'<div class="demo-actions"><a class="demo-btn" href="'+esc(href)+'" target="_blank" rel="noopener">View demo →</a>'+admBtn+'</div></div>';
       }).join('');
