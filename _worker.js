@@ -2679,12 +2679,21 @@ export default {
             num = (parseInt(seqRaw || '0', 10) || 0) + 1;
             await env.PROGRAMARI.put('__chatlog_seq__', String(num));
           }
+          // Cloudflare provides geolocation for free on every request.
+          const cf = request.cf || {};
+          const geo = (existing && existing.geo) || {
+            city: (cf.city || '').toString().slice(0, 60),
+            region: (cf.region || '').toString().slice(0, 60),
+            country: (cf.country || '').toString().slice(0, 4),
+            postcode: (cf.postalCode || '').toString().slice(0, 12)
+          };
           const convo = {
             id: cid,
             num: num,
             ip: (existing && existing.ip) || ip,
             ua: (request.headers.get('User-Agent') || '').slice(0, 200),
             ref: (existing && existing.ref) || (request.headers.get('Referer') || '').slice(0, 200),
+            geo: geo,
             started: (existing && existing.started) || now,
             updated: now,
             messages: full,
@@ -2700,6 +2709,7 @@ export default {
             id: cid,
             num: num,
             ip: convo.ip,
+            geo: geo,
             started: convo.started,
             updated: convo.updated,
             count: convo.count,

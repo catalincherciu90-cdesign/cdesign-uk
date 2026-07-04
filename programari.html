@@ -2933,6 +2933,17 @@
     if (!n && n !== 0) return '#—';
     return '#' + String(n).padStart(4, '0');
   }
+  function flagEmoji(cc) {
+    if (!cc || cc.length !== 2) return '';
+    try { return String.fromCodePoint.apply(null, cc.toUpperCase().split('').map(function(c){ return 127397 + c.charCodeAt(0); })); }
+    catch(e) { return ''; }
+  }
+  function chatGeo(g) {
+    if (!g) return '';
+    var parts = [g.city, g.region, g.country].filter(Boolean);
+    if (!parts.length) return '';
+    return (flagEmoji(g.country) + ' ' + parts.join(', ')).trim();
+  }
   // Track which conversations (and at which update state) have been seen — per browser.
   function chatSeenMap() {
     try { return JSON.parse(localStorage.getItem('cd_chat_seen') || '{}') || {}; } catch(e) { return {}; }
@@ -2990,7 +3001,7 @@
           '<span style="font-size:.68rem;color:var(--muted);">' + mEsc(when) + '</span>' +
         '</div>' +
         '<div style="font-size:.82rem;color:var(--soft);margin-top:5px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + mEsc(c.preview || '—') + '</div>' +
-        '<div style="font-size:.66rem;color:var(--muted);margin-top:4px;">IP ' + mEsc(c.ip || '—') + '</div>' +
+        '<div style="font-size:.66rem;color:var(--muted);margin-top:4px;">' + (chatGeo(c.geo) ? '📍 ' + mEsc(chatGeo(c.geo)) + ' · ' : '') + 'IP ' + mEsc(c.ip || '—') + '</div>' +
       '</div>';
     }).join('');
     updateChatBadge();
@@ -3031,7 +3042,7 @@
       try { updated = new Date(c.updated).toLocaleString('en-GB'); } catch(e){}
       var head = '<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--border-soft);padding-bottom:12px;margin-bottom:14px;">' +
         '<div><strong style="color:var(--heading);">Conversație ' + chatRef(c.num) + '</strong>' +
-        '<div style="font-size:.72rem;color:var(--muted);margin-top:3px;">Început: ' + mEsc(started) + ' · Ultim: ' + mEsc(updated) + '<br>IP ' + mEsc(c.ip || '—') + (c.ref ? ' · de pe ' + mEsc(c.ref) : '') + '</div></div>' +
+        '<div style="font-size:.72rem;color:var(--muted);margin-top:3px;">Început: ' + mEsc(started) + ' · Ultim: ' + mEsc(updated) + '<br>' + (chatGeo(c.geo) ? '📍 ' + mEsc(chatGeo(c.geo)) + '<br>' : '') + 'IP ' + mEsc(c.ip || '—') + (c.ref ? ' · de pe ' + mEsc(c.ref) : '') + '</div></div>' +
         '<button onclick="deleteChatLog(\'' + mEsc(c.id) + '\')" style="font-size:.74rem;background:none;border:1px solid #e74c3c;color:#e74c3c;border-radius:6px;padding:5px 12px;cursor:pointer;">Șterge</button>' +
       '</div>';
       var msgs = (c.messages || []).map(function(m){
