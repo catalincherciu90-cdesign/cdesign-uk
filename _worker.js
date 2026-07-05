@@ -2342,6 +2342,12 @@ export default {
       return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
     }
 
+    if (path === '/promo' || path === '/promo/') {
+      const assetUrl = new URL(request.url);
+      assetUrl.pathname = '/promo.html';
+      return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
+    }
+
     // Local SEO city landing pages: /web-design-<city>
     if (path.startsWith('/web-design-')) {
       const CITY_PAGES = ['web-design-leeds', 'web-design-sheffield', 'web-design-nottingham', 'web-design-derby', 'web-design-blackburn', 'web-design-preston'];
