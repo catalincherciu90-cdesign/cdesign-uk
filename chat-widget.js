@@ -13,6 +13,7 @@
   } catch (e) {}
 
   var SUGGESTIONS = [
+    "Tell me about the £200 offer",
     'What services do you offer?',
     'How much does a website cost?',
     'How long does a project take?',
@@ -142,7 +143,7 @@
   function greet() {
     if (greeted) return;
     greeted = true;
-    addMsg("Hi 👋 I'm the C Design assistant. Ask me about our web design, e-commerce, SEO or marketing services — or how to get a quote.", 'bot');
+    addMsg("Hi 👋 I'm the C Design assistant. Ask me about our web design, e-commerce, SEO or marketing services — or about our £200 launch offer that gets your business fully online (website, SEO, Google & social).", 'bot');
     renderSuggestions();
   }
 
