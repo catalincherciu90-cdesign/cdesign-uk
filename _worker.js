@@ -261,22 +261,17 @@ async function sendDeadlineNotification(entry, env) {
         </div>
       </td></tr>
       <tr><td style="background:#f9fafb;padding:20px 32px;text-align:center;border-top:1px solid #e5e7eb;">
-        <p style="color:#9aa5b4;font-size:.8rem;margin:0;">C Design · <a href="https://c-designs.uk" style="color:#00c8b4;text-decoration:none;">www.c-design.ro</a></p>
+        <p style="color:#9aa5b4;font-size:.8rem;margin:0;">C Design · <a href="https://c-designs.uk" style="color:#00c8b4;text-decoration:none;">www.c-designs.uk</a></p>
       </td></tr>
     </table>
   </td></tr>
 </table>
 </body></html>`;
 
-  await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY || RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      from: 'C Design <office@c-design.ro>',
-      to: [env.NOTIFY_EMAIL || NOTIFY_EMAIL],
-      subject: `⏰ Deadline in 3 days: ${entry.client || 'Client'} – ${entry.proiect || 'Project'}`,
-      html,
-    }),
+  await sendEmail(env, {
+    to: [env.NOTIFY_EMAIL || NOTIFY_EMAIL],
+    subject: `⏰ Deadline in 3 days: ${entry.client || 'Client'} – ${entry.proiect || 'Project'}`,
+    html,
   });
 }
 
@@ -417,22 +412,18 @@ async function sendGibilanMorningEmail(env) {
       </td></tr>
       <!-- FOOTER -->
       <tr><td style="background:#f9fafb;padding:16px 32px;text-align:center;border-top:1px solid #eee;">
-        <p style="color:#9aa5b4;font-size:.75rem;margin:0;">Gibilan · C Design · <a href="https://c-designs.uk" style="color:#00a898;text-decoration:none;">c-design.ro</a></p>
+        <p style="color:#9aa5b4;font-size:.75rem;margin:0;">Gibilan · C Design · <a href="https://c-designs.uk" style="color:#00a898;text-decoration:none;">c-designs.uk</a></p>
       </td></tr>
     </table>
   </td></tr>
 </table>
 </body></html>`;
 
-    await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY || RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: 'Gibilan <notificari@c-design.ro>',
-        to: [env.NOTIFY_EMAIL || NOTIFY_EMAIL],
-        subject: `🤖 Gibilan — Your agenda for ${ziuaCapital}`,
-        html,
-      }),
+    await sendEmail(env, {
+      from: 'Gibilan <notificari@c-designs.uk>',
+      to: [env.NOTIFY_EMAIL || NOTIFY_EMAIL],
+      subject: `🤖 Gibilan — Your agenda for ${ziuaCapital}`,
+      html,
     });
   } catch (e) {
     console.error('sendGibilanMorningEmail error:', e);
@@ -512,7 +503,33 @@ async function checkRateLimit(env, key, maxAttempts, windowSeconds) {
 const ADMIN_TOKEN = '';  // set via: wrangler secret put ADMIN_TOKEN
 const ADMIN_USER  = '';  // set via: wrangler secret put ADMIN_USER
 const RESEND_API_KEY = '';  // set via: wrangler secret put RESEND_API_KEY
-const NOTIFY_EMAIL  = 'office@c-design.ro';
+const NOTIFY_EMAIL  = 'office@c-designs.uk';  // override via: wrangler secret put NOTIFY_EMAIL
+const MAIL_FROM     = 'C Design <notificari@c-designs.uk>';  // sending domain must be verified in Resend
+
+// Single, robust Resend sender. Does nothing (and says so) when unconfigured,
+// checks the response, and logs failures instead of swallowing them silently.
+async function sendEmail(env, opts) {
+  const apiKey = env.RESEND_API_KEY || RESEND_API_KEY;
+  if (!apiKey) return { ok: false, skipped: true, reason: 'RESEND_API_KEY not configured' };
+  const to = (Array.isArray(opts.to) ? opts.to : [opts.to]).filter(Boolean);
+  if (!to.length) return { ok: false, skipped: true, reason: 'no recipient' };
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: opts.from || (env.MAIL_FROM || MAIL_FROM), to, subject: opts.subject, html: opts.html }),
+    });
+    if (!res.ok) {
+      let detail = ''; try { detail = await res.text(); } catch {}
+      console.error('sendEmail failed', res.status, detail.slice(0, 300));
+      return { ok: false, status: res.status, error: detail };
+    }
+    return { ok: true, status: res.status };
+  } catch (e) {
+    console.error('sendEmail network error', e && e.message);
+    return { ok: false, error: String((e && e.message) || e) };
+  }
+}
 
 async function sendBookingNotification(booking, env) {
   const html = `
@@ -571,25 +588,18 @@ async function sendBookingNotification(booking, env) {
         </div>
       </td></tr>
       <tr><td style="background:#f9f9f9;padding:16px 32px;text-align:center;border-top:1px solid #eee;">
-        <div style="font-size:.78rem;color:#9aa5b4;">c-design.ro · +44 7312 799449 · office@c-design.ro</div>
+        <div style="font-size:.78rem;color:#9aa5b4;">c-designs.uk · +44 7312 799449</div>
       </td></tr>
     </table>
   </td></tr>
 </table>
 </body></html>`;
 
-  try {
-    await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY || RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: 'C Design <notificari@c-design.ro>',
-        to: [env.NOTIFY_EMAIL || NOTIFY_EMAIL],
-        subject: `📅 New booking — ${booking.name} · ${booking.date} ${booking.time}`,
-        html,
-      }),
-    });
-  } catch {}
+  await sendEmail(env, {
+    to: [env.NOTIFY_EMAIL || NOTIFY_EMAIL],
+    subject: `📅 New booking — ${booking.name} · ${booking.date} ${booking.time}`,
+    html,
+  });
 
   // Confirmare catre client
   const confirmHtml = `
@@ -643,25 +653,18 @@ async function sendBookingNotification(booking, env) {
         </table>
       </td></tr>
       <tr><td style="background:#f9f9f9;padding:16px 32px;text-align:center;border-top:1px solid #eee;">
-        <div style="font-size:.78rem;color:#9aa5b4;">© ${new Date().getFullYear()} C Design · <a href="https://c-designs.uk" style="color:#00c8b4;text-decoration:none;">c-design.ro</a></div>
+        <div style="font-size:.78rem;color:#9aa5b4;">© ${new Date().getFullYear()} C Design · <a href="https://c-designs.uk" style="color:#00c8b4;text-decoration:none;">c-designs.uk</a></div>
       </td></tr>
     </table>
   </td></tr>
 </table>
 </body></html>`;
 
-  try {
-    await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY || RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: 'C Design <notificari@c-design.ro>',
-        to: [booking.email],
-        subject: `✅ Booking confirmed — ${booking.date} at ${booking.time}`,
-        html: confirmHtml,
-      }),
-    });
-  } catch {}
+  await sendEmail(env, {
+    to: [booking.email],
+    subject: `✅ Booking confirmed — ${booking.date} at ${booking.time}`,
+    html: confirmHtml,
+  });
 }
 
 async function sendMessageNotification(msg, env) {
@@ -678,15 +681,10 @@ async function sendMessageNotification(msg, env) {
         <div style="margin-top:16px;font-size:.78rem;color:#7a8694;">Open the admin → Messages to reply.</div>
       </div>
     </div>`;
-    await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY || RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: 'C Design <notificari@c-design.ro>',
-        to: [env.NOTIFY_EMAIL || NOTIFY_EMAIL],
-        subject: `<svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4V5Z"/></svg> New message — ${msg.name}`,
-        html,
-      }),
+    await sendEmail(env, {
+      to: [env.NOTIFY_EMAIL || NOTIFY_EMAIL],
+      subject: `✉️ New message — ${msg.name}`,
+      html,
     });
   } catch (e) { console.error('sendMessageNotification error:', e); }
 }
@@ -858,7 +856,7 @@ p{color:#8bbaba;font-size:1.05rem;line-height:1.75;margin-bottom:12px}
   <p>${message}</p>
   ${date}
   <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-  <div class="logo">c-design.ro</div>
+  <div class="logo">c-designs.uk</div>
 </div>
 </body></html>`;
 }
@@ -3916,27 +3914,17 @@ Title requirements:
       const apiKey = env.RESEND_API_KEY || RESEND_API_KEY;
       if (!apiKey) return json({ error: 'RESEND_API_KEY is not configured in Cloudflare Secrets.' }, 400, request);
       const toEmail = env.NOTIFY_EMAIL || NOTIFY_EMAIL;
-      try {
-        const res = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            from: 'C Design <office@c-design.ro>',
-            to: [toEmail],
-            subject: '✅ Test notification C Design',
-            html: `<div style="font-family:Arial,sans-serif;padding:32px;max-width:480px;">
-              <h2 style="color:#00a8a8;">✅ Notifications are working!</h2>
-              <p>This email was sent from the <strong>C Design</strong> admin panel to verify that the Resend integration is configured correctly.</p>
-              <p style="color:#777;font-size:.85rem;">Sent at: ${new Date().toLocaleString('en-GB')}</p>
-            </div>`
-          })
-        });
-        const data = await res.json();
-        if (!res.ok) return json({ error: data.message || data.name || 'Resend error', detail: data }, 500, request);
-        return json({ success: true, id: data.id, to: toEmail }, 200, request);
-      } catch (e) {
-        return json({ error: 'Network error: ' + e.message }, 500, request);
-      }
+      const r = await sendEmail(env, {
+        to: [toEmail],
+        subject: '✅ Test notification C Design',
+        html: `<div style="font-family:Arial,sans-serif;padding:32px;max-width:480px;">
+          <h2 style="color:#00a8a8;">✅ Notifications are working!</h2>
+          <p>This email was sent from the <strong>C Design</strong> admin panel to verify that the Resend integration is configured correctly.</p>
+          <p style="color:#777;font-size:.85rem;">Sent at: ${new Date().toLocaleString('en-GB')}</p>
+        </div>`
+      });
+      if (!r.ok) return json({ error: (r.error || r.reason || 'Resend error') + '', status: r.status || 0 }, 500, request);
+      return json({ success: true, to: toEmail }, 200, request);
     }
 
     if (path === '/api/settings' && request.method === 'GET') {
@@ -4665,9 +4653,9 @@ Title requirements:
         const t = tmplRaw ? JSON.parse(tmplRaw) : {};
         const prest = {
           nume:  t.prestNume  || 'C Design',
-          email: t.prestEmail || 'office@c-design.ro',
+          email: t.prestEmail || '',
           tel:   t.prestTel   || '',
-          web:   t.prestWeb   || 'www.c-design.ro',
+          web:   t.prestWeb   || 'www.c-designs.uk',
           cui:   t.prestCui   || '',
           adresa:t.prestAdresa|| '',
         };
@@ -4985,9 +4973,9 @@ Title requirements:
           cui:     t.prestCui    || '',
           regcom:  t.prestRegcom || '',
           adresa:  t.prestAdresa || '',
-          email:   t.prestEmail  || 'office@c-design.ro',
+          email:   t.prestEmail  || '',
           tel:     t.prestTel    || '',
-          web:     t.prestWeb    || 'www.c-design.ro',
+          web:     t.prestWeb    || 'www.c-designs.uk',
           iban:    t.prestIban   || '',
           banca:   t.prestBanca  || '',
           repr:    t.prestRepr   || '',
