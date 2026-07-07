@@ -34,8 +34,11 @@ function renderArticle(post) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Google Analytics 4 (consent-gated) -->
-<script src="/analytics.js" async><\/script>
+<!-- Google tag (gtag.js) — consent-gated (analytics off until Accept) -->
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',wait_for_update:500});<\/script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TB9SZT1PVZ"><\/script>
+<script>gtag('js',new Date());gtag('config','G-TB9SZT1PVZ',{anonymize_ip:true});<\/script>
+<script src="/analytics.js" defer><\/script>
 <title>${escHtml(post.title)} – C Design</title>
 <meta name="description" content="${desc}">
 <meta name="robots" content="index, follow">
