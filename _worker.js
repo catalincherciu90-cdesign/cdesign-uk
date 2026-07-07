@@ -4020,10 +4020,44 @@ Title requirements:
           replyTo = (me && me.email) ? String(me.email).trim() : (authed.role === 'owner' ? (await getOwnerEmail(env) || String(env.NOTIFY_EMAIL || NOTIFY_EMAIL || '').trim()) : '');
         } catch {}
         const r = await sendEmail(env, { to: [to], subject, html, replyTo: replyTo || undefined });
+        // Record in the outbox (both successes and failures) so it shows in the Email tab.
+        try {
+          const rec = { id: 'sent_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7), to, subject, message, by: authed.username, status: r.ok ? 'sent' : 'failed', error: r.ok ? '' : String(r.error || r.reason || '').slice(0, 200), createdAt: new Date().toISOString() };
+          const oraw = await env.PROGRAMARI.get('__sentmail__');
+          const olist = oraw ? JSON.parse(oraw) : [];
+          olist.unshift(rec);
+          await env.PROGRAMARI.put('__sentmail__', JSON.stringify(olist.slice(0, 200)));
+        } catch {}
         if (!r.ok) return json({ error: (r.error || r.reason || 'Send failed') + '', status: r.status || 0 }, 500, request);
         await logActivity(env, { user: authed.username, role: authed.role, method: 'MAIL', path: 'send-mail → ' + to, ip, ts: Date.now() });
         return json({ success: true }, 200, request);
       } catch (e) { return json({ error: 'Server error' }, 500, request); }
+    }
+
+    // Outbox — list emails sent from the admin panel.
+    if (path === '/api/sent-mail' && request.method === 'GET') {
+      if (!can(authed, 'email')) return json({ error: 'Unauthorised' }, 401, request);
+      try {
+        const raw = await env.PROGRAMARI.get('__sentmail__');
+        return json(raw ? JSON.parse(raw) : [], 200, request);
+      } catch { return json([], 200, request); }
+    }
+
+    if (path === '/api/sent-mail' && request.method === 'DELETE') {
+      if (!can(authed, 'email')) return json({ error: 'Unauthorised' }, 401, request);
+      await env.PROGRAMARI.put('__sentmail__', '[]');
+      return json({ success: true }, 200, request);
+    }
+
+    if (path.startsWith('/api/sent-mail/') && request.method === 'DELETE') {
+      if (!can(authed, 'email')) return json({ error: 'Unauthorised' }, 401, request);
+      try {
+        const id = decodeURIComponent(path.replace('/api/sent-mail/', ''));
+        const raw = await env.PROGRAMARI.get('__sentmail__');
+        const list = raw ? JSON.parse(raw) : [];
+        await env.PROGRAMARI.put('__sentmail__', JSON.stringify(list.filter(x => x.id !== id)));
+        return json({ success: true }, 200, request);
+      } catch { return json({ error: 'Server error' }, 500, request); }
     }
 
     if (path === '/api/settings' && request.method === 'GET') {
