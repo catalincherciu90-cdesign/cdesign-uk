@@ -34,6 +34,8 @@ function renderArticle(post) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Google Analytics 4 (consent-gated) -->
+<script src="/analytics.js" async><\/script>
 <title>${escHtml(post.title)} – C Design</title>
 <meta name="description" content="${desc}">
 <meta name="robots" content="index, follow">
@@ -206,7 +208,6 @@ const ham=document.getElementById('hamburger'),mob=document.getElementById('mobi
 ham.addEventListener('click',()=>{const o=mob.classList.toggle('open');ham.setAttribute('aria-expanded',o)});
 (function(){try{fetch('/api/site-settings').then(function(r){return r.ok?r.json():null;}).then(function(d){if(!d||!d.accentColor||!/^#[0-9a-fA-F]{6}$/.test(d.accentColor))return;var h=d.accentColor;function adj(hex,f){var n=parseInt(hex.slice(1),16),r=(n>>16)&255,g=(n>>8)&255,b=n&255;function m(x){return Math.max(0,Math.min(255,Math.round(f<0?x*(1+f):x+(255-x)*f)));}return '#'+((1<<24)+(m(r)<<16)+(m(g)<<8)+m(b)).toString(16).slice(1);}var s=document.documentElement.style;s.setProperty('--teal',h);s.setProperty('--teal-dk',adj(h,-0.18));}).catch(function(){});}catch(e){}})();
 <\/script>
-<script src="/analytics.js" defer><\/script>
 <script src="/chat-widget.js" defer><\/script>
 </body>
 </html>`;
