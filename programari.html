@@ -1375,7 +1375,9 @@
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
               <input class="f-input" id="newAdminUser" placeholder="username" style="flex:1;min-width:140px;margin:0;" autocomplete="off">
               <input class="f-input" id="newAdminPass" type="password" placeholder="password (min 8 chars)" style="flex:1;min-width:140px;margin:0;" autocomplete="new-password">
+              <input class="f-input" id="newAdminEmail" type="email" placeholder="email (optional)" style="flex:1;min-width:140px;margin:0;" autocomplete="off">
             </div>
+            <div style="font-size:.72rem;color:var(--muted);margin-bottom:8px;">// email is used as Reply-To when this admin sends mail, and receives form notifications</div>
             <div style="font-size:.72rem;color:var(--muted);margin-bottom:8px;">// permissions — sections this account can access</div>
             <div id="newAdminPerms" style="display:flex;flex-wrap:wrap;gap:8px 14px;margin-bottom:14px;"></div>
             <button class="btn-add" onclick="addAdmin()" style="padding:8px 16px;">+ Add admin</button>
@@ -2817,6 +2819,11 @@
           <button class="btn-del" onclick="resetAdminPassword('${esc(a.username)}')">🔑 Reset password</button>
           ${a.username === youUser ? '' : `<button class="btn-del" onclick="deleteAdmin('${esc(a.username)}')">✕ Remove</button>`}
         </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
+          <span style="font-size:.72rem;color:var(--muted);">// email</span>
+          <input class="f-input email-edit" data-user="${esc(a.username)}" type="email" value="${esc(a.email || '')}" placeholder="email (optional)" style="flex:1;min-width:160px;margin:0;">
+          <button class="btn-add" style="padding:6px 14px;font-size:.78rem;" onclick="saveAdminEmail('${esc(a.username)}')">Save email</button>
+        </div>
         <div class="perm-edit" data-user="${esc(a.username)}" style="display:flex;flex-wrap:wrap;gap:6px 12px;margin-bottom:10px;">${permChecksHtml(a.perms || [], 'editperm')}</div>
         <button class="btn-add" style="padding:6px 14px;font-size:.78rem;" onclick="savePerms('${esc(a.username)}')">Save permissions</button>
       </div>`).join('');
@@ -2826,19 +2833,37 @@
   async function addAdmin() {
     const u = document.getElementById('newAdminUser').value.trim();
     const p = document.getElementById('newAdminPass').value.trim();
+    const email = document.getElementById('newAdminEmail').value.trim();
     const perms = [...document.querySelectorAll('#newAdminPerms .newperm:checked')].map(i => i.value);
     if (!u || !p) { alert('Enter a username and password.'); return; }
     if (!perms.length) { alert('Select at least one permission.'); return; }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Enter a valid email or leave it empty.'); return; }
     try {
       const res = await fetch('/api/admins?token=' + encodeURIComponent(adminToken), {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: u, password: p, perms }),
+        body: JSON.stringify({ username: u, password: p, perms, email }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.success) { alert(data.error || 'Could not add admin.'); return; }
       document.getElementById('newAdminUser').value = '';
       document.getElementById('newAdminPass').value = '';
+      document.getElementById('newAdminEmail').value = '';
       fetchAdmins();
+    } catch { alert('Network error.'); }
+  }
+
+  async function saveAdminEmail(username) {
+    const inp = document.querySelector('.email-edit[data-user="' + (window.CSS && CSS.escape ? CSS.escape(username) : username) + '"]');
+    if (!inp) return;
+    const email = inp.value.trim();
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Enter a valid email or leave it empty.'); return; }
+    try {
+      const res = await fetch('/api/admins/' + encodeURIComponent(username) + '/email?token=' + encodeURIComponent(adminToken), {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) { alert(data.error || 'Could not save email.'); return; }
+      alert('Email saved.');
     } catch { alert('Network error.'); }
   }
 
