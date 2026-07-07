@@ -2475,6 +2475,14 @@
         <button class="btn-save" onclick="copyAiAssist()" style="background:var(--teal);">📋 Copy</button>
         <button class="btn-cancel" onclick="runAiAssist()">↻ Regenerate</button>
       </div>
+      <div id="aiReplySendRow" style="display:none;margin-top:12px;padding-top:12px;border-top:1px dashed var(--border-soft);">
+        <label style="font-size:.75rem;color:var(--soft);display:block;margin-bottom:5px;">Send this reply by email to:</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <input class="f-input" id="aiReplyTo" type="email" placeholder="customer@email.com" style="flex:1;min-width:180px;margin:0;">
+          <button class="btn-save" onclick="sendReplyEmail()" style="background:var(--teal);">&#x2709;&#xFE0F; Send email</button>
+          <span id="aiReplySendStatus" style="font-family:'Share Tech Mono',monospace;font-size:.72rem;"></span>
+        </div>
+      </div>
     </div>
     <div class="modal-actions" style="margin-top:16px;">
       <button class="btn-cancel" onclick="closeAiAssist()">Close</button>
@@ -3027,6 +3035,8 @@
   function draftReplyFor(id) {
     var m = (window.__msgsCache || []).find(function(x){ return x.id === id; });
     if (!m) return;
+    var found = String((m.message || '') + ' ' + (m.name || '')).match(/[\w.+-]+@[\w-]+\.[\w.-]+/);
+    aiReplyCtx = { email: found ? found[0] : '', name: m.name || '' };
     var ctx = 'Name: ' + (m.name || '') + '\n'
       + (m.service ? 'Interested in: ' + m.service + '\n' : '')
       + ((m.date || m.time) ? 'Preferred date/time: ' + (m.date || '') + ' ' + (m.time || '') + '\n' : '')
@@ -3186,6 +3196,7 @@
 
   // ── SHARED AI ASSISTANTS (reply / social / quote) ─────────
   let aiAssistTask = '';
+  let aiReplyCtx = null;
   const AI_ASSIST_META = {
     reply:  { title: '💬 Draft reply (Mihai)',  sub: 'Suggests a professional reply to a customer enquiry. Review before sending.', label: 'Customer message', platform: false },
     social: { title: '📱 Social post (Ion)',     sub: 'Generates an on-brand post with hashtags for the chosen platform.',        label: 'What is the post about?', platform: true },
@@ -3203,6 +3214,12 @@
     document.getElementById('aiAssistInput').value = prefill || '';
     document.getElementById('aiAssistResult').value = '';
     document.getElementById('aiAssistResultWrap').style.display = 'none';
+    var sendRow = document.getElementById('aiReplySendRow');
+    if (sendRow) {
+      var showSend = (task === 'reply' && can('email'));
+      sendRow.style.display = showSend ? 'block' : 'none';
+      if (showSend) { document.getElementById('aiReplyTo').value = (aiReplyCtx && aiReplyCtx.email) || ''; document.getElementById('aiReplySendStatus').textContent = ''; }
+    }
     document.getElementById('aiAssistStatus').textContent = '';
     document.getElementById('aiAssistGenBtn').disabled = false;
     document.getElementById('aiAssistGenBtn').textContent = '✨ Generate';
@@ -3238,6 +3255,24 @@
     }
     btn.disabled = false; btn.textContent = '✨ Regenerate';
   }
+  async function sendReplyEmail() {
+    var to = document.getElementById('aiReplyTo').value.trim();
+    var body = document.getElementById('aiAssistResult').value.trim();
+    var status = document.getElementById('aiReplySendStatus');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) { status.style.color = '#f87171'; status.textContent = '// enter a valid email'; return; }
+    if (!body) { status.style.color = '#f87171'; status.textContent = '// nothing to send'; return; }
+    status.style.color = 'var(--teal)'; status.textContent = '// sending…';
+    try {
+      var res = await fetch('/api/send-mail?token=' + encodeURIComponent(adminToken), {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: to, subject: 'Re: your enquiry — C Design', message: body })
+      });
+      var data = await res.json().catch(function () { return {}; });
+      if (!res.ok || !data.success) { status.style.color = '#f87171'; status.textContent = '// ✗ ' + (data.error || 'error'); }
+      else { status.style.color = '#4ade80'; status.textContent = '// ✓ sent to ' + to; }
+    } catch (e) { status.style.color = '#f87171'; status.textContent = '// network error'; }
+  }
+
   function copyAiAssist() {
     var t = document.getElementById('aiAssistResult');
     t.select();
