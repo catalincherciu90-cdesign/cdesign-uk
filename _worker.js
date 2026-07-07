@@ -24,9 +24,9 @@ function renderArticle(post) {
     description: post.excerpt || plain.slice(0, 155),
     datePublished: post.createdAt,
     dateModified: post.updatedAt || post.createdAt,
-    author: { '@type': 'Organization', name: 'C Design', url: 'https://www.cdesigns.uk' },
-    publisher: { '@type': 'Organization', name: 'C Design', url: 'https://www.cdesigns.uk' },
-    mainEntityOfPage: { '@type': 'WebPage', '@id': `https://www.cdesigns.uk/blog/${post.slug}` },
+    author: { '@type': 'Organization', name: 'C Design', url: 'https://www.c-designs.uk' },
+    publisher: { '@type': 'Organization', name: 'C Design', url: 'https://www.c-designs.uk' },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `https://www.c-designs.uk/blog/${post.slug}` },
   });
   const yr = new Date().getFullYear();
   return `<!DOCTYPE html>
@@ -42,20 +42,20 @@ function renderArticle(post) {
 <title>${escHtml(post.title)} – C Design</title>
 <meta name="description" content="${desc}">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://www.cdesigns.uk/blog/${post.slug}">
+<link rel="canonical" href="https://www.c-designs.uk/blog/${post.slug}">
 <link rel="icon" type="image/png" href="/logo-c-design.png">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://www.cdesigns.uk/blog/${post.slug}">
+<meta property="og:url" content="https://www.c-designs.uk/blog/${post.slug}">
 <meta property="og:title" content="${escHtml(post.title)}">
 <meta property="og:description" content="${desc}">
-<meta property="og:image" content="https://www.cdesigns.uk/cover.jpg">
+<meta property="og:image" content="https://www.c-designs.uk/cover.jpg">
 <meta property="og:locale" content="en_GB">
 <meta property="og:site_name" content="C Design">
 <meta property="article:published_time" content="${post.createdAt}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${escHtml(post.title)}">
 <meta name="twitter:description" content="${desc}">
-<meta name="twitter:image" content="https://www.cdesigns.uk/cover.jpg">
+<meta name="twitter:image" content="https://www.c-designs.uk/cover.jpg">
 <script type="application/ld+json">${schema}<\/script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -255,13 +255,13 @@ async function sendDeadlineNotification(entry, env) {
           ${entry.note ? `<tr><td style="padding:8px 0;color:#6a7585;font-size:.85rem;vertical-align:top;">Note</td><td style="padding:8px 0;color:#080b0e;">${escHtml(entry.note)}</td></tr>` : ''}
         </table>
         <div style="text-align:center;">
-          <a href="https://www.cdesigns.uk/programari.html" style="display:inline-block;background:#00c8b4;color:#000;padding:14px 32px;border-radius:8px;font-weight:700;font-size:.95rem;text-decoration:none;">
+          <a href="https://www.c-designs.uk/programari.html" style="display:inline-block;background:#00c8b4;color:#000;padding:14px 32px;border-radius:8px;font-weight:700;font-size:.95rem;text-decoration:none;">
             Open CRM →
           </a>
         </div>
       </td></tr>
       <tr><td style="background:#f9fafb;padding:20px 32px;text-align:center;border-top:1px solid #e5e7eb;">
-        <p style="color:#9aa5b4;font-size:.8rem;margin:0;">C Design · <a href="https://www.cdesigns.uk" style="color:#00c8b4;text-decoration:none;">www.c-design.ro</a></p>
+        <p style="color:#9aa5b4;font-size:.8rem;margin:0;">C Design · <a href="https://www.c-designs.uk" style="color:#00c8b4;text-decoration:none;">www.c-design.ro</a></p>
       </td></tr>
     </table>
   </td></tr>
@@ -411,13 +411,13 @@ async function sendGibilanMorningEmail(env) {
       </td></tr>
       <!-- CTA -->
       <tr><td style="padding:0 32px 28px;text-align:center;">
-        <a href="https://www.cdesigns.uk/programari.html" style="display:inline-block;background:#00c8b4;color:#060f0f;padding:12px 28px;border-radius:8px;font-weight:700;font-size:.9rem;text-decoration:none;">
+        <a href="https://www.c-designs.uk/programari.html" style="display:inline-block;background:#00c8b4;color:#060f0f;padding:12px 28px;border-radius:8px;font-weight:700;font-size:.9rem;text-decoration:none;">
           Open Gibilan →
         </a>
       </td></tr>
       <!-- FOOTER -->
       <tr><td style="background:#f9fafb;padding:16px 32px;text-align:center;border-top:1px solid #eee;">
-        <p style="color:#9aa5b4;font-size:.75rem;margin:0;">Gibilan · C Design · <a href="https://www.cdesigns.uk" style="color:#00a898;text-decoration:none;">c-design.ro</a></p>
+        <p style="color:#9aa5b4;font-size:.75rem;margin:0;">Gibilan · C Design · <a href="https://www.c-designs.uk" style="color:#00a898;text-decoration:none;">c-design.ro</a></p>
       </td></tr>
     </table>
   </td></tr>
@@ -456,7 +456,7 @@ async function checkCrmDeadlines(env) {
   }
 }
 
-const ALLOWED_ORIGINS = ['https://www.cdesigns.uk', 'https://c-design.ro'];
+const ALLOWED_ORIGINS = ['https://www.c-designs.uk', 'https://c-design.ro'];
 
 function getCors(request) {
   const origin = request ? request.headers.get('Origin') : null;
@@ -553,7 +553,7 @@ async function sendBookingNotification(booking, env) {
           </td></tr>` : ''}
         </table>
         <div style="text-align:center;margin-top:24px;">
-          <a href="https://www.cdesigns.uk/programari.html" style="display:inline-block;background:#00c8b4;color:#080b0e;font-weight:700;font-size:.9rem;padding:12px 28px;border-radius:8px;text-decoration:none;">
+          <a href="https://www.c-designs.uk/programari.html" style="display:inline-block;background:#00c8b4;color:#080b0e;font-weight:700;font-size:.9rem;padding:12px 28px;border-radius:8px;text-decoration:none;">
             View in admin panel →
           </a>
         </div>
@@ -631,7 +631,7 @@ async function sendBookingNotification(booking, env) {
         </table>
       </td></tr>
       <tr><td style="background:#f9f9f9;padding:16px 32px;text-align:center;border-top:1px solid #eee;">
-        <div style="font-size:.78rem;color:#9aa5b4;">© ${new Date().getFullYear()} C Design · <a href="https://www.cdesigns.uk" style="color:#00c8b4;text-decoration:none;">c-design.ro</a></div>
+        <div style="font-size:.78rem;color:#9aa5b4;">© ${new Date().getFullYear()} C Design · <a href="https://www.c-designs.uk" style="color:#00c8b4;text-decoration:none;">c-design.ro</a></div>
       </td></tr>
     </table>
   </td></tr>
@@ -1328,7 +1328,7 @@ function buildDemoSite(d) {
 </style>
 </head>
 <body class="v-${variant}">
-  <div class="demo-bar">✨ Demo website — built by <a href="https://www.cdesigns.uk" target="_blank" rel="noopener">C Design</a>. Want one like this? <a href="https://www.cdesigns.uk/programari.html" target="_blank" rel="noopener">Get yours →</a></div>
+  <div class="demo-bar">✨ Demo website — built by <a href="https://www.c-designs.uk" target="_blank" rel="noopener">C Design</a>. Want one like this? <a href="https://www.c-designs.uk/programari.html" target="_blank" rel="noopener">Get yours →</a></div>
 
   <header>
     <div class="wrap nav">
@@ -1365,7 +1365,7 @@ ${body}
       </div>
       <div class="foot-bottom">
         <span>© ${new Date().getFullYear()} ${name}. All rights reserved.</span>
-        <span>Demo site · Built by <a href="https://www.cdesigns.uk">C Design</a></span>
+        <span>Demo site · Built by <a href="https://www.c-designs.uk">C Design</a></span>
       </div>
     </div>
   </footer>
@@ -1573,7 +1573,7 @@ function buildShopSite(d) {
 </style>
 </head>
 <body>
-  <div class="demo-bar">✨ Demo store — built by <a href="https://www.cdesigns.uk" target="_blank" rel="noopener">C Design</a>. Want one like this? <a href="https://www.cdesigns.uk/programari.html" target="_blank" rel="noopener">Get yours →</a></div>
+  <div class="demo-bar">✨ Demo store — built by <a href="https://www.c-designs.uk" target="_blank" rel="noopener">C Design</a>. Want one like this? <a href="https://www.c-designs.uk/programari.html" target="_blank" rel="noopener">Get yours →</a></div>
   <div class="topbar"><div class="wrap"><span>🚚 ${e(d.shipNote || 'Nationwide delivery available')}</span><span><svg viewBox="0 0 24 24"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4.5 5.7 2 2 0 0 1 6.5 3.5Z"/></svg> ${e(d.phone || 'Call us today')}</span></div></div>
   <header>
     <div class="wrap nav">
@@ -1628,7 +1628,7 @@ function buildShopSite(d) {
         <div><div style="color:#fff;font-weight:700;margin-bottom:8px;">Contact</div>${d.phone ? `<div style="margin-bottom:5px;">${e(d.phone)}</div>` : ''}${d.email ? `<div style="margin-bottom:5px;">${e(d.email)}</div>` : ''}${d.address ? `<div>${e(d.address)}</div>` : ''}</div>
       </div>
     </div>
-    <div class="foot-bottom"><span>© ${new Date().getFullYear()} ${name}. All rights reserved.</span><span>Demo store · Built by <a href="https://www.cdesigns.uk">C Design</a></span></div>
+    <div class="foot-bottom"><span>© ${new Date().getFullYear()} ${name}. All rights reserved.</span><span>Demo store · Built by <a href="https://www.c-designs.uk">C Design</a></span></div>
   </div></footer>
 
   <script>
@@ -1877,7 +1877,7 @@ function buildBlogSite(d) {
 </style>
 </head>
 <body>
-  <div class="demo-bar">✨ Demo magazine — built by <a href="https://www.cdesigns.uk" target="_blank" rel="noopener">C Design</a>. Want one like this? <a href="https://www.cdesigns.uk/programari.html" target="_blank" rel="noopener">Get yours →</a></div>
+  <div class="demo-bar">✨ Demo magazine — built by <a href="https://www.c-designs.uk" target="_blank" rel="noopener">C Design</a>. Want one like this? <a href="https://www.c-designs.uk/programari.html" target="_blank" rel="noopener">Get yours →</a></div>
   <header>
     <div class="wrap">
       <div class="mast">
@@ -1913,7 +1913,7 @@ function buildBlogSite(d) {
 
   <footer><div class="wrap foot">
     <span class="c">${emoji} ${name}</span>
-    <span>${d.email ? e(d.email) + ' · ' : ''}Demo magazine · Built by <a href="https://www.cdesigns.uk">C Design</a></span>
+    <span>${d.email ? e(d.email) + ' · ' : ''}Demo magazine · Built by <a href="https://www.c-designs.uk">C Design</a></span>
   </div></footer>
 
   <script>
@@ -2079,7 +2079,7 @@ function buildMultiPageSite(d, baseSlug, pageSlug) {
 </style>
 </head>
 <body>
-  <div class="demo-bar">✨ Demo website — built by <a href="https://www.cdesigns.uk" target="_blank" rel="noopener">C Design</a>. Want one like this? <a href="https://www.cdesigns.uk/programari.html" target="_blank" rel="noopener">Get yours →</a></div>
+  <div class="demo-bar">✨ Demo website — built by <a href="https://www.c-designs.uk" target="_blank" rel="noopener">C Design</a>. Want one like this? <a href="https://www.c-designs.uk/programari.html" target="_blank" rel="noopener">Get yours →</a></div>
   <header><div class="wrap nav">
     <a href="/demo/${baseSlug}" class="logo">${im.logo ? `<img src="${String(im.logo).replace(/"/g, '&quot;')}" alt="${name}" style="height:48px;width:auto;max-width:220px;display:block;">` : `<span class="d">${emoji}</span>${name}`}</a>
     <nav class="links">${navHtml}</nav>
@@ -2109,7 +2109,7 @@ function buildMultiPageSite(d, baseSlug, pageSlug) {
       <div class="c"><span>${emoji}</span>${name}</div>
       <nav>${navHtml}</nav>
     </div>
-    <div class="foot-b"><span>© ${new Date().getFullYear()} ${name}. All rights reserved.</span><span>Demo site · Built by <a href="https://www.cdesigns.uk">C Design</a></span></div>
+    <div class="foot-b"><span>© ${new Date().getFullYear()} ${name}. All rights reserved.</span><span>Demo site · Built by <a href="https://www.c-designs.uk">C Design</a></span></div>
   </div></footer>
   <script>(function(){var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}});},{threshold:.12});document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});})();</script>
 </body>
@@ -2224,7 +2224,7 @@ export default {
       '/campanie-florarii/tema3': '/',
     };
     if (REDIRECTS_301[path]) {
-      return Response.redirect('https://www.cdesigns.uk' + REDIRECTS_301[path], 301);
+      return Response.redirect('https://www.c-designs.uk' + REDIRECTS_301[path], 301);
     }
 
     // ── REDESIGN PREVIEW (prototip temă dark Midnight) ────────
@@ -2252,11 +2252,11 @@ export default {
         const raw = await env.PROGRAMARI.get('__blog__');
         const posts = raw ? JSON.parse(raw) : [];
         const post = posts.find(p => p.slug === slug && p.published);
-        if (!post) return Response.redirect('https://www.cdesigns.uk/blog', 302);
+        if (!post) return Response.redirect('https://www.c-designs.uk/blog', 302);
         return new Response(renderArticle(post), {
           headers: { 'Content-Type': 'text/html;charset=utf-8', 'Cache-Control': 'public,max-age=300' },
         });
-      } catch { return Response.redirect('https://www.cdesigns.uk/blog', 302); }
+      } catch { return Response.redirect('https://www.c-designs.uk/blog', 302); }
     }
 
     // ── DEMO SITES (public) ───────────────────────────────────
@@ -2266,7 +2266,7 @@ export default {
       const slashIdx = rest.indexOf('/');
       const slug = decodeURIComponent(slashIdx === -1 ? rest : rest.slice(0, slashIdx));
       const subPath = slashIdx === -1 ? null : rest.slice(slashIdx + 1); // null = no trailing slash
-      const notFound = () => new Response('<!DOCTYPE html><meta charset="utf-8"><title>Demo not found</title><body style="font-family:system-ui;text-align:center;padding:80px 20px;color:#334155;"><h1>Demo not found</h1><p>This demo may have been removed. <a href="https://www.cdesigns.uk" style="color:#0ea5e9;">Back to C Design →</a></p></body>', { status: 404, headers: { 'Content-Type': 'text/html;charset=utf-8' } });
+      const notFound = () => new Response('<!DOCTYPE html><meta charset="utf-8"><title>Demo not found</title><body style="font-family:system-ui;text-align:center;padding:80px 20px;color:#334155;"><h1>Demo not found</h1><p>This demo may have been removed. <a href="https://www.c-designs.uk" style="color:#0ea5e9;">Back to C Design →</a></p></body>', { status: 404, headers: { 'Content-Type': 'text/html;charset=utf-8' } });
       try {
         const raw = await env.PROGRAMARI.get('__demos__');
         const demos = raw ? JSON.parse(raw) : [];
@@ -2872,8 +2872,8 @@ export default {
         try { u = new URL(target); } catch { return json({ error: 'Invalid URL' }, 400, request); }
         // SSRF guard: only allow our own site over https
         const host = u.hostname.toLowerCase();
-        const allowed = u.protocol === 'https:' && (host === url.hostname.toLowerCase() || host === 'cdesigns.uk' || host.endsWith('.cdesigns.uk'));
-        if (!allowed) return json({ error: 'Only pages on cdesigns.uk can be audited.' }, 400, request);
+        const allowed = u.protocol === 'https:' && (host === url.hostname.toLowerCase() || host === 'c-designs.uk' || host.endsWith('.c-designs.uk'));
+        if (!allowed) return json({ error: 'Only pages on c-designs.uk can be audited.' }, 400, request);
 
         const resp = await fetch(u.toString(), { headers: { 'User-Agent': 'CDesign-SEO-Audit' }, redirect: 'follow' });
         const status = resp.status;
