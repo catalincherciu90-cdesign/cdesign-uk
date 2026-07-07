@@ -2606,6 +2606,19 @@
       return _fetch(input, init);
     };
   })();
+
+  // Open a print/preview page without putting the admin token in the URL:
+  // mint a short-lived preview token, then navigate a new tab to it.
+  async function openPreview(path) {
+    var w = window.open('about:blank', '_blank'); // opened in the click handler → not popup-blocked
+    try {
+      var res = await fetch('/api/preview-token?token=' + encodeURIComponent(adminToken), { method: 'POST' });
+      var d = await res.json().catch(function () { return {}; });
+      if (!res.ok || !d.pt) { if (w) w.close(); alert('Could not open preview. Please try again.'); return; }
+      var u = path + (path.indexOf('?') === -1 ? '?' : '&') + 'pt=' + encodeURIComponent(d.pt);
+      if (w) w.location = u; else window.open(u, '_blank');
+    } catch (e) { if (w) w.close(); alert('Could not open preview. Please try again.'); }
+  }
   let currentFilter = 'all';
   let currentTab = 'gibilan';
 
@@ -7278,7 +7291,7 @@
       });
       if (!res.ok) { alert('Error generating.'); return; }
       const data = await res.json();
-      window.open('/oferta-preview/' + data.id + '?token=' + encodeURIComponent(adminToken), '_blank');
+      openPreview('/oferta-preview/' + data.id);
       fetchOferte();
       showOfertaView('istoric', document.getElementById('subnav-istoric'));
     } catch { alert('Network error.'); }
@@ -7324,7 +7337,7 @@
             <td style="padding:10px 12px;font-family:'Share Tech Mono',monospace;font-size:.78rem;color:var(--muted);">${o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-GB') : '–'}</td>
             <td style="padding:10px 12px;text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);">${total.toLocaleString('en-GB')} <span style="font-size:.72rem;color:var(--muted);">${esc(o.moneda || 'GBP')}</span></td>
             <td style="padding:10px 12px;white-space:nowrap;">
-              <button class="btn-edit" onclick="window.open('/oferta-preview/${esc(o.id)}?token=${encodeURIComponent(adminToken)}','_blank')" title="Preview / Print PDF" style="font-size:.8rem;">&#x1F5A8;</button>
+              <button class="btn-edit" onclick="openPreview('/oferta-preview/${esc(o.id)}')" title="Preview / Print PDF" style="font-size:.8rem;">&#x1F5A8;</button>
             </td>
           </tr>`;
       }).join('') +
@@ -7499,7 +7512,7 @@
       });
       if (!res.ok) { alert('Error generating.'); return; }
       const data = await res.json();
-      window.open('/contract-preview/' + data.id + '?token=' + encodeURIComponent(adminToken), '_blank');
+      openPreview('/contract-preview/' + data.id);
       fetchContracte();
     } catch { alert('Network error.'); }
     finally { btn.disabled = false; btn.innerHTML = '&#x1F4DD; Generate Contract PDF'; }
@@ -7540,7 +7553,7 @@
           <td style="padding:10px 12px;font-family:'Share Tech Mono',monospace;font-size:.78rem;color:var(--muted);">${c.dataSemnare ? formatDate(c.dataSemnare) : (c.createdAt ? new Date(c.createdAt).toLocaleDateString('en-GB') : '–')}</td>
           <td style="padding:10px 12px;text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);">${parseFloat(c.total||0).toLocaleString('en-GB')} <span style="font-size:.72rem;color:var(--muted);">${esc(c.moneda||'GBP')}</span></td>
           <td style="padding:10px 12px;white-space:nowrap;">
-            <button class="btn-edit" onclick="window.open('/contract-preview/${esc(c.id)}?token=${encodeURIComponent(adminToken)}','_blank')" title="Preview / Print PDF" style="font-size:.85rem;">&#x1F5A8;</button>
+            <button class="btn-edit" onclick="openPreview('/contract-preview/${esc(c.id)}')" title="Preview / Print PDF" style="font-size:.85rem;">&#x1F5A8;</button>
           </td>
         </tr>`).join('') +
       '</tbody></table></div>';
