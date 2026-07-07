@@ -764,7 +764,18 @@ async function logActivity(env, entry) {
 async function getAuth(url, env, request) {
   // Prefer the Authorization: Bearer header; fall back to ?token= for compatibility.
   const token = getBearer(request) || url.searchParams.get('token') || '';
-  if (!token) return null;
+  if (!token) {
+    // Short-lived, single-purpose preview token for print/preview windows that
+    // cannot send an Authorization header (opened via window.open).
+    const pt = url.searchParams.get('pt') || '';
+    if (pt) {
+      try {
+        const raw = await env.PROGRAMARI.get('__pv__' + pt);
+        if (raw) { const s = JSON.parse(raw); if (!s.expires || s.expires > Date.now()) return s; }
+      } catch {}
+    }
+    return null;
+  }
   if (token === (env.ADMIN_TOKEN || ADMIN_TOKEN) && token) {
     return { username: (env.ADMIN_USER || ADMIN_USER) || 'owner', role: 'owner' };
   }
@@ -2476,6 +2487,16 @@ export default {
         if (token && token !== (env.ADMIN_TOKEN || ADMIN_TOKEN)) await env.PROGRAMARI.delete('__session__' + token);
       } catch {}
       return json({ success: true }, 200, request);
+    }
+
+    // Mint a short-lived (120s) preview token so print/preview windows never
+    // carry the real admin token in their URL.
+    if (path === '/api/preview-token' && request.method === 'POST') {
+      if (!authed) return json({ error: 'Unauthorised' }, 401, request);
+      const pt = 'pv_' + (crypto.randomUUID() + crypto.randomUUID()).replace(/-/g, '');
+      const payload = { username: authed.username, role: authed.role, perms: Array.isArray(authed.perms) ? authed.perms : [], expires: Date.now() + 120000 };
+      await env.PROGRAMARI.put('__pv__' + pt, JSON.stringify(payload), { expirationTtl: 120 });
+      return json({ pt }, 200, request);
     }
 
     // ── CURRENT USER ──────────────────────────────────────────
