@@ -1809,7 +1809,7 @@
               </div>
               <div>
                 <div class="f-label" style="font-size:.7rem;">// email</div>
-                <input class="f-input" id="tmpl-prest-email" placeholder="office@c-design.ro" style="margin-top:4px;">
+                <input class="f-input" id="tmpl-prest-email" placeholder="email (optional)" style="margin-top:4px;">
               </div>
               <div>
                 <div class="f-label" style="font-size:.7rem;">// telefon</div>
@@ -1817,7 +1817,7 @@
               </div>
               <div>
                 <div class="f-label" style="font-size:.7rem;">// website</div>
-                <input class="f-input" id="tmpl-prest-web" placeholder="www.c-design.ro" style="margin-top:4px;">
+                <input class="f-input" id="tmpl-prest-web" placeholder="www.c-designs.uk" style="margin-top:4px;">
               </div>
               <div>
                 <div class="f-label" style="font-size:.7rem;">// IBAN</div>
@@ -5187,7 +5187,7 @@
         status.textContent = '// ✗ Error: ' + (data.error || 'unknown');
       } else {
         status.style.color = '#4ade80';
-        status.textContent = '// ✓ Email sent to ' + (data.to || 'office@c-design.ro') + ' · ID: ' + (data.id || '—');
+        status.textContent = '// ✓ Email sent to ' + (data.to || 'the configured address') + ' · ID: ' + (data.id || '—');
       }
     } catch (e) {
       status.style.color = '#f87171';
