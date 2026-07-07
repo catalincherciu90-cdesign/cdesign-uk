@@ -1,4 +1,4 @@
-# robots.txt — C Design (www.c-designs.uk)
+# robots.txt — C Design (c-designs.uk)
 
 User-agent: *
 Allow: /
@@ -10,7 +10,7 @@ Disallow: /programari.html
 Disallow: /*.json$
 
 # Sitemap
-Sitemap: https://www.c-designs.uk/sitemap.xml
+Sitemap: https://c-designs.uk/sitemap.xml
 
 # Recommended crawl-delay
 Crawl-delay: 10
