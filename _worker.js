@@ -475,8 +475,20 @@ const SEC_HEADERS = {
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
   'X-XSS-Protection': '1; mode=block',
-  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://connect.facebook.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.resend.com https://www.google-analytics.com;",
+  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.resend.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self';",
 };
+
+// Apply security headers to every outgoing response without clobbering CORS,
+// Content-Type, caching or redirect (Location) headers already set.
+function withSec(resp) {
+  try {
+    const h = new Headers(resp.headers);
+    for (const k in SEC_HEADERS) h.set(k, SEC_HEADERS[k]);
+    return new Response(resp.body, { status: resp.status, statusText: resp.statusText, headers: h });
+  } catch (e) {
+    return resp;
+  }
+}
 
 function json(data, status = 200, req) {
   return new Response(JSON.stringify(data), {
@@ -2182,6 +2194,9 @@ function zipFindIndex(entries) {
 
 export default {
   async fetch(request, env) {
+    return withSec(await this.__route(request, env));
+  },
+  async __route(request, env) {
     const url = new URL(request.url);
     const path = url.pathname;
 
