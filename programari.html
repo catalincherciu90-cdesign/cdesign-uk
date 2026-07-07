@@ -1308,6 +1308,19 @@
             <span id="sendMailStatus" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;display:none;"></span>
           </div>
         </div>
+
+        <!-- OUTBOX / SENT -->
+        <div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border);max-width:720px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px;">
+            <div class="f-label">// sent — outbox</div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn-add" style="padding:6px 12px;font-size:.76rem;" onclick="loadSentMail()">↻ Refresh</button>
+              <button class="btn-del" style="padding:6px 12px;font-size:.76rem;" onclick="clearSentMail()">🗑 Clear all</button>
+            </div>
+          </div>
+          <p style="font-size:.74rem;color:var(--muted);margin-bottom:14px;">Emails sent from this panel (compose + replies from Messages). Last 200 are kept.</p>
+          <div id="sentMailList"><div class="gib-empty">Loading…</div></div>
+        </div>
       </div>
     </div>
   </div>
@@ -2734,6 +2747,7 @@
     if (tab === 'gibilan') loadGibilan();
     if (tab === 'messages') loadMessages();
     if (tab === 'chat') loadChatLogs();
+    if (tab === 'email') loadSentMail();
     if (tab === 'social') { loadSocialBlogSelect(); loadSocialPosts(); }
     if (tab === 'projects') fetchProjects();
     if (tab === 'crm') { fetchCrm(); loadGibilan(); }
@@ -5302,9 +5316,46 @@
       else {
         status.style.color = '#4ade80'; status.textContent = '// ✓ sent to ' + to;
         document.getElementById('mailTo').value = ''; document.getElementById('mailSubject').value = ''; document.getElementById('mailBody').value = '';
+        loadSentMail();
       }
     } catch (e) { status.style.color = '#f87171'; status.textContent = '// ✗ network error'; }
     btn.disabled = false; btn.innerHTML = '&#x2709;&#xFE0F; Send email';
+  }
+
+  async function loadSentMail() {
+    const wrap = document.getElementById('sentMailList');
+    if (!wrap) return;
+    wrap.innerHTML = '<div class="gib-empty">Loading…</div>';
+    try {
+      const res = await fetch('/api/sent-mail?token=' + encodeURIComponent(adminToken));
+      const list = await res.json();
+      if (!Array.isArray(list) || !list.length) { wrap.innerHTML = '<div class="gib-empty">No emails sent yet.</div>'; return; }
+      wrap.innerHTML = list.map(function (m) {
+        var when = ''; try { when = new Date(m.createdAt).toLocaleString('en-GB'); } catch (e) {}
+        var ok = m.status !== 'failed';
+        var badge = ok
+          ? '<span style="font-size:.68rem;color:#12a150;background:rgba(18,161,80,.1);border-radius:5px;padding:2px 8px;">✓ sent</span>'
+          : '<span style="font-size:.68rem;color:#e5484d;background:rgba(229,72,77,.1);border-radius:5px;padding:2px 8px;" title="' + mEsc(m.error || '') + '">✗ failed</span>';
+        return '<div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:12px 14px;margin-bottom:8px;">' +
+          '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline;">' +
+            '<strong style="font-size:.86rem;color:var(--heading);">' + mEsc(m.subject || '(no subject)') + '</strong>' +
+            '<span style="font-size:.7rem;color:var(--muted);">' + mEsc(when) + '</span>' +
+          '</div>' +
+          '<div style="font-size:.76rem;color:var(--soft);margin-top:4px;">→ ' + mEsc(m.to) + ' &nbsp;·&nbsp; ' + badge + (m.by ? ' &nbsp;·&nbsp; by ' + mEsc(m.by) : '') + '</div>' +
+          (m.message ? '<details style="margin-top:8px;"><summary style="font-size:.74rem;color:var(--teal);cursor:pointer;">View message</summary><div style="font-size:.82rem;color:var(--text);margin-top:8px;line-height:1.5;white-space:pre-wrap;">' + mEsc(m.message) + '</div></details>' : '') +
+          '<div style="margin-top:10px;"><button onclick="deleteSentMail(\'' + mEsc(m.id) + '\')" style="font-size:.72rem;background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:4px 10px;cursor:pointer;">Delete</button></div>' +
+        '</div>';
+      }).join('');
+    } catch (e) { wrap.innerHTML = '<div class="gib-empty" style="color:#e74c3c;">Error loading outbox.</div>'; }
+  }
+  async function deleteSentMail(id) {
+    try { await fetch('/api/sent-mail/' + encodeURIComponent(id) + '?token=' + encodeURIComponent(adminToken), { method: 'DELETE' }); } catch (e) {}
+    loadSentMail();
+  }
+  async function clearSentMail() {
+    if (!confirm('Clear the entire outbox? This cannot be undone.')) return;
+    try { await fetch('/api/sent-mail?token=' + encodeURIComponent(adminToken), { method: 'DELETE' }); } catch (e) {}
+    loadSentMail();
   }
 
   async function testEmail() {
