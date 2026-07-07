@@ -1,40 +1,22 @@
-/* C Design — Google Analytics 4 + cookie consent (Consent Mode v2).
-   Analytics only starts collecting after the visitor clicks "Accept".
-   A "Cookie settings" link is added to the footer so the choice can be
-   changed at any time. To change the property, edit GA_ID (G-XXXXXXXXXX). */
+/* C Design — cookie consent UI for Google Analytics 4 (Consent Mode v2).
+   The Google tag itself (gtag.js) is loaded INLINE in the <head> of each page
+   with analytics_storage defaulting to 'denied'. This file only shows the
+   consent banner, updates consent after the visitor chooses, and adds a
+   "Cookie settings" link to the footer. GA_ID must match the inline snippet. */
 (function () {
   var GA_ID = 'G-TB9SZT1PVZ';
-  if (!GA_ID || GA_ID.indexOf('G-') !== 0 || GA_ID === 'G-XXXXXXXXXX') return;
-
   var STORE_KEY = 'cd_cookie_consent'; // 'granted' | 'denied'
   var PRIVACY_URL = '/politica-confidentialitate';
 
-  // ---- gtag bootstrap + Consent Mode defaults (denied until choice) ----
+  // gtag is defined by the inline snippet; define a fallback just in case.
   window.dataLayer = window.dataLayer || [];
-  function gtag() { window.dataLayer.push(arguments); }
+  var gtag = window.gtag || function () { window.dataLayer.push(arguments); };
   window.gtag = gtag;
-
-  gtag('consent', 'default', {
-    ad_storage: 'denied',
-    ad_user_data: 'denied',
-    ad_personalization: 'denied',
-    analytics_storage: 'denied',
-    wait_for_update: 500
-  });
-
-  var s = document.createElement('script');
-  s.async = true;
-  s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(GA_ID);
-  document.head.appendChild(s);
-
-  gtag('js', new Date());
-  gtag('config', GA_ID, { anonymize_ip: true });
 
   function readChoice() { try { return localStorage.getItem(STORE_KEY); } catch (e) { return null; } }
   function saveChoice(v) { try { localStorage.setItem(STORE_KEY, v); } catch (e) {} }
   function apply(granted) {
     gtag('consent', 'update', { analytics_storage: granted ? 'granted' : 'denied' });
-    if (granted) gtag('config', GA_ID, { anonymize_ip: true });
   }
 
   // ---- Consent banner (re-openable via window.cdCookieSettings) ----
@@ -96,7 +78,6 @@
   // Public API — used by the footer "Cookie settings" link.
   window.cdCookieSettings = function () { showBanner(); };
 
-  // Add a "Cookie settings" link to every footer so the choice can be revisited.
   function injectFooterLink() {
     var bars = document.querySelectorAll('.footer-bottom');
     for (var i = 0; i < bars.length; i++) {
