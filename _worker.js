@@ -504,7 +504,7 @@ const ADMIN_TOKEN = '';  // set via: wrangler secret put ADMIN_TOKEN
 const ADMIN_USER  = '';  // set via: wrangler secret put ADMIN_USER
 const RESEND_API_KEY = '';  // set via: wrangler secret put RESEND_API_KEY
 const NOTIFY_EMAIL  = 'office@c-designs.uk';  // override via: wrangler secret put NOTIFY_EMAIL
-const MAIL_FROM     = 'C Design <notificari@c-designs.uk>';  // sending domain must be verified in Resend
+const MAIL_FROM     = 'C Design <hello@c-designs.uk>';  // sending domain must be verified in Resend; override via env MAIL_FROM
 
 // Single, robust Resend sender. Does nothing (and says so) when unconfigured,
 // checks the response, and logs failures instead of swallowing them silently.
