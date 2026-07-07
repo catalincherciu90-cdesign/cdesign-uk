@@ -514,10 +514,13 @@ async function sendEmail(env, opts) {
   const to = (Array.isArray(opts.to) ? opts.to : [opts.to]).filter(Boolean);
   if (!to.length) return { ok: false, skipped: true, reason: 'no recipient' };
   try {
+    const payload = { from: opts.from || (env.MAIL_FROM || MAIL_FROM), to, subject: opts.subject, html: opts.html };
+    const replyTo = (Array.isArray(opts.replyTo) ? opts.replyTo : [opts.replyTo]).filter(Boolean);
+    if (replyTo.length) payload.reply_to = replyTo;
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: opts.from || (env.MAIL_FROM || MAIL_FROM), to, subject: opts.subject, html: opts.html }),
+      body: JSON.stringify(payload),
     });
     if (!res.ok) {
       let detail = ''; try { detail = await res.text(); } catch {}
@@ -529,6 +532,24 @@ async function sendEmail(env, opts) {
     console.error('sendEmail network error', e && e.message);
     return { ok: false, error: String((e && e.message) || e) };
   }
+}
+
+// Email addresses of all sub-admin accounts (valid ones only).
+async function getAdminEmails(env) {
+  try {
+    const raw = await env.PROGRAMARI.get('__admins__');
+    const admins = raw ? JSON.parse(raw) : [];
+    return admins.map(a => String(a.email || '').trim()).filter(e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
+  } catch { return []; }
+}
+
+// Recipients for admin-facing notifications: NOTIFY_EMAIL + every admin's email, deduped.
+async function notifyRecipients(env) {
+  const base = String(env.NOTIFY_EMAIL || NOTIFY_EMAIL || '').trim();
+  const list = [];
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(base)) list.push(base);
+  for (const e of await getAdminEmails(env)) list.push(e);
+  return [...new Set(list.map(e => e.toLowerCase()))];
 }
 
 async function sendBookingNotification(booking, env) {
@@ -596,7 +617,7 @@ async function sendBookingNotification(booking, env) {
 </body></html>`;
 
   await sendEmail(env, {
-    to: [env.NOTIFY_EMAIL || NOTIFY_EMAIL],
+    to: await notifyRecipients(env),
     subject: `📅 New booking — ${booking.name} · ${booking.date} ${booking.time}`,
     html,
   });
@@ -682,7 +703,7 @@ async function sendMessageNotification(msg, env) {
       </div>
     </div>`;
     await sendEmail(env, {
-      to: [env.NOTIFY_EMAIL || NOTIFY_EMAIL],
+      to: await notifyRecipients(env),
       subject: `✉️ New message — ${msg.name}`,
       html,
     });
@@ -2528,7 +2549,7 @@ export default {
           owner: { username: ownerUser, role: 'owner' },
           you: { username: authed.username, role: authed.role },
           sections: ADMIN_SECTIONS,
-          admins: admins.map(a => ({ username: a.username, role: a.role || 'admin', perms: Array.isArray(a.perms) ? a.perms : [], createdAt: a.createdAt })),
+          admins: admins.map(a => ({ username: a.username, role: a.role || 'admin', perms: Array.isArray(a.perms) ? a.perms : [], email: a.email || '', createdAt: a.createdAt })),
         });
       } catch { return json({ error: 'Server error' }, 500); }
     }
@@ -2536,18 +2557,20 @@ export default {
     if (path === '/api/admins' && request.method === 'POST') {
       if (!authed || authed.role !== 'owner') return json({ error: 'Unauthorised' }, 401);
       try {
-        const { username, password, perms } = await request.json();
+        const { username, password, perms, email } = await request.json();
         const u = String(username || '').trim();
         const p = String(password || '').trim();
+        const em = String(email || '').trim().slice(0, 120);
         if (!/^[a-zA-Z0-9._-]{2,40}$/.test(u)) return json({ error: 'Username must be 2–40 chars (letters, numbers, . _ -)' }, 400);
         if (p.length < 8) return json({ error: 'Password must be at least 8 characters' }, 400);
+        if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return json({ error: 'Invalid email address' }, 400);
         if (u === ((env.ADMIN_USER || ADMIN_USER) || 'owner')) return json({ error: 'That username is reserved (owner account)' }, 400);
         const cleanPerms = Array.isArray(perms) ? perms.filter(x => ADMIN_SECTIONS.includes(x)) : [];
         if (!cleanPerms.length) return json({ error: 'Select at least one permission' }, 400);
         const raw = await env.PROGRAMARI.get('__admins__');
         const admins = raw ? JSON.parse(raw) : [];
         if (admins.some(a => a.username === u)) return json({ error: 'That username already exists' }, 400);
-        admins.push({ username: u, role: 'admin', perms: cleanPerms, passHash: await hashPassword(p), createdAt: new Date().toISOString() });
+        admins.push({ username: u, role: 'admin', perms: cleanPerms, email: em, passHash: await hashPassword(p), createdAt: new Date().toISOString() });
         await env.PROGRAMARI.put('__admins__', JSON.stringify(admins));
         return json({ success: true });
       } catch { return json({ error: 'Server error' }, 500); }
@@ -2565,6 +2588,23 @@ export default {
         const a = admins.find(x => x.username === u);
         if (!a) return json({ error: 'Not found' }, 404);
         a.passHash = await hashPassword(p);
+        await env.PROGRAMARI.put('__admins__', JSON.stringify(admins));
+        return json({ success: true });
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+
+    if (path.startsWith('/api/admins/') && path.endsWith('/email') && request.method === 'PUT') {
+      if (!authed || authed.role !== 'owner') return json({ error: 'Unauthorised' }, 401);
+      try {
+        const u = decodeURIComponent(path.replace('/api/admins/', '').replace('/email', ''));
+        const { email } = await request.json();
+        const em = String(email || '').trim().slice(0, 120);
+        if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return json({ error: 'Invalid email address' }, 400);
+        const raw = await env.PROGRAMARI.get('__admins__');
+        const admins = raw ? JSON.parse(raw) : [];
+        const a = admins.find(x => x.username === u);
+        if (!a) return json({ error: 'Not found' }, 404);
+        a.email = em;
         await env.PROGRAMARI.put('__admins__', JSON.stringify(admins));
         return json({ success: true });
       } catch { return json({ error: 'Server error' }, 500); }
@@ -3949,7 +3989,15 @@ Title requirements:
             <div style="padding:28px;color:#2E3436;font-size:.98rem;line-height:1.6;">${safe}</div>
             <div style="padding:16px 28px;border-top:1px solid #eee;color:#8b94a3;font-size:.8rem;">C Design · +44 7312 799449 · c-designs.uk</div>
           </div></div>`;
-        const r = await sendEmail(env, { to: [to], subject, html });
+        // Reply-To = the sending admin's own email (owner falls back to NOTIFY_EMAIL), so replies reach them.
+        let replyTo = '';
+        try {
+          const araw = await env.PROGRAMARI.get('__admins__');
+          const alist = araw ? JSON.parse(araw) : [];
+          const me = alist.find(x => x.username === authed.username);
+          replyTo = (me && me.email) ? String(me.email).trim() : (authed.role === 'owner' ? String(env.NOTIFY_EMAIL || NOTIFY_EMAIL || '').trim() : '');
+        } catch {}
+        const r = await sendEmail(env, { to: [to], subject, html, replyTo: replyTo || undefined });
         if (!r.ok) return json({ error: (r.error || r.reason || 'Send failed') + '', status: r.status || 0 }, 500, request);
         await logActivity(env, { user: authed.username, role: authed.role, method: 'MAIL', path: 'send-mail → ' + to, ip, ts: Date.now() });
         return json({ success: true }, 200, request);
