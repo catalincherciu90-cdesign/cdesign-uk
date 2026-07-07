@@ -787,7 +787,7 @@ async function getAuth(url, env, request) {
 }
 
 // Sections a sub-admin can be granted access to.
-const ADMIN_SECTIONS = ['bookings', 'messages', 'chat', 'gibilan', 'clients', 'crm', 'portfolio', 'blog', 'seo', 'social', 'pages', 'media', 'theme', 'expenses', 'oferte', 'settings'];
+const ADMIN_SECTIONS = ['bookings', 'messages', 'chat', 'gibilan', 'clients', 'crm', 'portfolio', 'blog', 'seo', 'social', 'pages', 'media', 'theme', 'expenses', 'oferte', 'email', 'settings'];
 
 // Authorisation: owner can do anything; sub-admins need the section in their perms.
 function can(authed, section) {
@@ -3929,7 +3929,7 @@ Title requirements:
 
     // Compose & send an email to any recipient from the admin panel.
     if (path === '/api/send-mail' && request.method === 'POST') {
-      if (!can(authed, 'settings')) return json({ error: 'Unauthorised' }, 401, request);
+      if (!can(authed, 'email')) return json({ error: 'Unauthorised' }, 401, request);
       const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
       if (!await checkRateLimit(env, 'sendmail_' + ip, 40, 3600)) return json({ error: 'Too many emails sent this hour. Please try again later.' }, 429, request);
       const apiKey = env.RESEND_API_KEY || RESEND_API_KEY;

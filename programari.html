@@ -471,6 +471,7 @@
     <button class="tab active" onclick="switchTab('gibilan',this)">&#x1F916; Wizi</button>
     <button class="tab" onclick="switchTab('messages',this)">&#x1F4AC; Mesaje<span id="msgTabBadge" class="tab-badge" style="display:none;"></span></button>
     <button class="tab" onclick="switchTab('chat',this)">&#x1F916; AI Chat<span id="chatTabBadge" class="tab-badge" style="display:none;"></span></button>
+    <button class="tab" onclick="switchTab('email',this)">&#x2709;&#xFE0F; Email</button>
     <button class="tab" onclick="switchTab('projects',this)">&#x1F5BC; Portfolio</button>
     <button class="tab" onclick="switchTab('clients',this)">&#x1F465; Clients</button>
     <button class="tab" onclick="switchTab('crm',this)">&#x1F4CB; CRM &amp; Quotes</button>
@@ -1287,6 +1288,30 @@
     </div>
   </div>
 
+  <!-- TAB: EMAIL -->
+  <div class="tab-panel" id="panel-email">
+    <div class="main">
+      <div class="proj-toolbar">
+        <h3>// email — compose &amp; send via Resend</h3>
+      </div>
+      <div class="table-wrap" style="padding:24px;">
+        <p style="font-size:.82rem;color:var(--muted);margin-bottom:18px;max-width:640px;">Send an email to anyone directly from here. Sent from <strong>hello@c-designs.uk</strong> via Resend. Requires <code>RESEND_API_KEY</code> to be configured in Cloudflare.</p>
+        <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:20px;max-width:720px;">
+          <div class="f-label" style="margin-bottom:6px;">// to</div>
+          <input class="f-input" id="mailTo" type="email" placeholder="recipient@example.com" style="margin:0 0 14px;" autocomplete="off">
+          <div class="f-label" style="margin-bottom:6px;">// subject</div>
+          <input class="f-input" id="mailSubject" placeholder="Subject" style="margin:0 0 14px;">
+          <div class="f-label" style="margin-bottom:6px;">// message</div>
+          <textarea class="f-input" id="mailBody" placeholder="Write your message…" style="margin:0 0 14px;min-height:200px;resize:vertical;"></textarea>
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <button class="btn-add" id="btnSendMail" onclick="sendMail()" style="background:var(--teal-dim);border:1px solid var(--teal-border);color:var(--teal);">&#x2709;&#xFE0F; Send email</button>
+            <span id="sendMailStatus" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;display:none;"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- TAB: SETARI -->
   <div class="tab-panel" id="panel-settings">
     <div class="main">
@@ -1340,24 +1365,6 @@
             <button class="btn-add" onclick="addBlockedDate()" style="padding:8px 16px;">+ Add</button>
           </div>
           <div id="blockedDatesList" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
-        </div>
-
-        <!-- COMPOSE & SEND EMAIL (Resend) -->
-        <div style="margin-top:36px;padding-top:28px;border-top:1px solid var(--border);">
-          <div class="f-label" style="margin-bottom:6px;">// send_email — compose &amp; send via Resend</div>
-          <p style="font-size:.78rem;color:var(--muted);margin-bottom:16px;max-width:620px;">Send an email to anyone directly from here. Sent from <strong>hello@c-designs.uk</strong> via Resend. Requires RESEND_API_KEY to be configured in Cloudflare.</p>
-          <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:16px;max-width:680px;">
-            <div class="f-label" style="margin-bottom:6px;">// to</div>
-            <input class="f-input" id="mailTo" type="email" placeholder="recipient@example.com" style="margin:0 0 12px;" autocomplete="off">
-            <div class="f-label" style="margin-bottom:6px;">// subject</div>
-            <input class="f-input" id="mailSubject" placeholder="Subject" style="margin:0 0 12px;">
-            <div class="f-label" style="margin-bottom:6px;">// message</div>
-            <textarea class="f-input" id="mailBody" placeholder="Write your message…" style="margin:0 0 12px;min-height:140px;resize:vertical;"></textarea>
-            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-              <button class="btn-add" id="btnSendMail" onclick="sendMail()" style="background:var(--teal-dim);border:1px solid var(--teal-border);color:var(--teal);">&#x2709;&#xFE0F; Send email</button>
-              <span id="sendMailStatus" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;display:none;"></span>
-            </div>
-          </div>
         </div>
 
         <!-- ADMIN ACCOUNTS (owner only) -->
@@ -2730,8 +2737,8 @@
   }
 
   // ── Permissions & current user ───────────────────────────
-  const SECTION_LABELS = { bookings:'Bookings', messages:'Messages', chat:'AI Chat', gibilan:'Wizi', clients:'Clients', crm:'CRM & Quotes', portfolio:'Portfolio', blog:'Blog', seo:'SEO', social:'Social', pages:'Pages', media:'Media', theme:'Theme', expenses:'Expenses', oferte:'Quotes', settings:'Settings' };
-  const TAB_PERM = { bookings:'bookings', messages:'messages', chat:'chat', gibilan:'gibilan', clients:'clients', crm:'crm', projects:'portfolio', blog:'blog', seo:'seo', social:'social', pagini:'pages', media:'media', tema:'theme', settings:'settings', cheltuieli:'expenses', oferte:'oferte' };
+  const SECTION_LABELS = { bookings:'Bookings', messages:'Messages', chat:'AI Chat', gibilan:'Wizi', clients:'Clients', crm:'CRM & Quotes', portfolio:'Portfolio', blog:'Blog', seo:'SEO', social:'Social', pages:'Pages', media:'Media', theme:'Theme', expenses:'Expenses', oferte:'Quotes', email:'Email', settings:'Settings' };
+  const TAB_PERM = { bookings:'bookings', messages:'messages', chat:'chat', gibilan:'gibilan', clients:'clients', crm:'crm', projects:'portfolio', blog:'blog', seo:'seo', social:'social', pagini:'pages', media:'media', tema:'theme', email:'email', settings:'settings', cheltuieli:'expenses', oferte:'oferte' };
   let allSections = Object.keys(SECTION_LABELS);
 
   async function fetchMe() {
