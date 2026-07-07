@@ -515,6 +515,9 @@ async function sendEmail(env, opts) {
   if (!to.length) return { ok: false, skipped: true, reason: 'no recipient' };
   try {
     const payload = { from: opts.from || (env.MAIL_FROM || MAIL_FROM), to, subject: opts.subject, html: opts.html };
+    // A plain-text alternative improves deliverability (spam filters favour multipart emails).
+    if (opts.text) payload.text = String(opts.text).slice(0, 20000);
+    else if (opts.html) payload.text = String(opts.html).replace(/<style[\s\S]*?<\/style>/gi, '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim().slice(0, 20000);
     const replyTo = (Array.isArray(opts.replyTo) ? opts.replyTo : [opts.replyTo]).filter(Boolean);
     if (replyTo.length) payload.reply_to = replyTo;
     const res = await fetch('https://api.resend.com/emails', {
@@ -4019,7 +4022,7 @@ Title requirements:
           const me = alist.find(x => x.username === authed.username);
           replyTo = (me && me.email) ? String(me.email).trim() : (authed.role === 'owner' ? (await getOwnerEmail(env) || String(env.NOTIFY_EMAIL || NOTIFY_EMAIL || '').trim()) : '');
         } catch {}
-        const r = await sendEmail(env, { to: [to], subject, html, replyTo: replyTo || undefined });
+        const r = await sendEmail(env, { to: [to], subject, html, text: message, replyTo: replyTo || undefined });
         // Record in the outbox (both successes and failures) so it shows in the Email tab.
         try {
           const rec = { id: 'sent_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7), to, subject, message, by: authed.username, status: r.ok ? 'sent' : 'failed', error: r.ok ? '' : String(r.error || r.reason || '').slice(0, 200), createdAt: new Date().toISOString() };
