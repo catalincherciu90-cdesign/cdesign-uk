@@ -3927,6 +3927,35 @@ Title requirements:
       return json({ success: true, to: toEmail }, 200, request);
     }
 
+    // Compose & send an email to any recipient from the admin panel.
+    if (path === '/api/send-mail' && request.method === 'POST') {
+      if (!can(authed, 'settings')) return json({ error: 'Unauthorised' }, 401, request);
+      const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+      if (!await checkRateLimit(env, 'sendmail_' + ip, 40, 3600)) return json({ error: 'Too many emails sent this hour. Please try again later.' }, 429, request);
+      const apiKey = env.RESEND_API_KEY || RESEND_API_KEY;
+      if (!apiKey) return json({ error: 'RESEND_API_KEY is not configured in Cloudflare.' }, 400, request);
+      try {
+        const b = await request.json();
+        const to = String(b.to || '').trim();
+        const subject = String(b.subject || '').trim().slice(0, 200);
+        const message = String(b.message || '').trim().slice(0, 10000);
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) return json({ error: 'Invalid recipient email' }, 400, request);
+        if (!subject) return json({ error: 'Subject is required' }, 400, request);
+        if (!message) return json({ error: 'Message is required' }, 400, request);
+        const safe = escHtml(message).replace(/\n/g, '<br>');
+        const html = `<div style="font-family:'Segoe UI',Arial,sans-serif;background:#f4f7f7;padding:28px;">
+          <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e6ecec;">
+            <div style="background:#00AAAC;padding:18px 28px;color:#fff;font-weight:700;font-size:1.1rem;">C Design</div>
+            <div style="padding:28px;color:#2E3436;font-size:.98rem;line-height:1.6;">${safe}</div>
+            <div style="padding:16px 28px;border-top:1px solid #eee;color:#8b94a3;font-size:.8rem;">C Design · +44 7312 799449 · c-designs.uk</div>
+          </div></div>`;
+        const r = await sendEmail(env, { to: [to], subject, html });
+        if (!r.ok) return json({ error: (r.error || r.reason || 'Send failed') + '', status: r.status || 0 }, 500, request);
+        await logActivity(env, { user: authed.username, role: authed.role, method: 'MAIL', path: 'send-mail → ' + to, ip, ts: Date.now() });
+        return json({ success: true }, 200, request);
+      } catch (e) { return json({ error: 'Server error' }, 500, request); }
+    }
+
     if (path === '/api/settings' && request.method === 'GET') {
       try {
         const raw = await env.PROGRAMARI.get('__settings__');

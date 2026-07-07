@@ -1342,6 +1342,24 @@
           <div id="blockedDatesList" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
         </div>
 
+        <!-- COMPOSE & SEND EMAIL (Resend) -->
+        <div style="margin-top:36px;padding-top:28px;border-top:1px solid var(--border);">
+          <div class="f-label" style="margin-bottom:6px;">// send_email — compose &amp; send via Resend</div>
+          <p style="font-size:.78rem;color:var(--muted);margin-bottom:16px;max-width:620px;">Send an email to anyone directly from here. Sent from <strong>hello@c-designs.uk</strong> via Resend. Requires RESEND_API_KEY to be configured in Cloudflare.</p>
+          <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:16px;max-width:680px;">
+            <div class="f-label" style="margin-bottom:6px;">// to</div>
+            <input class="f-input" id="mailTo" type="email" placeholder="recipient@example.com" style="margin:0 0 12px;" autocomplete="off">
+            <div class="f-label" style="margin-bottom:6px;">// subject</div>
+            <input class="f-input" id="mailSubject" placeholder="Subject" style="margin:0 0 12px;">
+            <div class="f-label" style="margin-bottom:6px;">// message</div>
+            <textarea class="f-input" id="mailBody" placeholder="Write your message…" style="margin:0 0 12px;min-height:140px;resize:vertical;"></textarea>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              <button class="btn-add" id="btnSendMail" onclick="sendMail()" style="background:var(--teal-dim);border:1px solid var(--teal-border);color:var(--teal);">&#x2709;&#xFE0F; Send email</button>
+              <span id="sendMailStatus" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;display:none;"></span>
+            </div>
+          </div>
+        </div>
+
         <!-- ADMIN ACCOUNTS (owner only) -->
         <div id="adminAccountsSection" style="margin-top:36px;padding-top:28px;border-top:1px solid var(--border);display:none;">
           <div class="f-label" style="margin-bottom:6px;">// admin_accounts</div>
@@ -5171,6 +5189,33 @@
   function removeBlockedDate(d) {
     settingsData.blockedDates = (settingsData.blockedDates || []).filter(x => x !== d);
     renderBlockedDates();
+  }
+
+  async function sendMail() {
+    const to = (document.getElementById('mailTo').value || '').trim();
+    const subject = (document.getElementById('mailSubject').value || '').trim();
+    const message = (document.getElementById('mailBody').value || '').trim();
+    const btn = document.getElementById('btnSendMail');
+    const status = document.getElementById('sendMailStatus');
+    const fail = function (m) { status.style.display = 'inline'; status.style.color = '#f87171'; status.textContent = '// ✗ ' + m; };
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) return fail('enter a valid recipient email');
+    if (!subject) return fail('subject required');
+    if (!message) return fail('message required');
+    btn.disabled = true; btn.textContent = '⏳ Sending...';
+    status.style.display = 'inline'; status.style.color = 'var(--teal)'; status.textContent = '// sending…';
+    try {
+      const res = await fetch('/api/send-mail?token=' + encodeURIComponent(adminToken), {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: to, subject: subject, message: message })
+      });
+      const data = await res.json().catch(function () { return {}; });
+      if (!res.ok || !data.success) { status.style.color = '#f87171'; status.textContent = '// ✗ ' + (data.error || 'error'); }
+      else {
+        status.style.color = '#4ade80'; status.textContent = '// ✓ sent to ' + to;
+        document.getElementById('mailTo').value = ''; document.getElementById('mailSubject').value = ''; document.getElementById('mailBody').value = '';
+      }
+    } catch (e) { status.style.color = '#f87171'; status.textContent = '// ✗ network error'; }
+    btn.disabled = false; btn.innerHTML = '&#x2709;&#xFE0F; Send email';
   }
 
   async function testEmail() {
