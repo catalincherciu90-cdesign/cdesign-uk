@@ -2804,11 +2804,18 @@
     const wrap = document.getElementById('adminAccountsList');
     const youUser = (data.you && data.you.username) || (currentUser && currentUser.username) || '';
     let rows = `
-      <div style="display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:11px 14px;margin-bottom:8px;">
-        <span style="font-size:1.2rem;">👑</span>
-        <div style="flex:1;"><div style="font-weight:700;font-size:.88rem;">${esc(data.owner.username)}</div>
-        <div style="font-size:.72rem;color:var(--muted);">owner · full access · set in Cloudflare secrets</div></div>
-        <span style="font-size:.7rem;color:var(--muted);">protected</span>
+      <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:13px 15px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <span style="font-size:1.2rem;">👑</span>
+          <div style="flex:1;"><div style="font-weight:700;font-size:.88rem;">${esc(data.owner.username)}</div>
+          <div style="font-size:.72rem;color:var(--muted);">owner · full access · set in Cloudflare secrets</div></div>
+          <span style="font-size:.7rem;color:var(--muted);">protected</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <span style="font-size:.72rem;color:var(--muted);">// email</span>
+          <input class="f-input" id="ownerEmailInput" type="email" value="${esc(data.owner.email || '')}" placeholder="email (optional)" style="flex:1;min-width:160px;margin:0;">
+          <button class="btn-add" style="padding:6px 14px;font-size:.78rem;" onclick="saveOwnerEmail()">Save email</button>
+        </div>
       </div>`;
     rows += (data.admins || []).map(a => `
       <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:13px 15px;margin-bottom:8px;">
@@ -2849,6 +2856,21 @@
       document.getElementById('newAdminPass').value = '';
       document.getElementById('newAdminEmail').value = '';
       fetchAdmins();
+    } catch { alert('Network error.'); }
+  }
+
+  async function saveOwnerEmail() {
+    const inp = document.getElementById('ownerEmailInput');
+    if (!inp) return;
+    const email = inp.value.trim();
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Enter a valid email or leave it empty.'); return; }
+    try {
+      const res = await fetch('/api/owner-email?token=' + encodeURIComponent(adminToken), {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) { alert(data.error || 'Could not save email.'); return; }
+      alert('Owner email saved.');
     } catch { alert('Network error.'); }
   }
 

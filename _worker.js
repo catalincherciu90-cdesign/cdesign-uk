@@ -543,11 +543,22 @@ async function getAdminEmails(env) {
   } catch { return []; }
 }
 
-// Recipients for admin-facing notifications: NOTIFY_EMAIL + every admin's email, deduped.
+// The owner's email, stored separately (the owner account lives in Cloudflare secrets, not KV).
+async function getOwnerEmail(env) {
+  try {
+    const e = String((await env.PROGRAMARI.get('__owner_email__')) || '').trim();
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e) ? e : '';
+  } catch { return ''; }
+}
+
+// Recipients for admin-facing notifications: NOTIFY_EMAIL + owner email + every admin's email, deduped.
 async function notifyRecipients(env) {
-  const base = String(env.NOTIFY_EMAIL || NOTIFY_EMAIL || '').trim();
+  const isEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
   const list = [];
-  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(base)) list.push(base);
+  const base = String(env.NOTIFY_EMAIL || NOTIFY_EMAIL || '').trim();
+  if (isEmail(base)) list.push(base);
+  const owner = await getOwnerEmail(env);
+  if (owner) list.push(owner);
   for (const e of await getAdminEmails(env)) list.push(e);
   return [...new Set(list.map(e => e.toLowerCase()))];
 }
@@ -2546,11 +2557,22 @@ export default {
         const admins = raw ? JSON.parse(raw) : [];
         const ownerUser = (env.ADMIN_USER || ADMIN_USER) || 'owner';
         return json({
-          owner: { username: ownerUser, role: 'owner' },
+          owner: { username: ownerUser, role: 'owner', email: await getOwnerEmail(env) },
           you: { username: authed.username, role: authed.role },
           sections: ADMIN_SECTIONS,
           admins: admins.map(a => ({ username: a.username, role: a.role || 'admin', perms: Array.isArray(a.perms) ? a.perms : [], email: a.email || '', createdAt: a.createdAt })),
         });
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+
+    if (path === '/api/owner-email' && request.method === 'PUT') {
+      if (!authed || authed.role !== 'owner') return json({ error: 'Unauthorised' }, 401);
+      try {
+        const { email } = await request.json();
+        const em = String(email || '').trim().slice(0, 120);
+        if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return json({ error: 'Invalid email address' }, 400);
+        await env.PROGRAMARI.put('__owner_email__', em);
+        return json({ success: true });
       } catch { return json({ error: 'Server error' }, 500); }
     }
 
@@ -3995,7 +4017,7 @@ Title requirements:
           const araw = await env.PROGRAMARI.get('__admins__');
           const alist = araw ? JSON.parse(araw) : [];
           const me = alist.find(x => x.username === authed.username);
-          replyTo = (me && me.email) ? String(me.email).trim() : (authed.role === 'owner' ? String(env.NOTIFY_EMAIL || NOTIFY_EMAIL || '').trim() : '');
+          replyTo = (me && me.email) ? String(me.email).trim() : (authed.role === 'owner' ? (await getOwnerEmail(env) || String(env.NOTIFY_EMAIL || NOTIFY_EMAIL || '').trim()) : '');
         } catch {}
         const r = await sendEmail(env, { to: [to], subject, html, replyTo: replyTo || undefined });
         if (!r.ok) return json({ error: (r.error || r.reason || 'Send failed') + '', status: r.status || 0 }, 500, request);
