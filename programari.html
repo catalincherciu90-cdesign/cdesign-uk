@@ -2584,6 +2584,28 @@
   let currentUser = null;
   let allBookings = [];
   let allProjects = [];
+
+  // Security: keep the admin token OUT of request URLs. This interceptor strips
+  // any ?token=/&token= from same-origin /api/ requests and sends it in the
+  // Authorization header instead (so it can't leak via Referer, history or logs).
+  (function () {
+    var _fetch = window.fetch.bind(window);
+    window.fetch = function (input, init) {
+      try {
+        if (typeof input === 'string' && input.indexOf('/api/') !== -1 && /[?&]token=/.test(input)) {
+          var u = new URL(input, location.origin);
+          var tok = u.searchParams.get('token') || adminToken;
+          u.searchParams.delete('token');
+          input = u.pathname + (u.search || '') + (u.hash || '');
+          init = init || {};
+          var headers = new Headers((init && init.headers) || {});
+          if (tok && !headers.has('Authorization')) headers.set('Authorization', 'Bearer ' + tok);
+          init.headers = headers;
+        }
+      } catch (e) {}
+      return _fetch(input, init);
+    };
+  })();
   let currentFilter = 'all';
   let currentTab = 'gibilan';
 

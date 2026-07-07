@@ -705,6 +705,50 @@ async function sha256(str) {
   return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// Constant-time string comparison (avoids timing side-channels on secrets).
+function safeEqual(a, b) {
+  a = String(a); b = String(b);
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+// Salted PBKDF2-SHA256 password hashing. Format: pbkdf2$<iters>$<saltB64>$<hashB64>
+const PBKDF2_ITERS = 100000;
+async function hashPassword(password) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(String(password)), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations: PBKDF2_ITERS, hash: 'SHA-256' }, key, 256);
+  const b64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+  return `pbkdf2$${PBKDF2_ITERS}$${b64(salt)}$${b64(bits)}`;
+}
+async function verifyPassword(password, stored) {
+  if (!stored) return false;
+  if (String(stored).startsWith('pbkdf2$')) {
+    const parts = String(stored).split('$');
+    if (parts.length !== 4) return false;
+    const iterations = parseInt(parts[1], 10) || PBKDF2_ITERS;
+    let salt;
+    try { salt = Uint8Array.from(atob(parts[2]), c => c.charCodeAt(0)); } catch { return false; }
+    const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(String(password)), 'PBKDF2', false, ['deriveBits']);
+    const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations, hash: 'SHA-256' }, key, 256);
+    const calc = btoa(String.fromCharCode(...new Uint8Array(bits)));
+    return safeEqual(calc, parts[3]);
+  }
+  // Legacy unsalted SHA-256 hex (migrated to PBKDF2 on next successful login).
+  return safeEqual(await sha256(password), String(stored));
+}
+function isLegacyHash(stored) {
+  return !!stored && !String(stored).startsWith('pbkdf2$');
+}
+
+// Extract a bearer token from the Authorization header (preferred over URL query).
+function getBearer(request) {
+  const a = request && request.headers ? (request.headers.get('Authorization') || '') : '';
+  return a.indexOf('Bearer ') === 0 ? a.slice(7).trim() : '';
+}
+
 // Append an entry to the activity log (kept to the last 200 events).
 async function logActivity(env, entry) {
   try {
@@ -717,8 +761,9 @@ async function logActivity(env, entry) {
 
 // Returns the authenticated identity for a request, or null.
 // Accepts the master token (env secret) or a valid session token (KV).
-async function getAuth(url, env) {
-  const token = url.searchParams.get('token') || '';
+async function getAuth(url, env, request) {
+  // Prefer the Authorization: Bearer header; fall back to ?token= for compatibility.
+  const token = getBearer(request) || url.searchParams.get('token') || '';
   if (!token) return null;
   if (token === (env.ADMIN_TOKEN || ADMIN_TOKEN) && token) {
     return { username: (env.ADMIN_USER || ADMIN_USER) || 'owner', role: 'owner' };
@@ -2203,7 +2248,7 @@ export default {
     if (request.method === 'OPTIONS') return new Response(null, { headers: getCors(request) });
 
     // Authenticated identity (master token or session token), or null. Used by all admin routes.
-    const authed = await getAuth(url, env);
+    const authed = await getAuth(url, env, request);
 
     // Activity log: record every admin write action (who changed what).
     if (authed && path.startsWith('/api/') && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method)
@@ -2406,7 +2451,14 @@ export default {
           const admins = raw ? JSON.parse(raw) : [];
           const a = admins.find(x => x.username === username);
           const passTry = String(password == null ? '' : password).trim();
-          if (a && a.passHash === await sha256(passTry)) { role = a.role || 'admin'; perms = Array.isArray(a.perms) ? a.perms : []; }
+          if (a && await verifyPassword(passTry, a.passHash)) {
+            role = a.role || 'admin';
+            perms = Array.isArray(a.perms) ? a.perms : [];
+            // Upgrade legacy unsalted hashes to PBKDF2 on successful login.
+            if (isLegacyHash(a.passHash)) {
+              try { a.passHash = await hashPassword(passTry); await env.PROGRAMARI.put('__admins__', JSON.stringify(admins)); } catch {}
+            }
+          }
         }
         if (!role) return json({ error: 'Invalid credentials' }, 401, request);
         // Issue a session token (valid 30 days) instead of exposing the master token.
@@ -2420,7 +2472,7 @@ export default {
 
     if (path === '/api/logout' && request.method === 'POST') {
       try {
-        const token = url.searchParams.get('token') || '';
+        const token = getBearer(request) || url.searchParams.get('token') || '';
         if (token && token !== (env.ADMIN_TOKEN || ADMIN_TOKEN)) await env.PROGRAMARI.delete('__session__' + token);
       } catch {}
       return json({ success: true }, 200, request);
@@ -2476,7 +2528,7 @@ export default {
         const raw = await env.PROGRAMARI.get('__admins__');
         const admins = raw ? JSON.parse(raw) : [];
         if (admins.some(a => a.username === u)) return json({ error: 'That username already exists' }, 400);
-        admins.push({ username: u, role: 'admin', perms: cleanPerms, passHash: await sha256(p), createdAt: new Date().toISOString() });
+        admins.push({ username: u, role: 'admin', perms: cleanPerms, passHash: await hashPassword(p), createdAt: new Date().toISOString() });
         await env.PROGRAMARI.put('__admins__', JSON.stringify(admins));
         return json({ success: true });
       } catch { return json({ error: 'Server error' }, 500); }
@@ -2493,7 +2545,7 @@ export default {
         const admins = raw ? JSON.parse(raw) : [];
         const a = admins.find(x => x.username === u);
         if (!a) return json({ error: 'Not found' }, 404);
-        a.passHash = await sha256(p);
+        a.passHash = await hashPassword(p);
         await env.PROGRAMARI.put('__admins__', JSON.stringify(admins));
         return json({ success: true });
       } catch { return json({ error: 'Server error' }, 500); }
