@@ -15,11 +15,13 @@ DEST="$REPO_ROOT/.claude/agents"
 
 # Candidați pentru sursa agenților (prima potrivire câștigă):
 #   1. variabila de mediu AI_AGENTI_PATH (poate fi repo-ul sau folderul agents/)
-#   2. repo-ul ai-agenti ca sibling al acestui repo
-#   3. $HOME/ai-agenti
+#   2. acest repo este chiar ai-agenti (folderul agents/ la rădăcină)
+#   3. repo-ul ai-agenti ca sibling al acestui repo
+#   4. $HOME/ai-agenti
 CANDIDATES=(
   "${AI_AGENTI_PATH:-}/agents"
   "${AI_AGENTI_PATH:-}"
+  "$REPO_ROOT/agents"
   "$REPO_ROOT/../ai-agenti/agents"
   "$HOME/ai-agenti/agents"
 )
@@ -37,15 +39,22 @@ if [ -z "$SRC" ]; then
   exit 0
 fi
 
-mkdir -p "$DEST"
+# Evită oglindirea unui folder în el însuși (cazul repo-ului ai-agenti unde
+# .claude/agents ar putea fi identic cu sursa) — comparăm căile absolute.
+SRC_ABS="$(cd "$SRC" && pwd)"
+DEST_ABS="$(mkdir -p "$DEST" && cd "$DEST" && pwd)"
+if [ "$SRC_ABS" = "$DEST_ABS" ]; then
+  echo "sync-agents: sursa și destinația coincid ($SRC_ABS); nimic de făcut." >&2
+  exit 0
+fi
 
 # Oglindire (rsync dacă există, altfel cp), inclusiv ștergerea agenților dispăruți
 if command -v rsync >/dev/null 2>&1; then
-  rsync -a --delete "$SRC/" "$DEST/"
+  rsync -a --delete "$SRC_ABS/" "$DEST_ABS/"
 else
-  rm -rf "${DEST:?}"/*
-  cp -a "$SRC/." "$DEST/"
+  rm -rf "${DEST_ABS:?}"/*
+  cp -a "$SRC_ABS/." "$DEST_ABS/"
 fi
 
-echo "sync-agents: agenți sincronizați din $SRC" >&2
+echo "sync-agents: agenți sincronizați din $SRC_ABS" >&2
 exit 0
