@@ -395,8 +395,10 @@
     /* ── GIBILAN ─────────────────────────────────────────────── */
     .gibilan-layout{display:grid;grid-template-columns:260px 1fr;gap:32px;padding:24px 0;}
     .gibilan-char{display:flex;flex-direction:column;align-items:center;gap:16px;}
-    .gibilan-agenda{display:flex;flex-direction:column;gap:20px;}
-    .gib-section{background:var(--bg2);border:1px solid var(--border-soft);border-radius:12px;padding:20px;}
+    .gibilan-agenda{column-count:3;column-gap:16px;}
+    .gib-agenda-head{column-span:all;margin-bottom:16px;}
+    .gib-section{background:var(--bg2);border:1px solid var(--border-soft);border-radius:12px;padding:18px;break-inside:avoid;margin-bottom:16px;}
+    @media(max-width:1200px){.gibilan-agenda{column-count:2;}}
     .gib-section-title{font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700;color:var(--heading);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
     .gib-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border-radius:8px;margin-bottom:8px;font-size:.88rem;}
     .gib-item:last-child{margin-bottom:0;}
@@ -431,7 +433,7 @@
     @keyframes blink{0%,96%,100%{transform:scaleY(1)}98%{transform:scaleY(0.05)}}
     .pupil-left,.pupil-right{animation:blink 4s ease-in-out infinite;transform-origin:center;}
     .gib-todo-cb{accent-color:var(--teal);width:15px;height:15px;cursor:pointer;flex-shrink:0;}
-    @media(max-width:768px){.gibilan-layout{grid-template-columns:1fr;}}
+    @media(max-width:768px){.gibilan-layout{grid-template-columns:1fr;}.gibilan-agenda{column-count:1;}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 </head>
@@ -594,7 +596,7 @@
 
         <!-- Dreapta: agenda zilei -->
         <div class="gibilan-agenda">
-          <div>
+          <div class="gib-agenda-head">
             <div class="gib-date" id="gib-date-title">Loading...</div>
             <div class="gib-date-sub" id="gib-date-sub"></div>
           </div>
