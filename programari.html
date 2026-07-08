@@ -487,6 +487,7 @@
     <button class="tab" onclick="switchTab('blog',this)">&#x270D; Blog</button>
     <button class="tab" onclick="switchTab('seo',this)">&#x1F50D; SEO</button>
     <button class="tab" onclick="switchTab('social',this)">&#x1F4F1; Social Media</button>
+    <button class="tab" onclick="switchTab('reviews',this)">&#x2B50; Reviews</button>
     <button class="tab" onclick="switchTab('media',this)">&#x1F5BC; Media</button>
     <button class="tab" onclick="switchTab('settings',this)">&#x2699; Settings</button>
     <button class="tab" onclick="switchTab('cheltuieli',this)">&#x1F4B8; Expenses</button>
@@ -1313,6 +1314,42 @@
       <div class="theme-save-bar">
         <button class="theme-reset-btn" onclick="resetTheme()">↺ Reset to default</button>
         <button class="btn-save" id="theme-save-btn" onclick="saveTheme()">💾 Save theme</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: REVIEWS -->
+  <div class="tab-panel" id="panel-reviews">
+    <div class="main">
+      <div class="proj-toolbar">
+        <h3>// reviews — client testimonials shown on the homepage</h3>
+      </div>
+      <div class="table-wrap" style="padding:24px;">
+        <p style="font-size:.82rem;color:var(--muted);margin-bottom:16px;max-width:660px;">Add reviews from your clients (or copy them from your Google Business Profile). Published ones appear on the homepage with star ratings. Tip: paste your real Google reviews here and set the source to “Google”.</p>
+        <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:18px;max-width:760px;margin-bottom:22px;">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+            <input class="f-input" id="revName" placeholder="Client name *" style="flex:1;min-width:150px;margin:0;">
+            <input class="f-input" id="revCompany" placeholder="Company / town (optional)" style="flex:1;min-width:150px;margin:0;">
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+            <select class="f-input" id="revRating" style="flex:1;min-width:120px;margin:0;">
+              <option value="5">★★★★★ (5)</option>
+              <option value="4">★★★★☆ (4)</option>
+              <option value="3">★★★☆☆ (3)</option>
+              <option value="2">★★☆☆☆ (2)</option>
+              <option value="1">★☆☆☆☆ (1)</option>
+            </select>
+            <select class="f-input" id="revSource" style="flex:1;min-width:120px;margin:0;">
+              <option value="direct">Source: Direct</option>
+              <option value="google">Source: Google</option>
+            </select>
+            <label style="display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--soft);"><input type="checkbox" id="revPublished" checked> Published</label>
+          </div>
+          <textarea class="f-input" id="revText" placeholder="Review text *" style="margin:0 0 12px;min-height:90px;resize:vertical;"></textarea>
+          <button class="btn-add" onclick="addReview()" style="padding:8px 16px;">+ Add review</button>
+          <span id="revAddStatus" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;margin-left:10px;"></span>
+        </div>
+        <div id="reviewsList"><div class="gib-empty">Loading…</div></div>
       </div>
     </div>
   </div>
@@ -2781,6 +2818,7 @@
     if (tab === 'chat') loadChatLogs();
     if (tab === 'email') loadSentMail();
     if (tab === 'social') { loadSocialBlogSelect(); loadSocialPosts(); }
+    if (tab === 'reviews') loadReviews();
     if (tab === 'projects') fetchProjects();
     if (tab === 'crm') { fetchCrm(); loadGibilan(); }
     if (tab === 'clients') { fetchClients(); loadGibilan(); }
@@ -2793,8 +2831,8 @@
   }
 
   // ── Permissions & current user ───────────────────────────
-  const SECTION_LABELS = { bookings:'Bookings', messages:'Messages', chat:'AI Chat', gibilan:'Wizi', clients:'Clients', crm:'CRM & Quotes', portfolio:'Portfolio', blog:'Blog', seo:'SEO', social:'Social', pages:'Pages', media:'Media', theme:'Theme', expenses:'Expenses', oferte:'Quotes', email:'Email', settings:'Settings' };
-  const TAB_PERM = { bookings:'bookings', messages:'messages', chat:'chat', gibilan:'gibilan', clients:'clients', crm:'crm', projects:'portfolio', blog:'blog', seo:'seo', social:'social', pagini:'pages', media:'media', tema:'theme', email:'email', settings:'settings', cheltuieli:'expenses', oferte:'oferte' };
+  const SECTION_LABELS = { bookings:'Bookings', messages:'Messages', chat:'AI Chat', gibilan:'Wizi', clients:'Clients', crm:'CRM & Quotes', portfolio:'Portfolio', blog:'Blog', seo:'SEO', social:'Social', reviews:'Reviews', pages:'Pages', media:'Media', theme:'Theme', expenses:'Expenses', oferte:'Quotes', email:'Email', settings:'Settings' };
+  const TAB_PERM = { bookings:'bookings', messages:'messages', chat:'chat', gibilan:'gibilan', clients:'clients', crm:'crm', projects:'portfolio', blog:'blog', seo:'seo', social:'social', reviews:'reviews', pagini:'pages', media:'media', tema:'theme', email:'email', settings:'settings', cheltuieli:'expenses', oferte:'oferte' };
   let allSections = Object.keys(SECTION_LABELS);
 
   async function fetchMe() {
@@ -5374,6 +5412,63 @@
       updateEmailBadge(window.__sentCache);
     } catch (e) {}
   }
+  // ── Reviews ──────────────────────────────────────────────
+  async function loadReviews() {
+    var wrap = document.getElementById('reviewsList');
+    if (!wrap) return;
+    wrap.innerHTML = '<div class="gib-empty">Loading…</div>';
+    try {
+      var res = await fetch('/api/reviews?all=1&token=' + encodeURIComponent(adminToken));
+      var list = await res.json();
+      window.__reviewsCache = Array.isArray(list) ? list : [];
+      if (!window.__reviewsCache.length) { wrap.innerHTML = '<div class="gib-empty">No reviews yet. Add your first above.</div>'; return; }
+      wrap.innerHTML = window.__reviewsCache.map(function (r) {
+        var st = ''; for (var i = 0; i < 5; i++) st += (i < (r.rating || 5)) ? '★' : '☆';
+        return '<div style="background:var(--bg2);border:1px solid ' + (r.published ? 'var(--border-soft)' : '#e5a84d') + ';border-radius:10px;padding:13px 15px;margin-bottom:8px;">' +
+          '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline;">' +
+            '<strong style="font-size:.88rem;color:var(--heading);">' + mEsc(r.name) + (r.company ? ' <span style="font-weight:400;color:var(--muted);">· ' + mEsc(r.company) + '</span>' : '') + '</strong>' +
+            '<span style="font-size:.8rem;color:#f5b301;">' + st + (r.source === 'google' ? ' <span style="color:var(--muted);font-size:.72rem;">Google</span>' : '') + '</span>' +
+          '</div>' +
+          '<div style="font-size:.86rem;color:var(--text);margin-top:6px;line-height:1.5;white-space:pre-wrap;">' + mEsc(r.text) + '</div>' +
+          '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">' +
+            '<button onclick="toggleReviewPub(\'' + mEsc(r.id) + '\',' + (r.published ? 'false' : 'true') + ')" style="font-size:.72rem;background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:4px 10px;cursor:pointer;">' + (r.published ? '👁 Unpublish' : '✓ Publish') + '</button>' +
+            '<button onclick="deleteReview(\'' + mEsc(r.id) + '\')" style="font-size:.72rem;background:none;border:1px solid #e74c3c;color:#e74c3c;border-radius:6px;padding:4px 10px;cursor:pointer;">Delete</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    } catch (e) { wrap.innerHTML = '<div class="gib-empty" style="color:#e74c3c;">Error loading reviews.</div>'; }
+  }
+  async function addReview() {
+    var name = document.getElementById('revName').value.trim();
+    var company = document.getElementById('revCompany').value.trim();
+    var text = document.getElementById('revText').value.trim();
+    var rating = document.getElementById('revRating').value;
+    var source = document.getElementById('revSource').value;
+    var published = document.getElementById('revPublished').checked;
+    var status = document.getElementById('revAddStatus');
+    if (name.length < 2 || text.length < 5) { status.style.color = '#f87171'; status.textContent = '// name and review text required'; return; }
+    try {
+      var res = await fetch('/api/reviews?token=' + encodeURIComponent(adminToken), {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name, company: company, text: text, rating: rating, source: source, published: published })
+      });
+      var d = await res.json().catch(function () { return {}; });
+      if (!res.ok || !d.success) { status.style.color = '#f87171'; status.textContent = '// ✗ ' + (d.error || 'error'); return; }
+      status.style.color = '#4ade80'; status.textContent = '// ✓ added';
+      document.getElementById('revName').value = ''; document.getElementById('revCompany').value = ''; document.getElementById('revText').value = '';
+      loadReviews();
+    } catch (e) { status.style.color = '#f87171'; status.textContent = '// network error'; }
+  }
+  async function toggleReviewPub(id, pub) {
+    try { await fetch('/api/reviews/' + encodeURIComponent(id) + '?token=' + encodeURIComponent(adminToken), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ published: pub }) }); } catch (e) {}
+    loadReviews();
+  }
+  async function deleteReview(id) {
+    if (!confirm('Delete this review?')) return;
+    try { await fetch('/api/reviews/' + encodeURIComponent(id) + '?token=' + encodeURIComponent(adminToken), { method: 'DELETE' }); } catch (e) {}
+    loadReviews();
+  }
+
   function switchTabByName(name) {
     var btns = document.querySelectorAll('.tab');
     for (var i = 0; i < btns.length; i++) {

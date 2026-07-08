@@ -823,7 +823,7 @@ async function getAuth(url, env, request) {
 }
 
 // Sections a sub-admin can be granted access to.
-const ADMIN_SECTIONS = ['bookings', 'messages', 'chat', 'gibilan', 'clients', 'crm', 'portfolio', 'blog', 'seo', 'social', 'pages', 'media', 'theme', 'expenses', 'oferte', 'email', 'settings'];
+const ADMIN_SECTIONS = ['bookings', 'messages', 'chat', 'gibilan', 'clients', 'crm', 'portfolio', 'blog', 'seo', 'social', 'reviews', 'pages', 'media', 'theme', 'expenses', 'oferte', 'email', 'settings'];
 
 // Authorisation: owner can do anything; sub-admins need the section in their perms.
 function can(authed, section) {
@@ -4060,6 +4060,71 @@ Title requirements:
         const raw = await env.PROGRAMARI.get('__sentmail__');
         const list = raw ? JSON.parse(raw) : [];
         await env.PROGRAMARI.put('__sentmail__', JSON.stringify(list.filter(x => x.id !== id)));
+        return json({ success: true }, 200, request);
+      } catch { return json({ error: 'Server error' }, 500, request); }
+    }
+
+    // ── REVIEWS / TESTIMONIALS ────────────────────────────────
+    if (path === '/api/reviews' && request.method === 'GET') {
+      try {
+        const raw = await env.PROGRAMARI.get('__reviews__');
+        let list = raw ? JSON.parse(raw) : [];
+        // Admins with the 'reviews' permission and ?all=1 see everything; public sees published only.
+        const wantAll = url.searchParams.get('all') === '1' && can(authed, 'reviews');
+        if (!wantAll) list = list.filter(r => r.published);
+        list.sort((a, b) => (a.order || 0) - (b.order || 0));
+        return json(list, 200, request);
+      } catch { return json([], 200, request); }
+    }
+
+    if (path === '/api/reviews' && request.method === 'POST') {
+      if (!can(authed, 'reviews')) return json({ error: 'Unauthorised' }, 401, request);
+      try {
+        const b = await request.json();
+        const name = String(b.name || '').trim().slice(0, 80);
+        const company = String(b.company || '').trim().slice(0, 80);
+        const text = String(b.text || '').trim().slice(0, 1000);
+        let rating = parseInt(b.rating, 10); if (!(rating >= 1 && rating <= 5)) rating = 5;
+        const source = b.source === 'google' ? 'google' : 'direct';
+        if (name.length < 2) return json({ error: 'Name is required' }, 400, request);
+        if (text.length < 5) return json({ error: 'Review text is required' }, 400, request);
+        const raw = await env.PROGRAMARI.get('__reviews__');
+        const list = raw ? JSON.parse(raw) : [];
+        const maxOrder = list.reduce((m, r) => Math.max(m, r.order || 0), 0);
+        list.push({ id: 'rev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7), name, company, text, rating, source, published: b.published !== false, order: maxOrder + 1, createdAt: new Date().toISOString() });
+        await env.PROGRAMARI.put('__reviews__', JSON.stringify(list.slice(0, 200)));
+        return json({ success: true }, 200, request);
+      } catch { return json({ error: 'Server error' }, 500, request); }
+    }
+
+    if (path.startsWith('/api/reviews/') && request.method === 'PUT') {
+      if (!can(authed, 'reviews')) return json({ error: 'Unauthorised' }, 401, request);
+      try {
+        const id = decodeURIComponent(path.replace('/api/reviews/', ''));
+        const b = await request.json();
+        const raw = await env.PROGRAMARI.get('__reviews__');
+        const list = raw ? JSON.parse(raw) : [];
+        const r = list.find(x => x.id === id);
+        if (!r) return json({ error: 'Not found' }, 404, request);
+        if (b.name !== undefined) r.name = String(b.name || '').trim().slice(0, 80);
+        if (b.company !== undefined) r.company = String(b.company || '').trim().slice(0, 80);
+        if (b.text !== undefined) r.text = String(b.text || '').trim().slice(0, 1000);
+        if (b.rating !== undefined) { let rt = parseInt(b.rating, 10); if (rt >= 1 && rt <= 5) r.rating = rt; }
+        if (b.source !== undefined) r.source = b.source === 'google' ? 'google' : 'direct';
+        if (b.published !== undefined) r.published = !!b.published;
+        if (b.order !== undefined) { const o = parseInt(b.order, 10); if (!isNaN(o)) r.order = o; }
+        await env.PROGRAMARI.put('__reviews__', JSON.stringify(list));
+        return json({ success: true }, 200, request);
+      } catch { return json({ error: 'Server error' }, 500, request); }
+    }
+
+    if (path.startsWith('/api/reviews/') && request.method === 'DELETE') {
+      if (!can(authed, 'reviews')) return json({ error: 'Unauthorised' }, 401, request);
+      try {
+        const id = decodeURIComponent(path.replace('/api/reviews/', ''));
+        const raw = await env.PROGRAMARI.get('__reviews__');
+        const list = raw ? JSON.parse(raw) : [];
+        await env.PROGRAMARI.put('__reviews__', JSON.stringify(list.filter(x => x.id !== id)));
         return json({ success: true }, 200, request);
       } catch { return json({ error: 'Server error' }, 500, request); }
     }
