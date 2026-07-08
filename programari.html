@@ -643,6 +643,24 @@
             <div class="gib-section-title">&#x1F4B8; EXPENSES <span style="font-size:.72rem;font-weight:400;color:var(--muted);">(this month)</span></div>
             <div id="gib-cheltuieli-list"><div class="gib-empty">Loading...</div></div>
           </div>
+
+          <!-- Latest messages -->
+          <div class="gib-section" id="gib-recent-messages-sec" style="display:none;">
+            <div class="gib-section-title" style="display:flex;align-items:center;justify-content:space-between;">
+              <span>&#x1F4AC; LATEST MESSAGES</span>
+              <button class="gib-reset-sec" onclick="switchTabByName('messages')" title="Open Messages">open &rarr;</button>
+            </div>
+            <div id="gib-messages-list"><div class="gib-empty">Loading...</div></div>
+          </div>
+
+          <!-- Latest AI chats -->
+          <div class="gib-section" id="gib-recent-chats-sec" style="display:none;">
+            <div class="gib-section-title" style="display:flex;align-items:center;justify-content:space-between;">
+              <span>&#x1F916; LATEST AI CHATS</span>
+              <button class="gib-reset-sec" onclick="switchTabByName('chat')" title="Open AI Chat">open &rarr;</button>
+            </div>
+            <div id="gib-chats-list"><div class="gib-empty">Loading...</div></div>
+          </div>
         </div>
       </div>
     </div>
@@ -2703,6 +2721,7 @@
     if (can('chat')) refreshChatBadge();
     if (can('messages')) refreshMsgBadge();
     if (can('email')) refreshEmailBadge();
+    if (can('gibilan')) loadGibilanRecent();
   }
 
   // Auto-login din localStorage dacă există token salvat
@@ -2746,7 +2765,7 @@
     btn.classList.add('active');
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('panel-' + tab).classList.add('active');
-    if (tab === 'gibilan') loadGibilan();
+    if (tab === 'gibilan') { loadGibilan(); loadGibilanRecent(); }
     if (tab === 'messages') loadMessages();
     if (tab === 'chat') loadChatLogs();
     if (tab === 'email') loadSentMail();
@@ -5344,6 +5363,59 @@
       updateEmailBadge(window.__sentCache);
     } catch (e) {}
   }
+  function switchTabByName(name) {
+    var btns = document.querySelectorAll('.tab');
+    for (var i = 0; i < btns.length; i++) {
+      var m = (btns[i].getAttribute('onclick') || '').match(/switchTab\('([^']+)'/);
+      if (m && m[1] === name && btns[i].style.display !== 'none') { btns[i].click(); return; }
+    }
+  }
+
+  // Wizi dashboard widgets: latest messages + latest AI chats.
+  async function loadGibilanRecent() {
+    var mSec = document.getElementById('gib-recent-messages-sec');
+    if (mSec) mSec.style.display = can('messages') ? '' : 'none';
+    if (can('messages')) {
+      var ml = document.getElementById('gib-messages-list');
+      try {
+        var res = await fetch('/api/messages?token=' + encodeURIComponent(adminToken));
+        var msgs = await res.json();
+        window.__msgsCache = Array.isArray(msgs) ? msgs : [];
+        updateMsgBadge(window.__msgsCache);
+        var recent = window.__msgsCache.slice(0, 5);
+        ml.innerHTML = recent.length ? recent.map(function (m) {
+          var when = ''; try { var d = new Date(m.createdAt); when = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ' ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }); } catch (e) {}
+          var preview = String(m.message || m.service || '').replace(/\s+/g, ' ').slice(0, 64);
+          return '<div style="padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="switchTabByName(\'messages\')">' +
+            '<div style="display:flex;justify-content:space-between;gap:8px;"><strong style="font-size:.82rem;color:var(--heading);">' + mEsc(m.name) + (m.read ? '' : ' <span style="color:var(--teal);font-size:.66rem;">● NEW</span>') + '</strong><span style="font-size:.68rem;color:var(--muted);">' + mEsc(when) + '</span></div>' +
+            (preview ? '<div style="font-size:.74rem;color:var(--soft);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + mEsc(preview) + '</div>' : '') +
+          '</div>';
+        }).join('') : '<div class="gib-empty">No messages yet.</div>';
+      } catch (e) { ml.innerHTML = '<div class="gib-empty" style="color:#e74c3c;">Error loading.</div>'; }
+    }
+    var cSec = document.getElementById('gib-recent-chats-sec');
+    if (cSec) cSec.style.display = can('chat') ? '' : 'none';
+    if (can('chat')) {
+      var cl = document.getElementById('gib-chats-list');
+      try {
+        var res2 = await fetch('/api/chat-logs?token=' + encodeURIComponent(adminToken));
+        var convos = await res2.json();
+        chatLogsCache = Array.isArray(convos) ? convos : [];
+        updateChatBadge();
+        var seen = chatSeenMap();
+        var rc = chatLogsCache.slice(0, 5);
+        cl.innerHTML = rc.length ? rc.map(function (c) {
+          var when = ''; try { var d = new Date(c.updated); when = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ' ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }); } catch (e) {}
+          var isNew = chatIsNew(c, seen);
+          return '<div style="padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="switchTabByName(\'chat\')">' +
+            '<div style="display:flex;justify-content:space-between;gap:8px;"><strong style="font-size:.82rem;color:var(--heading);">' + chatRef(c.num) + (isNew ? ' <span style="color:var(--teal);font-size:.66rem;">● NEW</span>' : '') + ' <span style="font-weight:400;color:var(--soft);font-size:.72rem;">· 💬 ' + mEsc(c.count || 0) + '</span></strong><span style="font-size:.68rem;color:var(--muted);">' + mEsc(when) + '</span></div>' +
+            '<div style="font-size:.74rem;color:var(--soft);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + mEsc(c.preview || '—') + '</div>' +
+          '</div>';
+        }).join('') : '<div class="gib-empty">No AI chats yet.</div>';
+      } catch (e) { cl.innerHTML = '<div class="gib-empty" style="color:#e74c3c;">Error loading.</div>'; }
+    }
+  }
+
   async function loadSentMail() {
     const wrap = document.getElementById('sentMailList');
     if (!wrap) return;
