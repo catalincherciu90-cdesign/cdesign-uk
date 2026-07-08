@@ -4114,6 +4114,22 @@ Title requirements:
         const maxOrder = list.reduce((m, r) => Math.max(m, r.order || 0), 0);
         list.push({ id: 'rev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7), name, company, text, rating, source: 'direct', published: false, pending: true, order: maxOrder + 1, createdAt: new Date().toISOString() });
         await env.PROGRAMARI.put('__reviews__', JSON.stringify(list.slice(0, 300)));
+        // Notify the team that a new review is awaiting approval.
+        try {
+          const stars = '★★★★★☆☆☆☆☆'.slice(5 - rating, 10 - rating);
+          const notifyHtml = `<div style="font-family:'Segoe UI',Arial,sans-serif;background:#f4f7f7;padding:28px;">
+            <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e6ecec;">
+              <div style="background:#00AAAC;padding:16px 26px;color:#fff;font-weight:700;">⭐ New review awaiting approval</div>
+              <div style="padding:24px 26px;color:#2E3436;font-size:.96rem;line-height:1.6;">
+                <p style="margin:0 0 6px;"><strong>${escHtml(name)}</strong>${company ? ' · ' + escHtml(company) : ''}</p>
+                <p style="margin:0 0 12px;color:#f5b301;font-size:1.1rem;">${stars} <span style="color:#8b94a3;font-size:.85rem;">(${rating}/5)</span></p>
+                <p style="margin:0 0 18px;color:#2E3436;">“${escHtml(text)}”</p>
+                <a href="https://c-designs.uk/programari.html" style="display:inline-block;background:#00AAAC;color:#fff;text-decoration:none;padding:10px 22px;border-radius:8px;font-weight:600;">Review &amp; approve →</a>
+              </div>
+              <div style="padding:14px 26px;border-top:1px solid #eee;color:#8b94a3;font-size:.78rem;">It won't appear on the site until you approve it in the Reviews tab.</div>
+            </div></div>`;
+          await sendEmail(env, { to: await notifyRecipients(env), subject: `⭐ New review from ${name} (awaiting approval)`, html: notifyHtml });
+        } catch {}
         return json({ success: true }, 200, request);
       } catch { return json({ error: 'Server error' }, 500, request); }
     }
