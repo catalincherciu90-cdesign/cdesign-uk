@@ -1326,6 +1326,16 @@
       </div>
       <div class="table-wrap" style="padding:24px;">
         <p style="font-size:.82rem;color:var(--muted);margin-bottom:16px;max-width:660px;">Add reviews from your clients (or copy them from your Google Business Profile). Published ones appear on the homepage with star ratings. Tip: paste your real Google reviews here and set the source to “Google”.</p>
+        <div style="background:linear-gradient(160deg,rgba(0,170,172,.08),rgba(0,170,172,.02));border:1px solid var(--teal-border);border-radius:10px;padding:16px;max-width:760px;margin-bottom:22px;">
+          <div class="f-label" style="margin-bottom:4px;color:var(--teal);">// ⭐ ask a client for a Google review</div>
+          <p style="font-size:.76rem;color:var(--muted);margin-bottom:10px;">After finishing a project, send the client a friendly email inviting them to review you on Google.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <input class="f-input" id="rrName" placeholder="Client name (optional)" style="flex:1;min-width:140px;margin:0;">
+            <input class="f-input" id="rrEmail" type="email" placeholder="Client email *" style="flex:1;min-width:170px;margin:0;">
+            <button class="btn-add" onclick="sendReviewRequest()" style="padding:8px 16px;">&#x2709;&#xFE0F; Send request</button>
+            <span id="rrStatus" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;"></span>
+          </div>
+        </div>
         <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:18px;max-width:760px;margin-bottom:22px;">
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
             <input class="f-input" id="revName" placeholder="Client name *" style="flex:1;min-width:150px;margin:0;">
@@ -5461,6 +5471,24 @@
       updateReviewsBadge(Array.isArray(list) ? list : []);
     } catch (e) {}
   }
+  async function sendReviewRequest() {
+    var to = (document.getElementById('rrEmail').value || '').trim();
+    var name = (document.getElementById('rrName').value || '').trim();
+    var status = document.getElementById('rrStatus');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) { status.style.color = '#f87171'; status.textContent = '// enter a valid email'; return; }
+    var btn = event && event.currentTarget; if (btn) { btn.disabled = true; }
+    status.style.color = 'var(--teal)'; status.textContent = '// sending…';
+    try {
+      var res = await fetch('/api/send-review-request?token=' + encodeURIComponent(adminToken), {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to: to, name: name })
+      });
+      var d = await res.json().catch(function () { return {}; });
+      if (!res.ok || !d.success) { status.style.color = '#f87171'; status.textContent = '// ✗ ' + (d.error || 'error'); }
+      else { status.style.color = '#4ade80'; status.textContent = '// ✓ request sent to ' + to; document.getElementById('rrEmail').value = ''; document.getElementById('rrName').value = ''; }
+    } catch (e) { status.style.color = '#f87171'; status.textContent = '// network error'; }
+    if (btn) btn.disabled = false;
+  }
+
   async function addReview() {
     var name = document.getElementById('revName').value.trim();
     var company = document.getElementById('revCompany').value.trim();
