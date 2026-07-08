@@ -2787,12 +2787,13 @@ export default {
           return json({ reply: 'Hi! How can I help you today?' }, 200, request);
         }
         const system = "You are the friendly assistant for C Design, a UK web design studio. You help website visitors. " +
-          "About C Design: we build modern, fast websites and web apps for small and growing UK businesses, with honest, fixed pricing and most projects live in days, not weeks. " +
-          "Services: Website Design, E-commerce (WooCommerce, Shopify, PrestaShop), Custom Web Apps (CRM, WordPress plugins), AI Integration & Automation, Maintenance & Hosting, SEO & Local SEO, Social Media, Branding & Logo. " +
+          "About C Design: we build modern, fast websites and web apps for small and growing UK businesses, with honest, fixed pricing (websites start from £300) and most projects live in days, not weeks. Our website is c-designs.uk. " +
+          "Services: Website Design, E-commerce (WooCommerce, Shopify, PrestaShop), Custom Web Apps (CRM, WordPress plugins), AI Integration & Automation, Maintenance & Hosting, SEO & Local SEO, Social Media, Branding & Logo. We serve the whole UK, with local pages for Leeds, Sheffield, Nottingham, Derby, Blackburn and Preston. " +
           "SPECIAL LAUNCH OFFER (mention this proactively when a visitor is a small business, is new online, or asks about getting started, prices, or a package): our £200 all-in Launch Package gets a business fully online for one price — a presentation website (up to 5 pages, mobile-friendly), SEO setup so they're found on Google, a Google Business Profile set up (Google Maps & local search), plus Instagram & Facebook accounts created and branded. Everything is done for them, no hidden fees, and it goes live in days. Point them to the offer page at /promo where they can claim it. " +
+          "Social proof: happy clients have left reviews — visitors can read them on the homepage. " +
           "Guidelines: Be concise, warm and helpful (2-4 sentences). Only discuss C Design, web design and the visitor's project. " +
-          "Never invent other exact prices or timelines — the £200 Launch Package is the one fixed price you may quote; for anything else direct them to the quote form at /pricing. " +
-          "Encourage them to claim the £200 offer (/promo), request a free quote (/pricing), or contact us (phone +44 7312 799449 or the contact form). " +
+          "The only exact prices you may quote are: websites start from £300, and the £200 all-in Launch Package. Do not invent any other prices or timelines — for a tailored quote, direct them to the quote form at /pricing. " +
+          "Encourage them to claim the £200 offer (/promo), request a free quote (/pricing), or contact us (phone +44 7312 799449, email office@c-designs.uk, or the contact form). " +
           "If asked something off-topic, gently steer back to how C Design can help their business online.";
         const messages = [{ role: 'system', content: system }].concat(history);
         let reply = '';
@@ -2947,7 +2948,7 @@ export default {
         const platform = String(body.platform || '').slice(0, 40);
         if (!input.trim()) return json({ error: 'Please provide some input.' }, 400, request);
 
-        const brand = 'C Design is a UK web design studio: modern fast websites & web apps, e-commerce (WooCommerce, Shopify, PrestaShop), custom web apps, AI integration, SEO, social media and branding. Honest fixed pricing, most projects live in ~14 days. Phone +44 7312 799449. British English spelling. Use £ for money.';
+        const brand = 'C Design is a UK web design studio: modern fast websites & web apps, e-commerce (WooCommerce, Shopify, PrestaShop), custom web apps, AI integration, SEO, social media and branding. Honest fixed pricing — websites from £300, plus a £200 all-in Launch Package (website + SEO + Google Business Profile + social) — most projects live in days, not weeks. Website c-designs.uk, email office@c-designs.uk, phone +44 7312 799449. British English spelling. Use £ for money.';
         let section = '', system = '', user = '', maxTokens = 700;
 
         if (task === 'reply') {
@@ -4764,7 +4765,7 @@ Title requirements:
         // Servicii noi adăugate după seed inițial — migrare automată
         const migrations = [
           { id:'svc_d17', nume:'Google Search Console Integration', descriere:'Property verification, XML sitemap, Google Analytics connection, indexing error report', pret:120, moneda:'GBP', unitate:'proiect', categorie:'seo' },
-          { id:'svc_d18', nume:'Starter Website', descriere:'Up to 5 pages, responsive design, CMS, contact form, basic SEO — live in ~14 days', pret:399, moneda:'GBP', unitate:'proiect', categorie:'web-design' },
+          { id:'svc_d18', nume:'Starter Website', descriere:'Up to 5 pages, responsive design, CMS, contact form, basic SEO — live in days', pret:300, moneda:'GBP', unitate:'proiect', categorie:'web-design' },
           { id:'svc_d19', nume:'Custom Web App / CRM', descriere:'Bespoke web application — CRM, client portal or business tool, with API integrations', pret:2500, moneda:'GBP', unitate:'proiect', categorie:'web-design' },
           { id:'svc_d20', nume:'AI Chatbot (website)', descriere:'AI assistant trained on your business, on-site chat widget, lead capture & handover', pret:1200, moneda:'GBP', unitate:'proiect', categorie:'web-design' },
           { id:'svc_d21', nume:'Booking / Appointment System', descriere:'Online booking & scheduling, automated reminders, calendar sync', pret:600, moneda:'GBP', unitate:'proiect', categorie:'web-design' },
