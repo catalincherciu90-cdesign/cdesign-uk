@@ -506,6 +506,7 @@ const ADMIN_USER  = '';  // set via: wrangler secret put ADMIN_USER
 const RESEND_API_KEY = '';  // set via: wrangler secret put RESEND_API_KEY
 const NOTIFY_EMAIL  = 'office@c-designs.uk';  // override via: wrangler secret put NOTIFY_EMAIL
 const MAIL_FROM     = 'C Design <office@c-designs.uk>';  // sending domain must be verified in Resend; override via env MAIL_FROM
+const GOOGLE_URL    = 'https://share.google/K7457gQlgywRBYCby';  // Google Business Profile / review link
 
 // Single, robust Resend sender. Does nothing (and says so) when unconfigured,
 // checks the response, and logs failures instead of swallowing them silently.
@@ -4065,6 +4066,43 @@ Title requirements:
     }
 
     // ── REVIEWS / TESTIMONIALS ────────────────────────────────
+    // Email a client an invitation to leave a Google review.
+    if (path === '/api/send-review-request' && request.method === 'POST') {
+      if (!can(authed, 'reviews') && !can(authed, 'email')) return json({ error: 'Unauthorised' }, 401, request);
+      const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+      if (!await checkRateLimit(env, 'revreq_' + ip, 40, 3600)) return json({ error: 'Too many requests. Please try again later.' }, 429, request);
+      const apiKey = env.RESEND_API_KEY || RESEND_API_KEY;
+      if (!apiKey) return json({ error: 'RESEND_API_KEY is not configured in Cloudflare.' }, 400, request);
+      try {
+        const b = await request.json();
+        const to = String(b.to || '').trim();
+        const name = String(b.name || '').trim().slice(0, 80);
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) return json({ error: 'Invalid client email' }, 400, request);
+        const gurl = env.GOOGLE_URL || GOOGLE_URL;
+        const hello = name ? ('Hi ' + escHtml(name) + ',') : 'Hello,';
+        const html = `<div style="font-family:'Segoe UI',Arial,sans-serif;background:#f4f7f7;padding:28px;">
+          <div style="max-width:540px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e6ecec;">
+            <div style="background:#00AAAC;padding:20px 28px;color:#fff;font-weight:700;font-size:1.15rem;">C Design</div>
+            <div style="padding:30px 28px;color:#2E3436;font-size:1rem;line-height:1.65;">
+              <p style="margin:0 0 14px;">${hello}</p>
+              <p style="margin:0 0 14px;">Thank you for choosing <strong>C Design</strong>! We hope you're happy with your new website. 😊</p>
+              <p style="margin:0 0 22px;">Would you mind taking a minute to leave us a quick review on Google? It really helps our small business grow — and we'd hugely appreciate it.</p>
+              <div style="text-align:center;margin:0 0 22px;">
+                <a href="${gurl}" style="display:inline-block;background:#00AAAC;color:#fff;text-decoration:none;padding:13px 30px;border-radius:8px;font-weight:700;font-size:1rem;">⭐ Leave a Google review</a>
+              </div>
+              <p style="margin:0;color:#5b6472;font-size:.92rem;">Thank you so much,<br>The C Design team<br>+44 7312 799449 · c-designs.uk</p>
+            </div>
+          </div></div>`;
+        const r = await sendEmail(env, { to: [to], subject: 'How did we do? ⭐ A quick favour', html });
+        try {
+          const rec = { id: 'sent_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7), to, subject: 'Google review request', message: 'Automated review request sent to ' + (name || to) + '.', by: authed.username, status: r.ok ? 'sent' : 'failed', error: r.ok ? '' : String(r.error || r.reason || '').slice(0, 200), createdAt: new Date().toISOString() };
+          const oraw = await env.PROGRAMARI.get('__sentmail__'); const olist = oraw ? JSON.parse(oraw) : []; olist.unshift(rec); await env.PROGRAMARI.put('__sentmail__', JSON.stringify(olist.slice(0, 200)));
+        } catch {}
+        if (!r.ok) return json({ error: (r.error || r.reason || 'Send failed') + '' }, 500, request);
+        return json({ success: true }, 200, request);
+      } catch { return json({ error: 'Server error' }, 500, request); }
+    }
+
     if (path === '/api/reviews' && request.method === 'GET') {
       try {
         const raw = await env.PROGRAMARI.get('__reviews__');
