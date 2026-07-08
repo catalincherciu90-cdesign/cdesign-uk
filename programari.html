@@ -425,11 +425,18 @@
     .gib-assign-wrap{position:relative;flex-shrink:0;}
     .gib-assign-sel{font-size:.7rem;background:var(--bg3);border:1px solid var(--teal-border);border-radius:4px;color:var(--teal);padding:2px 4px;cursor:pointer;max-width:110px;}
     .gib-priority-high{border-left:3px solid #febc2e !important;}
-    .clippy-wrap{position:relative;display:flex;flex-direction:column;align-items:center;}
-    .clippy-body{animation:clippy-bounce 2s ease-in-out infinite;}
-    @keyframes clippy-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    .clippy-wrap{position:relative;display:flex;flex-direction:column;align-items:center;cursor:pointer;user-select:none;}
+    .clippy-body{animation:clippy-bounce 2.6s ease-in-out infinite;transform-origin:center bottom;transition:filter .2s;}
+    @keyframes clippy-bounce{0%,100%{transform:translateY(0) rotate(0deg)}25%{transform:translateY(-5px) rotate(-2.5deg)}50%{transform:translateY(-9px) rotate(0deg)}75%{transform:translateY(-5px) rotate(2.5deg)}}
+    .clippy-wrap:hover .clippy-body{animation-duration:.9s;filter:drop-shadow(0 6px 10px rgba(0,0,0,.18));}
+    .clippy-body.spin{animation:gib-spin .7s ease;}
+    @keyframes gib-spin{0%{transform:translateY(0) rotate(0)}30%{transform:translateY(-12px) rotate(-12deg)}60%{transform:translateY(-6px) rotate(12deg)}100%{transform:translateY(0) rotate(0)}}
+    .gib-eyes{animation:gib-look 6s ease-in-out infinite;}
+    @keyframes gib-look{0%,16%{transform:translate(0,0)}26%,40%{transform:translate(2.2px,-1px)}50%,64%{transform:translate(-2.2px,1px)}74%,88%{transform:translate(0,-1.5px)}100%{transform:translate(0,0)}}
     .speech-bubble{background:white;border:2px solid #ddd;border-radius:12px;padding:12px 16px;font-size:.88rem;color:#333;max-width:220px;position:relative;margin-bottom:12px;text-align:center;line-height:1.4;}
     .speech-bubble::after{content:'';position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#ddd;}
+    .speech-bubble.pop{animation:gib-pop .45s ease;}
+    @keyframes gib-pop{0%{transform:scale(.8);opacity:.3}60%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}
     @keyframes blink{0%,96%,100%{transform:scaleY(1)}98%{transform:scaleY(0.05)}}
     .pupil-left,.pupil-right{animation:blink 4s ease-in-out infinite;transform-origin:center;}
     .gib-todo-cb{accent-color:var(--teal);width:15px;height:15px;cursor:pointer;flex-shrink:0;}
@@ -492,7 +499,7 @@
       <div class="gibilan-layout">
         <!-- Stanga: caracter + adauga -->
         <div class="gibilan-char">
-          <div class="clippy-wrap">
+          <div class="clippy-wrap" onclick="gibPoke()" title="Poke Wizi!">
             <div class="speech-bubble" id="gib-bubble">Hello! 👋</div>
             <svg viewBox="0 0 120 120" width="115" height="115" class="clippy-body">
               <defs>
@@ -543,11 +550,13 @@
 
               <!-- Ochi (adânci, cu sclipire) -->
               <ellipse cx="48" cy="64" rx="5.4" ry="3.8" fill="#23150a"/>
-              <circle class="pupil-left" cx="48.6" cy="64" r="2.5" fill="url(#gGlint)"/>
-              <circle cx="49.4" cy="63" r="0.9" fill="#fff6df"/>
               <ellipse cx="71" cy="65" rx="5.4" ry="3.8" fill="#23150a"/>
-              <circle class="pupil-right" cx="71.6" cy="65" r="2.5" fill="url(#gGlint)"/>
-              <circle cx="72.4" cy="64" r="0.9" fill="#fff6df"/>
+              <g class="gib-eyes">
+                <circle class="pupil-left" cx="48.6" cy="64" r="2.5" fill="url(#gGlint)"/>
+                <circle cx="49.4" cy="63" r="0.9" fill="#fff6df"/>
+                <circle class="pupil-right" cx="71.6" cy="65" r="2.5" fill="url(#gGlint)"/>
+                <circle cx="72.4" cy="64" r="0.9" fill="#fff6df"/>
+              </g>
 
               <!-- Gură-cută (jobenul vorbitor) -->
               <path d="M36 79 C47 88 73 88 84 77 C80 86 72 91 60 91 C48 91 40 86 36 79 Z" fill="#22150a"/>
@@ -5770,9 +5779,22 @@
     if (dlUrgente > 0) msgs.push(`${dlUrgente} urgent deadline${dlUrgente > 1 ? 's' : ''}!`);
     if (todosActive === 0) msgs.push('All done! Champion! &#x1F3C6;');
     else msgs.push(`${todosActive} active task${todosActive > 1 ? 's' : ''}.`);
+    var newMsgs = (window.__msgsCache || []).filter(function (m) { return m && !m.read; }).length;
+    if (newMsgs > 0) msgs.push('&#x1F4AC; ' + newMsgs + ' new message' + (newMsgs > 1 ? 's' : '') + '!');
+    try { var seen = chatSeenMap(); var newChats = (chatLogsCache || []).filter(function (c) { return chatIsNew(c, seen); }).length; if (newChats > 0) msgs.push('&#x1F916; ' + newChats + ' new AI chat' + (newChats > 1 ? 's' : '') + '!'); } catch (e) {}
 
     gibMsgIdx = (gibMsgIdx + 1) % msgs.length;
     bubble.innerHTML = msgs[gibMsgIdx];
+    bubble.classList.remove('pop'); void bubble.offsetWidth; bubble.classList.add('pop');
+  }
+
+  // Fun reaction when Wizi is clicked.
+  function gibPoke() {
+    var body = document.querySelector('.clippy-body');
+    if (body) { body.classList.remove('spin'); void body.offsetWidth; body.classList.add('spin'); setTimeout(function () { body.classList.remove('spin'); }, 750); }
+    var pokes = ['Hee-hee! &#x1F3A9;', 'That tickles!', 'At your service!', 'Boop! &#x1F441;', 'Ready to work? &#x1F4AA;', 'Hello there! &#x1F44B;'];
+    var bubble = document.getElementById('gib-bubble');
+    if (bubble) { bubble.innerHTML = pokes[Math.floor((Date.now() / 750) % pokes.length)]; bubble.classList.remove('pop'); void bubble.offsetWidth; bubble.classList.add('pop'); }
   }
 
   async function loadGibilan() {
