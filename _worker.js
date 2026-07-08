@@ -4097,6 +4097,27 @@ Title requirements:
       } catch { return json({ error: 'Server error' }, 500, request); }
     }
 
+    // Public review submission — goes in unpublished (pending admin approval).
+    if (path === '/api/reviews/submit' && request.method === 'POST') {
+      const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+      if (!await checkRateLimit(env, 'revsubmit_' + ip, 3, 3600)) return json({ error: 'Too many submissions. Please try again later.' }, 429, request);
+      try {
+        const b = await request.json();
+        const name = String(b.name || '').trim().slice(0, 80);
+        const company = String(b.company || '').trim().slice(0, 80);
+        const text = String(b.text || '').trim().slice(0, 1000);
+        let rating = parseInt(b.rating, 10); if (!(rating >= 1 && rating <= 5)) rating = 5;
+        if (name.length < 2) return json({ error: 'Please enter your name' }, 400, request);
+        if (text.length < 5) return json({ error: 'Please write a short review' }, 400, request);
+        const raw = await env.PROGRAMARI.get('__reviews__');
+        const list = raw ? JSON.parse(raw) : [];
+        const maxOrder = list.reduce((m, r) => Math.max(m, r.order || 0), 0);
+        list.push({ id: 'rev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7), name, company, text, rating, source: 'direct', published: false, pending: true, order: maxOrder + 1, createdAt: new Date().toISOString() });
+        await env.PROGRAMARI.put('__reviews__', JSON.stringify(list.slice(0, 300)));
+        return json({ success: true }, 200, request);
+      } catch { return json({ error: 'Server error' }, 500, request); }
+    }
+
     if (path.startsWith('/api/reviews/') && request.method === 'PUT') {
       if (!can(authed, 'reviews')) return json({ error: 'Unauthorised' }, 401, request);
       try {
@@ -4111,7 +4132,7 @@ Title requirements:
         if (b.text !== undefined) r.text = String(b.text || '').trim().slice(0, 1000);
         if (b.rating !== undefined) { let rt = parseInt(b.rating, 10); if (rt >= 1 && rt <= 5) r.rating = rt; }
         if (b.source !== undefined) r.source = b.source === 'google' ? 'google' : 'direct';
-        if (b.published !== undefined) r.published = !!b.published;
+        if (b.published !== undefined) { r.published = !!b.published; if (r.published) r.pending = false; }
         if (b.order !== undefined) { const o = parseInt(b.order, 10); if (!isNaN(o)) r.order = o; }
         await env.PROGRAMARI.put('__reviews__', JSON.stringify(list));
         return json({ success: true }, 200, request);
