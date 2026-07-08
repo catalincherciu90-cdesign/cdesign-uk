@@ -487,7 +487,7 @@
     <button class="tab" onclick="switchTab('blog',this)">&#x270D; Blog</button>
     <button class="tab" onclick="switchTab('seo',this)">&#x1F50D; SEO</button>
     <button class="tab" onclick="switchTab('social',this)">&#x1F4F1; Social Media</button>
-    <button class="tab" onclick="switchTab('reviews',this)">&#x2B50; Reviews</button>
+    <button class="tab" onclick="switchTab('reviews',this)">&#x2B50; Reviews<span id="reviewsTabBadge" class="tab-badge" style="display:none;"></span></button>
     <button class="tab" onclick="switchTab('media',this)">&#x1F5BC; Media</button>
     <button class="tab" onclick="switchTab('settings',this)">&#x2699; Settings</button>
     <button class="tab" onclick="switchTab('cheltuieli',this)">&#x1F4B8; Expenses</button>
@@ -2769,6 +2769,7 @@
     if (can('chat')) refreshChatBadge();
     if (can('messages')) refreshMsgBadge();
     if (can('email')) refreshEmailBadge();
+    if (can('reviews')) refreshReviewsBadge();
     if (can('gibilan')) loadGibilanRecent();
   }
 
@@ -5420,23 +5421,45 @@
     try {
       var res = await fetch('/api/reviews?all=1&token=' + encodeURIComponent(adminToken));
       var list = await res.json();
-      window.__reviewsCache = Array.isArray(list) ? list : [];
-      if (!window.__reviewsCache.length) { wrap.innerHTML = '<div class="gib-empty">No reviews yet. Add your first above.</div>'; return; }
-      wrap.innerHTML = window.__reviewsCache.map(function (r) {
+      list = Array.isArray(list) ? list : [];
+      // Pending (awaiting approval) first, then the rest.
+      list.sort(function (a, b) { var pa = (!a.published) ? 0 : 1, pb = (!b.published) ? 0 : 1; if (pa !== pb) return pa - pb; return (a.order || 0) - (b.order || 0); });
+      window.__reviewsCache = list;
+      updateReviewsBadge(list);
+      if (!list.length) { wrap.innerHTML = '<div class="gib-empty">No reviews yet. Add your first above.</div>'; return; }
+      wrap.innerHTML = list.map(function (r) {
         var st = ''; for (var i = 0; i < 5; i++) st += (i < (r.rating || 5)) ? '★' : '☆';
+        var pendingBadge = (r.pending && !r.published) ? '<span style="font-size:.68rem;color:#b7791f;background:rgba(229,168,77,.16);border-radius:5px;padding:2px 8px;margin-left:6px;">⏳ PENDING</span>' : '';
+        var when = ''; try { when = new Date(r.createdAt).toLocaleDateString('en-GB'); } catch (e) {}
         return '<div style="background:var(--bg2);border:1px solid ' + (r.published ? 'var(--border-soft)' : '#e5a84d') + ';border-radius:10px;padding:13px 15px;margin-bottom:8px;">' +
           '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline;">' +
-            '<strong style="font-size:.88rem;color:var(--heading);">' + mEsc(r.name) + (r.company ? ' <span style="font-weight:400;color:var(--muted);">· ' + mEsc(r.company) + '</span>' : '') + '</strong>' +
+            '<strong style="font-size:.88rem;color:var(--heading);">' + mEsc(r.name) + (r.company ? ' <span style="font-weight:400;color:var(--muted);">· ' + mEsc(r.company) + '</span>' : '') + pendingBadge + '</strong>' +
             '<span style="font-size:.8rem;color:#f5b301;">' + st + (r.source === 'google' ? ' <span style="color:var(--muted);font-size:.72rem;">Google</span>' : '') + '</span>' +
           '</div>' +
           '<div style="font-size:.86rem;color:var(--text);margin-top:6px;line-height:1.5;white-space:pre-wrap;">' + mEsc(r.text) + '</div>' +
-          '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">' +
-            '<button onclick="toggleReviewPub(\'' + mEsc(r.id) + '\',' + (r.published ? 'false' : 'true') + ')" style="font-size:.72rem;background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:4px 10px;cursor:pointer;">' + (r.published ? '👁 Unpublish' : '✓ Publish') + '</button>' +
+          '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">' +
+            '<button onclick="toggleReviewPub(\'' + mEsc(r.id) + '\',' + (r.published ? 'false' : 'true') + ')" style="font-size:.72rem;background:' + (r.published ? 'none' : 'var(--teal-dim)') + ';border:1px solid ' + (r.published ? 'var(--border-soft)' : 'var(--teal-border)') + ';color:' + (r.published ? 'var(--muted)' : 'var(--teal)') + ';border-radius:6px;padding:4px 10px;cursor:pointer;">' + (r.published ? '👁 Unpublish' : '✓ Approve & publish') + '</button>' +
             '<button onclick="deleteReview(\'' + mEsc(r.id) + '\')" style="font-size:.72rem;background:none;border:1px solid #e74c3c;color:#e74c3c;border-radius:6px;padding:4px 10px;cursor:pointer;">Delete</button>' +
+            (when ? '<span style="font-size:.68rem;color:var(--muted);margin-left:auto;">' + mEsc(when) + '</span>' : '') +
           '</div>' +
         '</div>';
       }).join('');
     } catch (e) { wrap.innerHTML = '<div class="gib-empty" style="color:#e74c3c;">Error loading reviews.</div>'; }
+  }
+  function updateReviewsBadge(list) {
+    var badge = document.getElementById('reviewsTabBadge');
+    if (!badge) return;
+    var n = (Array.isArray(list) ? list : []).filter(function (r) { return r && !r.published; }).length;
+    if (n > 0) { badge.textContent = n > 99 ? '99+' : n; badge.style.display = 'inline-block'; }
+    else { badge.style.display = 'none'; }
+  }
+  async function refreshReviewsBadge() {
+    if (!can('reviews')) return;
+    try {
+      var res = await fetch('/api/reviews?all=1&token=' + encodeURIComponent(adminToken));
+      var list = await res.json();
+      updateReviewsBadge(Array.isArray(list) ? list : []);
+    } catch (e) {}
   }
   async function addReview() {
     var name = document.getElementById('revName').value.trim();

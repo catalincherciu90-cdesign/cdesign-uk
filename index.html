@@ -351,6 +351,14 @@
   .review-src{margin-left:auto;font-size:.72rem;color:var(--muted);white-space:nowrap}
   @media(max-width:900px){.reviews-grid{grid-template-columns:1fr 1fr}}
   @media(max-width:600px){.reviews-grid{grid-template-columns:1fr}}
+  .rev-cta{text-align:center;margin-top:40px}
+  .rev-form{max-width:560px;margin:24px auto 0;background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px;box-shadow:0 20px 50px -30px rgba(30,50,90,.3);text-align:left}
+  .rev-form input,.rev-form select,.rev-form textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-family:'Inter',sans-serif;font-size:.96rem;color:var(--ink);margin-bottom:12px;outline:none;background:#fff}
+  .rev-form input:focus,.rev-form select:focus,.rev-form textarea:focus{border-color:var(--blue)}
+  .rev-form textarea{min-height:100px;resize:vertical}
+  .rev-form .rev-row{display:flex;gap:12px;flex-wrap:wrap}
+  .rev-form .rev-row>*{flex:1;min-width:150px}
+  .rev-ok{background:rgba(0,170,172,.08);border:1px solid var(--blue);color:var(--blue-dk);border-radius:10px;padding:16px;text-align:center;font-size:.95rem;margin-top:8px}
 </style>
 </head>
 <body>
@@ -583,6 +591,26 @@
         <p>Real feedback from the people we've helped get online and get found.</p>
       </div>
       <div class="reviews-grid" id="reviewsGrid"></div>
+      <div class="rev-cta">
+        <button type="button" class="btn-ghost" id="revLeaveBtn" onclick="this.style.display='none';document.getElementById('revForm').style.display='block';document.getElementById('rev-f-name').focus();">⭐ Leave a review</button>
+      </div>
+      <form class="rev-form" id="revForm" style="display:none">
+        <div class="rev-row">
+          <input type="text" id="rev-f-name" placeholder="Your name *" required>
+          <input type="text" id="rev-f-company" placeholder="Company / town (optional)">
+        </div>
+        <select id="rev-f-rating">
+          <option value="5">★★★★★ Excellent</option>
+          <option value="4">★★★★ Very good</option>
+          <option value="3">★★★ Good</option>
+          <option value="2">★★ Fair</option>
+          <option value="1">★ Poor</option>
+        </select>
+        <textarea id="rev-f-text" placeholder="Tell us about your experience *" required></textarea>
+        <button type="submit" class="btn-primary" style="width:100%;justify-content:center">Submit review <span class="arr">→</span></button>
+        <p style="font-size:.78rem;color:var(--muted);text-align:center;margin-top:10px">Your review will appear after we've approved it. Thank you! 🙏</p>
+        <div class="rev-ok" id="revOk" style="display:none">✅ Thank you! Your review has been submitted and will appear once approved.</div>
+      </form>
     </div>
   </section>
 
@@ -903,27 +931,52 @@
   </script>
 <script>
   (function(){
+    var sec=document.getElementById('reviews'), grid=document.getElementById('reviewsGrid');
+    if(!sec||!grid) return;
+    function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    function stars(n){var s='';for(var i=0;i<5;i++){s+='<svg viewBox="0 0 24 24"'+(i<n?'':' style="fill:#d9dee3"')+'><path d="M12 2l2.9 6.3 6.9.6-5.2 4.5 1.6 6.7L12 17l-6.2 3.6 1.6-6.7L2.2 9.4l6.9-.6z"/></svg>';}return s;}
     fetch('/api/reviews').then(function(r){return r.ok?r.json():[];}).then(function(list){
-      if(!Array.isArray(list)||!list.length) return;
-      var sec=document.getElementById('reviews'), grid=document.getElementById('reviewsGrid');
-      if(!sec||!grid) return;
-      function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-      function stars(n){var s='';for(var i=0;i<5;i++){s+='<svg viewBox="0 0 24 24"'+(i<n?'':' style="fill:#d9dee3"')+'><path d="M12 2l2.9 6.3 6.9.6-5.2 4.5 1.6 6.7L12 17l-6.2 3.6 1.6-6.7L2.2 9.4l6.9-.6z"/></svg>';}return s;}
-      grid.innerHTML=list.slice(0,9).map(function(rv){
-        var initial=(String(rv.name||'?').trim().charAt(0)||'?').toUpperCase();
-        var src=rv.source==='google'?'<span class="review-src">★ Google</span>':'';
-        return '<div class="review-card"><div class="review-stars">'+stars(rv.rating||5)+'</div>'+
-          '<div class="review-text">“'+esc(rv.text)+'”</div>'+
-          '<div class="review-who"><div class="review-avatar">'+esc(initial)+'</div>'+
-          '<div><div class="review-name">'+esc(rv.name)+'</div>'+(rv.company?'<div class="review-company">'+esc(rv.company)+'</div>':'')+'</div>'+src+'</div></div>';
-      }).join('');
+      if(!Array.isArray(list)) list=[];
       sec.style.display='';
-      try{
-        var avg=list.reduce(function(a,b){return a+(b.rating||5);},0)/list.length;
-        var ld={"@context":"https://schema.org","@type":"Organization","name":"C Design","url":"https://c-designs.uk","aggregateRating":{"@type":"AggregateRating","ratingValue":avg.toFixed(1),"reviewCount":list.length,"bestRating":"5","worstRating":"1"},"review":list.slice(0,5).map(function(rv){return {"@type":"Review","reviewRating":{"@type":"Rating","ratingValue":String(rv.rating||5),"bestRating":"5"},"author":{"@type":"Person","name":rv.name},"reviewBody":rv.text};})};
-        var el=document.createElement('script');el.type='application/ld+json';el.textContent=JSON.stringify(ld);document.head.appendChild(el);
-      }catch(e){}
+      if(list.length){
+        grid.style.display='';
+        grid.innerHTML=list.slice(0,9).map(function(rv){
+          var initial=(String(rv.name||'?').trim().charAt(0)||'?').toUpperCase();
+          var src=rv.source==='google'?'<span class="review-src">★ Google</span>':'';
+          return '<div class="review-card"><div class="review-stars">'+stars(rv.rating||5)+'</div>'+
+            '<div class="review-text">“'+esc(rv.text)+'”</div>'+
+            '<div class="review-who"><div class="review-avatar">'+esc(initial)+'</div>'+
+            '<div><div class="review-name">'+esc(rv.name)+'</div>'+(rv.company?'<div class="review-company">'+esc(rv.company)+'</div>':'')+'</div>'+src+'</div></div>';
+        }).join('');
+        try{
+          var avg=list.reduce(function(a,b){return a+(b.rating||5);},0)/list.length;
+          var ld={"@context":"https://schema.org","@type":"Organization","name":"C Design","url":"https://c-designs.uk","aggregateRating":{"@type":"AggregateRating","ratingValue":avg.toFixed(1),"reviewCount":list.length,"bestRating":"5","worstRating":"1"},"review":list.slice(0,5).map(function(rv){return {"@type":"Review","reviewRating":{"@type":"Rating","ratingValue":String(rv.rating||5),"bestRating":"5"},"author":{"@type":"Person","name":rv.name},"reviewBody":rv.text};})};
+          var el=document.createElement('script');el.type='application/ld+json';el.textContent=JSON.stringify(ld);document.head.appendChild(el);
+        }catch(e){}
+      } else {
+        grid.style.display='none';
+        var p=sec.querySelector('.demos-head p'); if(p) p.textContent='Worked with us? Be the first to share your experience!';
+      }
     }).catch(function(){});
+    // Public review submission
+    var form=document.getElementById('revForm');
+    if(form){
+      form.addEventListener('submit',function(e){
+        e.preventDefault();
+        var name=(document.getElementById('rev-f-name').value||'').trim();
+        var company=(document.getElementById('rev-f-company').value||'').trim();
+        var text=(document.getElementById('rev-f-text').value||'').trim();
+        var rating=document.getElementById('rev-f-rating').value;
+        if(name.length<2||text.length<5){alert('Please enter your name and a short review.');return;}
+        var btn=form.querySelector('button[type=submit]'); btn.disabled=true; btn.style.opacity=.6;
+        fetch('/api/reviews/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name,company:company,text:text,rating:rating})})
+          .then(function(r){return r.json().catch(function(){return{};});})
+          .then(function(d){
+            if(d&&d.success){ form.querySelectorAll('input,select,textarea,button,p').forEach(function(x){x.style.display='none';}); document.getElementById('revOk').style.display='block'; }
+            else { btn.disabled=false; btn.style.opacity=1; alert((d&&d.error)||'Something went wrong. Please try again.'); }
+          }).catch(function(){ btn.disabled=false; btn.style.opacity=1; alert('Network error. Please try again.'); });
+      });
+    }
   })();
 </script>
 <script src="/chat-widget.js" defer></script>
