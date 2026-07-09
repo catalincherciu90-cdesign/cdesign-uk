@@ -354,7 +354,7 @@ async function sendGibilanMorningEmail(env) {
               <div style="font-family:'Segoe UI',Arial,sans-serif;font-size:1.3rem;font-weight:800;color:#fff;">
                 <span style="color:#00c8b4;">C</span> Design
               </div>
-              <div style="color:#6a9494;font-size:.78rem;margin-top:2px;font-family:monospace;">// gibilan.morning_brief</div>
+              <div style="color:#6a9494;font-size:.78rem;margin-top:2px;font-family:monospace;">// wizi.morning_brief</div>
             </td>
             <td style="text-align:right;vertical-align:middle;">
               <div style="font-size:2rem;">🤖</div>
@@ -408,12 +408,12 @@ async function sendGibilanMorningEmail(env) {
       <!-- CTA -->
       <tr><td style="padding:0 32px 28px;text-align:center;">
         <a href="https://c-designs.uk/programari.html" style="display:inline-block;background:#00c8b4;color:#060f0f;padding:12px 28px;border-radius:8px;font-weight:700;font-size:.9rem;text-decoration:none;">
-          Open Gibilan →
+          Open Wizi →
         </a>
       </td></tr>
       <!-- FOOTER -->
       <tr><td style="background:#f9fafb;padding:16px 32px;text-align:center;border-top:1px solid #eee;">
-        <p style="color:#9aa5b4;font-size:.75rem;margin:0;">Gibilan · C Design · <a href="https://c-designs.uk" style="color:#00a898;text-decoration:none;">c-designs.uk</a></p>
+        <p style="color:#9aa5b4;font-size:.75rem;margin:0;">Wizi · C Design · <a href="https://c-designs.uk" style="color:#00a898;text-decoration:none;">c-designs.uk</a></p>
       </td></tr>
     </table>
   </td></tr>
@@ -421,9 +421,9 @@ async function sendGibilanMorningEmail(env) {
 </body></html>`;
 
     await sendEmail(env, {
-      from: 'Gibilan <notificari@c-designs.uk>',
+      from: 'Wizi <office@c-designs.uk>',
       to: [env.NOTIFY_EMAIL || NOTIFY_EMAIL],
-      subject: `🤖 Gibilan — Your agenda for ${ziuaCapital}`,
+      subject: `🤖 Wizi — Your agenda for ${ziuaCapital}`,
       html,
     });
   } catch (e) {
