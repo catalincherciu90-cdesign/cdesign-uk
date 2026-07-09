@@ -6,7 +6,7 @@
 (function () {
   var GA_ID = 'G-TB9SZT1PVZ';
   var STORE_KEY = 'cd_cookie_consent'; // 'granted' | 'denied'
-  var PRIVACY_URL = '/politica-confidentialitate';
+  var PRIVACY_URL = '/privacy-policy';
 
   // gtag is defined by the inline snippet; define a fallback just in case.
   window.dataLayer = window.dataLayer || [];

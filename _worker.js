@@ -204,7 +204,7 @@ article{padding:64px 0 90px}
   </div>
   <div class="footer-bottom">
     <span>© ${yr} C Design. All rights reserved.</span>
-    <span><a href="/politica-confidentialitate">Privacy Policy</a></span>
+    <span><a href="/privacy-policy">Privacy Policy</a></span>
   </div>
 </footer>
 <script>
@@ -2472,9 +2472,14 @@ export default {
 
     // ── LEGAL ─────────────────────────────────────────────────
 
-    if (path === '/politica-confidentialitate') {
+    // 301 from the old Romanian slug to keep any existing links / indexing.
+    if (path === '/politica-confidentialitate' || path === '/politica-confidentialitate.html') {
+      return Response.redirect('https://c-designs.uk/privacy-policy', 301);
+    }
+
+    if (path === '/privacy-policy' || path === '/privacy-policy/') {
       const assetUrl = new URL(request.url);
-      assetUrl.pathname = '/politica-confidentialitate.html';
+      assetUrl.pathname = '/privacy-policy.html';
       return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
     }
 
