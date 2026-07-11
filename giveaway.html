@@ -315,7 +315,7 @@
         <li><strong>Promoter.</strong> This giveaway is run by C Design (c-designs.uk), a UK web design studio. Contact: <a href="mailto:office@c-designs.uk" style="color:var(--teal-dk);text-decoration:underline">office@c-designs.uk</a>.</li>
         <li><strong>Eligibility.</strong> Open to UK-based businesses and residents aged 18 or over. One entry per business. Employees of C Design and their immediate families are not eligible.</li>
         <li><strong>How to enter.</strong> Entry is free — simply complete the entry form on this page. No purchase is necessary and no purchase increases your chance of winning.</li>
-        <li><strong>Closing date.</strong> Entries close at 23:59 (UK time) on <strong>31 August 2026</strong>. Entries received after this time will not be counted.</li>
+        <li><strong>Closing date.</strong> Entries close at 23:59 (UK time) on <strong id="termsEndDate">31 August 2026</strong>. Entries received after this time will not be counted.</li>
         <li><strong>The prize.</strong> One winner will receive a complete presentation website (up to 5 pages, mobile-friendly), designed and built by C Design, worth from £300. The prize covers design and build only; optional extras (e.g. paid hosting, ongoing maintenance, third-party fees) are not included. The prize is non-transferable and there is no cash alternative.</li>
         <li><strong>Winner selection.</strong> One winner will be drawn at random from all valid entries within 7 days of the closing date, and contacted using the details provided. If a winner cannot be reached within 14 days, we reserve the right to draw an alternative winner.</li>
         <li><strong>Everyone wins 15%.</strong> Every valid entrant will receive a 15% discount off their first project with C Design. The discount is valid for 6 months from the closing date, cannot be combined with other offers, and has no cash value.</li>
@@ -388,20 +388,28 @@
   </script>
   <script>
     /* ── Giveaway countdown ──────────────────────────────────
-       To change the giveaway end date, edit the line below.
-       Format: 'YYYY-MM-DDTHH:MM:SS' in UK time. Also update the
-       date shown in the Terms section (#terms, point 4). */
+       The end date is set from the admin panel (Promotions tab →
+       Giveaway settings) and stored in site settings. The date below
+       is only the fallback if nothing has been set in admin yet. */
     (function(){
-      var GIVEAWAY_END = new Date('2026-08-31T23:59:59+01:00');
+      var DEFAULT_END = '2026-08-31T23:59:59+01:00';
       var box = document.getElementById('countdown');
       if(!box) return;
+      var GIVEAWAY_END = new Date(DEFAULT_END);
       var dEl=document.getElementById('cdDays'), hEl=document.getElementById('cdHours'),
           mEl=document.getElementById('cdMins'), sEl=document.getElementById('cdSecs');
       function pad(n){ return (n<10?'0':'')+n; }
+      function fmtDate(d){ try { return d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}); } catch(e){ return ''; } }
+      function setEnd(v){
+        if(v){ var d = new Date(v); if(!isNaN(d.getTime())) GIVEAWAY_END = d; }
+        var t = document.getElementById('termsEndDate'); if(t){ var f = fmtDate(GIVEAWAY_END); if(f) t.textContent = f; }
+      }
+      var running = false;
       function tick(){
         var diff = GIVEAWAY_END.getTime() - Date.now();
         if(diff <= 0){
           box.innerHTML = '<span class="cd-ended">⏰ This giveaway has now closed — thanks to everyone who entered!</span>';
+          running = false;
           return;
         }
         box.style.display = 'inline-flex';
@@ -415,7 +423,13 @@
         if(sEl) sEl.textContent = pad(s);
         setTimeout(tick, 1000);
       }
-      tick();
+      function start(){ if(!running){ running = true; tick(); } }
+      setEnd(null);
+      start();
+      // Pull the admin-configured end date (if any) and re-sync.
+      fetch('/api/site-settings').then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+        if(d && d.giveaway && d.giveaway.endDate){ setEnd(d.giveaway.endDate); start(); }
+      }).catch(function(){});
     })();
   </script>
   <script>

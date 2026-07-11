@@ -4695,6 +4695,23 @@ Title requirements:
       } catch { return json({ error: 'Error' }, 500); }
     }
 
+    // ── GIVEAWAY SETTINGS ─────────────────────────────────────
+    // Stored inside __site_settings__ under `giveaway` so the public
+    // /giveaway page (which already reads /api/site-settings) picks it up.
+    if (path === '/api/giveaway-settings' && request.method === 'PUT') {
+      if (!can(authed, 'promotions')) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const body = await request.json();
+        const raw = await env.PROGRAMARI.get('__site_settings__');
+        const existing = raw ? JSON.parse(raw) : {};
+        existing.giveaway = {
+          endDate: String(body.endDate || '').slice(0, 40),
+        };
+        await env.PROGRAMARI.put('__site_settings__', JSON.stringify(existing));
+        return json({ success: true });
+      } catch { return json({ error: 'Error' }, 500); }
+    }
+
     // ── MAINTENANCE API ───────────────────────────────────────
     if (path === '/api/maintenance' && request.method === 'GET') {
       if (!can(authed, 'settings')) return json({ error: 'Unauthorised' }, 401);
