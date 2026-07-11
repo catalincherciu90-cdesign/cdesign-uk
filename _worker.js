@@ -824,7 +824,7 @@ async function getAuth(url, env, request) {
 }
 
 // Sections a sub-admin can be granted access to.
-const ADMIN_SECTIONS = ['bookings', 'messages', 'chat', 'gibilan', 'clients', 'crm', 'portfolio', 'blog', 'seo', 'social', 'reviews', 'pages', 'media', 'theme', 'expenses', 'oferte', 'email', 'settings'];
+const ADMIN_SECTIONS = ['bookings', 'messages', 'promotions', 'chat', 'gibilan', 'clients', 'crm', 'portfolio', 'blog', 'seo', 'social', 'reviews', 'pages', 'media', 'theme', 'expenses', 'oferte', 'email', 'settings'];
 
 // Authorisation: owner can do anything; sub-admins need the section in their perms.
 function can(authed, section) {

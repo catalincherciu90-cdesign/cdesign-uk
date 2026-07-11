@@ -479,6 +479,7 @@
   <div class="tabs">
     <button class="tab active" onclick="switchTab('gibilan',this)">&#x1F916; Wizi</button>
     <button class="tab" onclick="switchTab('messages',this)">&#x1F4AC; Mesaje<span id="msgTabBadge" class="tab-badge" style="display:none;"></span></button>
+    <button class="tab" onclick="switchTab('promotions',this)">&#x1F381; Promotions<span id="promoTabBadge" class="tab-badge" style="display:none;"></span></button>
     <button class="tab" onclick="switchTab('chat',this)">&#x1F916; AI Chat<span id="chatTabBadge" class="tab-badge" style="display:none;"></span></button>
     <button class="tab" onclick="switchTab('email',this)">&#x2709;&#xFE0F; Email<span id="emailTabBadge" class="tab-badge" style="display:none;"></span></button>
     <button class="tab" onclick="switchTab('projects',this)">&#x1F5BC; Portfolio</button>
@@ -711,6 +712,23 @@
         <button onclick="loadMessages()" style="background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:7px 14px;font-size:.8rem;cursor:pointer;">↻ Refresh</button>
       </div>
       <div id="messagesList" style="display:flex;flex-direction:column;gap:12px;"></div>
+    </div>
+  </div>
+
+  <!-- TAB: PROMOTIONS (referrals & giveaway entries) -->
+  <div class="tab-panel" id="panel-promotions">
+    <div class="main">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+        <h2 style="margin:0;">🎁 Promotions</h2>
+        <button onclick="loadPromotions()" style="background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:7px 14px;font-size:.8rem;cursor:pointer;">↻ Refresh</button>
+      </div>
+      <p style="font-size:.82rem;color:var(--muted);margin:0 0 16px;">Referral requests (from <b>/referral</b>) and giveaway entries (from <b>/giveaway</b>).</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;" id="promoFilters">
+        <button class="promo-filter active" data-filter="all" onclick="setPromoFilter('all',this)" style="font-size:.8rem;border:1px solid var(--teal);background:rgba(0,168,168,.1);color:var(--teal);border-radius:999px;padding:6px 16px;cursor:pointer;">All <span id="pfCountAll"></span></button>
+        <button class="promo-filter" data-filter="REFERRAL" onclick="setPromoFilter('REFERRAL',this)" style="font-size:.8rem;border:1px solid var(--border-soft);background:none;color:var(--muted);border-radius:999px;padding:6px 16px;cursor:pointer;">🤝 Referrals <span id="pfCountRef"></span></button>
+        <button class="promo-filter" data-filter="GIVEAWAY" onclick="setPromoFilter('GIVEAWAY',this)" style="font-size:.8rem;border:1px solid var(--border-soft);background:none;color:var(--muted);border-radius:999px;padding:6px 16px;cursor:pointer;">🎉 Giveaway <span id="pfCountGiv"></span></button>
+      </div>
+      <div id="promotionsList" style="display:flex;flex-direction:column;gap:12px;"></div>
     </div>
   </div>
 
@@ -2778,6 +2796,7 @@
     if (can('expenses')) fetchCheltuieli();
     if (can('chat')) refreshChatBadge();
     if (can('messages')) refreshMsgBadge();
+    if (can('promotions')) refreshPromoBadge();
     if (can('email')) refreshEmailBadge();
     if (can('reviews')) refreshReviewsBadge();
     if (can('gibilan')) loadGibilanRecent();
@@ -2826,6 +2845,7 @@
     document.getElementById('panel-' + tab).classList.add('active');
     if (tab === 'gibilan') { loadGibilan(); loadGibilanRecent(); }
     if (tab === 'messages') loadMessages();
+    if (tab === 'promotions') loadPromotions();
     if (tab === 'chat') loadChatLogs();
     if (tab === 'email') loadSentMail();
     if (tab === 'social') { loadSocialBlogSelect(); loadSocialPosts(); }
@@ -2842,8 +2862,8 @@
   }
 
   // ── Permissions & current user ───────────────────────────
-  const SECTION_LABELS = { bookings:'Bookings', messages:'Messages', chat:'AI Chat', gibilan:'Wizi', clients:'Clients', crm:'CRM & Quotes', portfolio:'Portfolio', blog:'Blog', seo:'SEO', social:'Social', reviews:'Reviews', pages:'Pages', media:'Media', theme:'Theme', expenses:'Expenses', oferte:'Quotes', email:'Email', settings:'Settings' };
-  const TAB_PERM = { bookings:'bookings', messages:'messages', chat:'chat', gibilan:'gibilan', clients:'clients', crm:'crm', projects:'portfolio', blog:'blog', seo:'seo', social:'social', reviews:'reviews', pagini:'pages', media:'media', tema:'theme', email:'email', settings:'settings', cheltuieli:'expenses', oferte:'oferte' };
+  const SECTION_LABELS = { bookings:'Bookings', messages:'Messages', promotions:'Promotions', chat:'AI Chat', gibilan:'Wizi', clients:'Clients', crm:'CRM & Quotes', portfolio:'Portfolio', blog:'Blog', seo:'SEO', social:'Social', reviews:'Reviews', pages:'Pages', media:'Media', theme:'Theme', expenses:'Expenses', oferte:'Quotes', email:'Email', settings:'Settings' };
+  const TAB_PERM = { bookings:'bookings', messages:'messages', promotions:'promotions', chat:'chat', gibilan:'gibilan', clients:'clients', crm:'crm', projects:'portfolio', blog:'blog', seo:'seo', social:'social', reviews:'reviews', pagini:'pages', media:'media', tema:'theme', email:'email', settings:'settings', cheltuieli:'expenses', oferte:'oferte' };
   let allSections = Object.keys(SECTION_LABELS);
 
   async function fetchMe() {
@@ -3081,16 +3101,24 @@
   // -- PROGRAMARI --
 
   function mEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  // Referral & giveaway entries live under the dedicated Promotions tab,
+  // so we keep them out of the general inbox to avoid clutter.
+  function isPromoMsg(m) {
+    var s = String((m && m.service) || '').toUpperCase();
+    return s === 'REFERRAL' || s === 'GIVEAWAY';
+  }
   async function loadMessages() {
     var list = document.getElementById('messagesList');
     if (!list) return;
     list.innerHTML = '<div style="color:var(--muted);font-size:.85rem;">Loading…</div>';
     try {
       var res = await fetch('/api/messages?token=' + encodeURIComponent(adminToken));
-      var msgs = await res.json();
-      window.__msgsCache = Array.isArray(msgs) ? msgs : [];
+      var all = await res.json();
+      window.__msgsCache = Array.isArray(all) ? all : [];
       updateMsgBadge(window.__msgsCache);
-      if (!Array.isArray(msgs) || !msgs.length) {
+      updatePromoBadge(window.__msgsCache);
+      var msgs = window.__msgsCache.filter(function(m){ return !isPromoMsg(m); });
+      if (!msgs.length) {
         list.innerHTML = '<div style="color:var(--muted);font-size:.9rem;padding:20px 0;">No messages yet.</div>';
         return;
       }
@@ -3118,14 +3146,19 @@
       list.innerHTML = '<div style="color:#e74c3c;font-size:.85rem;">Error loading messages.</div>';
     }
   }
+  // After a message action, refresh whichever list is open (inbox or promotions).
+  function reloadAfterMsgAction() {
+    if (currentTab === 'promotions') { loadPromotions(); }
+    else { loadMessages(); }
+  }
   async function toggleMessageRead(id, read) {
     try { await fetch('/api/messages/' + encodeURIComponent(id) + '?token=' + encodeURIComponent(adminToken), { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ read: read }) }); } catch(e){}
-    loadMessages();
+    reloadAfterMsgAction();
   }
   async function deleteMessage(id) {
     if (!confirm('Delete this message?')) return;
     try { await fetch('/api/messages/' + encodeURIComponent(id) + '?token=' + encodeURIComponent(adminToken), { method:'DELETE' }); } catch(e){}
-    loadMessages();
+    reloadAfterMsgAction();
   }
   function draftReplyFor(id) {
     var m = (window.__msgsCache || []).find(function(x){ return x.id === id; });
@@ -3137,6 +3170,91 @@
       + ((m.date || m.time) ? 'Preferred date/time: ' + (m.date || '') + ' ' + (m.time || '') + '\n' : '')
       + (m.message ? 'Message: ' + m.message : 'Message: (no message text — they left contact details for a call-back)');
     openAiAssist('reply', ctx);
+  }
+
+  // ── PROMOTIONS (referrals & giveaway) ────────────────────
+  window.__promoFilter = 'all';
+  function updatePromoBadge(msgs) {
+    var badge = document.getElementById('promoTabBadge');
+    if (!badge) return;
+    var n = (Array.isArray(msgs) ? msgs : []).filter(function(m){ return m && !m.read && isPromoMsg(m); }).length;
+    if (n > 0) { badge.textContent = n > 99 ? '99+' : n; badge.style.display = 'inline-block'; }
+    else { badge.style.display = 'none'; }
+  }
+  async function refreshPromoBadge() {
+    if (!can('promotions')) return;
+    try {
+      var res = await fetch('/api/messages?token=' + encodeURIComponent(adminToken));
+      var msgs = await res.json();
+      window.__msgsCache = Array.isArray(msgs) ? msgs : [];
+      updatePromoBadge(window.__msgsCache);
+    } catch(e) {}
+  }
+  function setPromoFilter(f, btn) {
+    window.__promoFilter = f;
+    document.querySelectorAll('.promo-filter').forEach(function(b){
+      var on = b === btn;
+      b.style.borderColor = on ? 'var(--teal)' : 'var(--border-soft)';
+      b.style.background = on ? 'rgba(0,168,168,.1)' : 'none';
+      b.style.color = on ? 'var(--teal)' : 'var(--muted)';
+    });
+    renderPromotions();
+  }
+  function renderPromotions() {
+    var list = document.getElementById('promotionsList');
+    if (!list) return;
+    var all = (window.__msgsCache || []).filter(isPromoMsg);
+    var ref = all.filter(function(m){ return String(m.service).toUpperCase() === 'REFERRAL'; });
+    var giv = all.filter(function(m){ return String(m.service).toUpperCase() === 'GIVEAWAY'; });
+    var cAll = document.getElementById('pfCountAll'), cRef = document.getElementById('pfCountRef'), cGiv = document.getElementById('pfCountGiv');
+    if (cAll) cAll.textContent = '(' + all.length + ')';
+    if (cRef) cRef.textContent = '(' + ref.length + ')';
+    if (cGiv) cGiv.textContent = '(' + giv.length + ')';
+    var f = window.__promoFilter;
+    var rows = f === 'REFERRAL' ? ref : f === 'GIVEAWAY' ? giv : all;
+    if (!rows.length) {
+      list.innerHTML = '<div style="color:var(--muted);font-size:.9rem;padding:20px 0;">No entries yet.</div>';
+      return;
+    }
+    list.innerHTML = rows.map(function(m){
+      var when = '';
+      try { when = new Date(m.createdAt).toLocaleString('en-GB'); } catch(e){}
+      var isGiv = String(m.service).toUpperCase() === 'GIVEAWAY';
+      var chip = isGiv
+        ? '<span style="font-size:.68rem;font-weight:700;letter-spacing:.04em;color:#7a35c4;background:#f3e8ff;border:1px solid #e2ccf7;padding:3px 9px;border-radius:999px;">🎉 GIVEAWAY</span>'
+        : '<span style="font-size:.68rem;font-weight:700;letter-spacing:.04em;color:#1c7a43;background:#e4f7ea;border:1px solid #b8e8c8;padding:3px 9px;border-radius:999px;">🤝 REFERRAL</span>';
+      return '<div style="background:var(--bg2);border:1px solid ' + (m.read ? 'var(--border-soft)' : 'var(--teal-border)') + ';border-radius:12px;padding:16px 18px;" data-id="' + mEsc(m.id) + '">' +
+        '<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;">' +
+          '<div style="display:flex;align-items:center;gap:10px;">' + chip +
+            '<strong style="font-size:1rem;color:var(--heading);">' + mEsc(m.name) + (m.read ? '' : ' <span style="color:var(--teal);font-size:.7rem;">● NEW</span>') + '</strong>' +
+          '</div>' +
+          '<span style="font-size:.72rem;color:var(--muted);">' + mEsc(when) + '</span>' +
+        '</div>' +
+        '<div style="font-size:.88rem;color:var(--soft);margin-top:8px;">📞 <a href="tel:' + mEsc(m.phone) + '" style="color:var(--teal);">' + mEsc(m.phone) + '</a></div>' +
+        (m.message ? '<div style="font-size:.9rem;color:var(--text);margin-top:10px;line-height:1.55;white-space:pre-wrap;">' + mEsc(m.message) + '</div>' : '') +
+        '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">' +
+          '<button onclick="draftReplyFor(\'' + mEsc(m.id) + '\')" style="font-size:.76rem;background:rgba(0,168,168,.12);border:1px solid var(--teal);color:var(--teal);border-radius:6px;padding:5px 12px;cursor:pointer;">✨ Draft reply</button>' +
+          '<a href="https://wa.me/' + mEsc(String(m.phone).replace(/[^0-9]/g,'')) + '" target="_blank" rel="noopener" style="font-size:.76rem;background:rgba(43,229,255,.1);border:1px solid var(--teal-border);color:var(--teal);border-radius:6px;padding:5px 12px;text-decoration:none;">WhatsApp</a>' +
+          '<button onclick="toggleMessageRead(\'' + mEsc(m.id) + '\',' + (m.read ? 'false' : 'true') + ')" style="font-size:.76rem;background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:5px 12px;cursor:pointer;">' + (m.read ? 'Mark unread' : 'Mark read') + '</button>' +
+          '<button onclick="deleteMessage(\'' + mEsc(m.id) + '\')" style="font-size:.76rem;background:none;border:1px solid #e74c3c;color:#e74c3c;border-radius:6px;padding:5px 12px;cursor:pointer;">Delete</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+  async function loadPromotions() {
+    var list = document.getElementById('promotionsList');
+    if (!list) return;
+    list.innerHTML = '<div style="color:var(--muted);font-size:.85rem;">Loading…</div>';
+    try {
+      var res = await fetch('/api/messages?token=' + encodeURIComponent(adminToken));
+      var msgs = await res.json();
+      window.__msgsCache = Array.isArray(msgs) ? msgs : [];
+      updateMsgBadge(window.__msgsCache);
+      updatePromoBadge(window.__msgsCache);
+      renderPromotions();
+    } catch(e) {
+      list.innerHTML = '<div style="color:#e74c3c;font-size:.85rem;">Error loading entries.</div>';
+    }
   }
 
   // ── AI CHAT LOGS ─────────────────────────────────────────
@@ -3186,7 +3304,7 @@
   function updateMsgBadge(msgs) {
     var badge = document.getElementById('msgTabBadge');
     if (!badge) return;
-    var n = (Array.isArray(msgs) ? msgs : []).filter(function(m){ return m && !m.read; }).length;
+    var n = (Array.isArray(msgs) ? msgs : []).filter(function(m){ return m && !m.read && !isPromoMsg(m); }).length;
     if (n > 0) { badge.textContent = n > 99 ? '99+' : n; badge.style.display = 'inline-block'; }
     else { badge.style.display = 'none'; }
   }
