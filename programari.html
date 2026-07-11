@@ -723,6 +723,19 @@
         <button onclick="loadPromotions()" style="background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:7px 14px;font-size:.8rem;cursor:pointer;">↻ Refresh</button>
       </div>
       <p style="font-size:.82rem;color:var(--muted);margin:0 0 16px;">Referral requests (from <b>/referral</b>) and giveaway entries (from <b>/giveaway</b>).</p>
+
+      <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:12px;padding:16px 18px;margin-bottom:20px;">
+        <div style="font-weight:600;color:var(--heading);margin-bottom:2px;">⚙️ Giveaway settings</div>
+        <p style="font-size:.78rem;color:var(--muted);margin:0 0 12px;">Sets the countdown and the closing date shown on the <b>/giveaway</b> page.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <label style="font-size:.82rem;color:var(--soft);">Entries close:
+            <input type="datetime-local" id="givEndInput" style="margin-left:8px;padding:8px 10px;border:1px solid var(--border-soft);border-radius:8px;background:var(--bg);color:var(--text);font-size:.85rem;">
+          </label>
+          <button onclick="saveGiveawaySettings()" style="font-size:.8rem;background:var(--teal);border:1px solid var(--teal);color:#fff;border-radius:8px;padding:8px 16px;cursor:pointer;">Save</button>
+          <span id="givSaveMsg" style="font-size:.8rem;color:var(--teal);"></span>
+        </div>
+      </div>
+
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;" id="promoFilters">
         <button class="promo-filter active" data-filter="all" onclick="setPromoFilter('all',this)" style="font-size:.8rem;border:1px solid var(--teal);background:rgba(0,168,168,.1);color:var(--teal);border-radius:999px;padding:6px 16px;cursor:pointer;">All <span id="pfCountAll"></span></button>
         <button class="promo-filter" data-filter="REFERRAL" onclick="setPromoFilter('REFERRAL',this)" style="font-size:.8rem;border:1px solid var(--border-soft);background:none;color:var(--muted);border-radius:999px;padding:6px 16px;cursor:pointer;">🤝 Referrals <span id="pfCountRef"></span></button>
@@ -2845,7 +2858,7 @@
     document.getElementById('panel-' + tab).classList.add('active');
     if (tab === 'gibilan') { loadGibilan(); loadGibilanRecent(); }
     if (tab === 'messages') loadMessages();
-    if (tab === 'promotions') loadPromotions();
+    if (tab === 'promotions') { loadPromotions(); loadGiveawaySettings(); }
     if (tab === 'chat') loadChatLogs();
     if (tab === 'email') loadSentMail();
     if (tab === 'social') { loadSocialBlogSelect(); loadSocialPosts(); }
@@ -3255,6 +3268,39 @@
     } catch(e) {
       list.innerHTML = '<div style="color:#e74c3c;font-size:.85rem;">Error loading entries.</div>';
     }
+  }
+  // Format a stored date value into the 'YYYY-MM-DDTHH:MM' a datetime-local input needs.
+  function toLocalInput(v) {
+    if (!v) return '';
+    var d = new Date(v);
+    if (isNaN(d.getTime())) return '';
+    var p = function(n){ return (n < 10 ? '0' : '') + n; };
+    return d.getFullYear() + '-' + p(d.getMonth()+1) + '-' + p(d.getDate()) + 'T' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+  async function loadGiveawaySettings() {
+    var inp = document.getElementById('givEndInput');
+    if (!inp) return;
+    try {
+      var res = await fetch('/api/site-settings');
+      var d = await res.json();
+      var v = (d && d.giveaway && d.giveaway.endDate) ? d.giveaway.endDate : '';
+      inp.value = toLocalInput(v);
+    } catch(e) {}
+  }
+  async function saveGiveawaySettings() {
+    var inp = document.getElementById('givEndInput');
+    var msg = document.getElementById('givSaveMsg');
+    if (!inp) return;
+    if (!inp.value) { alert('Please pick a closing date and time first.'); return; }
+    try {
+      var res = await fetch('/api/giveaway-settings?token=' + encodeURIComponent(adminToken), {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ endDate: inp.value })
+      });
+      var d = await res.json();
+      if (d && d.success) { if (msg) { msg.textContent = '✓ Saved'; setTimeout(function(){ if(msg) msg.textContent=''; }, 2500); } }
+      else { alert((d && d.error) || 'Save failed.'); }
+    } catch(e) { alert('Network error while saving.'); }
   }
 
   // ── AI CHAT LOGS ─────────────────────────────────────────
