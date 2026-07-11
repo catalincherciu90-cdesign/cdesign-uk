@@ -2459,6 +2459,18 @@ export default {
       return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
     }
 
+    if (path === '/referral' || path === '/referral/') {
+      const assetUrl = new URL(request.url);
+      assetUrl.pathname = '/referral.html';
+      return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
+    }
+
+    if (path === '/giveaway' || path === '/giveaway/') {
+      const assetUrl = new URL(request.url);
+      assetUrl.pathname = '/giveaway.html';
+      return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
+    }
+
     // Local SEO city landing pages: /web-design-<city>
     if (path.startsWith('/web-design-')) {
       const CITY_PAGES = ['web-design-leeds', 'web-design-sheffield', 'web-design-nottingham', 'web-design-derby', 'web-design-blackburn', 'web-design-preston'];
