@@ -212,4 +212,35 @@
       setTimeout(function () { badge.classList.remove('show'); }, 6000);
     }
   }, 4000);
+
+  // ── Footer social links ─────────────────────────────────────
+  // Wire the footer's social icons (.f-social a) to the URLs set in
+  // the admin (Social tab). Only accounts marked Active with a URL are
+  // shown; unconfigured icons are hidden so there are no dead "#" links.
+  (function wireSocials() {
+    var anchors = document.querySelectorAll('.f-social a[aria-label]');
+    if (!anchors.length) return;
+    function norm(s) {
+      var k = String(s || '').toLowerCase().replace(/[^a-z]/g, '');
+      if (k.indexOf('facebook') > -1) return 'facebook';
+      if (k.indexOf('instagram') > -1) return 'instagram';
+      if (k.indexOf('linkedin') > -1) return 'linkedin';
+      if (k.indexOf('tiktok') > -1) return 'tiktok';
+      if (k.indexOf('youtube') > -1) return 'youtube';
+      if (k.indexOf('twitter') > -1 || k === 'x') return 'x';
+      return k;
+    }
+    fetch('/api/social').then(function (r) { return r.ok ? r.json() : []; }).then(function (list) {
+      if (!Array.isArray(list)) list = [];
+      var map = {};
+      list.forEach(function (s) {
+        if (s && s.enabled && s.url && String(s.url).trim()) map[norm(s.platform)] = String(s.url).trim();
+      });
+      anchors.forEach(function (a) {
+        var url = map[norm(a.getAttribute('aria-label'))];
+        if (url) { a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.style.display = ''; }
+        else { a.style.display = 'none'; }
+      });
+    }).catch(function () {});
+  })();
 })();
