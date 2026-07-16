@@ -1020,6 +1020,16 @@
         </div>
       </div>
 
+      <!-- SHOWCASE DEMOS — download the ready-made template files -->
+      <div style="background:var(--bg3);border:1px solid var(--border-soft);border-radius:12px;padding:20px 22px;margin-bottom:24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;flex-wrap:wrap;">
+          <span style="font-family:'Share Tech Mono',monospace;font-size:.8rem;color:var(--teal);">// showcase_demos</span>
+          <button onclick="downloadAllDemos(this)" class="btn-save" style="font-size:.8rem;">⬇ Download all (.zip)</button>
+        </div>
+        <div style="font-size:.72rem;color:var(--muted);margin-bottom:14px;">Cele 24 de website-uri demo gata făcute (de pe pagina <b>/demos</b>). Le poți descărca individual ca fișier <b>.html</b> sau pe toate deodată într-un <b>.zip</b>.</div>
+        <div id="showcaseDemoList"></div>
+      </div>
+
       <div class="projects-grid" id="projectsGrid">
         <div class="loading">Loading projects...</div>
       </div>
@@ -2863,7 +2873,7 @@
     if (tab === 'email') loadSentMail();
     if (tab === 'social') { loadSocialBlogSelect(); loadSocialPosts(); }
     if (tab === 'reviews') loadReviews();
-    if (tab === 'projects') fetchProjects();
+    if (tab === 'projects') { fetchProjects(); renderStaticDemos(); }
     if (tab === 'crm') { fetchCrm(); loadGibilan(); }
     if (tab === 'clients') { fetchClients(); loadGibilan(); }
     if (tab === 'pagini') { var sel = document.getElementById('layout-page-sel'); loadLayoutPage(sel ? sel.value : 'index'); }
@@ -3952,6 +3962,98 @@
       document.body.appendChild(a); a.click();
       setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
     } catch { alert('Download failed.'); }
+  }
+
+  // ── Showcase demos (the ready-made /demos/*.html templates) ──
+  const STATIC_DEMOS = [
+    { slug:'my-restaurant',     name:'My Restaurant',      emoji:'🍽' },
+    { slug:'bella-cucina',      name:'Bella Cucina',       emoji:'🍝' },
+    { slug:'my-cafe',           name:'My Café',            emoji:'☕' },
+    { slug:'my-bakery',         name:'My Bakery',          emoji:'🥐' },
+    { slug:'my-barbershop',     name:'My Barbershop',      emoji:'💈' },
+    { slug:'my-boutique',       name:'My Boutique',        emoji:'👗' },
+    { slug:'urban-threads',     name:'Urban Threads',      emoji:'🧵' },
+    { slug:'my-shop',           name:'My Shop',            emoji:'🛍' },
+    { slug:'my-gym',            name:'My Gym',             emoji:'🏋' },
+    { slug:'my-studio',         name:'My Studio (Yoga)',   emoji:'🧘' },
+    { slug:'my-spa',            name:'My Spa',             emoji:'💆' },
+    { slug:'my-dental-clinic',  name:'My Dental Clinic',   emoji:'🦷' },
+    { slug:'brightsmile-dental',name:'BrightSmile Dental', emoji:'🦷' },
+    { slug:'my-clinic',         name:'My Clinic',          emoji:'🩺' },
+    { slug:'my-law-firm',       name:'My Law Firm',        emoji:'⚖' },
+    { slug:'my-accounting',     name:'My Accounting',      emoji:'📊' },
+    { slug:'my-estate-agency',  name:'My Estate Agency',   emoji:'🏠' },
+    { slug:'my-construction',   name:'My Construction Co.',emoji:'🏗' },
+    { slug:'my-electrical',     name:'My Electrical',      emoji:'⚡' },
+    { slug:'my-plumbing',       name:'My Plumbing',        emoji:'🚿' },
+    { slug:'my-garage',         name:'My Garage',          emoji:'🔧' },
+    { slug:'my-cleaning',       name:'My Cleaning Co.',    emoji:'🧽' },
+    { slug:'my-photography',    name:'My Photography',     emoji:'📷' },
+    { slug:'admin-demo',        name:'Admin Panel Demo',   emoji:'🛠' }
+  ];
+  function renderStaticDemos() {
+    const wrap = document.getElementById('showcaseDemoList');
+    if (!wrap) return;
+    wrap.innerHTML = STATIC_DEMOS.map(d => `
+      <div style="display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--border-soft);border-radius:10px;padding:10px 14px;margin-bottom:8px;flex-wrap:wrap;">
+        <span style="font-size:1.4rem;">${d.emoji}</span>
+        <div style="flex:1;min-width:150px;">
+          <div style="font-weight:700;font-size:.9rem;">${esc(d.name)}</div>
+          <div style="font-size:.72rem;color:var(--muted);">/demos/${esc(d.slug)}.html</div>
+        </div>
+        <a href="/demos/${encodeURIComponent(d.slug)}.html" target="_blank" rel="noopener" class="btn-edit" style="text-decoration:none;">↗ View</a>
+        <button class="btn-del" onclick="downloadShowcaseDemo('${esc(d.slug)}','${esc(d.name)}')" title="Save as .html file">⬇ Download</button>
+      </div>`).join('');
+  }
+  async function downloadShowcaseDemo(slug, name) {
+    try {
+      const res = await fetch('/demos/' + encodeURIComponent(slug) + '.html?v=' + Date.now());
+      if (!res.ok) { alert('Could not load the demo.'); return; }
+      const html = await res.text();
+      const blob = new Blob([html], { type: 'text/html' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = slug + '.html';
+      document.body.appendChild(a); a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    } catch { alert('Download failed.'); }
+  }
+  function loadJSZip() {
+    return new Promise((resolve, reject) => {
+      if (window.JSZip) return resolve(window.JSZip);
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
+      s.onload = () => window.JSZip ? resolve(window.JSZip) : reject(new Error('zip library not available'));
+      s.onerror = () => reject(new Error('could not load the zip library'));
+      document.head.appendChild(s);
+    });
+  }
+  async function downloadAllDemos(btn) {
+    const label = btn ? btn.textContent : '';
+    if (btn) { btn.disabled = true; btn.textContent = 'Preparing…'; }
+    try {
+      const JSZip = await loadJSZip();
+      const zip = new JSZip();
+      const folder = zip.folder('c-design-demos');
+      let ok = 0;
+      for (const d of STATIC_DEMOS) {
+        try {
+          const res = await fetch('/demos/' + encodeURIComponent(d.slug) + '.html?v=' + Date.now());
+          if (res.ok) { folder.file(d.slug + '.html', await res.text()); ok++; }
+        } catch { /* skip this one */ }
+      }
+      if (!ok) throw new Error('no demos could be fetched');
+      const blob = await zip.generateAsync({ type: 'blob' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'c-design-demos.zip';
+      document.body.appendChild(a); a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+    } catch (e) {
+      alert('Could not build the ZIP (' + (e && e.message ? e.message : 'error') + '). You can still download each demo individually.');
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = label || '⬇ Download all (.zip)'; }
+    }
   }
 
   async function restyleDemo(id) {
