@@ -1127,6 +1127,8 @@
         </div>
 
         <div id="spList" style="display:flex;flex-direction:column;gap:12px;"></div>
+        <input type="file" id="spFileInput" accept="image/*,video/mp4,video/webm" style="display:none;" onchange="spDoUpload(this)">
+
       </div>
     </div>
   </div>
@@ -3617,10 +3619,12 @@
           '<input type="date" class="sp-date f-input" value="' + mEsc(p.date||'') + '" style="margin-bottom:0;max-width:160px;font-size:.78rem;padding:5px 8px;">' +
           '<span style="flex:1;"></span>' +
           '<button onclick="spSave(\'' + mEsc(p.id) + '\')" class="btn-save" style="font-size:.74rem;padding:5px 12px;">💾 Save</button>' +
+          '<button onclick="spAttach(\'' + mEsc(p.id) + '\')" style="font-size:.74rem;background:none;border:1px solid var(--border-soft);color:var(--soft);border-radius:6px;padding:5px 12px;cursor:pointer;">📎 File</button>' +
           '<button onclick="spCopy(\'' + mEsc(p.id) + '\')" style="font-size:.74rem;background:none;border:1px solid var(--border-soft);color:var(--soft);border-radius:6px;padding:5px 12px;cursor:pointer;">📋 Copy</button>' +
           '<button onclick="spDelete(\'' + mEsc(p.id) + '\')" style="font-size:.74rem;background:none;border:1px solid #e5484d;color:#e5484d;border-radius:6px;padding:5px 12px;cursor:pointer;">🗑</button>' +
         '</div>' +
         '<textarea class="sp-text f-input" style="width:100%;min-height:110px;font-size:.86rem;line-height:1.5;margin-bottom:0;white-space:pre-wrap;">' + mEsc(p.text||'') + '</textarea>' +
+        spMediaStrip(p) +
       '</div>';
     }).join('');
   }
@@ -3649,6 +3653,76 @@
     var d = spCardData(id); if (!d) return;
     try { if (navigator.clipboard) navigator.clipboard.writeText(d.text); else { var t=document.querySelector('.sp-card[data-id="'+id+'"] .sp-text'); t.select(); document.execCommand('copy'); } } catch(e){}
     var st = document.getElementById('spGenStatus'); if (st){ st.style.color='#12a150'; st.textContent='// ✓ copied'; }
+  }
+  // ── Social post media (attach images / videos) ──────────────
+  function spMediaStrip(p){
+    var media = (p && Array.isArray(p.media)) ? p.media : [];
+    if (!media.length) return '';
+    return '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">' + media.map(function(m){
+      var isVid = /video/.test(m.ct||'') || /\.(mp4|webm)(\?|$)/i.test(m.url||'');
+      var thumb = isVid
+        ? '<video src="' + mEsc(m.url) + '" muted playsinline style="width:92px;height:92px;object-fit:cover;border-radius:8px;border:1px solid var(--border-soft);background:#000;"></video>'
+        : '<img src="' + mEsc(m.url) + '" alt="" style="width:92px;height:92px;object-fit:cover;border-radius:8px;border:1px solid var(--border-soft);">';
+      return '<div style="position:relative;width:92px;height:92px;">' + thumb +
+        '<button onclick="spRemoveMedia(\'' + mEsc(p.id) + '\',\'' + mEsc(m.url) + '\')" title="Remove" style="position:absolute;top:-7px;right:-7px;width:20px;height:20px;border-radius:50%;background:#e5484d;color:#fff;border:none;cursor:pointer;font-size:.72rem;line-height:1;display:flex;align-items:center;justify-content:center;">×</button>' +
+        '<a href="' + mEsc(m.url) + '" download target="_blank" rel="noopener" title="Download" style="position:absolute;bottom:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border-radius:4px;padding:1px 5px;font-size:.62rem;text-decoration:none;">⬇</a>' +
+      '</div>';
+    }).join('') + '</div>';
+  }
+  function spAttach(id){
+    window.__spUploadTarget = id;
+    var inp = document.getElementById('spFileInput');
+    if (inp) { inp.value = ''; inp.click(); }
+  }
+  function spDoUpload(input){
+    var file = input && input.files && input.files[0];
+    var id = window.__spUploadTarget;
+    if (!file || !id) return;
+    var isVid = file.type === 'video/mp4' || file.type === 'video/webm';
+    var isImg = /^image\//.test(file.type);
+    if (!isImg && !isVid) { alert('Please choose an image or an MP4/WebM video.'); return; }
+    if (file.size > (isVid ? 25 : 5) * 1024 * 1024) { alert('File too large (max ' + (isVid ? '25MB video' : '5MB image') + ').'); return; }
+    var st = document.getElementById('spGenStatus'); if (st){ st.style.color='var(--teal)'; st.textContent='// uploading…'; }
+    uploadMedia(file, async function(url){
+      var p = spCache.find(function(x){ return x.id===id; });
+      if (!p) return;
+      var media = (Array.isArray(p.media) ? p.media.slice() : []).concat([{ url: url, ct: file.type }]);
+      // keep any edits the user already made in this card
+      var d = spCardData(id) || {};
+      var body = { media: media };
+      if (d.text !== undefined) body.text = d.text;
+      if (d.status !== undefined) body.status = d.status;
+      if (d.date !== undefined) body.date = d.date;
+      try {
+        await fetch('/api/social-posts/' + encodeURIComponent(id) + '?token=' + encodeURIComponent(adminToken),
+          { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+        p.media = media;
+        if (d.text !== undefined) p.text = d.text;
+        if (d.status !== undefined) p.status = d.status;
+        if (d.date !== undefined) p.date = d.date;
+        renderSpList();
+        if (st){ st.style.color='#12a150'; st.textContent='// ✓ file attached'; }
+      } catch(e){ if (st){ st.style.color='#e5484d'; st.textContent='// save failed'; } }
+    }, function(err){ if (st){ st.style.color='#e5484d'; st.textContent='// ' + (err||'upload error'); } });
+  }
+  async function spRemoveMedia(id, url){
+    var p = spCache.find(function(x){ return x.id===id; });
+    if (!p || !Array.isArray(p.media)) return;
+    var media = p.media.filter(function(m){ return m.url !== url; });
+    var d = spCardData(id) || {};
+    var body = { media: media };
+    if (d.text !== undefined) body.text = d.text;
+    if (d.status !== undefined) body.status = d.status;
+    if (d.date !== undefined) body.date = d.date;
+    try {
+      await fetch('/api/social-posts/' + encodeURIComponent(id) + '?token=' + encodeURIComponent(adminToken),
+        { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      p.media = media;
+      if (d.text !== undefined) p.text = d.text;
+      if (d.status !== undefined) p.status = d.status;
+      if (d.date !== undefined) p.date = d.date;
+      renderSpList();
+    } catch(e){ alert('Could not remove the file.'); }
   }
   async function spCreate(platform, text, status){
     var res = await fetch('/api/social-posts?token=' + encodeURIComponent(adminToken),
