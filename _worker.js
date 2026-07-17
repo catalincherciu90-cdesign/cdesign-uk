@@ -3146,12 +3146,16 @@ export default {
         const raw = await env.PROGRAMARI.get('__socialposts__');
         const list = raw ? JSON.parse(raw) : [];
         const now = new Date().toISOString();
+        const cleanMedia = (arr) => Array.isArray(arr)
+          ? arr.slice(0, 10).map(m => ({ url: String((m && m.url) || '').slice(0, 300), ct: String((m && m.ct) || '').slice(0, 50) })).filter(m => m.url)
+          : [];
         const post = {
           id: 'sp_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
           platform: String(b.platform || 'Facebook').slice(0, 40),
           text: String(b.text || '').slice(0, 4000),
           date: String(b.date || '').slice(0, 20),
           status: ['idea', 'scheduled', 'posted'].includes(b.status) ? b.status : 'idea',
+          media: cleanMedia(b.media),
           createdAt: now, updatedAt: now
         };
         list.unshift(post);
@@ -3172,6 +3176,9 @@ export default {
         if (b.platform !== undefined) p.platform = String(b.platform).slice(0, 40);
         if (b.date !== undefined) p.date = String(b.date).slice(0, 20);
         if (b.status !== undefined && ['idea', 'scheduled', 'posted'].includes(b.status)) p.status = b.status;
+        if (b.media !== undefined) p.media = Array.isArray(b.media)
+          ? b.media.slice(0, 10).map(m => ({ url: String((m && m.url) || '').slice(0, 300), ct: String((m && m.ct) || '').slice(0, 50) })).filter(m => m.url)
+          : [];
         p.updatedAt = new Date().toISOString();
         await env.PROGRAMARI.put('__socialposts__', JSON.stringify(list));
         return json(p);
@@ -4738,7 +4745,7 @@ Title requirements:
 
     // Media upload
     if (path === '/api/media' && request.method === 'POST') {
-      if (!can(authed, 'media')) return json({ error: 'Unauthorised' }, 401);
+      if (!can(authed, 'media') && !can(authed, 'social')) return json({ error: 'Unauthorised' }, 401);
       try {
         const ct = request.headers.get('Content-Type') || '';
         const isImg = ct.startsWith('image/');
