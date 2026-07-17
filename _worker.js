@@ -462,6 +462,7 @@ function getCors(request) {
 }
 
 const SEC_HEADERS = {
+  'Strict-Transport-Security': 'max-age=31536000',
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'SAMEORIGIN',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
@@ -2289,6 +2290,16 @@ export default {
   },
   async __route(request, env) {
     const url = new URL(request.url);
+
+    // Force HTTPS — 301 any plain-HTTP request to the secure URL so Google
+    // (and browsers) only ever see the HTTPS version. Uses the CF-Visitor
+    // header for the real client scheme when behind Cloudflare.
+    try {
+      const cfv = request.headers.get('cf-visitor');
+      const scheme = cfv ? (JSON.parse(cfv).scheme || url.protocol.replace(':', '')) : url.protocol.replace(':', '');
+      if (scheme === 'http') { url.protocol = 'https:'; return Response.redirect(url.toString(), 301); }
+    } catch { /* fall through and serve normally */ }
+
     const path = url.pathname;
 
     if (request.method === 'OPTIONS') return new Response(null, { headers: getCors(request) });
