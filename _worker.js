@@ -4810,6 +4810,59 @@ Title requirements:
       } catch { return json({ error: 'Error' }, 500); }
     }
 
+    // ── SOCIAL MEDIA LIBRARY (dedicated file store for social posts) ──
+    if (path === '/api/social-media' && request.method === 'POST') {
+      if (!can(authed, 'social')) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const ct = request.headers.get('Content-Type') || '';
+        const isImg = ct.startsWith('image/');
+        const isVid = ct === 'video/mp4' || ct === 'video/webm';
+        if (!isImg && !isVid) return json({ error: 'Only images or MP4/WebM video are accepted' }, 400);
+        const buf = await request.arrayBuffer();
+        const max = isVid ? 25 * 1024 * 1024 : 5 * 1024 * 1024;
+        if (buf.byteLength > max) return json({ error: 'File too large (max ' + (isVid ? '25MB video' : '5MB image') + ')' }, 400);
+        const ext = isVid ? (ct.includes('webm') ? 'webm' : 'mp4')
+                          : (ct.includes('png') ? 'png' : ct.includes('gif') ? 'gif' : ct.includes('webp') ? 'webp' : 'jpg');
+        const filename = 'smedia_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6) + '.' + ext;
+        await env.PROGRAMARI.put('__smedia__' + filename, buf, { metadata: { ct } });
+        return json({ url: '/smedia/' + filename, filename, ct });
+      } catch { return json({ error: 'Upload error' }, 500); }
+    }
+    if (path.startsWith('/smedia/') && request.method === 'GET') {
+      const filename = path.replace('/smedia/', '');
+      if (!filename || filename.includes('..')) return new Response('Not found', { status: 404 });
+      try {
+        const obj = await env.PROGRAMARI.getWithMetadata('__smedia__' + filename, { type: 'arrayBuffer' });
+        if (!obj.value) return new Response('Not found', { status: 404 });
+        const ct = (obj.metadata && obj.metadata.ct) || 'image/jpeg';
+        return new Response(obj.value, {
+          headers: { 'Content-Type': ct, 'Cache-Control': 'public, max-age=31536000', ...getCors(request) }
+        });
+      } catch { return new Response('Error', { status: 500 }); }
+    }
+    if (path === '/api/social-media' && request.method === 'GET') {
+      if (!can(authed, 'social')) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const list = await env.PROGRAMARI.list({ prefix: '__smedia__' });
+        const files = list.keys.map(k => ({
+          filename: k.name.replace('__smedia__', ''),
+          url: '/smedia/' + k.name.replace('__smedia__', ''),
+          ct: k.metadata?.ct || '',
+          ts: parseInt((k.name.match(/_(\d+)_/) || [])[1] || '0')
+        }));
+        files.sort((a, b) => b.ts - a.ts);
+        return json({ files });
+      } catch { return json({ files: [] }); }
+    }
+    if (path.startsWith('/api/social-media/') && request.method === 'DELETE') {
+      if (!can(authed, 'social')) return json({ error: 'Unauthorised' }, 401);
+      const filename = path.replace('/api/social-media/', '');
+      try {
+        await env.PROGRAMARI.delete('__smedia__' + filename);
+        return json({ success: true });
+      } catch { return json({ error: 'Error' }, 500); }
+    }
+
     // ── SERVICII (catalog pentru oferte) ─────────────────────
 
     if (path === '/api/servicii' && request.method === 'GET') {

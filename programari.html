@@ -1118,8 +1118,31 @@
 
         <div id="spList" style="display:flex;flex-direction:column;gap:12px;"></div>
         <input type="file" id="spFileInput" accept="image/*,video/mp4,video/webm" style="display:none;" onchange="spDoUpload(this)">
-
       </div>
+
+      <!-- ── SOCIAL MEDIA LIBRARY ── -->
+      <div style="margin-top:30px;border-top:1px solid var(--border-soft);padding-top:22px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:4px;">
+          <h3 style="margin:0;">📚 Media library</h3>
+          <button class="btn-save" onclick="smPick()">⬆ Upload files</button>
+        </div>
+        <p style="font-size:.8rem;color:var(--muted);margin:0 0 16px;">Fișiere centralizate pentru postări — poze și filmulețe (poze max 5MB · video MP4/WebM max 25MB). Încarcă aici o singură dată, apoi atașează-le la orice postare cu <b>＋ Library</b>.</p>
+        <input type="file" id="smFileInput" accept="image/*,video/mp4,video/webm" multiple style="display:none;" onchange="smUpload(this)">
+        <div id="smGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Social library picker (attach a library file to a post) -->
+  <div id="smPickerOverlay" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(10,15,25,.55);align-items:center;justify-content:center;padding:20px;">
+    <div style="background:var(--bg);border:1px solid var(--border-soft);border-radius:14px;max-width:760px;width:100%;max-height:82vh;overflow:auto;padding:22px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;">
+        <h3 style="margin:0;">📚 Pick a file for this post</h3>
+        <button onclick="smPickerClose()" style="background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:5px 12px;cursor:pointer;">✕ Close</button>
+      </div>
+      <p style="font-size:.78rem;color:var(--muted);margin:0 0 16px;">Click a file to attach it to the post. Need a new one? <button onclick="smPick()" style="background:none;border:none;color:var(--teal);cursor:pointer;text-decoration:underline;font-size:.78rem;padding:0;">upload files</button> first.</p>
+      <div id="smPickerGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;"></div>
     </div>
   </div>
 
@@ -2863,7 +2886,7 @@
     if (tab === 'promotions') { loadPromotions(); loadGiveawaySettings(); }
     if (tab === 'chat') loadChatLogs();
     if (tab === 'email') loadSentMail();
-    if (tab === 'social') { loadSocialPosts(); }
+    if (tab === 'social') { loadSocialPosts(); loadSocialLibrary(); }
     if (tab === 'reviews') loadReviews();
     if (tab === 'projects') { fetchProjects(); renderStaticDemos(); }
     if (tab === 'crm') { fetchCrm(); loadGibilan(); }
@@ -3610,6 +3633,7 @@
           '<span style="flex:1;"></span>' +
           '<button onclick="spSave(\'' + mEsc(p.id) + '\')" class="btn-save" style="font-size:.74rem;padding:5px 12px;">💾 Save</button>' +
           '<button onclick="spAttach(\'' + mEsc(p.id) + '\')" style="font-size:.74rem;background:none;border:1px solid var(--border-soft);color:var(--soft);border-radius:6px;padding:5px 12px;cursor:pointer;">📎 File</button>' +
+          '<button onclick="spFromLibrary(\'' + mEsc(p.id) + '\')" style="font-size:.74rem;background:none;border:1px solid var(--border-soft);color:var(--soft);border-radius:6px;padding:5px 12px;cursor:pointer;">＋ Library</button>' +
           '<button onclick="spCopy(\'' + mEsc(p.id) + '\')" style="font-size:.74rem;background:none;border:1px solid var(--border-soft);color:var(--soft);border-radius:6px;padding:5px 12px;cursor:pointer;">📋 Copy</button>' +
           '<button onclick="spDelete(\'' + mEsc(p.id) + '\')" style="font-size:.74rem;background:none;border:1px solid #e5484d;color:#e5484d;border-radius:6px;padding:5px 12px;cursor:pointer;">🗑</button>' +
         '</div>' +
@@ -3673,27 +3697,32 @@
     if (!isImg && !isVid) { alert('Please choose an image or an MP4/WebM video.'); return; }
     if (file.size > (isVid ? 25 : 5) * 1024 * 1024) { alert('File too large (max ' + (isVid ? '25MB video' : '5MB image') + ').'); return; }
     var st = document.getElementById('spGenStatus'); if (st){ st.style.color='var(--teal)'; st.textContent='// uploading…'; }
-    uploadMedia(file, async function(url){
-      var p = spCache.find(function(x){ return x.id===id; });
-      if (!p) return;
-      var media = (Array.isArray(p.media) ? p.media.slice() : []).concat([{ url: url, ct: file.type }]);
-      // keep any edits the user already made in this card
-      var d = spCardData(id) || {};
-      var body = { media: media };
-      if (d.text !== undefined) body.text = d.text;
-      if (d.status !== undefined) body.status = d.status;
-      if (d.date !== undefined) body.date = d.date;
-      try {
-        await fetch('/api/social-posts/' + encodeURIComponent(id) + '?token=' + encodeURIComponent(adminToken),
-          { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
-        p.media = media;
-        if (d.text !== undefined) p.text = d.text;
-        if (d.status !== undefined) p.status = d.status;
-        if (d.date !== undefined) p.date = d.date;
-        renderSpList();
-        if (st){ st.style.color='#12a150'; st.textContent='// ✓ file attached'; }
-      } catch(e){ if (st){ st.style.color='#e5484d'; st.textContent='// save failed'; } }
+    socialUpload(file, async function(url, ct){
+      await spAttachMedia(id, { url: url, ct: ct || file.type });
+      loadSocialLibrary();
+      if (st){ st.style.color='#12a150'; st.textContent='// ✓ file attached'; }
     }, function(err){ if (st){ st.style.color='#e5484d'; st.textContent='// ' + (err||'upload error'); } });
+  }
+  // Attach a media object {url,ct} to a post, preserving current card edits.
+  async function spAttachMedia(id, m){
+    var p = spCache.find(function(x){ return x.id===id; });
+    if (!p) return;
+    if ((p.media||[]).some(function(x){ return x.url===m.url; })) { renderSpList(); return; }
+    var media = (Array.isArray(p.media) ? p.media.slice() : []).concat([m]);
+    var d = spCardData(id) || {};
+    var body = { media: media };
+    if (d.text !== undefined) body.text = d.text;
+    if (d.status !== undefined) body.status = d.status;
+    if (d.date !== undefined) body.date = d.date;
+    try {
+      await fetch('/api/social-posts/' + encodeURIComponent(id) + '?token=' + encodeURIComponent(adminToken),
+        { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      p.media = media;
+      if (d.text !== undefined) p.text = d.text;
+      if (d.status !== undefined) p.status = d.status;
+      if (d.date !== undefined) p.date = d.date;
+      renderSpList();
+    } catch(e){ alert('Could not attach the file.'); }
   }
   async function spRemoveMedia(id, url){
     var p = spCache.find(function(x){ return x.id===id; });
@@ -3713,6 +3742,110 @@
       if (d.date !== undefined) p.date = d.date;
       renderSpList();
     } catch(e){ alert('Could not remove the file.'); }
+  }
+
+  // ── Social media library (centralized files) ─────────────────
+  var smCache = [];
+  function socialUpload(file, onSuccess, onError){
+    var token = localStorage.getItem('cdAdmin');
+    fetch('/api/social-media?token=' + encodeURIComponent(token), {
+      method:'POST', headers:{'Content-Type':file.type}, body:file
+    }).then(function(r){ return r.json(); }).then(function(d){
+      if (d && d.url) onSuccess(d.url, d.ct||file.type);
+      else onError((d && d.error) || 'Upload error');
+    }).catch(function(){ onError('Network error'); });
+  }
+  async function loadSocialLibrary(){
+    var grid = document.getElementById('smGrid');
+    if (!grid) return;
+    try {
+      var res = await fetch('/api/social-media?token=' + encodeURIComponent(adminToken));
+      var d = await res.json();
+      smCache = (d && Array.isArray(d.files)) ? d.files : [];
+      renderSmGrid();
+    } catch(e){ grid.innerHTML = '<div style="color:#e5484d;font-size:.85rem;">Eroare la încărcare.</div>'; }
+  }
+  function smTile(f, onclickAttr){
+    var isVid = /video/.test(f.ct||'') || /\.(mp4|webm)(\?|$)/i.test(f.url||'');
+    var media = isVid
+      ? '<video src="' + mEsc(f.url) + '" muted playsinline style="width:100%;height:100px;object-fit:cover;background:#000;"></video>'
+      : '<img src="' + mEsc(f.url) + '" alt="" style="width:100%;height:100px;object-fit:cover;">';
+    return '<div style="border:1px solid var(--border-soft);border-radius:10px;overflow:hidden;background:var(--bg2);' + (onclickAttr?'cursor:pointer;':'') + '"' + (onclickAttr?(' onclick="'+onclickAttr+'"'):'') + '>' +
+      '<div style="position:relative;">' + media +
+        '<span style="position:absolute;top:4px;left:4px;background:rgba(0,0,0,.6);color:#fff;border-radius:4px;padding:1px 6px;font-size:.6rem;">' + (isVid?'▶ video':'🖼 image') + '</span>' +
+      '</div>' + '__ACTIONS__' + '</div>';
+  }
+  function renderSmGrid(){
+    var grid = document.getElementById('smGrid');
+    if (!grid) return;
+    if (!smCache.length) { grid.innerHTML = '<div style="color:var(--muted);font-size:.88rem;grid-column:1/-1;padding:10px 0;">Niciun fișier încă. Apasă „⬆ Upload files".</div>'; return; }
+    grid.innerHTML = smCache.map(function(f){
+      var actions = '<div style="display:flex;gap:4px;padding:6px;">' +
+        '<button onclick="smCopy(\'' + mEsc(f.url) + '\')" title="Copy link" style="flex:1;font-size:.68rem;background:none;border:1px solid var(--border-soft);color:var(--soft);border-radius:5px;padding:4px 0;cursor:pointer;">📋</button>' +
+        '<a href="' + mEsc(f.url) + '" download target="_blank" rel="noopener" title="Download" style="flex:1;text-align:center;font-size:.68rem;border:1px solid var(--border-soft);color:var(--soft);border-radius:5px;padding:4px 0;text-decoration:none;">⬇</a>' +
+        '<button onclick="smDelete(\'' + mEsc(f.filename) + '\')" title="Delete" style="flex:1;font-size:.68rem;background:none;border:1px solid #e5484d;color:#e5484d;border-radius:5px;padding:4px 0;cursor:pointer;">🗑</button>' +
+      '</div>';
+      return smTile(f, null).replace('__ACTIONS__', actions);
+    }).join('');
+  }
+  function smPick(){
+    var inp = document.getElementById('smFileInput');
+    if (inp) { inp.value = ''; inp.click(); }
+  }
+  function smUpload(input){
+    var files = input && input.files ? Array.prototype.slice.call(input.files) : [];
+    if (!files.length) return;
+    var st = document.getElementById('spGenStatus');
+    var done = 0, ok = 0;
+    function next(){
+      if (!files.length) {
+        if (st){ st.style.color = ok?'#12a150':'#e5484d'; st.textContent = '// ' + ok + '/' + done + ' uploaded'; }
+        loadSocialLibrary();
+        return;
+      }
+      var file = files.shift();
+      var isVid = file.type === 'video/mp4' || file.type === 'video/webm';
+      var isImg = /^image\//.test(file.type);
+      done++;
+      if ((!isImg && !isVid) || file.size > (isVid?25:5)*1024*1024) { next(); return; }
+      if (st){ st.style.color='var(--teal)'; st.textContent='// uploading ' + done + '…'; }
+      socialUpload(file, function(){ ok++; next(); }, function(){ next(); });
+    }
+    next();
+  }
+  async function smDelete(filename){
+    if (!confirm('Ștergi acest fișier din librărie?')) return;
+    try {
+      await fetch('/api/social-media/' + encodeURIComponent(filename) + '?token=' + encodeURIComponent(adminToken), { method:'DELETE' });
+      smCache = smCache.filter(function(f){ return f.filename !== filename; });
+      renderSmGrid();
+    } catch(e){ alert('Could not delete.'); }
+  }
+  function smCopy(url){
+    var full = location.origin + url;
+    try { if (navigator.clipboard) navigator.clipboard.writeText(full); } catch(e){}
+    var st = document.getElementById('spGenStatus'); if (st){ st.style.color='#12a150'; st.textContent='// ✓ link copied'; }
+  }
+  // Picker: attach a library file to a specific post.
+  function spFromLibrary(id){
+    window.__smPickTarget = id;
+    if (!smCache.length) { loadSocialLibrary(); }
+    renderSmPicker();
+    var ov = document.getElementById('smPickerOverlay'); if (ov) ov.style.display = 'flex';
+  }
+  function smPickerClose(){ var ov = document.getElementById('smPickerOverlay'); if (ov) ov.style.display = 'none'; }
+  function renderSmPicker(){
+    var grid = document.getElementById('smPickerGrid');
+    if (!grid) return;
+    if (!smCache.length) { grid.innerHTML = '<div style="color:var(--muted);font-size:.88rem;grid-column:1/-1;">Librăria e goală — încarcă fișiere întâi.</div>'; return; }
+    grid.innerHTML = smCache.map(function(f){
+      return smTile(f, 'smPickAttach(\'' + mEsc(f.url) + '\',\'' + mEsc(f.ct||'') + '\')').replace('__ACTIONS__', '');
+    }).join('');
+  }
+  async function smPickAttach(url, ct){
+    var id = window.__smPickTarget;
+    smPickerClose();
+    if (id) await spAttachMedia(id, { url: url, ct: ct });
   }
   async function spCreate(platform, text, status){
     var res = await fetch('/api/social-posts?token=' + encodeURIComponent(adminToken),
