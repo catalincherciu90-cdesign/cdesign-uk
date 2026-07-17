@@ -1083,32 +1083,22 @@
       <div class="proj-toolbar">
         <h3>// social_media — active accounts</h3>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn-add" onclick="socialAiGenerate()" style="background:rgba(0,168,168,.12);border:1px solid var(--teal);color:var(--teal);">✨ AI post</button>
-          <button class="btn-add" onclick="socialPlanGenerate()" style="background:rgba(0,168,168,.12);border:1px solid var(--teal);color:var(--teal);">🗓 Content plan</button>
           <button class="btn-add" onclick="saveSocial()">&#x2713; Save</button>
         </div>
-      </div>
-      <!-- Repurpose a blog article into social posts -->
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 16px;padding:12px 14px;background:var(--bg3);border:1px solid var(--border-soft);border-radius:10px;">
-        <span style="font-family:'Share Tech Mono',monospace;font-size:.78rem;color:var(--soft);">// repurpose a blog article →</span>
-        <select class="f-input" id="socialBlogSel" style="margin-bottom:0;max-width:340px;flex:1;min-width:200px;"><option value="">Loading articles…</option></select>
-        <button class="btn-add" onclick="socialRepurpose()" style="background:rgba(0,168,168,.12);border:1px solid var(--teal);color:var(--teal);">♻ Turn into posts</button>
       </div>
       <div class="table-wrap" style="padding:8px 0;" id="socialList"><div class="loading">Loading...</div></div>
 
       <!-- ── SOCIAL POSTS LIBRARY / PLANNER ── -->
       <div style="margin-top:30px;border-top:1px solid var(--border-soft);padding-top:22px;">
         <h3 style="margin:0 0 4px;">📅 Post library &amp; planner</h3>
-        <p style="font-size:.8rem;color:var(--muted);margin:0 0 16px;">Generează postări, salvează-le, pune-le dată și status. Fluxul: generezi → programezi → marchezi „postat".</p>
+        <p style="font-size:.8rem;color:var(--muted);margin:0 0 16px;">Adaugă postări, scrie-ți textul, atașează fișiere, pune-le dată și status. Fluxul: adaugi → programezi → marchezi „postat".</p>
 
-        <!-- generator -->
+        <!-- add a new post -->
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--bg3);border:1px solid var(--border-soft);border-radius:10px;padding:12px 14px;margin-bottom:16px;">
           <select class="f-input" id="spGenPlatform" style="margin-bottom:0;max-width:150px;">
             <option>Facebook</option><option>Instagram</option><option>LinkedIn</option><option>X (Twitter)</option><option>TikTok</option>
           </select>
-          <input class="f-input" id="spGenTopic" placeholder="Despre ce e postarea? (temă)" style="margin-bottom:0;flex:1;min-width:200px;">
-          <button class="btn-save" id="spGenBtn" onclick="spGenerate()">✨ Generează &amp; salvează</button>
-          <button class="btn-add" onclick="spAddBlank()" style="background:var(--bg2);border:1px solid var(--border-soft);color:var(--text);">+ Blank</button>
+          <button class="btn-save" onclick="spAddBlank()">+ Add post</button>
           <span id="spGenStatus" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--muted);"></span>
         </div>
 
@@ -2873,7 +2863,7 @@
     if (tab === 'promotions') { loadPromotions(); loadGiveawaySettings(); }
     if (tab === 'chat') loadChatLogs();
     if (tab === 'email') loadSentMail();
-    if (tab === 'social') { loadSocialBlogSelect(); loadSocialPosts(); }
+    if (tab === 'social') { loadSocialPosts(); }
     if (tab === 'reviews') loadReviews();
     if (tab === 'projects') { fetchProjects(); renderStaticDemos(); }
     if (tab === 'crm') { fetchCrm(); loadGibilan(); }
