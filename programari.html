@@ -722,55 +722,67 @@
         <h2 style="margin:0;">🎁 Promotions</h2>
         <button onclick="loadPromotions()" style="background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:7px 14px;font-size:.8rem;cursor:pointer;">↻ Refresh</button>
       </div>
-      <p style="font-size:.82rem;color:var(--muted);margin:0 0 16px;">Referral requests (from <b>/referral</b>) and giveaway entries (from <b>/giveaway</b>).</p>
+      <p style="font-size:.82rem;color:var(--muted);margin:0 0 16px;">Giveaway entries (from <b>/giveaway</b>) and referral requests (from <b>/referral</b>), in separate tabs.</p>
 
-      <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:12px;padding:16px 18px;margin-bottom:20px;">
-        <div style="font-weight:600;color:var(--heading);margin-bottom:2px;">👁 Page visibility</div>
-        <p style="font-size:.78rem;color:var(--muted);margin:0 0 14px;">Cât timp o pagină e pe <b>Draft</b>, publicul primește 404 — doar tu o poți vedea cu <b>Preview</b>. Pune-o pe <b>Published</b> când vrei să apară pe site.</p>
-        <div style="display:flex;flex-direction:column;gap:10px;">
+      <!-- SUB-TABS -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--border-soft);margin-bottom:20px;">
+        <button id="subtab-giveaway" onclick="switchPromoSub('giveaway')" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--soft);font-size:.92rem;font-weight:600;padding:9px 16px;cursor:pointer;">🎉 Giveaway <span id="subCountGiv" style="color:var(--muted);font-weight:400;"></span></button>
+        <button id="subtab-referral" onclick="switchPromoSub('referral')" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--soft);font-size:.92rem;font-weight:600;padding:9px 16px;cursor:pointer;">🤝 Referral <span id="subCountRef" style="color:var(--muted);font-weight:400;"></span></button>
+      </div>
+
+      <!-- ===== GIVEAWAY SUB-PANEL ===== -->
+      <div id="promoSub-giveaway">
+        <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:12px;padding:16px 18px;margin-bottom:16px;">
+          <div style="font-weight:600;color:var(--heading);margin-bottom:8px;">👁 Page visibility</div>
           <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-            <span style="min-width:130px;font-size:.85rem;color:var(--soft);">🎁 Giveaway <span style="color:var(--muted);">(/giveaway)</span></span>
+            <span style="min-width:110px;font-size:.85rem;color:var(--soft);">/giveaway</span>
             <span id="vis-giveaway-badge" style="font-size:.72rem;font-weight:700;border-radius:999px;padding:3px 10px;">…</span>
             <button onclick="openPreview('/giveaway')" style="font-size:.78rem;background:none;border:1px solid var(--border-soft);color:var(--soft);border-radius:6px;padding:6px 12px;cursor:pointer;">👁 Preview</button>
             <button id="vis-giveaway-btn" onclick="togglePromoVisibility('giveaway')" style="font-size:.78rem;border:none;border-radius:6px;padding:6px 14px;cursor:pointer;">…</button>
           </div>
+          <p style="font-size:.74rem;color:var(--muted);margin:8px 0 0;">Pe <b>Draft</b> publicul primește 404; doar tu o vezi cu <b>Preview</b>.</p>
+        </div>
+
+        <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:12px;padding:16px 18px;margin-bottom:20px;">
+          <div style="font-weight:600;color:var(--heading);margin-bottom:2px;">⚙️ Giveaway settings</div>
+          <p style="font-size:.78rem;color:var(--muted);margin:0 0 12px;">Sets the countdown and the closing date shown on the <b>/giveaway</b> page.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <label style="font-size:.82rem;color:var(--soft);">Entries close:
+              <input type="datetime-local" id="givEndInput" style="margin-left:8px;padding:8px 10px;border:1px solid var(--border-soft);border-radius:8px;background:var(--bg);color:var(--text);font-size:.85rem;">
+            </label>
+            <button onclick="saveGiveawaySettings()" style="font-size:.8rem;background:var(--teal);border:1px solid var(--teal);color:#fff;border-radius:8px;padding:8px 16px;cursor:pointer;">Save</button>
+            <span id="givSaveMsg" style="font-size:.8rem;color:var(--teal);"></span>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px;padding-top:12px;border-top:1px dashed var(--border-soft);">
+            <span style="font-size:.82rem;color:var(--soft);">Hero banner:</span>
+            <img id="givBannerPreview" src="" alt="" style="display:none;height:42px;width:auto;max-width:120px;object-fit:cover;border-radius:6px;border:1px solid var(--border-soft);">
+            <span id="givBannerVid" style="display:none;font-size:.78rem;color:var(--teal-dk);font-weight:600;">🎬 video set</span>
+            <span id="givBannerEmpty" style="font-size:.78rem;color:var(--muted);">none (gradient default)</span>
+            <button onclick="givBannerPick()" style="font-size:.8rem;background:none;border:1px solid var(--border-soft);color:var(--soft);border-radius:8px;padding:8px 14px;cursor:pointer;">⬆ Upload image / video</button>
+            <button id="givBannerRemoveBtn" onclick="givBannerRemove()" style="display:none;font-size:.8rem;background:none;border:1px solid #e5484d;color:#e5484d;border-radius:8px;padding:8px 14px;cursor:pointer;">Remove</button>
+            <input type="file" id="givBannerInput" accept="image/*,video/mp4,video/webm" style="display:none;" onchange="givBannerUpload(this)">
+            <span id="givBannerMsg" style="font-size:.8rem;color:var(--teal);"></span>
+          </div>
+        </div>
+
+        <div id="giveawayList" style="display:flex;flex-direction:column;gap:12px;"></div>
+      </div>
+
+      <!-- ===== REFERRAL SUB-PANEL ===== -->
+      <div id="promoSub-referral" style="display:none;">
+        <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:12px;padding:16px 18px;margin-bottom:20px;">
+          <div style="font-weight:600;color:var(--heading);margin-bottom:8px;">👁 Page visibility</div>
           <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-            <span style="min-width:130px;font-size:.85rem;color:var(--soft);">🤝 Referral <span style="color:var(--muted);">(/referral)</span></span>
+            <span style="min-width:110px;font-size:.85rem;color:var(--soft);">/referral</span>
             <span id="vis-referral-badge" style="font-size:.72rem;font-weight:700;border-radius:999px;padding:3px 10px;">…</span>
             <button onclick="openPreview('/referral')" style="font-size:.78rem;background:none;border:1px solid var(--border-soft);color:var(--soft);border-radius:6px;padding:6px 12px;cursor:pointer;">👁 Preview</button>
             <button id="vis-referral-btn" onclick="togglePromoVisibility('referral')" style="font-size:.78rem;border:none;border-radius:6px;padding:6px 14px;cursor:pointer;">…</button>
           </div>
+          <p style="font-size:.74rem;color:var(--muted);margin:8px 0 0;">Pe <b>Draft</b> publicul primește 404; doar tu o vezi cu <b>Preview</b>.</p>
         </div>
-      </div>
 
-      <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:12px;padding:16px 18px;margin-bottom:20px;">
-        <div style="font-weight:600;color:var(--heading);margin-bottom:2px;">⚙️ Giveaway settings</div>
-        <p style="font-size:.78rem;color:var(--muted);margin:0 0 12px;">Sets the countdown and the closing date shown on the <b>/giveaway</b> page.</p>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-          <label style="font-size:.82rem;color:var(--soft);">Entries close:
-            <input type="datetime-local" id="givEndInput" style="margin-left:8px;padding:8px 10px;border:1px solid var(--border-soft);border-radius:8px;background:var(--bg);color:var(--text);font-size:.85rem;">
-          </label>
-          <button onclick="saveGiveawaySettings()" style="font-size:.8rem;background:var(--teal);border:1px solid var(--teal);color:#fff;border-radius:8px;padding:8px 16px;cursor:pointer;">Save</button>
-          <span id="givSaveMsg" style="font-size:.8rem;color:var(--teal);"></span>
-        </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px;padding-top:12px;border-top:1px dashed var(--border-soft);">
-          <span style="font-size:.82rem;color:var(--soft);">Hero banner:</span>
-          <img id="givBannerPreview" src="" alt="" style="display:none;height:42px;width:auto;max-width:120px;object-fit:cover;border-radius:6px;border:1px solid var(--border-soft);">
-          <span id="givBannerVid" style="display:none;font-size:.78rem;color:var(--teal-dk);font-weight:600;">🎬 video set</span>
-          <span id="givBannerEmpty" style="font-size:.78rem;color:var(--muted);">none (gradient default)</span>
-          <button onclick="givBannerPick()" style="font-size:.8rem;background:none;border:1px solid var(--border-soft);color:var(--soft);border-radius:8px;padding:8px 14px;cursor:pointer;">⬆ Upload image / video</button>
-          <button id="givBannerRemoveBtn" onclick="givBannerRemove()" style="display:none;font-size:.8rem;background:none;border:1px solid #e5484d;color:#e5484d;border-radius:8px;padding:8px 14px;cursor:pointer;">Remove</button>
-          <input type="file" id="givBannerInput" accept="image/*,video/mp4,video/webm" style="display:none;" onchange="givBannerUpload(this)">
-          <span id="givBannerMsg" style="font-size:.8rem;color:var(--teal);"></span>
-        </div>
+        <div id="referralList" style="display:flex;flex-direction:column;gap:12px;"></div>
       </div>
-
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;" id="promoFilters">
-        <button class="promo-filter active" data-filter="all" onclick="setPromoFilter('all',this)" style="font-size:.8rem;border:1px solid var(--teal);background:rgba(0,168,168,.1);color:var(--teal);border-radius:999px;padding:6px 16px;cursor:pointer;">All <span id="pfCountAll"></span></button>
-        <button class="promo-filter" data-filter="REFERRAL" onclick="setPromoFilter('REFERRAL',this)" style="font-size:.8rem;border:1px solid var(--border-soft);background:none;color:var(--muted);border-radius:999px;padding:6px 16px;cursor:pointer;">🤝 Referrals <span id="pfCountRef"></span></button>
-        <button class="promo-filter" data-filter="GIVEAWAY" onclick="setPromoFilter('GIVEAWAY',this)" style="font-size:.8rem;border:1px solid var(--border-soft);background:none;color:var(--muted);border-radius:999px;padding:6px 16px;cursor:pointer;">🎉 Giveaway <span id="pfCountGiv"></span></button>
-      </div>
-      <div id="promotionsList" style="display:flex;flex-direction:column;gap:12px;"></div>
     </div>
   </div>
 
@@ -3240,7 +3252,7 @@
   }
 
   // ── PROMOTIONS (referrals & giveaway) ────────────────────
-  window.__promoFilter = 'all';
+  window.__promoSub = 'giveaway';
   function updatePromoBadge(msgs) {
     var badge = document.getElementById('promoTabBadge');
     if (!badge) return;
@@ -3257,61 +3269,58 @@
       updatePromoBadge(window.__msgsCache);
     } catch(e) {}
   }
-  function setPromoFilter(f, btn) {
-    window.__promoFilter = f;
-    document.querySelectorAll('.promo-filter').forEach(function(b){
-      var on = b === btn;
-      b.style.borderColor = on ? 'var(--teal)' : 'var(--border-soft)';
-      b.style.background = on ? 'rgba(0,168,168,.1)' : 'none';
-      b.style.color = on ? 'var(--teal)' : 'var(--muted)';
+  function switchPromoSub(sub) {
+    window.__promoSub = (sub === 'referral') ? 'referral' : 'giveaway';
+    ['giveaway','referral'].forEach(function(s){
+      var panel = document.getElementById('promoSub-' + s);
+      var btn = document.getElementById('subtab-' + s);
+      var on = (s === window.__promoSub);
+      if (panel) panel.style.display = on ? 'block' : 'none';
+      if (btn) { btn.style.borderBottomColor = on ? 'var(--teal)' : 'transparent'; btn.style.color = on ? 'var(--teal)' : 'var(--soft)'; }
     });
-    renderPromotions();
+  }
+  function promoCardHtml(m) {
+    var when = '';
+    try { when = new Date(m.createdAt).toLocaleString('en-GB'); } catch(e){}
+    var isGiv = String(m.service).toUpperCase() === 'GIVEAWAY';
+    var chip = isGiv
+      ? '<span style="font-size:.68rem;font-weight:700;letter-spacing:.04em;color:#7a35c4;background:#f3e8ff;border:1px solid #e2ccf7;padding:3px 9px;border-radius:999px;">🎉 GIVEAWAY</span>'
+      : '<span style="font-size:.68rem;font-weight:700;letter-spacing:.04em;color:#1c7a43;background:#e4f7ea;border:1px solid #b8e8c8;padding:3px 9px;border-radius:999px;">🤝 REFERRAL</span>';
+    return '<div style="background:var(--bg2);border:1px solid ' + (m.read ? 'var(--border-soft)' : 'var(--teal-border)') + ';border-radius:12px;padding:16px 18px;" data-id="' + mEsc(m.id) + '">' +
+      '<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;">' +
+        '<div style="display:flex;align-items:center;gap:10px;">' + chip +
+          '<strong style="font-size:1rem;color:var(--heading);">' + mEsc(m.name) + (m.read ? '' : ' <span style="color:var(--teal);font-size:.7rem;">● NEW</span>') + '</strong>' +
+        '</div>' +
+        '<span style="font-size:.72rem;color:var(--muted);">' + mEsc(when) + '</span>' +
+      '</div>' +
+      '<div style="font-size:.88rem;color:var(--soft);margin-top:8px;">📞 <a href="tel:' + mEsc(m.phone) + '" style="color:var(--teal);">' + mEsc(m.phone) + '</a></div>' +
+      (m.message ? '<div style="font-size:.9rem;color:var(--text);margin-top:10px;line-height:1.55;white-space:pre-wrap;">' + mEsc(m.message) + '</div>' : '') +
+      '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">' +
+        '<button onclick="draftReplyFor(\'' + mEsc(m.id) + '\')" style="font-size:.76rem;background:rgba(0,168,168,.12);border:1px solid var(--teal);color:var(--teal);border-radius:6px;padding:5px 12px;cursor:pointer;">✨ Draft reply</button>' +
+        '<a href="https://wa.me/' + mEsc(String(m.phone).replace(/[^0-9]/g,'')) + '" target="_blank" rel="noopener" style="font-size:.76rem;background:rgba(43,229,255,.1);border:1px solid var(--teal-border);color:var(--teal);border-radius:6px;padding:5px 12px;text-decoration:none;">WhatsApp</a>' +
+        '<button onclick="toggleMessageRead(\'' + mEsc(m.id) + '\',' + (m.read ? 'false' : 'true') + ')" style="font-size:.76rem;background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:5px 12px;cursor:pointer;">' + (m.read ? 'Mark unread' : 'Mark read') + '</button>' +
+        '<button onclick="deleteMessage(\'' + mEsc(m.id) + '\')" style="font-size:.76rem;background:none;border:1px solid #e74c3c;color:#e74c3c;border-radius:6px;padding:5px 12px;cursor:pointer;">Delete</button>' +
+      '</div>' +
+    '</div>';
+  }
+  function renderPromoInto(id, rows, emptyMsg) {
+    var list = document.getElementById(id);
+    if (!list) return;
+    if (!rows.length) { list.innerHTML = '<div style="color:var(--muted);font-size:.9rem;padding:20px 0;">' + emptyMsg + '</div>'; return; }
+    list.innerHTML = rows.map(promoCardHtml).join('');
   }
   function renderPromotions() {
-    var list = document.getElementById('promotionsList');
-    if (!list) return;
     var all = (window.__msgsCache || []).filter(isPromoMsg);
     var ref = all.filter(function(m){ return String(m.service).toUpperCase() === 'REFERRAL'; });
     var giv = all.filter(function(m){ return String(m.service).toUpperCase() === 'GIVEAWAY'; });
-    var cAll = document.getElementById('pfCountAll'), cRef = document.getElementById('pfCountRef'), cGiv = document.getElementById('pfCountGiv');
-    if (cAll) cAll.textContent = '(' + all.length + ')';
-    if (cRef) cRef.textContent = '(' + ref.length + ')';
-    if (cGiv) cGiv.textContent = '(' + giv.length + ')';
-    var f = window.__promoFilter;
-    var rows = f === 'REFERRAL' ? ref : f === 'GIVEAWAY' ? giv : all;
-    if (!rows.length) {
-      list.innerHTML = '<div style="color:var(--muted);font-size:.9rem;padding:20px 0;">No entries yet.</div>';
-      return;
-    }
-    list.innerHTML = rows.map(function(m){
-      var when = '';
-      try { when = new Date(m.createdAt).toLocaleString('en-GB'); } catch(e){}
-      var isGiv = String(m.service).toUpperCase() === 'GIVEAWAY';
-      var chip = isGiv
-        ? '<span style="font-size:.68rem;font-weight:700;letter-spacing:.04em;color:#7a35c4;background:#f3e8ff;border:1px solid #e2ccf7;padding:3px 9px;border-radius:999px;">🎉 GIVEAWAY</span>'
-        : '<span style="font-size:.68rem;font-weight:700;letter-spacing:.04em;color:#1c7a43;background:#e4f7ea;border:1px solid #b8e8c8;padding:3px 9px;border-radius:999px;">🤝 REFERRAL</span>';
-      return '<div style="background:var(--bg2);border:1px solid ' + (m.read ? 'var(--border-soft)' : 'var(--teal-border)') + ';border-radius:12px;padding:16px 18px;" data-id="' + mEsc(m.id) + '">' +
-        '<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;">' +
-          '<div style="display:flex;align-items:center;gap:10px;">' + chip +
-            '<strong style="font-size:1rem;color:var(--heading);">' + mEsc(m.name) + (m.read ? '' : ' <span style="color:var(--teal);font-size:.7rem;">● NEW</span>') + '</strong>' +
-          '</div>' +
-          '<span style="font-size:.72rem;color:var(--muted);">' + mEsc(when) + '</span>' +
-        '</div>' +
-        '<div style="font-size:.88rem;color:var(--soft);margin-top:8px;">📞 <a href="tel:' + mEsc(m.phone) + '" style="color:var(--teal);">' + mEsc(m.phone) + '</a></div>' +
-        (m.message ? '<div style="font-size:.9rem;color:var(--text);margin-top:10px;line-height:1.55;white-space:pre-wrap;">' + mEsc(m.message) + '</div>' : '') +
-        '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">' +
-          '<button onclick="draftReplyFor(\'' + mEsc(m.id) + '\')" style="font-size:.76rem;background:rgba(0,168,168,.12);border:1px solid var(--teal);color:var(--teal);border-radius:6px;padding:5px 12px;cursor:pointer;">✨ Draft reply</button>' +
-          '<a href="https://wa.me/' + mEsc(String(m.phone).replace(/[^0-9]/g,'')) + '" target="_blank" rel="noopener" style="font-size:.76rem;background:rgba(43,229,255,.1);border:1px solid var(--teal-border);color:var(--teal);border-radius:6px;padding:5px 12px;text-decoration:none;">WhatsApp</a>' +
-          '<button onclick="toggleMessageRead(\'' + mEsc(m.id) + '\',' + (m.read ? 'false' : 'true') + ')" style="font-size:.76rem;background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:5px 12px;cursor:pointer;">' + (m.read ? 'Mark unread' : 'Mark read') + '</button>' +
-          '<button onclick="deleteMessage(\'' + mEsc(m.id) + '\')" style="font-size:.76rem;background:none;border:1px solid #e74c3c;color:#e74c3c;border-radius:6px;padding:5px 12px;cursor:pointer;">Delete</button>' +
-        '</div>' +
-      '</div>';
-    }).join('');
+    var cg = document.getElementById('subCountGiv'), cr = document.getElementById('subCountRef');
+    if (cg) cg.textContent = '(' + giv.length + ')';
+    if (cr) cr.textContent = '(' + ref.length + ')';
+    renderPromoInto('giveawayList', giv, 'No giveaway entries yet.');
+    renderPromoInto('referralList', ref, 'No referral requests yet.');
+    switchPromoSub(window.__promoSub || 'giveaway');
   }
   async function loadPromotions() {
-    var list = document.getElementById('promotionsList');
-    if (!list) return;
-    list.innerHTML = '<div style="color:var(--muted);font-size:.85rem;">Loading…</div>';
     try {
       var res = await fetch('/api/messages?token=' + encodeURIComponent(adminToken));
       var msgs = await res.json();
@@ -3320,7 +3329,8 @@
       updatePromoBadge(window.__msgsCache);
       renderPromotions();
     } catch(e) {
-      list.innerHTML = '<div style="color:#e74c3c;font-size:.85rem;">Error loading entries.</div>';
+      var g = document.getElementById('giveawayList');
+      if (g) g.innerHTML = '<div style="color:#e74c3c;font-size:.85rem;">Error loading entries.</div>';
     }
   }
   // Format a stored date value into the 'YYYY-MM-DDTHH:MM' a datetime-local input needs.
