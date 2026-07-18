@@ -781,6 +781,21 @@
           <p style="font-size:.74rem;color:var(--muted);margin:8px 0 0;">Pe <b>Draft</b> publicul primește 404; doar tu o vezi cu <b>Preview</b>.</p>
         </div>
 
+        <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:12px;padding:16px 18px;margin-bottom:20px;">
+          <div style="font-weight:600;color:var(--heading);margin-bottom:2px;">🎁 Referral rewards</div>
+          <p style="font-size:.78rem;color:var(--muted);margin:0 0 12px;">Procentele de reducere afișate pe pagina <b>/referral</b>.</p>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
+            <label style="font-size:.82rem;color:var(--soft);">Referrer gets
+              <input type="number" id="refReferrerPct" min="0" max="100" style="width:66px;margin:0 4px;padding:8px 10px;border:1px solid var(--border-soft);border-radius:8px;background:var(--bg);color:var(--text);font-size:.85rem;"> % off
+            </label>
+            <label style="font-size:.82rem;color:var(--soft);">Friend gets
+              <input type="number" id="refFriendPct" min="0" max="100" style="width:66px;margin:0 4px;padding:8px 10px;border:1px solid var(--border-soft);border-radius:8px;background:var(--bg);color:var(--text);font-size:.85rem;"> % off
+            </label>
+            <button onclick="saveReferralSettings()" style="font-size:.8rem;background:var(--teal);border:1px solid var(--teal);color:#fff;border-radius:8px;padding:8px 16px;cursor:pointer;">Save</button>
+            <span id="refSaveMsg" style="font-size:.8rem;color:var(--teal);"></span>
+          </div>
+        </div>
+
         <div id="referralList" style="display:flex;flex-direction:column;gap:12px;"></div>
       </div>
     </div>
@@ -3428,8 +3443,29 @@
       var d = await res.json();
       __promoVis.giveaway = !!(d && d.giveaway && d.giveaway.published);
       __promoVis.referral = !!(d && d.referral && d.referral.published);
+      var rp = (d && d.referral && d.referral.referrerPct != null) ? d.referral.referrerPct : 20;
+      var fp = (d && d.referral && d.referral.friendPct != null) ? d.referral.friendPct : 10;
+      var ri = document.getElementById('refReferrerPct'); if (ri) ri.value = rp;
+      var fi = document.getElementById('refFriendPct'); if (fi) fi.value = fp;
     } catch(e) {}
     renderPromoVis('giveaway'); renderPromoVis('referral');
+  }
+  async function saveReferralSettings() {
+    var ri = document.getElementById('refReferrerPct');
+    var fi = document.getElementById('refFriendPct');
+    var msg = document.getElementById('refSaveMsg');
+    if (!ri || !fi) return;
+    var rp = parseInt(ri.value, 10), fp = parseInt(fi.value, 10);
+    if (isNaN(rp) || rp < 0 || rp > 100 || isNaN(fp) || fp < 0 || fp > 100) { alert('Please enter percentages between 0 and 100.'); return; }
+    try {
+      var res = await fetch('/api/referral-settings?token=' + encodeURIComponent(adminToken), {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ referrerPct: rp, friendPct: fp })
+      });
+      var d = await res.json();
+      if (d && d.success) { if (msg) { msg.textContent = '✓ Saved'; setTimeout(function(){ if(msg) msg.textContent=''; }, 2500); } }
+      else { alert((d && d.error) || 'Save failed.'); }
+    } catch(e) { alert('Network error while saving.'); }
   }
   function renderPromoVis(page) {
     var pub = __promoVis[page];
