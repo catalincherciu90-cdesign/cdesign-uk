@@ -496,6 +496,34 @@ function promoDraft404() {
   return new Response('<!DOCTYPE html><meta charset="utf-8"><title>Page not found</title><body style="font-family:system-ui,sans-serif;text-align:center;padding:80px 20px;color:#334155;"><h1>Page not found</h1><p><a href="https://c-designs.uk" style="color:#00AAAC;">Back to C Design →</a></p></body>', { status: 404, headers: { 'Content-Type': 'text/html;charset=utf-8' } });
 }
 
+// Short, human-friendly, unambiguous discount code (no 0/O/1/I/L).
+function genDiscountCode(prefix) {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+  const arr = new Uint8Array(6);
+  crypto.getRandomValues(arr);
+  let s = '';
+  for (let i = 0; i < 6; i++) s += chars[arr[i] % chars.length];
+  return (prefix || 'CD') + '-' + s;
+}
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Build + send the welcome-discount email to a referred friend.
+async function sendFriendDiscountEmail(env, rec) {
+  if (!EMAIL_RE.test(rec.friendContact)) return { ok: false, skipped: true };
+  const replyTo = (await getOwnerEmail(env)) || (env.NOTIFY_EMAIL || NOTIFY_EMAIL);
+  const html =
+    '<div style="font-family:system-ui,Arial,sans-serif;max-width:520px;margin:0 auto;color:#2E3436;">' +
+      '<h2 style="color:#008587;">You\'ve got a welcome gift 🎁</h2>' +
+      '<p>Hi ' + escHtml(rec.friendName) + ',</p>' +
+      '<p><strong>' + escHtml(rec.referrerName) + '</strong> thinks C Design could help your business online, so they referred you — and that comes with a treat.</p>' +
+      '<p style="font-size:1rem;">Here\'s your <strong>' + escHtml(String(rec.friendPct)) + '% welcome discount</strong> on your first project:</p>' +
+      '<p style="text-align:center;margin:22px 0;"><span style="display:inline-block;font-family:monospace;font-size:1.5rem;font-weight:700;letter-spacing:2px;color:#008587;background:#e9f6f6;border:1px dashed #00AAAC;border-radius:10px;padding:14px 26px;">' + escHtml(rec.friendCode) + '</span></p>' +
+      '<p>Just mention this code when you request a quote at <a href="https://c-designs.uk/pricing" style="color:#008587;">c-designs.uk/pricing</a>, or simply reply to this email.</p>' +
+      '<p style="color:#8b94a3;font-size:.85rem;">No pressure at all — we\'re here whenever you\'re ready. — The C Design team</p>' +
+    '</div>';
+  return sendEmail(env, { to: rec.friendContact, replyTo, subject: 'Your ' + rec.friendPct + '% welcome discount from C Design 🎁', html });
+}
+
 function json(data, status = 200, req) {
   return new Response(JSON.stringify(data), {
     status,
@@ -2835,6 +2863,14 @@ export default {
           status: 'pending',
           createdAt: new Date().toISOString()
         };
+        // Friend's welcome discount: generate a code, capture the current %,
+        // and email it to them automatically when we have their address.
+        let friendPct = 10;
+        try { const rawS = await env.PROGRAMARI.get('__site_settings__'); const s = rawS ? JSON.parse(rawS) : {}; if (s.referral && s.referral.friendPct != null) friendPct = s.referral.friendPct; } catch {}
+        rec.friendPct = friendPct;
+        rec.friendCode = genDiscountCode('CD');
+        rec.friendEmailed = false;
+        try { const r = await sendFriendDiscountEmail(env, rec); rec.friendEmailed = !!(r && r.ok); } catch {}
         const raw = await env.PROGRAMARI.get('__referrals__');
         const list = raw ? JSON.parse(raw) : [];
         list.unshift(rec);
@@ -2871,6 +2907,21 @@ export default {
         if (b.status !== undefined && ['pending', 'signed_up'].includes(b.status)) r.status = b.status;
         await env.PROGRAMARI.put('__referrals__', JSON.stringify(list));
         return json({ success: true });
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+    if (path.startsWith('/api/referrals/') && path.endsWith('/resend-code') && request.method === 'POST') {
+      if (!can(authed, 'promotions')) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const id = path.replace('/api/referrals/', '').replace('/resend-code', '');
+        const raw = await env.PROGRAMARI.get('__referrals__');
+        const list = raw ? JSON.parse(raw) : [];
+        const r = list.find(x => x.id === id);
+        if (!r) return json({ error: 'Not found' }, 404);
+        if (!EMAIL_RE.test(r.friendContact)) return json({ error: "This friend's contact isn't an email — copy the code and send it manually." }, 400);
+        if (!r.friendCode) { r.friendCode = genDiscountCode('CD'); }
+        const sent = await sendFriendDiscountEmail(env, r);
+        if (sent && sent.ok) { r.friendEmailed = true; await env.PROGRAMARI.put('__referrals__', JSON.stringify(list)); return json({ success: true }); }
+        return json({ error: (sent && sent.skipped) ? 'Email sending is not configured.' : 'Could not send the email.' }, 500);
       } catch { return json({ error: 'Server error' }, 500); }
     }
     if (path.startsWith('/api/referrals/') && request.method === 'DELETE') {
