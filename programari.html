@@ -3384,8 +3384,11 @@
     });
     box.innerHTML = Object.keys(groups).map(function(k){
       var g = groups[k];
+      var made = g.items.length;
       var confirmed = g.items.filter(function(r){ return r.status === 'signed_up'; }).length;
-      var discount = Math.min(cfg.cap, confirmed * cfg.referrerPct);
+      var discount = Math.min(cfg.cap, made * cfg.referrerPct);
+      var rcode = (g.items.find(function(x){ return x.referrerCode; }) || {}).referrerCode || '';
+      var firstId = g.items[0].id;
       var contact = [g.email, g.phone].filter(Boolean).map(mEsc).join(' · ');
       var friends = g.items.map(function(r){
         var isUp = r.status === 'signed_up';
@@ -3416,13 +3419,21 @@
           '</div>' + codeLine +
         '</div>';
       }).join('');
+      var codeRow = rcode
+        ? '<div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">' +
+            '<span style="font-size:.7rem;color:var(--muted);">Referrer code:</span>' +
+            '<code style="font-family:monospace;font-size:.85rem;font-weight:700;color:var(--teal-dk);background:rgba(0,168,168,.1);border:1px solid var(--teal-border);border-radius:6px;padding:2px 9px;">' + mEsc(rcode) + '</code>' +
+            '<button onclick="refCopyCode(\'' + mEsc(rcode) + '\')" style="font-size:.68rem;background:none;border:1px solid var(--border-soft);color:var(--soft);border-radius:5px;padding:3px 8px;cursor:pointer;">📋 Copy</button>' +
+            '<button onclick="refResendReferrerCode(\'' + mEsc(firstId) + '\')" style="font-size:.68rem;background:none;border:1px solid var(--teal-border);color:var(--teal);border-radius:5px;padding:3px 8px;cursor:pointer;">✉ Email referrer</button>' +
+          '</div>'
+        : '';
       return '<div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:12px;padding:14px 16px;margin-bottom:12px;">' +
-          '<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;">' +
+          '<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start;">' +
             '<div><strong style="font-size:1rem;color:var(--heading);">' + mEsc(g.name || '—') + '</strong>' +
-              (contact ? '<div style="font-size:.78rem;color:var(--muted);">' + contact + '</div>' : '') + '</div>' +
+              (contact ? '<div style="font-size:.78rem;color:var(--muted);">' + contact + '</div>' : '') + codeRow + '</div>' +
             '<div style="text-align:right;">' +
               '<div style="font-family:\'Poppins\',sans-serif;font-weight:700;font-size:1.25rem;color:var(--teal-dk);">' + discount + '% off</div>' +
-              '<div style="font-size:.72rem;color:var(--muted);">' + confirmed + ' signed up · ' + g.items.length + ' referred</div>' +
+              '<div style="font-size:.72rem;color:var(--muted);">' + made + ' referred · ' + confirmed + ' signed up</div>' +
             '</div>' +
           '</div>' + friends +
         '</div>';
@@ -3459,6 +3470,14 @@
         renderReferralLedger();
         alert('✓ Code emailed to the friend.');
       } else { alert((d && d.error) || 'Could not send the code.'); }
+    } catch(e) { alert('Network error.'); }
+  }
+  async function refResendReferrerCode(id) {
+    try {
+      var res = await fetch('/api/referrals/' + encodeURIComponent(id) + '/resend-referrer-code?token=' + encodeURIComponent(adminToken), { method:'POST' });
+      var d = await res.json();
+      if (d && d.success) { alert('✓ Referral code emailed to the referrer.'); }
+      else { alert((d && d.error) || 'Could not send the code.'); }
     } catch(e) { alert('Network error.'); }
   }
   // Format a stored date value into the 'YYYY-MM-DDTHH:MM' a datetime-local input needs.
