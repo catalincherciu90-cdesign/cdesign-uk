@@ -750,6 +750,9 @@
             <label style="font-size:.82rem;color:var(--soft);">Entries close:
               <input type="datetime-local" id="givEndInput" style="margin-left:8px;padding:8px 10px;border:1px solid var(--border-soft);border-radius:8px;background:var(--bg);color:var(--text);font-size:.85rem;">
             </label>
+            <label style="font-size:.82rem;color:var(--soft);">Every entrant gets
+              <input type="number" id="givEntrantPct" min="0" max="100" style="width:66px;margin:0 4px;padding:8px 10px;border:1px solid var(--border-soft);border-radius:8px;background:var(--bg);color:var(--text);font-size:.85rem;"> % off
+            </label>
             <button onclick="saveGiveawaySettings()" style="font-size:.8rem;background:var(--teal);border:1px solid var(--teal);color:#fff;border-radius:8px;padding:8px 16px;cursor:pointer;">Save</button>
             <span id="givSaveMsg" style="font-size:.8rem;color:var(--teal);"></span>
           </div>
@@ -3365,6 +3368,8 @@
       var v = (d && d.giveaway && d.giveaway.endDate) ? d.giveaway.endDate : '';
       inp.value = toLocalInput(v);
       renderGivBanner((d && d.giveaway && d.giveaway.banner) ? d.giveaway.banner : '');
+      var pctEl = document.getElementById('givEntrantPct');
+      if (pctEl) pctEl.value = (d && d.giveaway && d.giveaway.entrantPct != null) ? d.giveaway.entrantPct : 15;
     } catch(e) {}
   }
   function renderGivBanner(url){
@@ -3424,10 +3429,13 @@
     var msg = document.getElementById('givSaveMsg');
     if (!inp) return;
     if (!inp.value) { alert('Please pick a closing date and time first.'); return; }
+    var pctEl = document.getElementById('givEntrantPct');
+    var pct = pctEl ? parseInt(pctEl.value, 10) : 15;
+    if (isNaN(pct) || pct < 0 || pct > 100) { alert('Entrant discount must be between 0 and 100.'); return; }
     try {
       var res = await fetch('/api/giveaway-settings?token=' + encodeURIComponent(adminToken), {
         method: 'PUT', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ endDate: inp.value })
+        body: JSON.stringify({ endDate: inp.value, entrantPct: pct })
       });
       var d = await res.json();
       if (d && d.success) { if (msg) { msg.textContent = '✓ Saved'; setTimeout(function(){ if(msg) msg.textContent=''; }, 2500); } }

@@ -4744,6 +4744,7 @@ Title requirements:
         if (body.endDate !== undefined) cur.endDate = String(body.endDate || '').slice(0, 40);
         if (body.published !== undefined) cur.published = !!body.published;
         if (body.banner !== undefined) cur.banner = String(body.banner || '').slice(0, 300);
+        if (body.entrantPct !== undefined) { const n = parseInt(String(body.entrantPct).replace(/[^0-9]/g, ''), 10); if (!isNaN(n)) cur.entrantPct = Math.max(0, Math.min(100, n)); }
         existing.giveaway = cur;
         await env.PROGRAMARI.put('__site_settings__', JSON.stringify(existing));
         return json({ success: true });
