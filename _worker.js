@@ -483,6 +483,19 @@ function withSec(resp) {
   }
 }
 
+// Promo landing pages (giveaway / referral) can be kept as drafts: hidden
+// from the public (404) until the owner flips them to Published in admin.
+async function promoPagePublished(env, key) {
+  try {
+    const raw = await env.PROGRAMARI.get('__site_settings__');
+    const s = raw ? JSON.parse(raw) : {};
+    return !!(s && s[key] && s[key].published);
+  } catch { return false; }
+}
+function promoDraft404() {
+  return new Response('<!DOCTYPE html><meta charset="utf-8"><title>Page not found</title><body style="font-family:system-ui,sans-serif;text-align:center;padding:80px 20px;color:#334155;"><h1>Page not found</h1><p><a href="https://c-designs.uk" style="color:#00AAAC;">Back to C Design →</a></p></body>', { status: 404, headers: { 'Content-Type': 'text/html;charset=utf-8' } });
+}
+
 function json(data, status = 200, req) {
   return new Response(JSON.stringify(data), {
     status,
@@ -2471,12 +2484,14 @@ export default {
     }
 
     if (path === '/referral' || path === '/referral/') {
+      if (!authed && !(await promoPagePublished(env, 'referral'))) return promoDraft404();
       const assetUrl = new URL(request.url);
       assetUrl.pathname = '/referral.html';
       return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
     }
 
     if (path === '/giveaway' || path === '/giveaway/') {
+      if (!authed && !(await promoPagePublished(env, 'giveaway'))) return promoDraft404();
       const assetUrl = new URL(request.url);
       assetUrl.pathname = '/giveaway.html';
       return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
@@ -4724,9 +4739,25 @@ Title requirements:
         const body = await request.json();
         const raw = await env.PROGRAMARI.get('__site_settings__');
         const existing = raw ? JSON.parse(raw) : {};
-        existing.giveaway = {
-          endDate: String(body.endDate || '').slice(0, 40),
-        };
+        // Merge so we don't wipe the `published` flag when only the date changes.
+        const cur = existing.giveaway || {};
+        if (body.endDate !== undefined) cur.endDate = String(body.endDate || '').slice(0, 40);
+        if (body.published !== undefined) cur.published = !!body.published;
+        existing.giveaway = cur;
+        await env.PROGRAMARI.put('__site_settings__', JSON.stringify(existing));
+        return json({ success: true });
+      } catch { return json({ error: 'Error' }, 500); }
+    }
+
+    // Publish / unpublish a promo landing page (giveaway or referral).
+    if (path === '/api/promo-visibility' && request.method === 'PUT') {
+      if (!can(authed, 'promotions')) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const body = await request.json();
+        const page = body.page === 'referral' ? 'referral' : 'giveaway';
+        const raw = await env.PROGRAMARI.get('__site_settings__');
+        const existing = raw ? JSON.parse(raw) : {};
+        existing[page] = Object.assign({}, existing[page] || {}, { published: !!body.published });
         await env.PROGRAMARI.put('__site_settings__', JSON.stringify(existing));
         return json({ success: true });
       } catch { return json({ error: 'Error' }, 500); }
