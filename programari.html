@@ -794,6 +794,9 @@
             <label style="font-size:.82rem;color:var(--soft);">Friend gets
               <input type="number" id="refFriendPct" min="0" max="100" style="width:66px;margin:0 4px;padding:8px 10px;border:1px solid var(--border-soft);border-radius:8px;background:var(--bg);color:var(--text);font-size:.85rem;"> % off
             </label>
+            <label style="font-size:.82rem;color:var(--soft);">Stacks up to
+              <input type="number" id="refCap" min="0" max="100" style="width:66px;margin:0 4px;padding:8px 10px;border:1px solid var(--border-soft);border-radius:8px;background:var(--bg);color:var(--text);font-size:.85rem;"> % max
+            </label>
             <button onclick="saveReferralSettings()" style="font-size:.8rem;background:var(--teal);border:1px solid var(--teal);color:#fff;border-radius:8px;padding:8px 16px;cursor:pointer;">Save</button>
             <span id="refSaveMsg" style="font-size:.8rem;color:var(--teal);"></span>
           </div>
@@ -3453,8 +3456,10 @@
       __promoVis.referral = !!(d && d.referral && d.referral.published);
       var rp = (d && d.referral && d.referral.referrerPct != null) ? d.referral.referrerPct : 20;
       var fp = (d && d.referral && d.referral.friendPct != null) ? d.referral.friendPct : 10;
+      var cp = (d && d.referral && d.referral.cap != null) ? d.referral.cap : 50;
       var ri = document.getElementById('refReferrerPct'); if (ri) ri.value = rp;
       var fi = document.getElementById('refFriendPct'); if (fi) fi.value = fp;
+      var ci = document.getElementById('refCap'); if (ci) ci.value = cp;
     } catch(e) {}
     renderPromoVis('giveaway'); renderPromoVis('referral');
   }
@@ -3463,12 +3468,13 @@
     var fi = document.getElementById('refFriendPct');
     var msg = document.getElementById('refSaveMsg');
     if (!ri || !fi) return;
-    var rp = parseInt(ri.value, 10), fp = parseInt(fi.value, 10);
-    if (isNaN(rp) || rp < 0 || rp > 100 || isNaN(fp) || fp < 0 || fp > 100) { alert('Please enter percentages between 0 and 100.'); return; }
+    var ci = document.getElementById('refCap');
+    var rp = parseInt(ri.value, 10), fp = parseInt(fi.value, 10), cp = ci ? parseInt(ci.value, 10) : 50;
+    if (isNaN(rp) || rp < 0 || rp > 100 || isNaN(fp) || fp < 0 || fp > 100 || isNaN(cp) || cp < 0 || cp > 100) { alert('Please enter percentages between 0 and 100.'); return; }
     try {
       var res = await fetch('/api/referral-settings?token=' + encodeURIComponent(adminToken), {
         method: 'PUT', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ referrerPct: rp, friendPct: fp })
+        body: JSON.stringify({ referrerPct: rp, friendPct: fp, cap: cp })
       });
       var d = await res.json();
       if (d && d.success) { if (msg) { msg.textContent = '✓ Saved'; setTimeout(function(){ if(msg) msg.textContent=''; }, 2500); } }

@@ -2830,13 +2830,14 @@ export default {
           return json({ reply: 'Hi! How can I help you today?' }, 200, request);
         }
         // Live promo reward percentages (set from admin); fall back to defaults.
-        let refrPct = 20, friPct = 10, givPct = 15;
+        let refrPct = 20, friPct = 10, givPct = 15, refCap = 50;
         try {
           const rawS = await env.PROGRAMARI.get('__site_settings__');
           const s = rawS ? JSON.parse(rawS) : {};
           if (s.referral) {
             if (s.referral.referrerPct != null) refrPct = s.referral.referrerPct;
             if (s.referral.friendPct != null) friPct = s.referral.friendPct;
+            if (s.referral.cap != null) refCap = s.referral.cap;
           }
           if (s.giveaway && s.giveaway.entrantPct != null) givPct = s.giveaway.entrantPct;
         } catch {}
@@ -2844,7 +2845,7 @@ export default {
           "About C Design: we build modern, fast websites and web apps for small and growing UK businesses, with honest, fixed pricing (websites start from £300) and most projects live in days, not weeks. Our website is c-designs.uk. " +
           "Services: Website Design, E-commerce (WooCommerce, Shopify, PrestaShop), Custom Web Apps (CRM, WordPress plugins), AI Integration & Automation, Maintenance & Hosting, SEO & Local SEO, Social Media, Branding & Logo. We serve the whole UK, with local pages for Leeds, Sheffield, Nottingham, Derby, Blackburn and Preston. " +
           "SPECIAL LAUNCH OFFER (mention this proactively when a visitor is a small business, is new online, or asks about getting started, prices, or a package): our £200 all-in Launch Package gets a business fully online for one price — a presentation website (up to 5 pages, mobile-friendly), SEO setup so they're found on Google, a Google Business Profile set up (Google Maps & local search), plus Instagram & Facebook accounts created and branded. Everything is done for them, no hidden fees, and it goes live in days. Point them to the offer page at /promo where they can claim it. " +
-          `REFER-A-FRIEND PROGRAMME (mention when a visitor is happy with us, is an existing client, or asks how to recommend us): at /referral someone can refer another business — when that friend signs up, the referrer gets ${refrPct}% off their next service and the friend gets ${friPct}% off their first project. There's no limit on referrals. ` +
+          `REFER-A-FRIEND PROGRAMME (mention when a visitor is happy with us, is an existing client, or asks how to recommend us): at /referral someone can refer another business — when that friend signs up, the referrer gets ${refrPct}% off their next service for EACH friend referred, and it stacks with every friend up to a maximum of ${refCap}% off; the friend gets ${friPct}% off their first project. There's no limit on how many friends they refer. ` +
           "FREE WEBSITE GIVEAWAY (mention when a visitor is just browsing, hesitant about budget, or likes the idea of a free site): we run a free-to-enter giveaway at /giveaway — one entrant wins a complete free website, and every entrant also gets 15% off their first project. " +
           "Social proof: happy clients have left reviews — visitors can read them on the homepage. " +
           "Guidelines: Be concise, warm and helpful (2-4 sentences). Only discuss C Design, web design and the visitor's project. " +
@@ -4773,6 +4774,7 @@ Title requirements:
         const clampPct = (v) => { const n = parseInt(String(v).replace(/[^0-9]/g, ''), 10); return isNaN(n) ? undefined : Math.max(0, Math.min(100, n)); };
         if (body.referrerPct !== undefined) { const n = clampPct(body.referrerPct); if (n !== undefined) cur.referrerPct = n; }
         if (body.friendPct !== undefined) { const n = clampPct(body.friendPct); if (n !== undefined) cur.friendPct = n; }
+        if (body.cap !== undefined) { const n = clampPct(body.cap); if (n !== undefined) cur.cap = n; }
         existing.referral = cur;
         await env.PROGRAMARI.put('__site_settings__', JSON.stringify(existing));
         return json({ success: true });
