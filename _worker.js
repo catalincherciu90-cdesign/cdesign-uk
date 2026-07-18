@@ -524,6 +524,28 @@ async function sendFriendDiscountEmail(env, rec) {
   return sendEmail(env, { to: rec.friendContact, replyTo, subject: 'Your ' + rec.friendPct + '% welcome discount from C Design 🎁', html });
 }
 
+// Stable identity for a referrer (so one person keeps one code across referrals).
+function referrerKeyOf(r) {
+  return (String((r && r.referrerEmail) || '').trim().toLowerCase()) || String((r && r.referrerPhone) || '').trim() || String((r && r.referrerName) || '').trim().toLowerCase();
+}
+
+// Email the referrer their PERSISTENT code (sent once, on their first referral).
+async function sendReferrerCodeEmail(env, rec, pct, cap) {
+  if (!EMAIL_RE.test(rec.referrerEmail)) return { ok: false, skipped: true };
+  const replyTo = (await getOwnerEmail(env)) || (env.NOTIFY_EMAIL || NOTIFY_EMAIL);
+  const html =
+    '<div style="font-family:system-ui,Arial,sans-serif;max-width:520px;margin:0 auto;color:#2E3436;">' +
+      '<h2 style="color:#008587;">Thanks for spreading the word 🤝</h2>' +
+      '<p>Hi ' + escHtml(rec.referrerName) + ',</p>' +
+      '<p>Here\'s your personal referral code — it\'s yours to keep:</p>' +
+      '<p style="text-align:center;margin:22px 0;"><span style="display:inline-block;font-family:monospace;font-size:1.5rem;font-weight:700;letter-spacing:2px;color:#008587;background:#e9f6f6;border:1px dashed #00AAAC;border-radius:10px;padding:14px 26px;">' + escHtml(rec.referrerCode) + '</span></p>' +
+      '<p>Every friend you refer adds <strong>' + escHtml(String(pct)) + '%</strong> to it — stacking all the way up to <strong>' + escHtml(String(cap)) + '%</strong> off your next project. The code stays the same; its value just keeps growing as you refer more.</p>' +
+      '<p>Refer more friends any time at <a href="https://c-designs.uk/referral" style="color:#008587;">c-designs.uk/referral</a>, and just quote this code when you\'re ready to use your discount.</p>' +
+      '<p style="color:#8b94a3;font-size:.85rem;">— The C Design team</p>' +
+    '</div>';
+  return sendEmail(env, { to: rec.referrerEmail, replyTo, subject: 'Your C Design referral code 🤝', html });
+}
+
 function json(data, status = 200, req) {
   return new Response(JSON.stringify(data), {
     status,
@@ -2863,16 +2885,30 @@ export default {
           status: 'pending',
           createdAt: new Date().toISOString()
         };
-        // Friend's welcome discount: generate a code, capture the current %,
-        // and email it to them automatically when we have their address.
-        let friendPct = 10;
-        try { const rawS = await env.PROGRAMARI.get('__site_settings__'); const s = rawS ? JSON.parse(rawS) : {}; if (s.referral && s.referral.friendPct != null) friendPct = s.referral.friendPct; } catch {}
+        // Reward percentages / cap (from admin settings).
+        let friendPct = 10, referrerPct = 20, refCap = 50;
+        try { const rawS = await env.PROGRAMARI.get('__site_settings__'); const s = rawS ? JSON.parse(rawS) : {}; if (s.referral) { if (s.referral.friendPct != null) friendPct = s.referral.friendPct; if (s.referral.referrerPct != null) referrerPct = s.referral.referrerPct; if (s.referral.cap != null) refCap = s.referral.cap; } } catch {}
+        // Friend's welcome discount: a one-off code, emailed automatically.
         rec.friendPct = friendPct;
         rec.friendCode = genDiscountCode('CD');
         rec.friendEmailed = false;
         try { const r = await sendFriendDiscountEmail(env, rec); rec.friendEmailed = !!(r && r.ok); } catch {}
+
         const raw = await env.PROGRAMARI.get('__referrals__');
         const list = raw ? JSON.parse(raw) : [];
+        // Referrer's PERSISTENT code: reuse the same code across all their
+        // referrals; its value grows with each one (computed live, capped).
+        const rkey = referrerKeyOf(rec);
+        let referrerCode = '', isFirst = true;
+        for (const x of list) {
+          if (referrerKeyOf(x) === rkey) { isFirst = false; if (x.referrerCode && !referrerCode) referrerCode = x.referrerCode; }
+        }
+        if (!referrerCode) referrerCode = genDiscountCode('REF');
+        rec.referrerCode = referrerCode;
+        rec.referrerEmailed = false;
+        if (isFirst && EMAIL_RE.test(rec.referrerEmail)) {
+          try { const rr = await sendReferrerCodeEmail(env, rec, referrerPct, refCap); rec.referrerEmailed = !!(rr && rr.ok); } catch {}
+        }
         list.unshift(rec);
         await env.PROGRAMARI.put('__referrals__', JSON.stringify(list.slice(0, 2000)));
         try {
@@ -2921,6 +2957,23 @@ export default {
         if (!r.friendCode) { r.friendCode = genDiscountCode('CD'); }
         const sent = await sendFriendDiscountEmail(env, r);
         if (sent && sent.ok) { r.friendEmailed = true; await env.PROGRAMARI.put('__referrals__', JSON.stringify(list)); return json({ success: true }); }
+        return json({ error: (sent && sent.skipped) ? 'Email sending is not configured.' : 'Could not send the email.' }, 500);
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+    if (path.startsWith('/api/referrals/') && path.endsWith('/resend-referrer-code') && request.method === 'POST') {
+      if (!can(authed, 'promotions')) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const id = path.replace('/api/referrals/', '').replace('/resend-referrer-code', '');
+        const raw = await env.PROGRAMARI.get('__referrals__');
+        const list = raw ? JSON.parse(raw) : [];
+        const r = list.find(x => x.id === id);
+        if (!r) return json({ error: 'Not found' }, 404);
+        if (!EMAIL_RE.test(r.referrerEmail)) return json({ error: "This referrer has no email on file — copy the code and send it manually." }, 400);
+        if (!r.referrerCode) r.referrerCode = genDiscountCode('REF');
+        let pct = 20, cap = 50;
+        try { const rawS = await env.PROGRAMARI.get('__site_settings__'); const s = rawS ? JSON.parse(rawS) : {}; if (s.referral) { if (s.referral.referrerPct != null) pct = s.referral.referrerPct; if (s.referral.cap != null) cap = s.referral.cap; } } catch {}
+        const sent = await sendReferrerCodeEmail(env, r, pct, cap);
+        if (sent && sent.ok) { r.referrerEmailed = true; await env.PROGRAMARI.put('__referrals__', JSON.stringify(list)); return json({ success: true }); }
         return json({ error: (sent && sent.skipped) ? 'Email sending is not configured.' : 'Could not send the email.' }, 500);
       } catch { return json({ error: 'Server error' }, 500); }
     }
