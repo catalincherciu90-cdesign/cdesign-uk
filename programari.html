@@ -725,6 +725,25 @@
       <p style="font-size:.82rem;color:var(--muted);margin:0 0 16px;">Referral requests (from <b>/referral</b>) and giveaway entries (from <b>/giveaway</b>).</p>
 
       <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:12px;padding:16px 18px;margin-bottom:20px;">
+        <div style="font-weight:600;color:var(--heading);margin-bottom:2px;">👁 Page visibility</div>
+        <p style="font-size:.78rem;color:var(--muted);margin:0 0 14px;">Cât timp o pagină e pe <b>Draft</b>, publicul primește 404 — doar tu o poți vedea cu <b>Preview</b>. Pune-o pe <b>Published</b> când vrei să apară pe site.</p>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <span style="min-width:130px;font-size:.85rem;color:var(--soft);">🎁 Giveaway <span style="color:var(--muted);">(/giveaway)</span></span>
+            <span id="vis-giveaway-badge" style="font-size:.72rem;font-weight:700;border-radius:999px;padding:3px 10px;">…</span>
+            <button onclick="openPreview('/giveaway')" style="font-size:.78rem;background:none;border:1px solid var(--border-soft);color:var(--soft);border-radius:6px;padding:6px 12px;cursor:pointer;">👁 Preview</button>
+            <button id="vis-giveaway-btn" onclick="togglePromoVisibility('giveaway')" style="font-size:.78rem;border:none;border-radius:6px;padding:6px 14px;cursor:pointer;">…</button>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <span style="min-width:130px;font-size:.85rem;color:var(--soft);">🤝 Referral <span style="color:var(--muted);">(/referral)</span></span>
+            <span id="vis-referral-badge" style="font-size:.72rem;font-weight:700;border-radius:999px;padding:3px 10px;">…</span>
+            <button onclick="openPreview('/referral')" style="font-size:.78rem;background:none;border:1px solid var(--border-soft);color:var(--soft);border-radius:6px;padding:6px 12px;cursor:pointer;">👁 Preview</button>
+            <button id="vis-referral-btn" onclick="togglePromoVisibility('referral')" style="font-size:.78rem;border:none;border-radius:6px;padding:6px 14px;cursor:pointer;">…</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:12px;padding:16px 18px;margin-bottom:20px;">
         <div style="font-weight:600;color:var(--heading);margin-bottom:2px;">⚙️ Giveaway settings</div>
         <p style="font-size:.78rem;color:var(--muted);margin:0 0 12px;">Sets the countdown and the closing date shown on the <b>/giveaway</b> page.</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
@@ -2883,7 +2902,7 @@
     document.getElementById('panel-' + tab).classList.add('active');
     if (tab === 'gibilan') { loadGibilan(); loadGibilanRecent(); }
     if (tab === 'messages') loadMessages();
-    if (tab === 'promotions') { loadPromotions(); loadGiveawaySettings(); }
+    if (tab === 'promotions') { loadPromotions(); loadGiveawaySettings(); loadPromoVisibility(); }
     if (tab === 'chat') loadChatLogs();
     if (tab === 'email') loadSentMail();
     if (tab === 'social') { loadSocialPosts(); loadSocialLibrary(); }
@@ -3326,6 +3345,47 @@
       if (d && d.success) { if (msg) { msg.textContent = '✓ Saved'; setTimeout(function(){ if(msg) msg.textContent=''; }, 2500); } }
       else { alert((d && d.error) || 'Save failed.'); }
     } catch(e) { alert('Network error while saving.'); }
+  }
+
+  // ── Promo page visibility (draft / published) ────────────
+  var __promoVis = { giveaway: false, referral: false };
+  async function loadPromoVisibility() {
+    try {
+      var res = await fetch('/api/site-settings');
+      var d = await res.json();
+      __promoVis.giveaway = !!(d && d.giveaway && d.giveaway.published);
+      __promoVis.referral = !!(d && d.referral && d.referral.published);
+    } catch(e) {}
+    renderPromoVis('giveaway'); renderPromoVis('referral');
+  }
+  function renderPromoVis(page) {
+    var pub = __promoVis[page];
+    var badge = document.getElementById('vis-' + page + '-badge');
+    var btn = document.getElementById('vis-' + page + '-btn');
+    if (badge) {
+      badge.textContent = pub ? '● Published' : '● Draft';
+      badge.style.background = pub ? 'rgba(18,161,80,.12)' : 'rgba(139,148,163,.15)';
+      badge.style.color = pub ? '#12a150' : '#8b94a3';
+    }
+    if (btn) {
+      btn.textContent = pub ? 'Unpublish' : 'Publish';
+      btn.style.background = pub ? 'rgba(229,72,77,.1)' : 'var(--teal)';
+      btn.style.color = pub ? '#e5484d' : '#fff';
+      btn.style.border = pub ? '1px solid #e5484d' : '1px solid var(--teal)';
+    }
+  }
+  async function togglePromoVisibility(page) {
+    var target = !__promoVis[page];
+    if (target && !confirm('Publish the ' + page + ' page? It will become visible to everyone on the site.')) return;
+    try {
+      var res = await fetch('/api/promo-visibility?token=' + encodeURIComponent(adminToken), {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ page: page, published: target })
+      });
+      var d = await res.json();
+      if (d && d.success) { __promoVis[page] = target; renderPromoVis(page); }
+      else alert((d && d.error) || 'Could not update.');
+    } catch(e) { alert('Network error.'); }
   }
 
   // ── AI CHAT LOGS ─────────────────────────────────────────
