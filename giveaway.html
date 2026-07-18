@@ -433,9 +433,17 @@
       function start(){ if(!running){ running = true; tick(); } }
       setEnd(null);
       start();
-      // Pull the admin-configured end date (if any) and re-sync.
+      // Pull the admin-configured end date + hero banner (if any) and re-sync.
       fetch('/api/site-settings').then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
         if(d && d.giveaway && d.giveaway.endDate){ setEnd(d.giveaway.endDate); start(); }
+        if(d && d.giveaway && d.giveaway.banner){
+          var hero = document.querySelector('.promo-hero');
+          if(hero){
+            hero.style.backgroundImage = "linear-gradient(120deg, rgba(239,234,252,.93) 0%, rgba(239,234,252,.78) 42%, rgba(255,255,255,.60) 100%), url('" + d.giveaway.banner.replace(/'/g,'%27') + "')";
+            hero.style.backgroundSize = 'cover';
+            hero.style.backgroundPosition = 'center';
+          }
+        }
       }).catch(function(){});
     })();
   </script>

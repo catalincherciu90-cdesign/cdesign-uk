@@ -4739,10 +4739,11 @@ Title requirements:
         const body = await request.json();
         const raw = await env.PROGRAMARI.get('__site_settings__');
         const existing = raw ? JSON.parse(raw) : {};
-        // Merge so we don't wipe the `published` flag when only the date changes.
+        // Merge so we don't wipe other fields when only one changes.
         const cur = existing.giveaway || {};
         if (body.endDate !== undefined) cur.endDate = String(body.endDate || '').slice(0, 40);
         if (body.published !== undefined) cur.published = !!body.published;
+        if (body.banner !== undefined) cur.banner = String(body.banner || '').slice(0, 300);
         existing.giveaway = cur;
         await env.PROGRAMARI.put('__site_settings__', JSON.stringify(existing));
         return json({ success: true });
@@ -4787,7 +4788,7 @@ Title requirements:
 
     // Media upload
     if (path === '/api/media' && request.method === 'POST') {
-      if (!can(authed, 'media') && !can(authed, 'social')) return json({ error: 'Unauthorised' }, 401);
+      if (!can(authed, 'media') && !can(authed, 'social') && !can(authed, 'promotions')) return json({ error: 'Unauthorised' }, 401);
       try {
         const ct = request.headers.get('Content-Type') || '';
         const isImg = ct.startsWith('image/');

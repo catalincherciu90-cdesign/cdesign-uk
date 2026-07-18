@@ -753,6 +753,15 @@
           <button onclick="saveGiveawaySettings()" style="font-size:.8rem;background:var(--teal);border:1px solid var(--teal);color:#fff;border-radius:8px;padding:8px 16px;cursor:pointer;">Save</button>
           <span id="givSaveMsg" style="font-size:.8rem;color:var(--teal);"></span>
         </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px;padding-top:12px;border-top:1px dashed var(--border-soft);">
+          <span style="font-size:.82rem;color:var(--soft);">Hero banner:</span>
+          <img id="givBannerPreview" src="" alt="" style="display:none;height:42px;width:auto;max-width:120px;object-fit:cover;border-radius:6px;border:1px solid var(--border-soft);">
+          <span id="givBannerEmpty" style="font-size:.78rem;color:var(--muted);">none (gradient default)</span>
+          <button onclick="givBannerPick()" style="font-size:.8rem;background:none;border:1px solid var(--border-soft);color:var(--soft);border-radius:8px;padding:8px 14px;cursor:pointer;">⬆ Upload image</button>
+          <button id="givBannerRemoveBtn" onclick="givBannerRemove()" style="display:none;font-size:.8rem;background:none;border:1px solid #e5484d;color:#e5484d;border-radius:8px;padding:8px 14px;cursor:pointer;">Remove</button>
+          <input type="file" id="givBannerInput" accept="image/*" style="display:none;" onchange="givBannerUpload(this)">
+          <span id="givBannerMsg" style="font-size:.8rem;color:var(--teal);"></span>
+        </div>
       </div>
 
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;" id="promoFilters">
@@ -3329,7 +3338,49 @@
       var d = await res.json();
       var v = (d && d.giveaway && d.giveaway.endDate) ? d.giveaway.endDate : '';
       inp.value = toLocalInput(v);
+      renderGivBanner((d && d.giveaway && d.giveaway.banner) ? d.giveaway.banner : '');
     } catch(e) {}
+  }
+  function renderGivBanner(url){
+    var img = document.getElementById('givBannerPreview');
+    var empty = document.getElementById('givBannerEmpty');
+    var rm = document.getElementById('givBannerRemoveBtn');
+    if (url) {
+      if (img) { img.src = url; img.style.display = 'inline-block'; }
+      if (empty) empty.style.display = 'none';
+      if (rm) rm.style.display = 'inline-block';
+    } else {
+      if (img) { img.src = ''; img.style.display = 'none'; }
+      if (empty) empty.style.display = 'inline';
+      if (rm) rm.style.display = 'none';
+    }
+  }
+  function givBannerPick(){ var inp = document.getElementById('givBannerInput'); if (inp){ inp.value=''; inp.click(); } }
+  function givBannerSave(url){
+    return fetch('/api/giveaway-settings?token=' + encodeURIComponent(adminToken), {
+      method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ banner: url })
+    }).then(function(r){ return r.json(); });
+  }
+  function givBannerUpload(input){
+    var file = input && input.files && input.files[0];
+    if (!file) return;
+    if (!/^image\//.test(file.type)) { alert('Please choose an image.'); return; }
+    if (file.size > 5*1024*1024) { alert('Image too large (max 5MB).'); return; }
+    var msg = document.getElementById('givBannerMsg'); if (msg){ msg.style.color='var(--teal)'; msg.textContent='uploading…'; }
+    uploadMedia(file, function(url){
+      givBannerSave(url).then(function(d){
+        if (d && d.success){ renderGivBanner(url); if (msg){ msg.textContent='✓ saved'; setTimeout(function(){ if(msg) msg.textContent=''; }, 2500); } }
+        else if (msg){ msg.style.color='#e5484d'; msg.textContent='save failed'; }
+      });
+    }, function(err){ if (msg){ msg.style.color='#e5484d'; msg.textContent = err||'upload error'; } });
+  }
+  function givBannerRemove(){
+    if (!confirm('Remove the giveaway hero banner? It will fall back to the default gradient.')) return;
+    var msg = document.getElementById('givBannerMsg');
+    givBannerSave('').then(function(d){
+      if (d && d.success){ renderGivBanner(''); if (msg){ msg.style.color='var(--teal)'; msg.textContent='✓ removed'; setTimeout(function(){ if(msg) msg.textContent=''; }, 2500); } }
+      else if (msg){ msg.style.color='#e5484d'; msg.textContent='failed'; }
+    });
   }
   async function saveGiveawaySettings() {
     var inp = document.getElementById('givEndInput');
