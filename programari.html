@@ -3393,13 +3393,28 @@
           ? '<span style="font-size:.68rem;font-weight:700;color:#12a150;background:#e4f7ea;border:1px solid #b8e8c8;padding:2px 8px;border-radius:999px;">✓ Signed up</span>'
           : '<span style="font-size:.68rem;font-weight:700;color:#b7791f;background:#fdf3e2;border:1px solid #f2ddb4;padding:2px 8px;border-radius:999px;">⏳ Pending</span>';
         var when = ''; try { when = new Date(r.createdAt).toLocaleDateString('en-GB'); } catch(e){}
-        return '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 0;border-top:1px solid var(--border);">' +
+        var code = r.friendCode || '';
+        var emailed = r.friendEmailed
+          ? '<span style="font-size:.68rem;color:#12a150;">✉ emailed</span>'
+          : '<span style="font-size:.68rem;color:var(--muted);">not emailed</span>';
+        var codeLine = code
+          ? '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:2px 0 8px;">' +
+              '<span style="font-size:.68rem;color:var(--muted);">Friend code (' + (r.friendPct != null ? r.friendPct : '') + '% off):</span>' +
+              '<code style="font-family:monospace;font-size:.82rem;font-weight:700;color:var(--teal-dk);background:rgba(0,168,168,.1);border:1px solid var(--teal-border);border-radius:6px;padding:2px 8px;">' + mEsc(code) + '</code>' +
+              '<button onclick="refCopyCode(\'' + mEsc(code) + '\')" style="font-size:.68rem;background:none;border:1px solid var(--border-soft);color:var(--soft);border-radius:5px;padding:3px 8px;cursor:pointer;">📋 Copy</button>' +
+              '<button onclick="refResendCode(\'' + mEsc(r.id) + '\')" style="font-size:.68rem;background:none;border:1px solid var(--teal-border);color:var(--teal);border-radius:5px;padding:3px 8px;cursor:pointer;">✉ Send code</button>' +
+              emailed +
+            '</div>'
+          : '';
+        return '<div style="padding:8px 0;border-top:1px solid var(--border);">' +
+          '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">' +
             '<span style="flex:1;min-width:160px;font-size:.85rem;color:var(--text);"><b>' + mEsc(r.friendName) + '</b>' +
               '<span style="color:var(--muted);"> · ' + mEsc(r.friendContact) + (r.friendBusiness ? ' · ' + mEsc(r.friendBusiness) : '') + '</span></span>' +
             '<span style="font-size:.7rem;color:var(--muted);">' + mEsc(when) + '</span>' + badge +
             '<button onclick="refToggleStatus(\'' + mEsc(r.id) + '\',' + (isUp ? 'false' : 'true') + ')" style="font-size:.72rem;background:none;border:1px solid var(--border-soft);color:var(--soft);border-radius:6px;padding:4px 10px;cursor:pointer;">' + (isUp ? 'Mark pending' : 'Mark signed up') + '</button>' +
             '<button onclick="refDeleteRecord(\'' + mEsc(r.id) + '\')" style="font-size:.72rem;background:none;border:1px solid #e5484d;color:#e5484d;border-radius:6px;padding:4px 10px;cursor:pointer;">✕</button>' +
-          '</div>';
+          '</div>' + codeLine +
+        '</div>';
       }).join('');
       return '<div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:12px;padding:14px 16px;margin-bottom:12px;">' +
           '<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;">' +
@@ -3429,6 +3444,22 @@
       window.__refLedger = (window.__refLedger || []).filter(function(x){ return x.id !== id; });
       renderReferralLedger();
     } catch(e) { alert('Could not delete.'); }
+  }
+  function refCopyCode(code) {
+    try { if (navigator.clipboard) navigator.clipboard.writeText(code); } catch(e){}
+    alert('Code copied: ' + code);
+  }
+  async function refResendCode(id) {
+    try {
+      var res = await fetch('/api/referrals/' + encodeURIComponent(id) + '/resend-code?token=' + encodeURIComponent(adminToken), { method:'POST' });
+      var d = await res.json();
+      if (d && d.success) {
+        var r = (window.__refLedger || []).find(function(x){ return x.id === id; });
+        if (r) r.friendEmailed = true;
+        renderReferralLedger();
+        alert('✓ Code emailed to the friend.');
+      } else { alert((d && d.error) || 'Could not send the code.'); }
+    } catch(e) { alert('Network error.'); }
   }
   // Format a stored date value into the 'YYYY-MM-DDTHH:MM' a datetime-local input needs.
   function toLocalInput(v) {
