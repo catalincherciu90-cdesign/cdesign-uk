@@ -4750,6 +4750,23 @@ Title requirements:
       } catch { return json({ error: 'Error' }, 500); }
     }
 
+    // Referral reward percentages (referrer % and friend %).
+    if (path === '/api/referral-settings' && request.method === 'PUT') {
+      if (!can(authed, 'promotions')) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const body = await request.json();
+        const raw = await env.PROGRAMARI.get('__site_settings__');
+        const existing = raw ? JSON.parse(raw) : {};
+        const cur = existing.referral || {};
+        const clampPct = (v) => { const n = parseInt(String(v).replace(/[^0-9]/g, ''), 10); return isNaN(n) ? undefined : Math.max(0, Math.min(100, n)); };
+        if (body.referrerPct !== undefined) { const n = clampPct(body.referrerPct); if (n !== undefined) cur.referrerPct = n; }
+        if (body.friendPct !== undefined) { const n = clampPct(body.friendPct); if (n !== undefined) cur.friendPct = n; }
+        existing.referral = cur;
+        await env.PROGRAMARI.put('__site_settings__', JSON.stringify(existing));
+        return json({ success: true });
+      } catch { return json({ error: 'Error' }, 500); }
+    }
+
     // Publish / unpublish a promo landing page (giveaway or referral).
     if (path === '/api/promo-visibility' && request.method === 'PUT') {
       if (!can(authed, 'promotions')) return json({ error: 'Unauthorised' }, 401);
