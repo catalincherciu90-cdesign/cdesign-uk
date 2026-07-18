@@ -192,7 +192,7 @@
       <div>
         <span class="ph-badge">🤝 Refer &amp; earn</span>
         <h1>Recommend us, <b>get <span class="ref-r">20%</span> off</b></h1>
-        <p class="sub">Know a business that needs a website? Send them our way. When they come on board, you get <b><span class="ref-r">20%</span> off your next service</b> — and your friend gets <b><span class="ref-f">10%</span> off</b> their first project. A proper thank-you for spreading the word.</p>
+        <p class="sub">Know a business that needs a website? Send them our way. For <b>every friend</b> who comes on board you get <b><span class="ref-r">20%</span> off your next service</b> — and it <b>stacks up to <span class="ref-cap">50%</span></b>. Your friend gets <b><span class="ref-f">10%</span> off</b> their first project too. A proper thank-you for spreading the word.</p>
         <div class="ph-cta">
           <a href="#refer" class="btn-primary">Refer a friend <span>→</span></a>
           <span class="ph-trust">✔ No limit — refer as many as you like</span>
@@ -201,11 +201,11 @@
       <div class="price-card">
         <div class="pc-label">Your reward</div>
         <div class="pc-price"><span class="ref-r">20%</span></div>
-        <div class="pc-was">off your next service &nbsp;— our thank-you for the recommendation.</div>
+        <div class="pc-was">off your next service, <b>for every friend</b> — stack it up to <span class="ref-cap">50%</span>.</div>
         <ul>
           <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Applied when your friend signs up</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Stacks with every friend — up to <span class="ref-cap">50%</span> off</li>
           <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Your friend gets <span class="ref-f">10%</span> off too</li>
-          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Refer as many friends as you like</li>
         </ul>
         <div class="pc-meta"><span>💚 Everybody wins</span><span>🔒 No catch</span></div>
       </div>
@@ -224,8 +224,8 @@
         <div class="reward-card">
           <div class="reward-ico"><svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
           <div class="rc-who">You get</div>
-          <h3><span class="ref-r">20%</span> off</h3>
-          <p>A clean <span class="ref-r">20%</span> off your next website, redesign or service with us — our way of saying thanks for the recommendation.</p>
+          <h3><span class="ref-r">20%</span> off <span style="font-size:.6em;color:var(--muted);font-weight:600;">per friend</span></h3>
+          <p><span class="ref-r">20%</span> off for <b>every friend</b> you refer — stack it all the way up to <span class="ref-cap">50%</span> off your next website, redesign or service.</p>
         </div>
         <div class="reward-card">
           <div class="reward-ico"><svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg></div>
@@ -244,7 +244,7 @@
       <div class="steps">
         <div class="step"><div class="num">1</div><h3>Tell us who to contact</h3><p>Fill in the short form below with your details and your friend's — it takes under a minute.</p></div>
         <div class="step"><div class="num">2</div><h3>We take it from there</h3><p>We reach out to your friend with a friendly, no-pressure chat and their <span class="ref-f">10%</span> welcome discount.</p></div>
-        <div class="step"><div class="num">3</div><h3>You both get rewarded</h3><p>When they sign up, your <span class="ref-r">20%</span> discount is yours to use on your next project whenever you like.</p></div>
+        <div class="step"><div class="num">3</div><h3>You both get rewarded</h3><p>When they sign up, your <span class="ref-r">20%</span> discount is yours — and it <b>stacks with every friend</b>, up to <span class="ref-cap">50%</span> off.</p></div>
       </div>
     </div>
   </section>
@@ -257,7 +257,7 @@
         <h2>Who should we <b>reach out to?</b></h2>
         <p>Pop in your friend's details and we'll do the rest — kindly and professionally. We'll only mention that you recommended us if you're happy for us to.</p>
         <ul class="pf-points">
-          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> <span class="ref-r">20%</span> off for you when they sign up</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> <span class="ref-r">20%</span> off per friend — stacks up to <span class="ref-cap">50%</span></li>
           <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> <span class="ref-f">10%</span> off for your friend</li>
           <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> No limit on referrals</li>
         </ul>
@@ -399,6 +399,7 @@
         }
         var rv = setPct('.ref-r', d.referral.referrerPct);
         var fv = setPct('.ref-f', d.referral.friendPct);
+        setPct('.ref-cap', d.referral.cap);
         if(rv){ try { document.title = 'Refer a Friend | Get ' + rv + '% off — C Design'; } catch(e){} }
       }).catch(function(){});
     })();
