@@ -2812,6 +2812,78 @@ export default {
       return json({ success: true });
     }
 
+    // ── REFERRAL LEDGER (who referred whom + accumulated discount) ──
+    if (path === '/api/referrals' && request.method === 'POST') {
+      const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+      const allowed = await checkRateLimit(env, 'referral_' + ip, 6, 3600);
+      if (!allowed) return json({ error: 'Too many requests. Please try again later.' }, 429, request);
+      try {
+        const b = await request.json();
+        const referrerName = String(b.referrerName || '').trim().slice(0, 120);
+        const friendName = String(b.friendName || '').trim().slice(0, 120);
+        const friendContact = String(b.friendContact || '').trim().slice(0, 160);
+        if (referrerName.length < 2 || friendName.length < 2 || !friendContact) return json({ error: 'Required fields missing' }, 400);
+        const rec = {
+          id: 'ref_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+          referrerName,
+          referrerEmail: String(b.referrerEmail || '').trim().slice(0, 160),
+          referrerPhone: String(b.referrerPhone || '').trim().slice(0, 40),
+          friendName,
+          friendContact,
+          friendBusiness: String(b.friendBusiness || '').trim().slice(0, 160),
+          note: String(b.note || '').trim().slice(0, 1000),
+          status: 'pending',
+          createdAt: new Date().toISOString()
+        };
+        const raw = await env.PROGRAMARI.get('__referrals__');
+        const list = raw ? JSON.parse(raw) : [];
+        list.unshift(rec);
+        await env.PROGRAMARI.put('__referrals__', JSON.stringify(list.slice(0, 2000)));
+        try {
+          await sendEmail(env, {
+            to: await notifyRecipients(env),
+            subject: '🤝 New referral — ' + referrerName,
+            html: '<p><strong>' + escHtml(referrerName) + '</strong> referred <strong>' + escHtml(friendName) + '</strong>.</p>'
+              + '<p>Referrer: ' + escHtml(rec.referrerEmail || '—') + ' · ' + escHtml(rec.referrerPhone || '—') + '<br>'
+              + 'Friend: ' + escHtml(friendContact) + (rec.friendBusiness ? ' · ' + escHtml(rec.friendBusiness) : '') + '</p>'
+              + (rec.note ? '<p>Note: ' + escHtml(rec.note) + '</p>' : '')
+          });
+        } catch {}
+        return json({ success: true, id: rec.id });
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+    if (path === '/api/referrals' && request.method === 'GET') {
+      if (!can(authed, 'promotions')) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const raw = await env.PROGRAMARI.get('__referrals__');
+        return json(raw ? JSON.parse(raw) : []);
+      } catch { return json([]); }
+    }
+    if (path.startsWith('/api/referrals/') && request.method === 'PUT') {
+      if (!can(authed, 'promotions')) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const id = path.replace('/api/referrals/', '');
+        const b = await request.json();
+        const raw = await env.PROGRAMARI.get('__referrals__');
+        const list = raw ? JSON.parse(raw) : [];
+        const r = list.find(x => x.id === id);
+        if (!r) return json({ error: 'Not found' }, 404);
+        if (b.status !== undefined && ['pending', 'signed_up'].includes(b.status)) r.status = b.status;
+        await env.PROGRAMARI.put('__referrals__', JSON.stringify(list));
+        return json({ success: true });
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+    if (path.startsWith('/api/referrals/') && request.method === 'DELETE') {
+      if (!can(authed, 'promotions')) return json({ error: 'Unauthorised' }, 401);
+      try {
+        const id = path.replace('/api/referrals/', '');
+        const raw = await env.PROGRAMARI.get('__referrals__');
+        const list = raw ? JSON.parse(raw) : [];
+        await env.PROGRAMARI.put('__referrals__', JSON.stringify(list.filter(x => x.id !== id)));
+        return json({ success: true });
+      } catch { return json({ error: 'Server error' }, 500); }
+    }
+
     // ── AI CHAT (Groq primary + Cloudflare AI fallback) ───────
 
     if (path === '/api/chat' && request.method === 'POST') {
