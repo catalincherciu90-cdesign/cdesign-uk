@@ -58,8 +58,10 @@
   .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'Poppins',sans-serif;font-weight:600;font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin-bottom:16px}
   .eyebrow::before{content:'';width:26px;height:2px;background:var(--teal);border-radius:2px}
   /* hero */
-  .promo-hero{background:linear-gradient(160deg,#efeafc 0%,#fff 60%);padding:64px 24px 40px}
-  .ph-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1.1fr .9fr;gap:52px;align-items:center}
+  .promo-hero{background:linear-gradient(160deg,#efeafc 0%,#fff 60%);padding:64px 24px 40px;position:relative;overflow:hidden}
+  .ghv{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+  .ghv-scrim{position:absolute;inset:0;z-index:1;background:linear-gradient(120deg,rgba(239,234,252,.93) 0%,rgba(239,234,252,.78) 42%,rgba(255,255,255,.60) 100%)}
+  .ph-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1.1fr .9fr;gap:52px;align-items:center;position:relative;z-index:2}
   .ph-badge{display:inline-flex;align-items:center;gap:8px;background:#f3e8ff;color:#7a35c4;font-family:'Poppins',sans-serif;font-weight:600;font-size:.82rem;letter-spacing:.02em;padding:8px 16px;border-radius:999px;margin-bottom:20px;border:1px solid #e2ccf7}
   .promo-hero h1{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);font-size:clamp(2.1rem,4.6vw,3.1rem);letter-spacing:-.02em;line-height:1.1;margin-bottom:16px}
   .promo-hero h1 b{font-weight:700;color:var(--teal-dk)}
@@ -207,6 +209,8 @@
 
   <!-- HERO -->
   <section class="promo-hero">
+    <video id="giveHeroVideo" class="ghv" muted loop playsinline preload="auto" aria-hidden="true" style="display:none"></video>
+    <div id="giveHeroScrim" class="ghv-scrim" style="display:none"></div>
     <div class="ph-inner">
       <div>
         <span class="ph-badge">🎁 Free to enter</span>
@@ -437,9 +441,16 @@
       fetch('/api/site-settings').then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
         if(d && d.giveaway && d.giveaway.endDate){ setEnd(d.giveaway.endDate); start(); }
         if(d && d.giveaway && d.giveaway.banner){
+          var banner = d.giveaway.banner;
+          var isVid = /\.(mp4|webm)(\?|$)/i.test(banner);
           var hero = document.querySelector('.promo-hero');
-          if(hero){
-            hero.style.backgroundImage = "linear-gradient(120deg, rgba(239,234,252,.93) 0%, rgba(239,234,252,.78) 42%, rgba(255,255,255,.60) 100%), url('" + d.giveaway.banner.replace(/'/g,'%27') + "')";
+          if(isVid){
+            var v = document.getElementById('giveHeroVideo');
+            var scrim = document.getElementById('giveHeroScrim');
+            if(v){ v.src = banner; v.style.display = 'block'; var pr = v.play(); if(pr && pr.catch) pr.catch(function(){}); }
+            if(scrim){ scrim.style.display = 'block'; }
+          } else if(hero){
+            hero.style.backgroundImage = "linear-gradient(120deg, rgba(239,234,252,.93) 0%, rgba(239,234,252,.78) 42%, rgba(255,255,255,.60) 100%), url('" + banner.replace(/'/g,'%27') + "')";
             hero.style.backgroundSize = 'cover';
             hero.style.backgroundPosition = 'center';
           }
