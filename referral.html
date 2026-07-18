@@ -270,7 +270,7 @@
         <div class="pf-legend">Your details</div>
         <input type="text" name="name" placeholder="Your name *" required>
         <input type="email" name="email" placeholder="Your email *" required>
-        <input type="tel" name="phone" placeholder="Your phone *" required>
+        <input type="tel" name="phone" placeholder="Your phone (optional)">
 
         <div class="pf-legend">Your friend's details</div>
         <input type="text" name="friendName" placeholder="Friend's name *" required>
@@ -356,7 +356,7 @@
         var btn = f.querySelector('button[type=submit]');
         var name=g('name'), email=g('email'), phone=g('phone');
         var friendName=g('friendName'), friendContact=g('friendContact'), friendBusiness=g('friendBusiness'), message=g('message');
-        if(!name || !email || !phone){ alert('Please enter your name, email and phone.'); return; }
+        if(!name || !email){ alert('Please enter your name and email.'); return; }
         if(!friendName || !friendContact){ alert("Please enter your friend's name and contact details."); return; }
         btn.disabled = true; btn.textContent = 'Sending…';
         fetch('/api/referrals', { method:'POST', headers:{'Content-Type':'application/json'},
