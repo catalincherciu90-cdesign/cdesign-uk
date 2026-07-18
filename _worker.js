@@ -546,6 +546,27 @@ async function sendReferrerCodeEmail(env, rec, pct, cap) {
   return sendEmail(env, { to: rec.referrerEmail, replyTo, subject: 'Your C Design referral code 🤝', html });
 }
 
+// Email the referrer when one of their referred friends becomes a client.
+async function sendReferrerConversionEmail(env, rec, value, cap) {
+  if (!EMAIL_RE.test(rec.referrerEmail)) return { ok: false, skipped: true };
+  const replyTo = (await getOwnerEmail(env)) || (env.NOTIFY_EMAIL || NOTIFY_EMAIL);
+  const atCap = value >= cap;
+  const html =
+    '<div style="font-family:system-ui,Arial,sans-serif;max-width:520px;margin:0 auto;color:#2E3436;">' +
+      '<h2 style="color:#008587;">Your discount just grew 🎉</h2>' +
+      '<p>Hi ' + escHtml(rec.referrerName) + ',</p>' +
+      '<p>Great news — <strong>' + escHtml(rec.friendName) + '</strong> just came on board with C Design. Thank you for the introduction!</p>' +
+      '<p>Your referral code is now worth:</p>' +
+      '<p style="text-align:center;margin:20px 0;"><span style="display:inline-block;font-family:\'Poppins\',system-ui,sans-serif;font-size:2rem;font-weight:700;color:#008587;">' + escHtml(String(value)) + '% off</span><br>' +
+        '<span style="font-family:monospace;font-size:1.05rem;font-weight:700;letter-spacing:2px;color:#2E3436;background:#e9f6f6;border:1px dashed #00AAAC;border-radius:8px;padding:6px 16px;display:inline-block;margin-top:8px;">' + escHtml(rec.referrerCode || '') + '</span></p>' +
+      '<p>' + (atCap
+        ? "You've reached the maximum — nice work! Quote your code whenever you're ready to use it."
+        : 'It keeps growing as more of your friends sign up (up to ' + escHtml(String(cap)) + '%). Quote this code whenever you\'re ready to use your discount.') + '</p>' +
+      '<p style="color:#8b94a3;font-size:.85rem;">— The C Design team</p>' +
+    '</div>';
+  return sendEmail(env, { to: rec.referrerEmail, replyTo, subject: 'Your referral discount is now ' + value + '% 🎉', html });
+}
+
 function json(data, status = 200, req) {
   return new Response(JSON.stringify(data), {
     status,
@@ -2940,8 +2961,18 @@ export default {
         const list = raw ? JSON.parse(raw) : [];
         const r = list.find(x => x.id === id);
         if (!r) return json({ error: 'Not found' }, 404);
+        const prevStatus = r.status;
         if (b.status !== undefined && ['pending', 'signed_up'].includes(b.status)) r.status = b.status;
         await env.PROGRAMARI.put('__referrals__', JSON.stringify(list));
+        // On a fresh confirmed conversion, tell the referrer their discount grew.
+        if (prevStatus !== 'signed_up' && r.status === 'signed_up' && EMAIL_RE.test(r.referrerEmail)) {
+          let pct = 20, cap = 50;
+          try { const rawS = await env.PROGRAMARI.get('__site_settings__'); const s = rawS ? JSON.parse(rawS) : {}; if (s.referral) { if (s.referral.referrerPct != null) pct = s.referral.referrerPct; if (s.referral.cap != null) cap = s.referral.cap; } } catch {}
+          const rkey = referrerKeyOf(r);
+          const confirmed = list.filter(x => referrerKeyOf(x) === rkey && x.status === 'signed_up').length;
+          const value = Math.min(cap, confirmed * pct);
+          try { await sendReferrerConversionEmail(env, r, value, cap); } catch {}
+        }
         return json({ success: true });
       } catch { return json({ error: 'Server error' }, 500); }
     }
