@@ -110,6 +110,8 @@
   .step .num{width:34px;height:34px;border-radius:10px;background:rgba(0,170,172,.10);color:var(--teal-dk);display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:16px}
   .step h3{font-family:'Poppins',sans-serif;font-weight:600;font-size:1.02rem;color:var(--ink);margin-bottom:8px;line-height:1.3}
   .step p{font-size:.9rem;line-height:1.55;color:var(--body)}
+  .step-link{display:inline-block;margin-top:14px;font-family:'Poppins',sans-serif;font-weight:600;font-size:.86rem;color:#fff;background:var(--teal);padding:9px 16px;border-radius:999px;transition:background .2s,transform .15s;}
+  .step-link:hover{background:var(--teal-dk);transform:translateY(-1px);}
   @media(max-width:780px){.steps{grid-template-columns:1fr}}
   /* form */
   .promo-form{background:var(--ink);padding:80px 24px}
@@ -263,14 +265,14 @@
     </div>
   </section>
 
-  <!-- HOW IT WORKS -->
+  <!-- HOW TO ENTER -->
   <section class="steps-band">
     <div class="sb-inner">
-      <h2>How it works — <b>quick and fair</b></h2>
+      <h2>How to enter — <b>3 simple steps</b></h2>
       <div class="steps">
-        <div class="step"><div class="num">1</div><h3>Enter for free</h3><p>Fill in the short form below with your details. It's free and takes under a minute — no payment, no obligation.</p></div>
-        <div class="step"><div class="num">2</div><h3>We pick a winner</h3><p>At the end of the giveaway we draw one winner at random and get in touch to start building their free website.</p></div>
-        <div class="step"><div class="num">3</div><h3>Everyone saves 15%</h3><p>Didn't win? No problem — we'll send you a 15% discount code to use on your first project whenever you're ready.</p></div>
+        <div class="step"><div class="num">1</div><h3>Follow us on Instagram</h3><p>Give us a follow on Instagram so you don't miss the winner announcement.</p><a id="igStepLink" href="#" target="_blank" rel="noopener" class="step-link">Follow on Instagram →</a></div>
+        <div class="step"><div class="num">2</div><h3>Like our Facebook page</h3><p>Like the C Design page on Facebook to stay in the loop.</p><a id="fbStepLink" href="#" target="_blank" rel="noopener" class="step-link">Like on Facebook →</a></div>
+        <div class="step"><div class="num">3</div><h3>Enter your details</h3><p>Fill in the short form below and you're in the draw. One winner is drawn at random — and everyone gets 15% off.</p><a href="#enter" class="step-link">Go to the form →</a></div>
       </div>
     </div>
   </section>
@@ -283,7 +285,7 @@
         <h2>Fancy a <b>free website?</b></h2>
         <p>Pop in your details below to enter. We'll email you to confirm your entry and your 15% discount — and if you're our winner, we'll be in touch to get started.</p>
         <ul class="pf-points">
-          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Free to enter — nothing to buy</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Follow on Instagram + like on Facebook</li>
           <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> 15% off for every entrant</li>
           <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> One winner drawn at random</li>
         </ul>
@@ -298,6 +300,11 @@
         <input type="text" name="business" placeholder="Your business name (optional)">
         <input type="text" name="area" placeholder="Your town / area (optional)">
         <textarea name="message" placeholder="Tell us about your business (optional)"></textarea>
+        <div style="border-top:1px dashed var(--line);margin:4px 0 14px;padding-top:14px;">
+          <p style="font-size:.82rem;color:var(--muted);margin:0 0 10px;font-weight:600;">To qualify, please complete all three:</p>
+          <label class="pf-check"><input type="checkbox" name="followIg" id="igCheck" required> I follow <b>C&nbsp;Design on Instagram</b> &nbsp;<a id="igFormLink" href="#" target="_blank" rel="noopener">Open&nbsp;↗</a> *</label>
+          <label class="pf-check"><input type="checkbox" name="likeFb" id="fbCheck" required> I like the <b>C&nbsp;Design Facebook page</b> &nbsp;<a id="fbFormLink" href="#" target="_blank" rel="noopener">Open&nbsp;↗</a> *</label>
+        </div>
         <label class="pf-check"><input type="checkbox" name="consent" id="giveConsent" required> I agree to be contacted about this giveaway and my 15% discount, and I accept the <a href="/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>. *</label>
         <button type="submit" class="btn-primary">Enter the giveaway <span>&rarr;</span></button>
         <div class="pf-note">Free to enter. We'll never share your details, and you can unsubscribe at any time. <a href="#terms" style="color:var(--teal-dk);text-decoration:underline">Terms &amp; conditions apply</a>.</div>
@@ -314,7 +321,7 @@
       <ol>
         <li><strong>Promoter.</strong> This giveaway is run by C Design (c-designs.uk), a UK web design studio. Contact: <a href="mailto:office@c-designs.uk" style="color:var(--teal-dk);text-decoration:underline">office@c-designs.uk</a>.</li>
         <li><strong>Eligibility.</strong> Open to UK-based businesses and residents aged 18 or over. One entry per business. Employees of C Design and their immediate families are not eligible.</li>
-        <li><strong>How to enter.</strong> Entry is free — simply complete the entry form on this page. No purchase is necessary and no purchase increases your chance of winning.</li>
+        <li><strong>How to enter.</strong> Entry is free. To qualify you must: (1) follow C Design on Instagram, (2) like the C Design Facebook page, and (3) complete the entry form on this page. No purchase is necessary and no purchase increases your chance of winning. This giveaway is in no way sponsored, endorsed or administered by, or associated with, Instagram or Facebook.</li>
         <li><strong>Closing date.</strong> Entries close at 23:59 (UK time) on <strong id="termsEndDate">31 August 2026</strong>. Entries received after this time will not be counted.</li>
         <li><strong>The prize.</strong> One winner will receive a complete presentation website (up to 5 pages, mobile-friendly), designed and built by C Design, worth from £300. The prize covers design and build only; optional extras (e.g. paid hosting, ongoing maintenance, third-party fees) are not included. The prize is non-transferable and there is no cash alternative.</li>
         <li><strong>Winner selection.</strong> One winner will be drawn at random from all valid entries within 7 days of the closing date, and contacted using the details provided. If a winner cannot be reached within 14 days, we reserve the right to draw an alternative winner.</li>
@@ -442,6 +449,8 @@
         var btn = f.querySelector('button[type=submit]');
         var name=g('name'), email=g('email'), phone=g('phone'), business=g('business'), area=g('area'), message=g('message');
         if(!name || !email || !phone){ alert('Please enter your name, email and phone.'); return; }
+        if(!f.elements['followIg'] || !f.elements['followIg'].checked){ alert('Please confirm you follow us on Instagram to enter.'); return; }
+        if(!f.elements['likeFb'] || !f.elements['likeFb'].checked){ alert('Please confirm you like our Facebook page to enter.'); return; }
         if(!f.elements['consent'] || !f.elements['consent'].checked){ alert('Please tick the box to confirm you agree to be contacted.'); return; }
         var body = 'GIVEAWAY entry — free website prize draw';
         body += '\n\nName: ' + name;
@@ -450,7 +459,8 @@
         if(business) body += '\nBusiness: ' + business;
         if(area) body += '\nArea / town: ' + area;
         if(message) body += '\n\nAbout: ' + message;
-        body += '\n\nConsent given: yes';
+        body += '\n\nEntry conditions confirmed: Instagram follow ✓, Facebook like ✓';
+        body += '\nConsent given: yes';
         btn.disabled = true; btn.textContent = 'Entering…';
         fetch('/api/messages', { method:'POST', headers:{'Content-Type':'application/json'},
           body: JSON.stringify({ name:name, phone:phone, service: f.getAttribute('data-service') || 'GIVEAWAY', message: body }) })
@@ -468,6 +478,20 @@
           })
           .catch(function(){ btn.disabled=false; btn.textContent='Enter the giveaway →'; alert('Network error. Please call us on +44 7312 799449.'); });
       });
+    })();
+  </script>
+  <script>
+    /* Wire the Instagram / Facebook links from the admin Social settings. */
+    (function(){
+      function norm(s){ var k=String(s||'').toLowerCase().replace(/[^a-z]/g,''); if(k.indexOf('instagram')>-1) return 'instagram'; if(k.indexOf('facebook')>-1) return 'facebook'; return k; }
+      function setLink(ids, url){ ids.forEach(function(id){ var a=document.getElementById(id); if(!a) return; if(url){ a.href=url; a.style.pointerEvents=''; a.style.opacity=''; } else { a.style.pointerEvents='none'; a.style.opacity='.5'; a.title='Link not set yet'; } }); }
+      fetch('/api/social').then(function(r){ return r.ok ? r.json() : []; }).then(function(list){
+        if(!Array.isArray(list)) list=[];
+        var map={};
+        list.forEach(function(s){ if(s && s.url && String(s.url).trim()){ map[norm(s.platform)] = String(s.url).trim(); } });
+        setLink(['igStepLink','igFormLink'], map['instagram']);
+        setLink(['fbStepLink','fbFormLink'], map['facebook']);
+      }).catch(function(){});
     })();
   </script>
 <script src="/chat-widget.js" defer></script>
