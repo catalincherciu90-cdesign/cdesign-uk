@@ -3331,14 +3331,10 @@
     list.innerHTML = rows.map(promoCardHtml).join('');
   }
   function renderPromotions() {
-    var all = (window.__msgsCache || []).filter(isPromoMsg);
-    var ref = all.filter(function(m){ return String(m.service).toUpperCase() === 'REFERRAL'; });
-    var giv = all.filter(function(m){ return String(m.service).toUpperCase() === 'GIVEAWAY'; });
-    var cg = document.getElementById('subCountGiv'), cr = document.getElementById('subCountRef');
+    var giv = (window.__msgsCache || []).filter(function(m){ return isPromoMsg(m) && String(m.service).toUpperCase() === 'GIVEAWAY'; });
+    var cg = document.getElementById('subCountGiv');
     if (cg) cg.textContent = '(' + giv.length + ')';
-    if (cr) cr.textContent = '(' + ref.length + ')';
     renderPromoInto('giveawayList', giv, 'No giveaway entries yet.');
-    renderPromoInto('referralList', ref, 'No referral requests yet.');
     switchPromoSub(window.__promoSub || 'giveaway');
   }
   async function loadPromotions() {
@@ -3353,6 +3349,86 @@
       var g = document.getElementById('giveawayList');
       if (g) g.innerHTML = '<div style="color:#e74c3c;font-size:.85rem;">Error loading entries.</div>';
     }
+    loadReferralLedger();
+  }
+
+  // ── Referral ledger (who referred whom + accumulated discount) ──
+  window.__refLedger = [];
+  async function loadReferralLedger() {
+    var box = document.getElementById('referralList');
+    if (!box) return;
+    try {
+      var res = await fetch('/api/referrals?token=' + encodeURIComponent(adminToken));
+      var list = await res.json();
+      window.__refLedger = Array.isArray(list) ? list : [];
+      renderReferralLedger();
+    } catch(e) { box.innerHTML = '<div style="color:#e74c3c;font-size:.85rem;">Error loading referrals.</div>'; }
+  }
+  function refReferrerKey(r) {
+    return (String(r.referrerEmail || '').trim().toLowerCase()) || String(r.referrerPhone || '').trim() || String(r.referrerName || '').trim().toLowerCase();
+  }
+  function renderReferralLedger() {
+    var box = document.getElementById('referralList');
+    if (!box) return;
+    var recs = window.__refLedger || [];
+    var cr = document.getElementById('subCountRef');
+    if (cr) cr.textContent = '(' + recs.length + ')';
+    if (!recs.length) { box.innerHTML = '<div style="color:var(--muted);font-size:.9rem;padding:20px 0;">No referrals yet.</div>'; return; }
+    var cfg = window.__refCfg || { referrerPct: 20, cap: 50 };
+    // group by referrer
+    var groups = {};
+    recs.forEach(function(r){
+      var k = refReferrerKey(r);
+      if (!groups[k]) groups[k] = { name: r.referrerName, email: r.referrerEmail, phone: r.referrerPhone, items: [] };
+      groups[k].items.push(r);
+    });
+    box.innerHTML = Object.keys(groups).map(function(k){
+      var g = groups[k];
+      var confirmed = g.items.filter(function(r){ return r.status === 'signed_up'; }).length;
+      var discount = Math.min(cfg.cap, confirmed * cfg.referrerPct);
+      var contact = [g.email, g.phone].filter(Boolean).map(mEsc).join(' · ');
+      var friends = g.items.map(function(r){
+        var isUp = r.status === 'signed_up';
+        var badge = isUp
+          ? '<span style="font-size:.68rem;font-weight:700;color:#12a150;background:#e4f7ea;border:1px solid #b8e8c8;padding:2px 8px;border-radius:999px;">✓ Signed up</span>'
+          : '<span style="font-size:.68rem;font-weight:700;color:#b7791f;background:#fdf3e2;border:1px solid #f2ddb4;padding:2px 8px;border-radius:999px;">⏳ Pending</span>';
+        var when = ''; try { when = new Date(r.createdAt).toLocaleDateString('en-GB'); } catch(e){}
+        return '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 0;border-top:1px solid var(--border);">' +
+            '<span style="flex:1;min-width:160px;font-size:.85rem;color:var(--text);"><b>' + mEsc(r.friendName) + '</b>' +
+              '<span style="color:var(--muted);"> · ' + mEsc(r.friendContact) + (r.friendBusiness ? ' · ' + mEsc(r.friendBusiness) : '') + '</span></span>' +
+            '<span style="font-size:.7rem;color:var(--muted);">' + mEsc(when) + '</span>' + badge +
+            '<button onclick="refToggleStatus(\'' + mEsc(r.id) + '\',' + (isUp ? 'false' : 'true') + ')" style="font-size:.72rem;background:none;border:1px solid var(--border-soft);color:var(--soft);border-radius:6px;padding:4px 10px;cursor:pointer;">' + (isUp ? 'Mark pending' : 'Mark signed up') + '</button>' +
+            '<button onclick="refDeleteRecord(\'' + mEsc(r.id) + '\')" style="font-size:.72rem;background:none;border:1px solid #e5484d;color:#e5484d;border-radius:6px;padding:4px 10px;cursor:pointer;">✕</button>' +
+          '</div>';
+      }).join('');
+      return '<div style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:12px;padding:14px 16px;margin-bottom:12px;">' +
+          '<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;">' +
+            '<div><strong style="font-size:1rem;color:var(--heading);">' + mEsc(g.name || '—') + '</strong>' +
+              (contact ? '<div style="font-size:.78rem;color:var(--muted);">' + contact + '</div>' : '') + '</div>' +
+            '<div style="text-align:right;">' +
+              '<div style="font-family:\'Poppins\',sans-serif;font-weight:700;font-size:1.25rem;color:var(--teal-dk);">' + discount + '% off</div>' +
+              '<div style="font-size:.72rem;color:var(--muted);">' + confirmed + ' signed up · ' + g.items.length + ' referred</div>' +
+            '</div>' +
+          '</div>' + friends +
+        '</div>';
+    }).join('');
+  }
+  async function refToggleStatus(id, toSignedUp) {
+    try {
+      await fetch('/api/referrals/' + encodeURIComponent(id) + '?token=' + encodeURIComponent(adminToken),
+        { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ status: toSignedUp ? 'signed_up' : 'pending' }) });
+      var r = (window.__refLedger || []).find(function(x){ return x.id === id; });
+      if (r) r.status = toSignedUp ? 'signed_up' : 'pending';
+      renderReferralLedger();
+    } catch(e) { alert('Could not update.'); }
+  }
+  async function refDeleteRecord(id) {
+    if (!confirm('Delete this referral record?')) return;
+    try {
+      await fetch('/api/referrals/' + encodeURIComponent(id) + '?token=' + encodeURIComponent(adminToken), { method:'DELETE' });
+      window.__refLedger = (window.__refLedger || []).filter(function(x){ return x.id !== id; });
+      renderReferralLedger();
+    } catch(e) { alert('Could not delete.'); }
   }
   // Format a stored date value into the 'YYYY-MM-DDTHH:MM' a datetime-local input needs.
   function toLocalInput(v) {
@@ -3460,6 +3536,8 @@
       var ri = document.getElementById('refReferrerPct'); if (ri) ri.value = rp;
       var fi = document.getElementById('refFriendPct'); if (fi) fi.value = fp;
       var ci = document.getElementById('refCap'); if (ci) ci.value = cp;
+      window.__refCfg = { referrerPct: rp, friendPct: fp, cap: cp };
+      if (typeof renderReferralLedger === 'function') renderReferralLedger();
     } catch(e) {}
     renderPromoVis('giveaway'); renderPromoVis('referral');
   }

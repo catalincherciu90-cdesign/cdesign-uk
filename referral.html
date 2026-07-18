@@ -358,17 +358,9 @@
         var friendName=g('friendName'), friendContact=g('friendContact'), friendBusiness=g('friendBusiness'), message=g('message');
         if(!name || !email || !phone){ alert('Please enter your name, email and phone.'); return; }
         if(!friendName || !friendContact){ alert("Please enter your friend's name and contact details."); return; }
-        var body = 'REFERRAL — a client is recommending a friend';
-        body += '\n\nReferrer: ' + name;
-        body += '\nReferrer email: ' + email;
-        body += '\nReferrer phone: ' + phone;
-        body += '\n\nFriend: ' + friendName;
-        body += '\nFriend contact: ' + friendContact;
-        if(friendBusiness) body += '\nFriend business: ' + friendBusiness;
-        if(message) body += '\n\nNote: ' + message;
         btn.disabled = true; btn.textContent = 'Sending…';
-        fetch('/api/messages', { method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ name:name, phone:phone, service: f.getAttribute('data-service') || 'REFERRAL', message: body }) })
+        fetch('/api/referrals', { method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ referrerName:name, referrerEmail:email, referrerPhone:phone, friendName:friendName, friendContact:friendContact, friendBusiness:friendBusiness, note:message }) })
           .then(function(r){ return r.json(); })
           .then(function(d){
             if(d && d.success){
