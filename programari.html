@@ -3386,7 +3386,7 @@
       var g = groups[k];
       var made = g.items.length;
       var confirmed = g.items.filter(function(r){ return r.status === 'signed_up'; }).length;
-      var discount = Math.min(cfg.cap, made * cfg.referrerPct);
+      var discount = Math.min(cfg.cap, confirmed * cfg.referrerPct);
       var rcode = (g.items.find(function(x){ return x.referrerCode; }) || {}).referrerCode || '';
       var firstId = g.items[0].id;
       var contact = [g.email, g.phone].filter(Boolean).map(mEsc).join(' · ');
