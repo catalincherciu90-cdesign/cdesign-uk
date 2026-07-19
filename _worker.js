@@ -4982,6 +4982,7 @@ Title requirements:
         if (body.referrerPct !== undefined) { const n = clampPct(body.referrerPct); if (n !== undefined) cur.referrerPct = n; }
         if (body.friendPct !== undefined) { const n = clampPct(body.friendPct); if (n !== undefined) cur.friendPct = n; }
         if (body.cap !== undefined) { const n = clampPct(body.cap); if (n !== undefined) cur.cap = n; }
+        if (body.banner !== undefined) cur.banner = String(body.banner || '').slice(0, 300);
         existing.referral = cur;
         await env.PROGRAMARI.put('__site_settings__', JSON.stringify(existing));
         return json({ success: true });
