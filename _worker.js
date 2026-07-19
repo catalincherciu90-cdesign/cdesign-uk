@@ -3037,7 +3037,7 @@ export default {
           return json({ reply: 'Hi! How can I help you today?' }, 200, request);
         }
         // Live promo reward percentages (set from admin); fall back to defaults.
-        let refrPct = 20, friPct = 10, givPct = 15, refCap = 50;
+        let refrPct = 20, friPct = 10, givPct = 15, refCap = 50, refPublished = false, givPublished = false;
         try {
           const rawS = await env.PROGRAMARI.get('__site_settings__');
           const s = rawS ? JSON.parse(rawS) : {};
@@ -3045,19 +3045,37 @@ export default {
             if (s.referral.referrerPct != null) refrPct = s.referral.referrerPct;
             if (s.referral.friendPct != null) friPct = s.referral.friendPct;
             if (s.referral.cap != null) refCap = s.referral.cap;
+            refPublished = !!s.referral.published;
           }
-          if (s.giveaway && s.giveaway.entrantPct != null) givPct = s.giveaway.entrantPct;
+          if (s.giveaway) {
+            if (s.giveaway.entrantPct != null) givPct = s.giveaway.entrantPct;
+            givPublished = !!s.giveaway.published;
+          }
         } catch {}
+        // The referral and giveaway are only advertised once they're published.
+        const refBlock = refPublished
+          ? `REFER-A-FRIEND PROGRAMME (mention when a visitor is happy with us, is an existing client, or asks how to recommend us): at /referral someone can refer another business — when that friend signs up, the referrer gets ${refrPct}% off their next service for EACH friend who signs up, stacking up to a maximum of ${refCap}% off; the friend gets ${friPct}% off their first project. There's no limit on how many friends they refer. `
+          : '';
+        const givBlock = givPublished
+          ? `FREE WEBSITE GIVEAWAY (mention when a visitor is just browsing, hesitant about budget, or likes the idea of a free site): we run a free-to-enter giveaway at /giveaway — one entrant wins a complete free website, and every entrant also gets ${givPct}% off their first project. `
+          : '';
+        let figures = 'websites start from £300; the £200 all-in Launch Package';
+        if (refPublished) figures += `; referral rewards of ${refrPct}% off for the referrer and ${friPct}% off for their friend`;
+        if (givPublished) figures += `; and the giveaway's ${givPct}% off for every entrant`;
+        let encourage = 'Encourage them to claim the £200 offer (/promo)';
+        if (givPublished) encourage += ', enter the free giveaway (/giveaway)';
+        if (refPublished) encourage += ', refer a friend (/referral)';
+        encourage += ', request a free quote (/pricing), or contact us (phone +44 7312 799449, email office@c-designs.uk, or the contact form). ';
         const system = "You are the friendly assistant for C Design, a UK web design studio. You help website visitors. " +
           "About C Design: we build modern, fast websites and web apps for small and growing UK businesses, with honest, fixed pricing (websites start from £300) and most projects live in days, not weeks. Our website is c-designs.uk. " +
           "Services: Website Design, E-commerce (WooCommerce, Shopify, PrestaShop), Custom Web Apps (CRM, WordPress plugins), AI Integration & Automation, Maintenance & Hosting, SEO & Local SEO, Social Media, Branding & Logo. We serve the whole UK, with local pages for Leeds, Sheffield, Nottingham, Derby, Blackburn and Preston. " +
           "SPECIAL LAUNCH OFFER (mention this proactively when a visitor is a small business, is new online, or asks about getting started, prices, or a package): our £200 all-in Launch Package gets a business fully online for one price — a presentation website (up to 5 pages, mobile-friendly), SEO setup so they're found on Google, a Google Business Profile set up (Google Maps & local search), plus Instagram & Facebook accounts created and branded. Everything is done for them, no hidden fees, and it goes live in days. Point them to the offer page at /promo where they can claim it. " +
-          `REFER-A-FRIEND PROGRAMME (mention when a visitor is happy with us, is an existing client, or asks how to recommend us): at /referral someone can refer another business — when that friend signs up, the referrer gets ${refrPct}% off their next service for EACH friend who signs up, stacking up to a maximum of ${refCap}% off; the friend gets ${friPct}% off their first project. There's no limit on how many friends they refer. ` +
-          "FREE WEBSITE GIVEAWAY (mention when a visitor is just browsing, hesitant about budget, or likes the idea of a free site): we run a free-to-enter giveaway at /giveaway — one entrant wins a complete free website, and every entrant also gets 15% off their first project. " +
+          refBlock +
+          givBlock +
           "Social proof: happy clients have left reviews — visitors can read them on the homepage. " +
-          "Guidelines: Be concise, warm and helpful (2-4 sentences). Only discuss C Design, web design and the visitor's project. " +
-          `The only exact figures you may quote are: websites start from £300; the £200 all-in Launch Package; referral rewards of ${refrPct}% off for the referrer and ${friPct}% off for their friend; and the giveaway's ${givPct}% off for every entrant. Do not invent any other prices or timelines — for a tailored quote, direct them to the quote form at /pricing. ` +
-          "Encourage them to claim the £200 offer (/promo), enter the free giveaway (/giveaway), refer a friend (/referral), request a free quote (/pricing), or contact us (phone +44 7312 799449, email office@c-designs.uk, or the contact form). " +
+          "Guidelines: Be concise, warm and helpful (2-4 sentences). Only discuss C Design, web design and the visitor's project. Never mention a referral programme or a giveaway unless it is described above. " +
+          `The only exact figures you may quote are: ${figures}. Do not invent any other prices or timelines — for a tailored quote, direct them to the quote form at /pricing. ` +
+          encourage +
           "If asked something off-topic, gently steer back to how C Design can help their business online.";
         const messages = [{ role: 'system', content: system }].concat(history);
         let reply = '';
