@@ -800,6 +800,16 @@
             <button onclick="saveReferralSettings()" style="font-size:.8rem;background:var(--teal);border:1px solid var(--teal);color:#fff;border-radius:8px;padding:8px 16px;cursor:pointer;">Save</button>
             <span id="refSaveMsg" style="font-size:.8rem;color:var(--teal);"></span>
           </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px;padding-top:12px;border-top:1px dashed var(--border-soft);">
+            <span style="font-size:.82rem;color:var(--soft);">Hero banner:</span>
+            <img id="refBannerPreview" src="" alt="" style="display:none;height:42px;width:auto;max-width:120px;object-fit:cover;border-radius:6px;border:1px solid var(--border-soft);">
+            <span id="refBannerVid" style="display:none;font-size:.78rem;color:var(--teal-dk);font-weight:600;">🎬 video set</span>
+            <span id="refBannerEmpty" style="font-size:.78rem;color:var(--muted);">none (gradient default)</span>
+            <button onclick="refBannerPick()" style="font-size:.8rem;background:none;border:1px solid var(--border-soft);color:var(--soft);border-radius:8px;padding:8px 14px;cursor:pointer;">⬆ Upload image / video</button>
+            <button id="refBannerRemoveBtn" onclick="refBannerRemove()" style="display:none;font-size:.8rem;background:none;border:1px solid #e5484d;color:#e5484d;border-radius:8px;padding:8px 14px;cursor:pointer;">Remove</button>
+            <input type="file" id="refBannerInput" accept="image/*,video/mp4,video/webm" style="display:none;" onchange="refBannerUpload(this)">
+            <span id="refBannerMsg" style="font-size:.8rem;color:var(--teal);"></span>
+          </div>
         </div>
 
         <div id="referralList" style="display:flex;flex-direction:column;gap:12px;"></div>
@@ -3587,6 +3597,7 @@
       var fi = document.getElementById('refFriendPct'); if (fi) fi.value = fp;
       var ci = document.getElementById('refCap'); if (ci) ci.value = cp;
       window.__refCfg = { referrerPct: rp, friendPct: fp, cap: cp };
+      renderRefBanner((d && d.referral && d.referral.banner) ? d.referral.banner : '');
       if (typeof renderReferralLedger === 'function') renderReferralLedger();
     } catch(e) {}
     renderPromoVis('giveaway'); renderPromoVis('referral');
@@ -3608,6 +3619,54 @@
       if (d && d.success) { if (msg) { msg.textContent = '✓ Saved'; setTimeout(function(){ if(msg) msg.textContent=''; }, 2500); } }
       else { alert((d && d.error) || 'Save failed.'); }
     } catch(e) { alert('Network error while saving.'); }
+  }
+  // Referral hero banner (image or video) — mirrors the giveaway one.
+  function renderRefBanner(url){
+    var img = document.getElementById('refBannerPreview');
+    var vid = document.getElementById('refBannerVid');
+    var empty = document.getElementById('refBannerEmpty');
+    var rm = document.getElementById('refBannerRemoveBtn');
+    var isVid = url && /\.(mp4|webm)(\?|$)/i.test(url);
+    if (url) {
+      if (isVid) { if (img) { img.src=''; img.style.display='none'; } if (vid) vid.style.display='inline'; }
+      else { if (img) { img.src=url; img.style.display='inline-block'; } if (vid) vid.style.display='none'; }
+      if (empty) empty.style.display='none';
+      if (rm) rm.style.display='inline-block';
+    } else {
+      if (img) { img.src=''; img.style.display='none'; }
+      if (vid) vid.style.display='none';
+      if (empty) empty.style.display='inline';
+      if (rm) rm.style.display='none';
+    }
+  }
+  function refBannerPick(){ var inp = document.getElementById('refBannerInput'); if (inp){ inp.value=''; inp.click(); } }
+  function refBannerSave(url){
+    return fetch('/api/referral-settings?token=' + encodeURIComponent(adminToken), {
+      method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ banner: url })
+    }).then(function(r){ return r.json(); });
+  }
+  function refBannerUpload(input){
+    var file = input && input.files && input.files[0];
+    if (!file) return;
+    var isVid = file.type === 'video/mp4' || file.type === 'video/webm';
+    var isImg = /^image\//.test(file.type);
+    if (!isImg && !isVid) { alert('Please choose an image or an MP4/WebM video.'); return; }
+    if (file.size > (isVid ? 25 : 5)*1024*1024) { alert('File too large (max ' + (isVid ? '25MB video' : '5MB image') + ').'); return; }
+    var msg = document.getElementById('refBannerMsg'); if (msg){ msg.style.color='var(--teal)'; msg.textContent='uploading…'; }
+    uploadMedia(file, function(url){
+      refBannerSave(url).then(function(d){
+        if (d && d.success){ renderRefBanner(url); if (msg){ msg.textContent='✓ saved'; setTimeout(function(){ if(msg) msg.textContent=''; }, 2500); } }
+        else if (msg){ msg.style.color='#e5484d'; msg.textContent='save failed'; }
+      });
+    }, function(err){ if (msg){ msg.style.color='#e5484d'; msg.textContent = err||'upload error'; } });
+  }
+  function refBannerRemove(){
+    if (!confirm('Remove the referral hero banner? It will fall back to the default gradient.')) return;
+    var msg = document.getElementById('refBannerMsg');
+    refBannerSave('').then(function(d){
+      if (d && d.success){ renderRefBanner(''); if (msg){ msg.style.color='var(--teal)'; msg.textContent='✓ removed'; setTimeout(function(){ if(msg) msg.textContent=''; }, 2500); } }
+      else if (msg){ msg.style.color='#e5484d'; msg.textContent='failed'; }
+    });
   }
   function renderPromoVis(page) {
     var pub = __promoVis[page];
