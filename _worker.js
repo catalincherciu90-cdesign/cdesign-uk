@@ -2570,7 +2570,7 @@ export default {
 
     // Local SEO city landing pages: /web-design-<city>
     if (path.startsWith('/web-design-')) {
-      const CITY_PAGES = ['web-design-leeds', 'web-design-sheffield', 'web-design-nottingham', 'web-design-derby', 'web-design-blackburn', 'web-design-preston'];
+      const CITY_PAGES = ['web-design-leeds', 'web-design-sheffield', 'web-design-nottingham', 'web-design-derby', 'web-design-blackburn', 'web-design-preston', 'web-design-manchester', 'web-design-liverpool', 'web-design-bradford', 'web-design-bolton', 'web-design-burnley', 'web-design-wakefield'];
       const slug = path.slice(1).replace(/\/$/, '');
       if (CITY_PAGES.includes(slug)) {
         const assetUrl = new URL(request.url);
