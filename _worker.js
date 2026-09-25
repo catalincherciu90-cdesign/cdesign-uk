@@ -2621,7 +2621,7 @@ export default {
 
     // Outcome / solution bundle pages: /get-online, /get-seen, /work-smarter, /keep-it-running
     {
-      const BUNDLE_PAGES = ['get-online', 'get-seen', 'work-smarter', 'keep-it-running'];
+      const BUNDLE_PAGES = ['get-online', 'get-seen', 'work-smarter', 'keep-it-running', 'complete-digitisation'];
       const slug = path.slice(1).replace(/\/$/, '');
       if (BUNDLE_PAGES.includes(slug)) {
         const assetUrl = new URL(request.url);
@@ -5415,6 +5415,8 @@ Title requirements:
           { id:'svc_d19', nume:'Custom Web App / CRM', descriere:'Bespoke web application — CRM, client portal or business tool, with API integrations', pret:2500, moneda:'GBP', unitate:'proiect', categorie:'web-design' },
           { id:'svc_d20', nume:'AI Chatbot (website)', descriere:'AI assistant trained on your business, on-site chat widget, lead capture & handover', pret:1200, moneda:'GBP', unitate:'proiect', categorie:'web-design' },
           { id:'svc_d21', nume:'Booking / Appointment System', descriere:'Online booking & scheduling, automated reminders, calendar sync', pret:600, moneda:'GBP', unitate:'proiect', categorie:'web-design' },
+          { id:'svc_pkg_digi', nume:'Complete Business Digitisation — Setup', descriere:'Done-for-you full digitisation: website + domain & business email, Google Business Profile & local SEO, logo & branding, Facebook & Instagram setup, online booking, WhatsApp & automations', pret:2900, moneda:'GBP', unitate:'proiect', categorie:'web-design' },
+          { id:'svc_pkg_digi_care', nume:'Complete Digitisation — Care Plan', descriere:'Monthly hosting, maintenance, backups, support and light ongoing SEO & social for the Complete Digitisation package', pret:199, moneda:'GBP', unitate:'lună', categorie:'mentenanta' },
         ];
         // Re-aliniere preț la piața UK 2026 — se aplică DOAR dacă prețul e încă cel din seed-ul vechi
         const priceUpdates = { svc_d06:[300,350], svc_d07:[400,499], svc_d08:[250,299], svc_d11:[300,349] };
