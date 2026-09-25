@@ -590,6 +590,7 @@ const ADMIN_TOKEN = '';  // set via: wrangler secret put ADMIN_TOKEN
 const ADMIN_USER  = '';  // set via: wrangler secret put ADMIN_USER
 const RESEND_API_KEY = '';  // set via: wrangler secret put RESEND_API_KEY
 const NOTIFY_EMAIL  = 'office@c-designs.uk';  // override via: wrangler secret put NOTIFY_EMAIL
+const NOTIFY_EMAIL_EXTRA = 'office@c-design.ro';  // additional inbox that also receives admin alerts (chat, bookings, messages, reviews); override via env NOTIFY_EMAIL_EXTRA
 const MAIL_FROM     = 'C Design <office@c-designs.uk>';  // sending domain must be verified in Resend; override via env MAIL_FROM
 const GOOGLE_URL    = 'https://share.google/K7457gQlgywRBYCby';  // Google Business Profile / review link
 
@@ -647,6 +648,8 @@ async function notifyRecipients(env) {
   const list = [];
   const base = String(env.NOTIFY_EMAIL || NOTIFY_EMAIL || '').trim();
   if (isEmail(base)) list.push(base);
+  const extra = String(env.NOTIFY_EMAIL_EXTRA || NOTIFY_EMAIL_EXTRA || '').trim();
+  if (isEmail(extra)) list.push(extra);
   const owner = await getOwnerEmail(env);
   if (owner) list.push(owner);
   for (const e of await getAdminEmails(env)) list.push(e);
