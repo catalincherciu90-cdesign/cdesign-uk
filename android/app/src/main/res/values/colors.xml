@@ -1,0 +1,13 @@
+<resources>
+    <color name="teal">#FF00AAAC</color>
+    <color name="teal_dk">#FF008587</color>
+    <color name="ink">#FF12181A</color>
+    <color name="bg">#FFF3F8F8</color>
+    <color name="card">#FFFFFFFF</color>
+    <color name="body">#FF5B6472</color>
+    <color name="muted">#FF8B94A3</color>
+    <color name="line">#FFE6ECEC</color>
+    <color name="on_teal">#FF04231F</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="ic_bg">#FF12181A</color>
+</resources>

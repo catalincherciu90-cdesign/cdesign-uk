@@ -827,6 +827,21 @@
           <button onclick="clearChatLogs()" style="background:none;border:1px solid #e74c3c;color:#e74c3c;border-radius:6px;padding:7px 14px;font-size:.8rem;cursor:pointer;">🗑 Șterge tot</button>
         </div>
       </div>
+
+      <!-- Mobile app download -->
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:linear-gradient(120deg,rgba(0,170,172,.10),rgba(0,170,172,.02));border:1px solid var(--border-soft);border-radius:12px;padding:16px 18px;margin-bottom:18px;">
+        <div style="font-size:1.9rem;line-height:1;">📱</div>
+        <div style="flex:1;min-width:200px;">
+          <div style="font-weight:700;color:var(--heading);">Answer chats from your phone</div>
+          <div style="font-size:.82rem;color:var(--muted);margin-top:2px;">Install the C Design Chat app for Android to get a notification the moment a visitor writes — and reply on the go.</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <a href="https://github.com/catalincherciu90-cdesign/cdesign-uk/releases/download/android-latest/app-debug.apk" target="_blank" rel="noopener" style="background:var(--teal);color:#04231f;font-weight:700;font-size:.85rem;padding:10px 18px;border-radius:8px;text-decoration:none;">⬇ Download the app (APK)</a>
+          <a href="https://github.com/catalincherciu90-cdesign/cdesign-uk/releases/tag/android-latest" target="_blank" rel="noopener" style="border:1px solid var(--border-soft);color:var(--muted);font-size:.85rem;padding:10px 14px;border-radius:8px;text-decoration:none;">All versions</a>
+        </div>
+        <div style="flex-basis:100%;font-size:.72rem;color:var(--muted);">Open the link while signed in to GitHub · allow “install unknown apps” · then sign in with your admin username &amp; password. For reliable alerts, set the app’s battery usage to “Unrestricted”.</div>
+      </div>
+
       <div style="display:grid;grid-template-columns:340px 1fr;gap:16px;align-items:start;" id="chatLayout">
         <div id="chatList" style="display:flex;flex-direction:column;gap:8px;max-height:70vh;overflow-y:auto;"></div>
         <div id="chatDetail" style="background:var(--bg2);border:1px solid var(--border-soft);border-radius:12px;padding:20px;min-height:200px;color:var(--muted);font-size:.9rem;">Selectează o conversație din stânga.</div>
