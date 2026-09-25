@@ -20,8 +20,6 @@
     'Can you help with SEO?'
   ];
 
-  // Conversation history sent to the API (excludes the greeting bubble).
-  var history = [];
   var busy = false;
 
   // Live (human) chat state.
@@ -118,7 +116,7 @@
     '<div class="cdchat-panel" role="dialog" aria-label="C Design chat">' +
       '<div class="cdchat-head">' +
         '<span class="dot"></span>' +
-        '<div><h4>C Design Assistant</h4><p>Typically replies instantly</p></div>' +
+        '<div><h4>Chat with C Design</h4><p>A real person replies here</p></div>' +
         '<button class="x" aria-label="Close">&times;</button>' +
       '</div>' +
       '<div class="cdchat-body"></div>' +
@@ -130,7 +128,7 @@
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>' +
         '</button>' +
       '</div>' +
-      '<div class="cdchat-legal">Powered by AI · <a href="/pricing">Get a free quote</a></div>' +
+      '<div class="cdchat-legal">We reply here &amp; by email · <a href="/pricing">Get a free quote</a></div>' +
     '</div>';
   document.body.appendChild(wrap);
 
@@ -180,75 +178,78 @@
     return m;
   }
 
-  // The "Talk to a real person" prompt shown under the suggestions.
-  function renderHumanCTA() {
-    if (live) { human.innerHTML = ''; return; }
-    human.innerHTML = '';
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'ask';
-    b.textContent = '👤 Talk to a real person';
-    b.addEventListener('click', showContactForm);
-    human.appendChild(b);
-  }
-
-  // Ask for a name + email/phone before handing over to a person.
-  function showContactForm() {
-    sugg.innerHTML = '';
+  // A compact "how can we reach you" form so we can reply even if the
+  // visitor closes the chat. Optional — they can just start typing.
+  function renderContactForm() {
+    if (live && visitorContact) { human.innerHTML = ''; return; }
     human.innerHTML =
       '<div class="cdchat-cform">' +
-        '<p>We\'ll reply here and by email. How can we reach you?</p>' +
-        '<input class="cf-name" type="text" placeholder="Your name" maxlength="80">' +
+        '<p>How can we reach you? (so we can reply even if you leave)</p>' +
+        '<input class="cf-name" type="text" placeholder="Your name (optional)" maxlength="80">' +
         '<input class="cf-contact" type="text" placeholder="Email or phone" maxlength="120">' +
-        '<button class="go" type="button">Start chatting with the team</button>' +
-        '<button class="cancel" type="button">Keep chatting with the assistant</button>' +
+        '<button class="go" type="button">Save &amp; start chatting</button>' +
+        '<button class="cancel" type="button">Skip — just start typing</button>' +
       '</div>';
     var nEl = human.querySelector('.cf-name');
     var cEl = human.querySelector('.cf-contact');
     if (visitorName) nEl.value = visitorName;
     if (visitorContact) cEl.value = visitorContact;
-    setTimeout(function () { nEl.focus(); }, 50);
+    setTimeout(function () { (visitorName ? cEl : nEl).focus(); }, 50);
     human.querySelector('.go').addEventListener('click', function () {
-      enterLive(nEl.value.trim(), cEl.value.trim());
+      saveContact(nEl.value.trim(), cEl.value.trim());
+      human.innerHTML = '';
+      addSystem('Thanks! Type your message below and we\'ll reply here shortly.');
+      input.focus();
     });
     human.querySelector('.cancel').addEventListener('click', function () {
       human.innerHTML = '';
-      renderHumanCTA();
+      input.focus();
     });
   }
 
-  // Switch the conversation to live (human) mode.
-  function enterLive(name, contact) {
+  // Store the visitor's contact details (locally, and on the server if live).
+  function saveContact(name, contact) {
     visitorName = name || visitorName;
     visitorContact = contact || visitorContact;
     try {
       if (visitorName) localStorage.setItem('cd_chat_name', visitorName);
       if (visitorContact) localStorage.setItem('cd_chat_contact', visitorContact);
     } catch (e) {}
+    if (live && (name || contact)) {
+      fetch('/api/chat/human', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cid: cid, name: visitorName, contact: visitorContact, message: '' })
+      }).catch(function () {});
+    }
+  }
+
+  // The visitor's first message: create the live conversation and notify us.
+  function firstSend(text) {
+    addMsg(text, 'user');
     human.innerHTML = '';
     sugg.innerHTML = '';
-    var note = addSystem('Connecting you to the team…');
+    busy = true; sendBt.disabled = true;
     fetch('/api/chat/human', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cid: cid, name: visitorName, contact: visitorContact, message: '' })
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cid: cid, name: visitorName, contact: visitorContact, message: text })
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {
         live = true;
         liveSince = (data && typeof data.count === 'number') ? data.count : liveSince;
-        note.textContent = "You're now chatting with the C Design team. We'll reply here — and by email if you leave the chat.";
         if (headSub) headSub.textContent = 'Chatting with the team';
-        input.placeholder = 'Message the team…';
+        input.placeholder = 'Type your message…';
+        addSystem("Thanks — a real person will reply here shortly. We'll email you too if you leave.");
+        if (!visitorContact) renderContactForm();
         startPolling();
       })
       .catch(function () {
-        note.textContent = "Couldn't connect just now. Please try again, or email office@c-designs.uk.";
-        renderHumanCTA();
-      });
+        addSystem("Couldn't send just now — please try again, or email office@c-designs.uk.");
+      })
+      .finally(function () { busy = false; sendBt.disabled = false; input.focus(); });
   }
 
-  // Send a message while in live (human) mode.
+  // Send a follow-up message once the conversation is live.
   function sendLive(text) {
     addMsg(text, 'user');
     busy = true; sendBt.disabled = true;
@@ -315,9 +316,9 @@
   function greet() {
     if (greeted) return;
     greeted = true;
-    addMsg("Hi 👋 I'm the C Design assistant. Ask me about our web design, e-commerce, SEO or marketing services — or about our £200 launch offer that gets your business fully online (website, SEO, Google & social). Prefer a human? Tap “Talk to a real person” below.", 'bot');
+    addMsg("Hi 👋 Send us a message and a real person from C Design will reply right here — usually within a few minutes. If you leave the chat, we'll email you our reply too.", 'bot');
     renderSuggestions();
-    renderHumanCTA();
+    if (!live && !(visitorName && visitorContact)) renderContactForm();
     restoreLive();
   }
 
@@ -362,45 +363,7 @@
     if (!text || busy) return;
     input.value = '';
     sugg.innerHTML = '';
-    if (live) { sendLive(text); return; }
-    addMsg(text, 'user');
-    history.push({ role: 'user', content: text });
-
-    busy = true;
-    sendBt.disabled = true;
-    var typing = document.createElement('div');
-    typing.className = 'cdchat-typing';
-    typing.innerHTML = '<span></span><span></span><span></span>';
-    body.appendChild(typing);
-    scrollDown();
-
-    fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: history, cid: cid })
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        typing.remove();
-        // Conversation was already handed to a human server-side — go live.
-        if (data && data.live) {
-          if (!live) { live = true; if (headSub) headSub.textContent = 'Chatting with the team'; input.placeholder = 'Message the team…'; human.innerHTML = ''; startPolling(); }
-          return;
-        }
-        var reply = (data && data.reply) ? data.reply
-          : "Sorry, something went wrong. Please try again or use the contact form.";
-        addMsg(reply, 'bot');
-        history.push({ role: 'assistant', content: reply });
-      })
-      .catch(function () {
-        typing.remove();
-        addMsg("I couldn't reach the server. Please check your connection or use the contact form on our site.", 'bot');
-      })
-      .finally(function () {
-        busy = false;
-        sendBt.disabled = false;
-        input.focus();
-      });
+    if (live) { sendLive(text); } else { firstSend(text); }
   }
 
   sendBt.addEventListener('click', function () { send(); });
