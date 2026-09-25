@@ -821,7 +821,7 @@
   <div class="tab-panel" id="panel-chat">
     <div class="main">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px;">
-        <h2 style="margin:0;">💬 Chat &amp; AI conversations</h2>
+        <h2 style="margin:0;">💬 Live chat</h2>
         <div style="display:flex;gap:8px;">
           <button onclick="loadChatLogs()" style="background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:7px 14px;font-size:.8rem;cursor:pointer;">↻ Refresh</button>
           <button onclick="clearChatLogs()" style="background:none;border:1px solid #e74c3c;color:#e74c3c;border-radius:6px;padding:7px 14px;font-size:.8rem;cursor:pointer;">🗑 Șterge tot</button>
@@ -2986,7 +2986,7 @@
   }
 
   // ── Permissions & current user ───────────────────────────
-  const SECTION_LABELS = { bookings:'Bookings', messages:'Messages', promotions:'Promotions', chat:'AI Chat', gibilan:'Wizi', clients:'Clients', crm:'CRM & Quotes', portfolio:'Portfolio', blog:'Blog', seo:'SEO', social:'Social', reviews:'Reviews', pages:'Pages', media:'Media', theme:'Theme', expenses:'Expenses', oferte:'Quotes', email:'Email', settings:'Settings' };
+  const SECTION_LABELS = { bookings:'Bookings', messages:'Messages', promotions:'Promotions', chat:'Live Chat', gibilan:'Wizi', clients:'Clients', crm:'CRM & Quotes', portfolio:'Portfolio', blog:'Blog', seo:'SEO', social:'Social', reviews:'Reviews', pages:'Pages', media:'Media', theme:'Theme', expenses:'Expenses', oferte:'Quotes', email:'Email', settings:'Settings' };
   const TAB_PERM = { bookings:'bookings', messages:'messages', promotions:'promotions', chat:'chat', gibilan:'gibilan', clients:'clients', crm:'crm', projects:'portfolio', blog:'blog', seo:'seo', social:'social', reviews:'reviews', pagini:'pages', media:'media', tema:'theme', email:'email', settings:'settings', cheltuieli:'expenses', oferte:'oferte' };
   let allSections = Object.keys(SECTION_LABELS);
 
