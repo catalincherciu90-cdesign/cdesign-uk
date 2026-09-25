@@ -84,6 +84,14 @@
                     <TextView style="@style/HomeCardSub" android:text="Send an email to a client" />
                 </LinearLayout>
             </LinearLayout>
+
+            <LinearLayout android:id="@+id/cardServices" style="@style/HomeCard">
+                <TextView style="@style/HomeCardIcon" android:text="🧾" />
+                <LinearLayout style="@style/HomeCardText">
+                    <TextView style="@style/HomeCardTitle" android:text="Services" />
+                    <TextView style="@style/HomeCardSub" android:text="Edit your service catalogue &amp; prices" />
+                </LinearLayout>
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

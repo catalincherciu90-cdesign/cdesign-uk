@@ -143,6 +143,47 @@ object Api {
         o.optString("status", "oferta"), o.optString("note"), o.optString("createdAt")
     )
 
+    // ── Messages & bookings (for notifications) ────────────────
+    fun listMessages(token: String): List<MessageItem> {
+        val arr = JSONArray(request("GET", "/api/messages?token=" + enc(token), null))
+        val out = ArrayList<MessageItem>()
+        for (i in 0 until arr.length()) {
+            val o = arr.optJSONObject(i) ?: continue
+            out.add(MessageItem(o.optString("id"), o.optString("name"), o.optString("phone"),
+                o.optString("service"), o.optString("message"), o.optBoolean("read", false), o.optString("createdAt")))
+        }
+        return out
+    }
+
+    fun listBookings(token: String): List<Booking> {
+        val arr = JSONArray(request("GET", "/api/bookings?token=" + enc(token), null))
+        val out = ArrayList<Booking>()
+        for (i in 0 until arr.length()) {
+            val o = arr.optJSONObject(i) ?: continue
+            out.add(Booking(o.optString("id"), o.optString("name"), o.optString("phone"),
+                o.optString("service"), o.optString("date"), o.optString("time"),
+                o.optString("status", "nou"), o.optString("createdAt")))
+        }
+        return out
+    }
+
+    // ── Services catalogue (edit) ──────────────────────────────
+    fun addService(token: String, nume: String, descriere: String, pret: Double, moneda: String, unitate: String, categorie: String) {
+        val body = JSONObject().put("nume", nume).put("descriere", descriere).put("pret", pret)
+            .put("moneda", moneda).put("unitate", unitate).put("categorie", categorie)
+        request("POST", "/api/servicii?token=" + enc(token), body)
+    }
+
+    fun updateService(token: String, id: String, nume: String, descriere: String, pret: Double, moneda: String, unitate: String, categorie: String) {
+        val body = JSONObject().put("nume", nume).put("descriere", descriere).put("pret", pret)
+            .put("moneda", moneda).put("unitate", unitate).put("categorie", categorie)
+        request("PUT", "/api/servicii/" + enc(id) + "?token=" + enc(token), body)
+    }
+
+    fun deleteService(token: String, id: String) {
+        request("DELETE", "/api/servicii/" + enc(id) + "?token=" + enc(token), null)
+    }
+
     // ── Quotes (ofertare) ──────────────────────────────────────
     fun listServices(token: String): List<Service> {
         val arr = JSONArray(request("GET", "/api/servicii?token=" + enc(token), null))

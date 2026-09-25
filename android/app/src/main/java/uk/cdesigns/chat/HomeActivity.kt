@@ -30,6 +30,7 @@ class HomeActivity : AppCompatActivity() {
         b.cardCrm.setOnClickListener { startActivity(Intent(this, CrmActivity::class.java)) }
         b.cardQuotes.setOnClickListener { startActivity(Intent(this, QuotesActivity::class.java)) }
         b.cardEmail.setOnClickListener { startActivity(Intent(this, EmailActivity::class.java)) }
+        b.cardServices.setOnClickListener { startActivity(Intent(this, ServicesActivity::class.java)) }
         b.logout.setOnClickListener { logout() }
 
         askNotifPermission()

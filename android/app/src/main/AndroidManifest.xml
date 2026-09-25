@@ -64,6 +64,12 @@
             android:label="New quote" />
 
         <activity
+            android:name=".ServicesActivity"
+            android:exported="false"
+            android:parentActivityName=".HomeActivity"
+            android:label="Services" />
+
+        <activity
             android:name=".ChatActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity" />

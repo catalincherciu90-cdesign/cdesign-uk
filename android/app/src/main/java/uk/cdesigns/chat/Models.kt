@@ -57,6 +57,27 @@ data class Service(
     val categorie: String
 )
 
+data class MessageItem(
+    val id: String,
+    val name: String,
+    val phone: String,
+    val service: String,
+    val message: String,
+    val read: Boolean,
+    val createdAt: String
+)
+
+data class Booking(
+    val id: String,
+    val name: String,
+    val phone: String,
+    val service: String,
+    val date: String,
+    val time: String,
+    val status: String,
+    val createdAt: String
+)
+
 data class Offer(
     val id: String,
     val numar: String,

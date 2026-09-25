@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <EditText android:id="@+id/nume" style="@style/Field" android:hint="Service name *" android:inputType="textCapSentences" />
+        <EditText android:id="@+id/descriere" style="@style/Field" android:hint="Description" android:inputType="textCapSentences|textMultiLine" android:minLines="2" android:gravity="top" />
+        <EditText android:id="@+id/pret" style="@style/Field" android:hint="Price (number) *" android:inputType="numberDecimal" />
+        <EditText android:id="@+id/moneda" style="@style/Field" android:hint="Currency: GBP / EUR / RON" android:inputType="textCapCharacters" />
+        <EditText android:id="@+id/unitate" style="@style/Field" android:hint="Unit: proiect / lună / oră / pagină / an" android:inputType="text" />
+        <EditText android:id="@+id/categorie" style="@style/Field" android:hint="Category: web-design / seo / marketing / mentenanta / grafic / altele" android:inputType="text" />
+    </LinearLayout>
+</ScrollView>

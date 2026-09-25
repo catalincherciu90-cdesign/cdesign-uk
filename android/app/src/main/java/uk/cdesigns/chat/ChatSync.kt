@@ -76,4 +76,23 @@ object ChatSync {
     fun clearNotification(ctx: Context, id: String) {
         ctx.getSystemService(NotificationManager::class.java).cancel(id.hashCode())
     }
+
+    // A generic high-priority alert (new contact message / new booking) that opens the app.
+    fun notifyGeneric(ctx: Context, notifId: Int, title: String, text: String) {
+        val pi = PendingIntent.getActivity(
+            ctx, notifId, Intent(ctx, HomeActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+        val n = NotificationCompat.Builder(ctx, CH_MESSAGES)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setSmallIcon(R.drawable.ic_notify)
+            .setAutoCancel(true)
+            .setContentIntent(pi)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .build()
+        ctx.getSystemService(NotificationManager::class.java).notify(notifId, n)
+    }
 }
