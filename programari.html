@@ -480,7 +480,7 @@
     <button class="tab active" onclick="switchTab('gibilan',this)">&#x1F916; Wizi</button>
     <button class="tab" onclick="switchTab('messages',this)">&#x1F4AC; Mesaje<span id="msgTabBadge" class="tab-badge" style="display:none;"></span></button>
     <button class="tab" onclick="switchTab('promotions',this)">&#x1F381; Promotions<span id="promoTabBadge" class="tab-badge" style="display:none;"></span></button>
-    <button class="tab" onclick="switchTab('chat',this)">&#x1F916; AI Chat<span id="chatTabBadge" class="tab-badge" style="display:none;"></span></button>
+    <button class="tab" onclick="switchTab('chat',this)">&#x1F4AC; Chat<span id="chatTabBadge" class="tab-badge" style="display:none;"></span></button>
     <button class="tab" onclick="switchTab('email',this)">&#x2709;&#xFE0F; Email<span id="emailTabBadge" class="tab-badge" style="display:none;"></span></button>
     <button class="tab" onclick="switchTab('projects',this)">&#x1F5BC; Portfolio</button>
     <button class="tab" onclick="switchTab('clients',this)">&#x1F465; Clients</button>
@@ -821,7 +821,7 @@
   <div class="tab-panel" id="panel-chat">
     <div class="main">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px;">
-        <h2 style="margin:0;">🤖 Conversații AI</h2>
+        <h2 style="margin:0;">💬 Chat &amp; AI conversations</h2>
         <div style="display:flex;gap:8px;">
           <button onclick="loadChatLogs()" style="background:none;border:1px solid var(--border-soft);color:var(--muted);border-radius:6px;padding:7px 14px;font-size:.8rem;cursor:pointer;">↻ Refresh</button>
           <button onclick="clearChatLogs()" style="background:none;border:1px solid #e74c3c;color:#e74c3c;border-radius:6px;padding:7px 14px;font-size:.8rem;cursor:pointer;">🗑 Șterge tot</button>
@@ -2910,6 +2910,19 @@
     if (can('email')) refreshEmailBadge();
     if (can('reviews')) refreshReviewsBadge();
     if (can('gibilan')) loadGibilanRecent();
+    checkChatDeepLink();
+  }
+
+  // Open a conversation straight from the "Reply now" email link (?chat=<id>).
+  function checkChatDeepLink() {
+    try {
+      var p = new URLSearchParams(location.search);
+      var cid = p.get('chat');
+      if (cid && can('chat')) {
+        switchTabByName('chat');
+        setTimeout(function(){ viewChat(cid); }, 500);
+      }
+    } catch(e){}
   }
 
   // Auto-login din localStorage dacă există token salvat
@@ -2953,10 +2966,11 @@
     btn.classList.add('active');
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('panel-' + tab).classList.add('active');
+    if (tab !== 'chat') stopChatPolling();
     if (tab === 'gibilan') { loadGibilan(); loadGibilanRecent(); }
     if (tab === 'messages') loadMessages();
     if (tab === 'promotions') { loadPromotions(); loadGiveawaySettings(); loadPromoVisibility(); }
-    if (tab === 'chat') loadChatLogs();
+    if (tab === 'chat') { loadChatLogs(); startChatPolling(); }
     if (tab === 'email') loadSentMail();
     if (tab === 'social') { loadSocialPosts(); loadSocialLibrary(); }
     if (tab === 'reviews') loadReviews();
@@ -3700,6 +3714,8 @@
 
   // ── AI CHAT LOGS ─────────────────────────────────────────
   let chatLogsCache = [];
+  let currentChatId = null;   // conversation open in the reply console
+  let chatPollTimer = null;   // live refresh while the Chat tab is open
   function chatRef(n) {
     if (!n && n !== 0) return '#—';
     return '#' + String(n).padStart(4, '0');
@@ -3766,13 +3782,21 @@
       var when = '';
       try { when = new Date(c.updated).toLocaleString('en-GB'); } catch(e){}
       var isNew = chatIsNew(c, seen);
-      return '<div onclick="viewChat(\'' + mEsc(c.id) + '\')" data-id="' + mEsc(c.id) + '" style="cursor:pointer;background:var(--bg2);border:1px solid ' + (isNew ? 'var(--teal)' : 'var(--border-soft)') + ';border-radius:10px;padding:12px 14px;transition:border-color .15s;" onmouseover="this.style.borderColor=\'var(--teal)\'" onmouseout="this.style.borderColor=\'' + (isNew ? 'var(--teal)' : 'var(--border-soft)') + '\'">' +
+      var isLive = c.mode === 'live';
+      var unread = c.ownerUnread || 0;
+      var vname = (c.visitor && c.visitor.name) ? mEsc(c.visitor.name) : '';
+      var isSel = c.id === currentChatId;
+      var bord = (unread > 0) ? '#e74c3c' : (isSel ? 'var(--teal)' : (isNew ? 'var(--teal)' : 'var(--border-soft)'));
+      var tags = '';
+      if (isLive) tags += ' <span style="background:' + (unread>0?'#e74c3c':'var(--teal)') + ';color:#fff;font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:20px;">' + (unread>0 ? ('● ' + unread + ' NEW') : 'LIVE') + '</span>';
+      else if (isNew) tags += ' <span style="color:var(--teal);font-size:.7rem;">● NEW</span>';
+      return '<div onclick="viewChat(\'' + mEsc(c.id) + '\')" data-id="' + mEsc(c.id) + '" style="cursor:pointer;background:var(--bg2);border:1px solid ' + bord + ';border-radius:10px;padding:12px 14px;transition:border-color .15s;" onmouseover="this.style.borderColor=\'var(--teal)\'" onmouseout="this.style.borderColor=\'' + bord + '\'">' +
         '<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline;">' +
-          '<strong style="font-size:.85rem;color:var(--heading);">' + chatRef(c.num) + (isNew ? ' <span style="color:var(--teal);font-size:.7rem;">● NEW</span>' : '') + ' <span style="font-weight:400;color:var(--soft);">· 💬 ' + mEsc(c.count || 0) + '</span></strong>' +
+          '<strong style="font-size:.85rem;color:var(--heading);">' + (vname || chatRef(c.num)) + tags + ' <span style="font-weight:400;color:var(--soft);">· 💬 ' + mEsc(c.count || 0) + '</span></strong>' +
           '<span style="font-size:.68rem;color:var(--muted);">' + mEsc(when) + '</span>' +
         '</div>' +
         '<div style="font-size:.82rem;color:var(--soft);margin-top:5px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + mEsc(c.preview || '—') + '</div>' +
-        '<div style="font-size:.66rem;color:var(--muted);margin-top:4px;">' + (chatGeo(c.geo) ? '📍 ' + mEsc(chatGeo(c.geo)) + ' · ' : '') + 'IP ' + mEsc(c.ip || '—') + '</div>' +
+        '<div style="font-size:.66rem;color:var(--muted);margin-top:4px;">' + (vname ? chatRef(c.num) + ' · ' : '') + (chatGeo(c.geo) ? '📍 ' + mEsc(chatGeo(c.geo)) + ' · ' : '') + 'IP ' + mEsc(c.ip || '—') + '</div>' +
       '</div>';
     }).join('');
     updateChatBadge();
@@ -3797,42 +3821,139 @@
     }
   }
 
+  // Build the transcript HTML (visitor on the left, you on the right).
+  function renderChatMsgs(c) {
+    return (c.messages || []).map(function(m){
+      var role = m.role;
+      var isOwner = role === 'owner';
+      var side = isOwner ? 'flex-end' : 'flex-start';
+      var label = isOwner ? ('You' + (m.by ? ' · ' + mEsc(m.by) : '')) : (role === 'assistant' ? 'AI' : 'Visitor');
+      var st = isOwner
+        ? 'background:var(--teal);color:#04262a;border-bottom-right-radius:4px;'
+        : (role === 'assistant'
+            ? 'background:var(--bg);border:1px dashed var(--border-soft);color:var(--muted);border-bottom-left-radius:4px;'
+            : 'background:var(--bg);border:1px solid var(--border-soft);color:var(--text);border-bottom-left-radius:4px;');
+      return '<div style="display:flex;justify-content:' + side + ';margin-bottom:8px;">' +
+        '<div style="max-width:82%;padding:9px 13px;border-radius:12px;font-size:.86rem;line-height:1.5;white-space:pre-wrap;' + st + '">' +
+          '<div style="font-size:.62rem;opacity:.7;margin-bottom:2px;">' + label + '</div>' +
+          mEsc(m.content) + '</div></div>';
+    }).join('');
+  }
+
+  function renderChatDetail(c) {
+    var box = document.getElementById('chatDetail');
+    var started = '', updated = '';
+    try { started = new Date(c.started).toLocaleString('en-GB'); } catch(e){}
+    try { updated = new Date(c.updated).toLocaleString('en-GB'); } catch(e){}
+    var v = c.visitor || {};
+    var who = v.name ? mEsc(v.name) : 'Visitor';
+    var contact = v.contact ? mEsc(v.contact) : '';
+    var isLive = c.mode === 'live';
+    var head = '<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--border-soft);padding-bottom:12px;margin-bottom:14px;">' +
+      '<div><strong style="color:var(--heading);">' + who + ' · ' + chatRef(c.num) + '</strong>' +
+      (isLive ? ' <span style="background:#e74c3c;color:#fff;font-size:.62rem;font-weight:700;padding:2px 7px;border-radius:20px;vertical-align:middle;">● LIVE</span>' : '') +
+      (contact ? '<div style="font-size:.76rem;color:var(--teal);margin-top:3px;">' + contact + '</div>' : '') +
+      '<div style="font-size:.72rem;color:var(--muted);margin-top:3px;">Started: ' + mEsc(started) + ' · Last: ' + mEsc(updated) + '<br>' + (chatGeo(c.geo) ? '📍 ' + mEsc(chatGeo(c.geo)) + '<br>' : '') + 'IP ' + mEsc(c.ip || '—') + (c.ref ? ' · from ' + mEsc(c.ref) : '') + '</div></div>' +
+      '<button onclick="deleteChatLog(\'' + mEsc(c.id) + '\')" style="font-size:.74rem;background:none;border:1px solid #e74c3c;color:#e74c3c;border-radius:6px;padding:5px 12px;cursor:pointer;">Delete</button>' +
+    '</div>';
+    var composer = '<div style="display:flex;gap:8px;margin-top:12px;border-top:1px solid var(--border-soft);padding-top:12px;">' +
+        '<textarea id="chatReplyInput" rows="2" placeholder="Type your reply to the visitor…" style="flex:1;border:1px solid var(--border-soft);border-radius:10px;padding:10px 12px;font-size:.9rem;font-family:inherit;resize:vertical;background:var(--bg);color:var(--text);"></textarea>' +
+        '<button id="chatReplyBtn" onclick="sendOwnerReply()" style="background:var(--teal);color:#04262a;border:none;border-radius:10px;padding:0 18px;font-weight:700;cursor:pointer;">Send</button>' +
+      '</div>' +
+      '<div style="font-size:.7rem;color:var(--muted);margin-top:6px;">Your reply shows up in the visitor\'s chat on the site within a few seconds. Press Enter to send, Shift+Enter for a new line.</div>';
+    box.innerHTML = head + '<div id="chatMsgs" style="max-height:52vh;overflow-y:auto;">' + renderChatMsgs(c) + '</div>' + composer;
+    var cont = document.getElementById('chatMsgs'); if (cont) cont.scrollTop = cont.scrollHeight;
+    var ta = document.getElementById('chatReplyInput');
+    if (ta) ta.addEventListener('keydown', function(e){ if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendOwnerReply(); } });
+  }
+
   async function viewChat(id) {
+    currentChatId = id;
     var box = document.getElementById('chatDetail');
     box.innerHTML = '<div style="color:var(--muted);">Loading…</div>';
-    // highlight selection
     document.querySelectorAll('#chatList [data-id]').forEach(function(el){
       el.style.borderColor = el.getAttribute('data-id') === id ? 'var(--teal)' : 'var(--border-soft)';
     });
     try {
       var res = await fetch('/api/chat-logs/' + encodeURIComponent(id) + '?token=' + encodeURIComponent(adminToken));
-      if (!res.ok) { box.innerHTML = '<div style="color:#e74c3c;">Nu s-a găsit.</div>'; return; }
+      if (!res.ok) { box.innerHTML = '<div style="color:#e74c3c;">Not found.</div>'; return; }
       var c = await res.json();
-      var started = '', updated = '';
-      try { started = new Date(c.started).toLocaleString('en-GB'); } catch(e){}
-      try { updated = new Date(c.updated).toLocaleString('en-GB'); } catch(e){}
-      var head = '<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--border-soft);padding-bottom:12px;margin-bottom:14px;">' +
-        '<div><strong style="color:var(--heading);">Conversație ' + chatRef(c.num) + '</strong>' +
-        '<div style="font-size:.72rem;color:var(--muted);margin-top:3px;">Început: ' + mEsc(started) + ' · Ultim: ' + mEsc(updated) + '<br>' + (chatGeo(c.geo) ? '📍 ' + mEsc(chatGeo(c.geo)) + '<br>' : '') + 'IP ' + mEsc(c.ip || '—') + (c.ref ? ' · de pe ' + mEsc(c.ref) : '') + '</div></div>' +
-        '<button onclick="deleteChatLog(\'' + mEsc(c.id) + '\')" style="font-size:.74rem;background:none;border:1px solid #e74c3c;color:#e74c3c;border-radius:6px;padding:5px 12px;cursor:pointer;">Șterge</button>' +
-      '</div>';
-      var msgs = (c.messages || []).map(function(m){
-        var isUser = m.role === 'user';
-        return '<div style="display:flex;justify-content:' + (isUser ? 'flex-end' : 'flex-start') + ';margin-bottom:8px;">' +
-          '<div style="max-width:78%;padding:9px 13px;border-radius:12px;font-size:.86rem;line-height:1.5;white-space:pre-wrap;' +
-            (isUser ? 'background:var(--teal);color:#04262a;border-bottom-right-radius:4px;' : 'background:var(--bg);border:1px solid var(--border-soft);color:var(--text);border-bottom-left-radius:4px;') + '">' +
-            '<div style="font-size:.62rem;opacity:.7;margin-bottom:2px;">' + (isUser ? 'Vizitator' : 'AI') + '</div>' +
-            mEsc(m.content) + '</div></div>';
-      }).join('');
-      box.innerHTML = head + '<div style="max-height:60vh;overflow-y:auto;">' + msgs + '</div>';
-      // Mark this conversation as seen at its current update state, then refresh the list.
-      var seen = chatSeenMap();
-      seen[c.id] = c.updated;
-      chatSaveSeen(seen);
+      renderChatDetail(c);
+      var seen = chatSeenMap(); seen[c.id] = c.updated; chatSaveSeen(seen);
+      chatMarkRead(c.id);
       renderChatList();
+      startChatPolling();
     } catch(e) {
-      box.innerHTML = '<div style="color:#e74c3c;">Eroare la încărcare.</div>';
+      box.innerHTML = '<div style="color:#e74c3c;">Loading error.</div>';
     }
+  }
+
+  // Owner sends a reply into the open conversation.
+  async function sendOwnerReply() {
+    var ta = document.getElementById('chatReplyInput');
+    var btn = document.getElementById('chatReplyBtn');
+    if (!ta || !currentChatId) return;
+    var text = ta.value.trim();
+    if (!text) return;
+    ta.disabled = true; if (btn) btn.disabled = true;
+    try {
+      var res = await fetch('/api/chat/reply?token=' + encodeURIComponent(adminToken), {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cid: currentChatId, text: text })
+      });
+      var d = await res.json();
+      if (d && d.ok) { ta.value = ''; await refreshOpenChat(); }
+      else alert((d && d.error) || 'Could not send the reply.');
+    } catch(e) { alert('Network error — reply not sent.'); }
+    finally { ta.disabled = false; if (btn) btn.disabled = false; ta.focus(); }
+  }
+
+  // Re-fetch the open conversation and refresh just the transcript.
+  async function refreshOpenChat() {
+    if (!currentChatId) return;
+    try {
+      var res = await fetch('/api/chat-logs/' + encodeURIComponent(currentChatId) + '?token=' + encodeURIComponent(adminToken));
+      if (!res.ok) return;
+      var c = await res.json();
+      var cont = document.getElementById('chatMsgs');
+      if (!cont) { return; }
+      var nearBottom = (cont.scrollHeight - cont.scrollTop - cont.clientHeight) < 60;
+      cont.innerHTML = renderChatMsgs(c);
+      if (nearBottom) cont.scrollTop = cont.scrollHeight;
+      var seen = chatSeenMap(); seen[c.id] = c.updated; chatSaveSeen(seen);
+      if ((c.ownerUnread || 0) > 0) chatMarkRead(c.id);
+    } catch(e) {}
+  }
+
+  async function chatMarkRead(id) {
+    try {
+      await fetch('/api/chat/read?token=' + encodeURIComponent(adminToken), {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cid: id })
+      });
+    } catch(e) {}
+  }
+
+  // Quietly refresh the conversation list without losing the open selection.
+  async function refreshChatListQuiet() {
+    try {
+      var res = await fetch('/api/chat-logs?token=' + encodeURIComponent(adminToken));
+      var convos = await res.json();
+      chatLogsCache = Array.isArray(convos) ? convos : [];
+      renderChatList();
+    } catch(e) {}
+  }
+
+  function startChatPolling() {
+    stopChatPolling();
+    chatPollTimer = setInterval(function(){
+      if (currentTab !== 'chat' || document.hidden) return;
+      refreshChatListQuiet();
+      refreshOpenChat();
+    }, 6000);
+  }
+  function stopChatPolling() {
+    if (chatPollTimer) { clearInterval(chatPollTimer); chatPollTimer = null; }
   }
 
   async function deleteChatLog(id) {

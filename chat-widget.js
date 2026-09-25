@@ -24,6 +24,17 @@
   var history = [];
   var busy = false;
 
+  // Live (human) chat state.
+  var live = false;          // true once the visitor is talking to a person
+  var liveSince = 0;         // server message index we've already rendered
+  var pollTimer = null;      // polling interval for owner replies
+  var visitorName = '';
+  var visitorContact = '';
+  try {
+    visitorName = localStorage.getItem('cd_chat_name') || '';
+    visitorContact = localStorage.getItem('cd_chat_contact') || '';
+  } catch (e) {}
+
   // Stable conversation id so all messages group into one thread in admin.
   var cid = '';
   try {
@@ -77,6 +88,20 @@
     '.cdchat-foot button svg{width:18px;height:18px;}',
     '.cdchat-legal{text-align:center;font-size:11px;color:#8AA0A0;padding:0 0 8px;background:#fff;}',
     '.cdchat-legal a{color:' + ACCENT_DK + ';text-decoration:none;font-weight:600;}',
+    // human / live chat additions
+    '.cdchat-msg.agent{background:#EAF7F7;color:#22303a;border:1px solid #BFE7E7;border-bottom-left-radius:4px;align-self:flex-start;}',
+    '.cdchat-name{align-self:flex-start;font:600 11px Inter,sans-serif;color:' + ACCENT_DK + ';margin:2px 0 -4px 2px;}',
+    '.cdchat-sys{align-self:center;background:#eef2f2;color:#5b6472;font:500 12px Inter,sans-serif;padding:6px 12px;border-radius:12px;text-align:center;max-width:92%;}',
+    '.cdchat-human{width:100%;padding:0 16px 12px;background:#F6F9F9;}',
+    '.cdchat-human button.ask{width:100%;background:#fff;border:1px dashed ' + ACCENT + ';color:' + ACCENT_DK + ';font:600 13px Inter,sans-serif;padding:10px;border-radius:12px;cursor:pointer;}',
+    '.cdchat-human button.ask:hover{background:' + ACCENT + ';color:#fff;}',
+    '.cdchat-cform{background:#fff;border:1px solid #E3EAEA;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:9px;}',
+    '.cdchat-cform p{margin:0 0 2px;font:600 13px Inter,sans-serif;color:#2E3436;}',
+    '.cdchat-cform input{border:1px solid #D6E0E0;border-radius:10px;padding:10px 12px;font-size:14px;outline:none;font-family:inherit;}',
+    '.cdchat-cform input:focus{border-color:' + ACCENT + ';}',
+    '.cdchat-cform .go{background:' + ACCENT + ';color:#fff;border:none;border-radius:10px;padding:11px;font:600 14px Inter,sans-serif;cursor:pointer;}',
+    '.cdchat-cform .go:hover{background:' + ACCENT_DK + ';}',
+    '.cdchat-cform .cancel{background:none;border:none;color:#8AA0A0;font:500 12px Inter,sans-serif;cursor:pointer;padding:2px;}',
     '@media(max-width:480px){.cdchat-panel{right:0;bottom:0;width:100vw;height:100vh;max-height:100vh;border-radius:0;}}'
   ].join('');
 
@@ -98,6 +123,7 @@
       '</div>' +
       '<div class="cdchat-body"></div>' +
       '<div class="cdchat-sugg"></div>' +
+      '<div class="cdchat-human"></div>' +
       '<div class="cdchat-foot">' +
         '<input type="text" placeholder="Type your message…" maxlength="1000" aria-label="Your message">' +
         '<button class="send" aria-label="Send">' +
@@ -113,9 +139,11 @@
   var panel  = wrap.querySelector('.cdchat-panel');
   var body   = wrap.querySelector('.cdchat-body');
   var sugg   = wrap.querySelector('.cdchat-sugg');
+  var human  = wrap.querySelector('.cdchat-human');
   var input  = wrap.querySelector('.cdchat-foot input');
   var sendBt = wrap.querySelector('.cdchat-foot .send');
   var closeB = wrap.querySelector('.cdchat-head .x');
+  var headSub = wrap.querySelector('.cdchat-head p');
 
   function scrollDown() { body.scrollTop = body.scrollHeight; }
 
@@ -126,6 +154,150 @@
     body.appendChild(m);
     scrollDown();
     return m;
+  }
+
+  // A message from a real team member, with a small name tag.
+  function addAgentMsg(text) {
+    var tag = document.createElement('div');
+    tag.className = 'cdchat-name';
+    tag.textContent = 'C Design team';
+    body.appendChild(tag);
+    var m = document.createElement('div');
+    m.className = 'cdchat-msg agent';
+    m.textContent = text;
+    body.appendChild(m);
+    scrollDown();
+    return m;
+  }
+
+  // A small centred system note.
+  function addSystem(text) {
+    var m = document.createElement('div');
+    m.className = 'cdchat-sys';
+    m.textContent = text;
+    body.appendChild(m);
+    scrollDown();
+    return m;
+  }
+
+  // The "Talk to a real person" prompt shown under the suggestions.
+  function renderHumanCTA() {
+    if (live) { human.innerHTML = ''; return; }
+    human.innerHTML = '';
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'ask';
+    b.textContent = '👤 Talk to a real person';
+    b.addEventListener('click', showContactForm);
+    human.appendChild(b);
+  }
+
+  // Ask for a name + email/phone before handing over to a person.
+  function showContactForm() {
+    sugg.innerHTML = '';
+    human.innerHTML =
+      '<div class="cdchat-cform">' +
+        '<p>We\'ll reply here and by email. How can we reach you?</p>' +
+        '<input class="cf-name" type="text" placeholder="Your name" maxlength="80">' +
+        '<input class="cf-contact" type="text" placeholder="Email or phone" maxlength="120">' +
+        '<button class="go" type="button">Start chatting with the team</button>' +
+        '<button class="cancel" type="button">Keep chatting with the assistant</button>' +
+      '</div>';
+    var nEl = human.querySelector('.cf-name');
+    var cEl = human.querySelector('.cf-contact');
+    if (visitorName) nEl.value = visitorName;
+    if (visitorContact) cEl.value = visitorContact;
+    setTimeout(function () { nEl.focus(); }, 50);
+    human.querySelector('.go').addEventListener('click', function () {
+      enterLive(nEl.value.trim(), cEl.value.trim());
+    });
+    human.querySelector('.cancel').addEventListener('click', function () {
+      human.innerHTML = '';
+      renderHumanCTA();
+    });
+  }
+
+  // Switch the conversation to live (human) mode.
+  function enterLive(name, contact) {
+    visitorName = name || visitorName;
+    visitorContact = contact || visitorContact;
+    try {
+      if (visitorName) localStorage.setItem('cd_chat_name', visitorName);
+      if (visitorContact) localStorage.setItem('cd_chat_contact', visitorContact);
+    } catch (e) {}
+    human.innerHTML = '';
+    sugg.innerHTML = '';
+    var note = addSystem('Connecting you to the team…');
+    fetch('/api/chat/human', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cid: cid, name: visitorName, contact: visitorContact, message: '' })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        live = true;
+        liveSince = (data && typeof data.count === 'number') ? data.count : liveSince;
+        note.textContent = "You're now chatting with the C Design team. We'll reply here — and by email if you leave the chat.";
+        if (headSub) headSub.textContent = 'Chatting with the team';
+        input.placeholder = 'Message the team…';
+        startPolling();
+      })
+      .catch(function () {
+        note.textContent = "Couldn't connect just now. Please try again, or email office@c-designs.uk.";
+        renderHumanCTA();
+      });
+  }
+
+  // Send a message while in live (human) mode.
+  function sendLive(text) {
+    addMsg(text, 'user');
+    busy = true; sendBt.disabled = true;
+    fetch('/api/chat/human', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cid: cid, name: visitorName, contact: visitorContact, message: text })
+    })
+      .then(function (r) { return r.json(); })
+      .catch(function () {
+        addSystem("Message not sent — please check your connection and try again.");
+      })
+      .finally(function () { busy = false; sendBt.disabled = false; input.focus(); pollOnce(); });
+  }
+
+  // Fetch any new owner/assistant messages since liveSince and render them.
+  function pollOnce() {
+    if (!live) return;
+    fetch('/api/chat/updates?cid=' + encodeURIComponent(cid) + '&since=' + liveSince)
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (!data || !Array.isArray(data.messages)) return;
+        data.messages.forEach(function (m) {
+          if (m.idx < liveSince) return;
+          if (m.role === 'owner') {
+            addAgentMsg(m.content);
+            if (!panel.classList.contains('open')) {
+              badge.textContent = 'C Design team: ' + m.content.slice(0, 60);
+              badge.classList.add('show');
+            }
+          } else if (m.role === 'assistant') {
+            addMsg(m.content, 'bot');
+          }
+          liveSince = m.idx + 1;
+        });
+      })
+      .catch(function () {});
+  }
+
+  function startPolling() {
+    stopPolling();
+    pollOnce();
+    pollTimer = setInterval(function () {
+      if (document.hidden) return;
+      pollOnce();
+    }, 5000);
+  }
+  function stopPolling() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
   }
 
   function renderSuggestions() {
@@ -143,8 +315,33 @@
   function greet() {
     if (greeted) return;
     greeted = true;
-    addMsg("Hi 👋 I'm the C Design assistant. Ask me about our web design, e-commerce, SEO or marketing services — or about our £200 launch offer that gets your business fully online (website, SEO, Google & social).", 'bot');
+    addMsg("Hi 👋 I'm the C Design assistant. Ask me about our web design, e-commerce, SEO or marketing services — or about our £200 launch offer that gets your business fully online (website, SEO, Google & social). Prefer a human? Tap “Talk to a real person” below.", 'bot');
     renderSuggestions();
+    renderHumanCTA();
+    restoreLive();
+  }
+
+  // If this conversation is already live server-side (e.g. after a page
+  // reload), rebuild the thread and resume polling for the team's replies.
+  function restoreLive() {
+    fetch('/api/chat/updates?cid=' + encodeURIComponent(cid) + '&since=0&full=1')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (!data || data.mode !== 'live' || !Array.isArray(data.messages) || !data.messages.length) return;
+        live = true;
+        sugg.innerHTML = ''; human.innerHTML = '';
+        addSystem('Here is your chat with the C Design team.');
+        data.messages.forEach(function (m) {
+          if (m.role === 'owner') addAgentMsg(m.content);
+          else if (m.role === 'user') addMsg(m.content, 'user');
+          else if (m.role === 'assistant') addMsg(m.content, 'bot');
+        });
+        liveSince = (typeof data.count === 'number') ? data.count : data.messages.length;
+        if (headSub) headSub.textContent = 'Chatting with the team';
+        input.placeholder = 'Message the team…';
+        startPolling();
+      })
+      .catch(function () {});
   }
 
   function openPanel() {
@@ -165,6 +362,7 @@
     if (!text || busy) return;
     input.value = '';
     sugg.innerHTML = '';
+    if (live) { sendLive(text); return; }
     addMsg(text, 'user');
     history.push({ role: 'user', content: text });
 
@@ -184,6 +382,11 @@
       .then(function (r) { return r.json(); })
       .then(function (data) {
         typing.remove();
+        // Conversation was already handed to a human server-side — go live.
+        if (data && data.live) {
+          if (!live) { live = true; if (headSub) headSub.textContent = 'Chatting with the team'; input.placeholder = 'Message the team…'; human.innerHTML = ''; startPolling(); }
+          return;
+        }
         var reply = (data && data.reply) ? data.reply
           : "Sorry, something went wrong. Please try again or use the contact form.";
         addMsg(reply, 'bot');
