@@ -2536,6 +2536,17 @@ export default {
       }
     }
 
+    // Outcome / solution bundle pages: /get-online, /get-seen, /work-smarter, /keep-it-running
+    {
+      const BUNDLE_PAGES = ['get-online', 'get-seen', 'work-smarter', 'keep-it-running'];
+      const slug = path.slice(1).replace(/\/$/, '');
+      if (BUNDLE_PAGES.includes(slug)) {
+        const assetUrl = new URL(request.url);
+        assetUrl.pathname = '/' + slug + '.html';
+        return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
+      }
+    }
+
     if (path === '/pricing' || path === '/pricing/') {
       const assetUrl = new URL(request.url);
       assetUrl.pathname = '/pricing.html';
