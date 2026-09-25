@@ -1,5 +1,7 @@
 package uk.cdesigns.chat
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
@@ -28,6 +30,7 @@ class PollService : Service() {
     private fun poll() {
         val token = Prefs.token(this)
         if (token.isEmpty()) { stopSelf(); return }
+        // 1) Live chat
         try {
             val list = Api.listConversations(token)
             for (c in list) {
@@ -36,15 +39,64 @@ class PollService : Service() {
                     ChatSync.notifyNewMessage(this, c.id, c.num, c.name, c.preview)
                     Prefs.setNotifiedCount(this, c.id, c.ownerUnread)
                 } else if (c.ownerUnread == 0 && alreadyNotified != 0) {
-                    // Owner has caught up — reset so future messages notify again.
                     Prefs.setNotifiedCount(this, c.id, 0)
                 }
             }
         } catch (e: Api.ApiException) {
-            if (e.code == 401) stopSelf()
-        } catch (e: Exception) {
-            // transient network error — try again next tick
+            if (e.code == 401) { stopSelf(); return }
+        } catch (e: Exception) { /* transient */ }
+
+        // 2) New contact messages
+        try {
+            val msgs = Api.listMessages(token)
+            val seen = Prefs.seenIds(this, "msg")
+            if (!Prefs.isSeeded(this, "msg")) {
+                Prefs.setSeenIds(this, "msg", msgs.map { it.id }.toSet()); Prefs.setSeeded(this, "msg")
+            } else {
+                for (m in msgs) {
+                    if (!seen.contains(m.id)) {
+                        val text = if (m.message.isNotBlank()) m.message else (m.service.ifBlank { "New enquiry" })
+                        ChatSync.notifyGeneric(this, ("msg_" + m.id).hashCode(), "New message · " + m.name, text)
+                        seen.add(m.id)
+                    }
+                }
+                Prefs.setSeenIds(this, "msg", seen)
+            }
+        } catch (e: Exception) { /* messages perm may be missing, or transient */ }
+
+        // 3) New bookings
+        try {
+            val bookings = Api.listBookings(token)
+            val seen = Prefs.seenIds(this, "booking")
+            if (!Prefs.isSeeded(this, "booking")) {
+                Prefs.setSeenIds(this, "booking", bookings.map { it.id }.toSet()); Prefs.setSeeded(this, "booking")
+            } else {
+                for (bk in bookings) {
+                    if (!seen.contains(bk.id)) {
+                        val text = listOf(bk.service, bk.date, bk.time).filter { it.isNotBlank() }.joinToString(" · ")
+                        ChatSync.notifyGeneric(this, ("bk_" + bk.id).hashCode(), "New booking · " + bk.name, text.ifBlank { "New booking" })
+                        seen.add(bk.id)
+                    }
+                }
+                Prefs.setSeenIds(this, "booking", seen)
+            }
+        } catch (e: Exception) { /* bookings perm may be missing, or transient */ }
+    }
+
+    // When the user swipes the app away from recents, schedule a quick restart
+    // so background notifications keep working.
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        if (Prefs.token(this).isNotEmpty()) {
+            try {
+                val restart = PendingIntent.getService(
+                    this, 1, Intent(this, PollService::class.java),
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT
+                )
+                val am = getSystemService(AlarmManager::class.java)
+                am.set(AlarmManager.RTC, System.currentTimeMillis() + 1500, restart)
+            } catch (e: Exception) { /* best effort */ }
         }
+        super.onTaskRemoved(rootIntent)
     }
 
     override fun onDestroy() {
