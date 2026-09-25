@@ -96,6 +96,96 @@ object Api {
         request("POST", "/api/chat/read?token=" + enc(token), body)
     }
 
+    // ── Email ──────────────────────────────────────────────────
+    fun sendMail(token: String, to: String, subject: String, message: String) {
+        val body = JSONObject().put("to", to).put("subject", subject).put("message", message)
+        request("POST", "/api/send-mail?token=" + enc(token), body)
+    }
+
+    fun listSentMail(token: String): List<SentMail> {
+        val arr = JSONArray(request("GET", "/api/sent-mail?token=" + enc(token), null))
+        val out = ArrayList<SentMail>()
+        for (i in 0 until arr.length()) {
+            val o = arr.optJSONObject(i) ?: continue
+            out.add(SentMail(o.optString("id"), o.optString("to"), o.optString("subject"), o.optString("status"), o.optString("createdAt")))
+        }
+        return out
+    }
+
+    // ── CRM ────────────────────────────────────────────────────
+    fun listCrm(token: String): List<CrmEntry> {
+        val arr = JSONArray(request("GET", "/api/crm?token=" + enc(token), null))
+        val out = ArrayList<CrmEntry>()
+        for (i in 0 until arr.length()) {
+            val o = arr.optJSONObject(i) ?: continue
+            out.add(crmOf(o))
+        }
+        return out
+    }
+
+    fun addCrm(token: String, client: String, proiect: String, valoare: String, termen: String, status: String, note: String) {
+        val body = JSONObject().put("client", client).put("proiect", proiect)
+            .put("valoare", valoare).put("termen", termen).put("status", status).put("note", note)
+        request("POST", "/api/crm?token=" + enc(token), body)
+    }
+
+    fun updateCrm(token: String, id: String, fields: JSONObject) {
+        request("PUT", "/api/crm/" + enc(id) + "?token=" + enc(token), fields)
+    }
+
+    fun deleteCrm(token: String, id: String) {
+        request("DELETE", "/api/crm/" + enc(id) + "?token=" + enc(token), null)
+    }
+
+    private fun crmOf(o: JSONObject) = CrmEntry(
+        o.optString("id"), o.optString("client"), o.optString("proiect"),
+        o.optString("valoare"), o.optString("termen"),
+        o.optString("status", "oferta"), o.optString("note"), o.optString("createdAt")
+    )
+
+    // ── Quotes (ofertare) ──────────────────────────────────────
+    fun listServices(token: String): List<Service> {
+        val arr = JSONArray(request("GET", "/api/servicii?token=" + enc(token), null))
+        val out = ArrayList<Service>()
+        for (i in 0 until arr.length()) {
+            val o = arr.optJSONObject(i) ?: continue
+            out.add(Service(o.optString("id"), o.optString("nume"), o.optString("descriere"),
+                o.optDouble("pret", 0.0), o.optString("moneda", "GBP"), o.optString("unitate", "proiect"), o.optString("categorie", "altele")))
+        }
+        return out
+    }
+
+    fun listOffers(token: String): List<Offer> {
+        val arr = JSONArray(request("GET", "/api/oferte?token=" + enc(token), null))
+        val out = ArrayList<Offer>()
+        for (i in 0 until arr.length()) {
+            val o = arr.optJSONObject(i) ?: continue
+            val svcs = o.optJSONArray("servicii") ?: JSONArray()
+            var total = 0.0
+            for (j in 0 until svcs.length()) total += svcs.optJSONObject(j)?.optDouble("pret", 0.0) ?: 0.0
+            val client = o.optJSONObject("client")
+            out.add(Offer(o.optString("id"), o.optString("numar"), client?.optString("name") ?: "",
+                total, o.optString("moneda", "GBP"), o.optString("status", "trimisă"), o.optString("createdAt")))
+        }
+        // newest first
+        return out.sortedByDescending { it.createdAt }
+    }
+
+    /** Create a quote; returns the new quote's id. */
+    fun createOffer(token: String, name: String, email: String, phone: String,
+                    services: List<Service>, moneda: String, valabilitate: String, note: String): String {
+        val client = JSONObject().put("name", name).put("email", email).put("phone", phone)
+        val svcArr = JSONArray()
+        for (s in services) {
+            svcArr.put(JSONObject().put("id", s.id).put("nume", s.nume).put("descriere", s.descriere)
+                .put("pret", s.pret).put("moneda", s.moneda).put("unitate", s.unitate))
+        }
+        val body = JSONObject().put("client", client).put("servicii", svcArr)
+            .put("moneda", moneda).put("valabilitate", valabilitate).put("note", note)
+        val res = JSONObject(request("POST", "/api/oferte?token=" + enc(token), body))
+        return res.optString("id")
+    }
+
     private fun geoOf(g: JSONObject?): String {
         if (g == null) return ""
         val parts = listOf(g.optString("city"), g.optString("region"), g.optString("country"))

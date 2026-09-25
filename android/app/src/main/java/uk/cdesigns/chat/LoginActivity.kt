@@ -14,9 +14,9 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Already signed in? Go straight to the list.
+        // Already signed in? Go straight to the home screen.
         if (Prefs.token(this).isNotEmpty()) {
-            goToMain()
+            goToHome()
             return
         }
 
@@ -40,7 +40,7 @@ class LoginActivity : AppCompatActivity() {
                 Prefs.setToken(this, token)
                 runOnUiThread {
                     setLoading(false)
-                    goToMain()
+                    goToHome()
                 }
             } catch (e: Api.ApiException) {
                 runOnUiThread {
@@ -56,8 +56,8 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun goToMain() {
-        startActivity(Intent(this, MainActivity::class.java))
+    private fun goToHome() {
+        startActivity(Intent(this, HomeActivity::class.java))
         finish()
     }
 
