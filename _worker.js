@@ -653,6 +653,86 @@ async function notifyRecipients(env) {
   return [...new Set(list.map(e => e.toLowerCase()))];
 }
 
+// ── LIVE CHAT helpers ──────────────────────────────────────────
+// Maintain the lightweight conversation index (newest first, capped) with the
+// live-chat fields the admin console and app badge need.
+async function chatIndexPut(env, convo, preview) {
+  try {
+    const idxRaw = await env.PROGRAMARI.get('__chatlogs__');
+    let idx = idxRaw ? JSON.parse(idxRaw) : [];
+    idx = idx.filter(x => x.id !== convo.id);
+    idx.unshift({
+      id: convo.id,
+      num: convo.num,
+      ip: convo.ip,
+      geo: convo.geo || null,
+      started: convo.started,
+      updated: convo.updated,
+      count: (convo.messages || []).length,
+      preview: String(preview || '').slice(0, 120),
+      mode: convo.mode || 'ai',
+      ownerUnread: convo.ownerUnread || 0,
+      visitor: convo.visitor || null
+    });
+    await env.PROGRAMARI.put('__chatlogs__', JSON.stringify(idx.slice(0, 400)));
+  } catch (e) { /* index maintenance must never break chat */ }
+}
+
+// Build a fresh conversation record, assigning the next sequential number.
+async function chatNewConversation(env, cid, request, mode) {
+  const seqRaw = await env.PROGRAMARI.get('__chatlog_seq__');
+  const num = (parseInt(seqRaw || '0', 10) || 0) + 1;
+  await env.PROGRAMARI.put('__chatlog_seq__', String(num));
+  const cf = request.cf || {};
+  const now = new Date().toISOString();
+  return {
+    id: cid, num,
+    ip: request.headers.get('CF-Connecting-IP') || 'unknown',
+    ua: (request.headers.get('User-Agent') || '').slice(0, 200),
+    ref: (request.headers.get('Referer') || '').slice(0, 200),
+    geo: {
+      city: (cf.city || '').toString().slice(0, 60),
+      region: (cf.region || '').toString().slice(0, 60),
+      country: (cf.country || '').toString().slice(0, 4),
+      postcode: (cf.postalCode || '').toString().slice(0, 12)
+    },
+    started: now, updated: now,
+    messages: [], mode: mode || 'ai', ownerUnread: 0, visitor: {}
+  };
+}
+
+// Email the owner (and admins) that a visitor is waiting in live chat.
+async function notifyOwnerLiveChat(env, convo, latestText) {
+  try {
+    const to = await notifyRecipients(env);
+    if (!to.length) return;
+    const v = convo.visitor || {};
+    const who = escHtml(v.name || 'A website visitor');
+    const contact = v.contact ? escHtml(v.contact) : '';
+    const loc = [convo.geo && convo.geo.city, convo.geo && convo.geo.country].filter(Boolean).join(', ');
+    const link = 'https://c-designs.uk/programari.html?chat=' + encodeURIComponent(convo.id) + '#chat';
+    const msg = escHtml(String(latestText || '').slice(0, 500)) || '(opened live chat)';
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
+<body style="margin:0;background:#f4f4f4;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:28px 0;"><tr><td align="center">
+<table width="560" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08);">
+<tr><td style="background:#080b0e;padding:24px 32px;">
+<div style="font-size:1.3rem;font-weight:800;color:#fff;"><span style="color:#00c8b4;">C</span> Design</div>
+<div style="color:#9aa5b4;font-size:.85rem;margin-top:3px;">New live chat message &middot; conversation #${convo.num}</div>
+</td></tr>
+<tr><td style="padding:28px 32px;">
+<div style="font-size:1.05rem;font-weight:700;color:#080b0e;margin-bottom:6px;">${who}${contact ? ' &middot; ' + contact : ''}</div>
+${loc ? `<div style="font-size:.85rem;color:#6a7585;margin-bottom:16px;">${escHtml(loc)}</div>` : ''}
+<div style="background:#f0fffe;border-left:4px solid #00c8b4;border-radius:0 8px 8px 0;padding:16px 20px;font-size:1rem;color:#22303a;line-height:1.55;">${msg}</div>
+<div style="text-align:center;margin-top:26px;">
+<a href="${link}" style="display:inline-block;background:#00c8b4;font-weight:700;font-size:.95rem;padding:14px 30px;border-radius:8px;text-decoration:none;color:#04231f;">Reply now &rarr;</a>
+</div>
+<div style="font-size:.82rem;color:#8b94a3;text-align:center;margin-top:16px;">Someone is waiting for a reply on your website. Open the chat to answer from your phone, tablet or computer.</div>
+</td></tr></table></td></tr></table></body></html>`;
+    await sendEmail(env, { to, subject: `\u{1F4AC} New chat from ${v.name || 'a visitor'} — C Design`, html });
+  } catch (e) { /* never break chat on notify failure */ }
+}
+
 async function sendBookingNotification(booking, env) {
   const html = `
 <!DOCTYPE html><html><head><meta charset="UTF-8"></head>
@@ -3038,6 +3118,34 @@ export default {
       if (!allowed) return json({ reply: "You've sent a lot of messages — please try again a little later, or use the contact form to reach us directly." }, 200, request);
       try {
         const body = await request.json().catch(() => ({}));
+        // If this conversation has been handed over to a human, route the
+        // message to the owner instead of the AI (never overwrite live history).
+        const peekCid = String(body.cid || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40);
+        if (peekCid) {
+          try {
+            const peekRaw = await env.PROGRAMARI.get('chatlog_' + peekCid);
+            if (peekRaw) {
+              const peek = JSON.parse(peekRaw);
+              if (peek && peek.mode === 'live') {
+                const arr = Array.isArray(body.messages) ? body.messages : [];
+                const lastUser = [...arr].reverse().find(m => m && m.role === 'user' && typeof m.content === 'string');
+                const text = lastUser ? lastUser.content.slice(0, 2000).trim() : '';
+                peek.messages = peek.messages || [];
+                if (text) { peek.messages.push({ role: 'user', content: text, ts: Date.now() }); peek.ownerUnread = (peek.ownerUnread || 0) + 1; }
+                peek.updated = new Date().toISOString();
+                peek.count = peek.messages.length;
+                await env.PROGRAMARI.put('chatlog_' + peekCid, JSON.stringify(peek));
+                await chatIndexPut(env, peek, text || 'Live chat');
+                try {
+                  const lastRaw = await env.PROGRAMARI.get('chatnotif_' + peekCid);
+                  const last = lastRaw ? parseInt(lastRaw, 10) : 0;
+                  if (Date.now() - last > 120000) { await notifyOwnerLiveChat(env, peek, text); await env.PROGRAMARI.put('chatnotif_' + peekCid, String(Date.now()), { expirationTtl: 3600 }); }
+                } catch {}
+                return json({ reply: null, live: true }, 200, request);
+              }
+            }
+          } catch {}
+        }
         let history = Array.isArray(body.messages) ? body.messages : [];
         // sanitise: keep only role/content, last 8 turns, cap length
         history = history
@@ -3156,7 +3264,10 @@ export default {
             started: (existing && existing.started) || now,
             updated: now,
             messages: full,
-            count: full.length
+            count: full.length,
+            mode: (existing && existing.mode) || 'ai',
+            ownerUnread: (existing && existing.ownerUnread) || 0,
+            visitor: (existing && existing.visitor) || {}
           };
           await env.PROGRAMARI.put(key, JSON.stringify(convo));
           // Maintain a lightweight index (newest first, capped).
@@ -3172,7 +3283,10 @@ export default {
             started: convo.started,
             updated: convo.updated,
             count: convo.count,
-            preview: (firstUser ? firstUser.content : '').slice(0, 120)
+            preview: (firstUser ? firstUser.content : '').slice(0, 120),
+            mode: convo.mode || 'ai',
+            ownerUnread: convo.ownerUnread || 0,
+            visitor: convo.visitor || null
           });
           await env.PROGRAMARI.put('__chatlogs__', JSON.stringify(idx.slice(0, 400)));
         } catch (e) { /* logging must never break the chat reply */ }
@@ -3181,6 +3295,128 @@ export default {
       } catch {
         return json({ reply: 'Something went wrong. Please use the contact form and we\'ll get right back to you.' }, 200, request);
       }
+    }
+
+    // ── LIVE CHAT (human handover: visitor ⇄ owner) ────────────
+
+    // Visitor asks for / talks to a human. Switches the conversation to live
+    // mode, stores the message and notifies the owner (email now, push added later).
+    if (path === '/api/chat/human' && request.method === 'POST') {
+      const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+      const allowed = await checkRateLimit(env, 'chathuman_' + ip, 40, 3600);
+      if (!allowed) return json({ ok: false, error: 'Too many messages — please try again a little later.' }, 429, request);
+      try {
+        const body = await request.json().catch(() => ({}));
+        let cid = String(body.cid || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40);
+        if (!cid) cid = 'c_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+        const text = String(body.message || '').slice(0, 2000).trim();
+        const name = String(body.name || '').slice(0, 80).trim();
+        const contact = String(body.contact || '').slice(0, 120).trim();
+        const key = 'chatlog_' + cid;
+        const existingRaw = await env.PROGRAMARI.get(key);
+        const wasLive = existingRaw ? (JSON.parse(existingRaw).mode === 'live') : false;
+        let convo = existingRaw ? JSON.parse(existingRaw) : await chatNewConversation(env, cid, request, 'live');
+        convo.mode = 'live';
+        convo.visitor = convo.visitor || {};
+        if (name) convo.visitor.name = name;
+        if (contact) convo.visitor.contact = contact;
+        const hadUnread = (convo.ownerUnread || 0) > 0;
+        if (text) {
+          convo.messages = convo.messages || [];
+          convo.messages.push({ role: 'user', content: text, ts: Date.now() });
+          convo.ownerUnread = (convo.ownerUnread || 0) + 1;
+        }
+        convo.updated = new Date().toISOString();
+        convo.count = (convo.messages || []).length;
+        await env.PROGRAMARI.put(key, JSON.stringify(convo));
+        const firstUser = (convo.messages || []).find(m => m.role === 'user');
+        await chatIndexPut(env, convo, text || (firstUser && firstUser.content) || 'Live chat request');
+        // Notify: on first handover, or a fresh ping after the owner had caught up; throttle otherwise.
+        try {
+          const lastRaw = await env.PROGRAMARI.get('chatnotif_' + cid);
+          const last = lastRaw ? parseInt(lastRaw, 10) : 0;
+          if (!wasLive || !hadUnread || (Date.now() - last > 120000)) {
+            await notifyOwnerLiveChat(env, convo, text);
+            await env.PROGRAMARI.put('chatnotif_' + cid, String(Date.now()), { expirationTtl: 3600 });
+          }
+        } catch {}
+        return json({ ok: true, cid, count: convo.count, mode: 'live' }, 200, request);
+      } catch { return json({ ok: false, error: 'Server error' }, 500, request); }
+    }
+
+    // Visitor polls for new owner / assistant messages since index `since`.
+    if (path === '/api/chat/updates' && request.method === 'GET') {
+      const cid = String(url.searchParams.get('cid') || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40);
+      const since = Math.max(0, parseInt(url.searchParams.get('since') || '0', 10) || 0);
+      const full = url.searchParams.get('full') === '1'; // include the visitor's own messages (used to restore the thread after a reload)
+      if (!cid) return json({ messages: [], count: 0, mode: 'ai' }, 200, request);
+      try {
+        const raw = await env.PROGRAMARI.get('chatlog_' + cid);
+        if (!raw) return json({ messages: [], count: 0, mode: 'ai' }, 200, request);
+        const convo = JSON.parse(raw);
+        const msgs = convo.messages || [];
+        const out = [];
+        for (let i = since; i < msgs.length; i++) {
+          const m = msgs[i];
+          if (!m) continue;
+          if (m.role === 'owner' || m.role === 'assistant' || (full && m.role === 'user')) out.push({ idx: i, role: m.role, content: m.content, ts: m.ts || null });
+        }
+        return json({ messages: out, count: msgs.length, mode: convo.mode || 'ai' }, 200, request);
+      } catch { return json({ messages: [], count: 0, mode: 'ai' }, 200, request); }
+    }
+
+    // Owner sends a reply into a conversation (authed).
+    if (path === '/api/chat/reply' && request.method === 'POST') {
+      if (!can(authed, 'chat')) return json({ error: 'Unauthorised' }, 401, request);
+      try {
+        const body = await request.json().catch(() => ({}));
+        const cid = String(body.cid || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40);
+        const text = String(body.text || '').slice(0, 2000).trim();
+        if (!cid || !text) return json({ error: 'Missing conversation or message.' }, 400, request);
+        const key = 'chatlog_' + cid;
+        const raw = await env.PROGRAMARI.get(key);
+        if (!raw) return json({ error: 'Conversation not found.' }, 404, request);
+        const convo = JSON.parse(raw);
+        convo.messages = convo.messages || [];
+        convo.messages.push({ role: 'owner', content: text, ts: Date.now(), by: authed.username || authed.role || 'team' });
+        convo.mode = 'live';
+        convo.ownerUnread = 0;
+        convo.updated = new Date().toISOString();
+        convo.count = convo.messages.length;
+        await env.PROGRAMARI.put(key, JSON.stringify(convo));
+        await chatIndexPut(env, convo, text);
+        return json({ ok: true, count: convo.count }, 200, request);
+      } catch { return json({ error: 'Server error' }, 500, request); }
+    }
+
+    // Owner marks a conversation as read (clears the unread badge).
+    if (path === '/api/chat/read' && request.method === 'POST') {
+      if (!can(authed, 'chat')) return json({ error: 'Unauthorised' }, 401, request);
+      try {
+        const body = await request.json().catch(() => ({}));
+        const cid = String(body.cid || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40);
+        if (!cid) return json({ error: 'Missing conversation.' }, 400, request);
+        const key = 'chatlog_' + cid;
+        const raw = await env.PROGRAMARI.get(key);
+        if (!raw) return json({ ok: true }, 200, request);
+        const convo = JSON.parse(raw);
+        convo.ownerUnread = 0;
+        await env.PROGRAMARI.put(key, JSON.stringify(convo));
+        await chatIndexPut(env, convo, (convo.messages && convo.messages.length ? convo.messages[convo.messages.length - 1].content : ''));
+        return json({ ok: true }, 200, request);
+      } catch { return json({ error: 'Server error' }, 500, request); }
+    }
+
+    // Total unread across conversations (for the app badge / notifications).
+    if (path === '/api/chat/unread-count' && request.method === 'GET') {
+      if (!can(authed, 'chat')) return json({ count: 0, live: 0 }, 200, request);
+      try {
+        const raw = await env.PROGRAMARI.get('__chatlogs__');
+        const idx = raw ? JSON.parse(raw) : [];
+        const count = idx.reduce((a, x) => a + (x.ownerUnread || 0), 0);
+        const live = idx.filter(x => x.mode === 'live').length;
+        return json({ count, live }, 200, request);
+      } catch { return json({ count: 0, live: 0 }, 200, request); }
     }
 
     // ── CHAT LOGS (admin) ─────────────────────────────────────
