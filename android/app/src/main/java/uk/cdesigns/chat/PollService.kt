@@ -1,5 +1,7 @@
 package uk.cdesigns.chat
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
@@ -79,6 +81,22 @@ class PollService : Service() {
                 Prefs.setSeenIds(this, "booking", seen)
             }
         } catch (e: Exception) { /* bookings perm may be missing, or transient */ }
+    }
+
+    // When the user swipes the app away from recents, schedule a quick restart
+    // so background notifications keep working.
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        if (Prefs.token(this).isNotEmpty()) {
+            try {
+                val restart = PendingIntent.getService(
+                    this, 1, Intent(this, PollService::class.java),
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT
+                )
+                val am = getSystemService(AlarmManager::class.java)
+                am.set(AlarmManager.RTC, System.currentTimeMillis() + 1500, restart)
+            } catch (e: Exception) { /* best effort */ }
+        }
+        super.onTaskRemoved(rootIntent)
     }
 
     override fun onDestroy() {

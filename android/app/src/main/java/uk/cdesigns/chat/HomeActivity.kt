@@ -3,10 +3,14 @@ package uk.cdesigns.chat
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import uk.cdesigns.chat.databinding.ActivityHomeBinding
@@ -35,6 +39,7 @@ class HomeActivity : AppCompatActivity() {
 
         askNotifPermission()
         ChatSync.startService(this)
+        ensureBackgroundAllowed()
 
         // A notification tap can route straight to a conversation.
         val cid = intent?.getStringExtra("cid")
@@ -60,6 +65,31 @@ class HomeActivity : AppCompatActivity() {
                     else b.chatBadge.visibility = View.GONE
                 }
             } catch (e: Exception) { /* ignore */ }
+        }
+    }
+
+    // Ask (once) to be excluded from battery optimisation so the app keeps
+    // running and notifying even after the window is closed.
+    private fun ensureBackgroundAllowed() {
+        try {
+            val pm = getSystemService(PowerManager::class.java)
+            if (pm != null && !pm.isIgnoringBatteryOptimizations(packageName) && !Prefs.askedBattery(this)) {
+                Prefs.setAskedBattery(this)
+                AlertDialog.Builder(this)
+                    .setTitle("Keep chat running")
+                    .setMessage("To receive messages and bookings even when the app is closed, allow it to run in the background (ignore battery optimisation).")
+                    .setPositiveButton("Allow") { _, _ -> openBatterySettings() }
+                    .setNegativeButton("Later", null)
+                    .show()
+            }
+        } catch (e: Exception) { /* ignore */ }
+    }
+
+    private fun openBatterySettings() {
+        try {
+            startActivity(Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:$packageName")))
+        } catch (e: Exception) {
+            try { startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)) } catch (e2: Exception) {}
         }
     }
 
