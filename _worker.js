@@ -3181,10 +3181,10 @@ export default {
         const givBlock = givPublished
           ? `FREE WEBSITE GIVEAWAY (mention when a visitor is just browsing, hesitant about budget, or likes the idea of a free site): we run a free-to-enter giveaway at /giveaway — one entrant wins a complete free website, and every entrant also gets ${givPct}% off their first project. `
           : '';
-        let figures = 'websites start from £300; the £200 all-in Launch Package';
+        let figures = 'websites start from £300; the £200 all-in Launch Package; the Complete Digitisation package from £2,900 one-off plus £199/month';
         if (refPublished) figures += `; referral rewards of ${refrPct}% off for the referrer and ${friPct}% off for their friend`;
         if (givPublished) figures += `; and the giveaway's ${givPct}% off for every entrant`;
-        let encourage = 'Encourage them to claim the £200 offer (/promo)';
+        let encourage = 'Encourage them to claim the £200 offer (/promo), consider the Complete Digitisation package (/complete-digitisation)';
         if (givPublished) encourage += ', enter the free giveaway (/giveaway)';
         if (refPublished) encourage += ', refer a friend (/referral)';
         encourage += ', request a free quote (/pricing), or contact us (phone +44 7312 799449, email office@c-designs.uk, or the contact form). ';
@@ -3192,6 +3192,7 @@ export default {
           "About C Design: we build modern, fast websites and web apps for small and growing UK businesses, with honest, fixed pricing (websites start from £300) and most projects live in days, not weeks. Our website is c-designs.uk. " +
           "Services: Website Design, E-commerce (WooCommerce, Shopify, PrestaShop), Custom Web Apps (CRM, WordPress plugins), AI Integration & Automation, Maintenance & Hosting, SEO & Local SEO, Social Media, Branding & Logo. We serve the whole UK, with local pages for Leeds, Sheffield, Nottingham, Derby, Blackburn and Preston. " +
           "SPECIAL LAUNCH OFFER (mention this proactively when a visitor is a small business, is new online, or asks about getting started, prices, or a package): our £200 all-in Launch Package gets a business fully online for one price — a presentation website (up to 5 pages, mobile-friendly), SEO setup so they're found on Google, a Google Business Profile set up (Google Maps & local search), plus Instagram & Facebook accounts created and branded. Everything is done for them, no hidden fees, and it goes live in days. Point them to the offer page at /promo where they can claim it. " +
+          "COMPLETE DIGITISATION PACKAGE (mention when a visitor wants everything done for them, asks for a full/complete solution, or wants their whole business online end-to-end): our Complete Business Digitisation package does it all in one — website, domain & business email, Google Business Profile & local SEO, logo & branding, Facebook & Instagram setup, online booking, WhatsApp & automations, plus hosting, maintenance and support. It's £2,900 one-off setup plus £199/month for the ongoing hosting, care and support. Point them to /complete-digitisation for full details. " +
           refBlock +
           givBlock +
           "Social proof: happy clients have left reviews — visitors can read them on the homepage. " +
