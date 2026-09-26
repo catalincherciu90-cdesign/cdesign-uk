@@ -2642,10 +2642,9 @@ export default {
       return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
     }
 
-    if (path === '/promo' || path === '/promo/') {
-      const assetUrl = new URL(request.url);
-      assetUrl.pathname = '/promo.html';
-      return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
+    // £200 Launch Offer retired — send any old links/ads to the current package.
+    if (path === '/promo' || path === '/promo/' || path === '/promo.html') {
+      return Response.redirect('https://c-designs.uk/complete-digitisation', 301);
     }
 
     if (path === '/referral' || path === '/referral/') {
@@ -3181,17 +3180,16 @@ export default {
         const givBlock = givPublished
           ? `FREE WEBSITE GIVEAWAY (mention when a visitor is just browsing, hesitant about budget, or likes the idea of a free site): we run a free-to-enter giveaway at /giveaway — one entrant wins a complete free website, and every entrant also gets ${givPct}% off their first project. `
           : '';
-        let figures = 'websites start from £300; the £200 all-in Launch Package; the Complete Digitisation package from £2,900 one-off plus £199/month';
+        let figures = 'websites start from £300; the Complete Digitisation package from £2,900 one-off plus £199/month';
         if (refPublished) figures += `; referral rewards of ${refrPct}% off for the referrer and ${friPct}% off for their friend`;
         if (givPublished) figures += `; and the giveaway's ${givPct}% off for every entrant`;
-        let encourage = 'Encourage them to claim the £200 offer (/promo), consider the Complete Digitisation package (/complete-digitisation)';
+        let encourage = 'Encourage them to consider the Complete Digitisation package (/complete-digitisation)';
         if (givPublished) encourage += ', enter the free giveaway (/giveaway)';
         if (refPublished) encourage += ', refer a friend (/referral)';
         encourage += ', request a free quote (/pricing), or contact us (phone +44 7312 799449, email office@c-designs.uk, or the contact form). ';
         const system = "You are the friendly assistant for C Design, a UK web design studio. You help website visitors. " +
           "About C Design: we build modern, fast websites and web apps for small and growing UK businesses, with honest, fixed pricing (websites start from £300) and most projects live in days, not weeks. Our website is c-designs.uk. " +
           "Services: Website Design, E-commerce (WooCommerce, Shopify, PrestaShop), Custom Web Apps (CRM, WordPress plugins), AI Integration & Automation, Maintenance & Hosting, SEO & Local SEO, Social Media, Branding & Logo. We serve the whole UK, with local pages for Leeds, Sheffield, Nottingham, Derby, Blackburn and Preston. " +
-          "SPECIAL LAUNCH OFFER (mention this proactively when a visitor is a small business, is new online, or asks about getting started, prices, or a package): our £200 all-in Launch Package gets a business fully online for one price — a presentation website (up to 5 pages, mobile-friendly), SEO setup so they're found on Google, a Google Business Profile set up (Google Maps & local search), plus Instagram & Facebook accounts created and branded. Everything is done for them, no hidden fees, and it goes live in days. Point them to the offer page at /promo where they can claim it. " +
           "COMPLETE DIGITISATION PACKAGE (mention when a visitor wants everything done for them, asks for a full/complete solution, or wants their whole business online end-to-end): our Complete Business Digitisation package does it all in one — website, domain & business email, Google Business Profile & local SEO, logo & branding, Facebook & Instagram setup, online booking, WhatsApp & automations, plus hosting, maintenance and support. It starts from £2,900 one-off setup plus £199/month for the ongoing hosting, care and support, and the final price depends on the business (pages, features and level of support). Point them to /complete-digitisation for full details. " +
           refBlock +
           givBlock +
@@ -3481,7 +3479,7 @@ export default {
         const platform = String(body.platform || '').slice(0, 40);
         if (!input.trim()) return json({ error: 'Please provide some input.' }, 400, request);
 
-        const brand = 'C Design is a UK web design studio: modern fast websites & web apps, e-commerce (WooCommerce, Shopify, PrestaShop), custom web apps, AI integration, SEO, social media and branding. Honest fixed pricing — websites from £300, plus a £200 all-in Launch Package (website + SEO + Google Business Profile + social) — most projects live in days, not weeks. Website c-designs.uk, email office@c-designs.uk, phone +44 7312 799449. British English spelling. Use £ for money.';
+        const brand = 'C Design is a UK web design studio: modern fast websites & web apps, e-commerce (WooCommerce, Shopify, PrestaShop), custom web apps, AI integration, SEO, social media and branding. Honest fixed pricing — websites from £300, plus a Complete Business Digitisation package (website, domain & email, Google, branding, social, booking & automations, from £2,900 + £199/month) — most projects live in days, not weeks. Website c-designs.uk, email office@c-designs.uk, phone +44 7312 799449. British English spelling. Use £ for money.';
         let section = '', system = '', user = '', maxTokens = 700;
 
         if (task === 'reply') {

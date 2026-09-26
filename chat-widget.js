@@ -13,7 +13,7 @@
   } catch (e) {}
 
   var SUGGESTIONS = [
-    "Tell me about the £200 offer",
+    'Tell me about the Complete Digitisation package',
     'What services do you offer?',
     'How much does a website cost?',
     'How long does a project take?',
